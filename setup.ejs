@@ -1089,47 +1089,50 @@ Meta広告レポートツールの設定が完了しました。
         }
     </script>
     <script>
-// 緊急修正：すべての既存JavaScriptによるフォーム送信制御を無効化し、シンプルな送信のみ許可
-window.addEventListener('load', function() {
-  // プログレス関連・自動遷移を無効化
-  if (typeof showSetupCompleteMessage === 'function') {
-    window.showSetupCompleteMessage = function() {};
-  }
-  if (typeof handleSetupCompletion === 'function') {
-    window.handleSetupCompletion = function() {};
-  }
-  // 既存のsubmitイベントを解除し、シンプルな送信処理に上書き
+document.addEventListener('DOMContentLoaded', function() {
   const form = document.querySelector('form[action="/save-setup"]');
-  if (form) {
-    form.onsubmit = null;
-    form.addEventListener('submit', function(e) {
-      console.log('Simple form submit');
-      // 必須フィールドのみチェック
-      const metaToken = this.querySelector('input[name="metaAccessToken"]').value;
-      const metaAccount = this.querySelector('input[name="metaAccountId"]').value;
-      const chatworkToken = this.querySelector('input[name="chatworkApiToken"]').value;
-      const chatworkRoom = this.querySelector('input[name="chatworkRoomId"]').value;
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (form && submitBtn) {
+    // 既存の複雑な制御を上書き
+    const newForm = form.cloneNode(true);
+    form.parentNode.replaceChild(newForm, form);
+    // シンプルな送信処理に置き換え
+    newForm.addEventListener('submit', function(e) {
+      const metaToken = this.querySelector('input[name="metaAccessToken"]').value.trim();
+      const metaAccount = this.querySelector('input[name="metaAccountId"]').value.trim();
+      const chatworkToken = this.querySelector('input[name="chatworkApiToken"]').value.trim();
+      const chatworkRoom = this.querySelector('input[name="chatworkRoomId"]').value.trim();
       if (!metaToken || !metaAccount || !chatworkToken || !chatworkRoom) {
         e.preventDefault();
         alert('すべての項目を入力してください');
         return false;
       }
-      // それ以外は常に送信許可
+      console.log('Form validation passed, submitting...');
       return true;
     });
-    // 送信ボタンを常に有効化
-    setTimeout(function() {
-      const submitBtn = form.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.removeAttribute('disabled');
-        submitBtn.style.opacity = '1';
-        submitBtn.style.cursor = 'pointer';
-        submitBtn.style.pointerEvents = 'auto';
-        console.log('Submit button force enabled');
-      }
-    }, 500);
+    // ボタンを常に有効化
+    const newSubmitBtn = newForm.querySelector('button[type="submit"]');
+    newSubmitBtn.disabled = false;
+    newSubmitBtn.removeAttribute('disabled');
   }
+  // プログレス制御の無効化
+  if (typeof progress !== 'undefined') {
+    progress.percentage = 100;
+  }
+  // showSetupCompleteMessage関数を無効化
+  if (typeof showSetupCompleteMessage === 'function') {
+    window.showSetupCompleteMessage = function() {
+      console.log('Setup complete message triggered');
+    };
+  }
+  // ボタンの強制有効化
+  setTimeout(function() {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.removeAttribute('disabled');
+    }
+  }, 500);
 });
 </script>
 <div style="margin-top: 20px; padding: 10px; border: 2px solid #ff6b6b; background: #ffe0e0; border-radius: 8px;">
