@@ -213,26 +213,27 @@ app.get('/setup', (req, res) => {
 
 // ダッシュボード（設定完了チェック付き）
 app.get('/dashboard', (req, res) => {
+  console.log('Dashboard route accessed');
+  console.log('Session user:', req.session.user);
+  console.log('Session tokens:', {
+    meta: !!req.session.metaAccessToken,
+    chatwork: !!req.session.chatworkApiToken
+  });
   if (!req.session.user) {
+    console.log('No user, redirecting to login');
     return res.redirect('/login');
   }
   if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
+    console.log('Missing API tokens, redirecting to setup');
     return res.redirect('/setup');
   }
-  const metaToken = req.session.metaAccessToken;
-  const chatworkToken = req.session.chatworkApiToken;
-  console.log('Dashboard access with user tokens:', {
-    hasMetaToken: !!metaToken,
-    hasChatworkToken: !!chatworkToken,
-    user: req.session.user?.username
-  });
+  console.log('Rendering dashboard');
   res.render('dashboard', {
     userTokens: {
-      meta: metaToken,
-      chatwork: chatworkToken
+      meta: req.session.metaAccessToken,
+      chatwork: req.session.chatworkApiToken
     },
     user: req.session.user
-    // ...他の既存変数...
   });
 });
 
@@ -1824,12 +1825,22 @@ app.post('/temp-api-setup', (req, res) => {
 
 // Phase 2: セットアップ保存
 app.post('/save-setup', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login');
+  try {
+    console.log('Setup route accessed');
+    console.log('Request body:', req.body);
+    if (!req.session.user) {
+      console.log('No user session, redirecting to login');
+      return res.redirect('/login');
+    }
+    // セッション保存
+    req.session.metaAccessToken = req.body.metaAccessToken;
+    req.session.metaAccountId = req.body.metaAccountId;
+    req.session.chatworkApiToken = req.body.chatworkApiToken;
+    req.session.chatworkRoomId = req.body.chatworkRoomId;
+    console.log('Session updated, redirecting to dashboard');
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error('Setup save error:', error);
+    res.status(500).send('Setup save failed');
   }
-  req.session.metaAccessToken = req.body.metaAccessToken;
-  req.session.metaAccountId = req.body.metaAccountId;
-  req.session.chatworkApiToken = req.body.chatworkApiToken;
-  req.session.chatworkRoomId = req.body.chatworkRoomId;
-  res.redirect('/dashboard');
 });
