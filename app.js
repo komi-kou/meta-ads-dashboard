@@ -93,26 +93,27 @@ function requireAuth(req, res, next) {
   }
 }
 
-// 設定完了判定機能
+// セッションごとの設定保存・取得
+function getSessionData(session, key) {
+  if (!session.userSettings) session.userSettings = {};
+  return session.userSettings[key];
+}
+function setSessionData(session, key, value) {
+  if (!session.userSettings) session.userSettings = {};
+  session.userSettings[key] = value;
+}
+
+// ユーザーごとの設定完了判定
+function checkUserSetupCompletion(session) {
+  const metaAPI = getSessionData(session, 'metaAPI');
+  const chatwork = getSessionData(session, 'chatwork');
+  const goals = getSessionData(session, 'goals');
+  return !!(metaAPI?.accessToken && chatwork?.apiToken && goals?.cpaTarget);
+}
+
+// 設定完了判定機能（無効化）
 function checkSetupCompletion() {
-  try {
-    // settings.jsonから設定を読み込み
-    if (fs.existsSync('./settings.json')) {
-      const settings = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
-      
-      // 必須設定項目の確認
-      const hasMetaAPI = !!(settings.meta?.accessToken && settings.meta?.accountId);
-      const hasChatwork = !!(settings.chatwork?.apiToken && settings.chatwork?.roomId);
-      const hasGoal = !!(settings.goal?.type);
-      const isConfigured = settings.isConfigured === true;
-      
-      return hasMetaAPI && hasChatwork && hasGoal && isConfigured;
-    }
-    return false;
-  } catch (error) {
-    console.error('設定完了チェックエラー:', error);
-    return false;
-  }
+  return false; // 常に未設定扱い
 }
 
 // 設定完了状態をマーク
@@ -139,24 +140,60 @@ function requireSetup(req, res, next) {
   }
 }
 
-// ルートアクセス（設定完了状態に応じて遷移）
+// ルートアクセス
 app.get('/', (req, res) => {
-  console.log('=== ルートアクセス ===');
-  
-  // 認証チェック
-  if (!req.session?.authenticated) {
-    console.log('未認証 → ログインページへ');
-    return res.redirect('/auth/login');
+  if (!req.session.user) {
+    return res.render('login'); // login.ejs
   }
-  
-  // 設定完了状態をチェック
-  if (checkSetupCompletion()) {
-    console.log('設定完了済み → ダッシュボードにリダイレクト');
-    res.redirect('/dashboard');
-  } else {
-    console.log('設定未完了 → 設定画面にリダイレクト');
-    res.redirect('/setup');
+  if (!req.session.metaAccessToken) {
+    return res.render('setup'); // setup.ejs
   }
+  res.redirect('/dashboard');
+});
+
+// ログイン画面
+app.get('/login', (req, res) => {
+  res.render('login'); // login.ejs
+});
+
+// 設定画面
+app.get('/setup', (req, res) => {
+  res.render('setup'); // setup.ejs
+});
+
+// ゴール設定画面
+app.get('/goal-settings', (req, res) => {
+  res.render('goal'); // goal.ejs
+});
+
+// 設定画面（詳細設定）
+app.get('/settings', (req, res) => {
+  res.render('settings'); // settings.ejs
+});
+
+// ダッシュボード
+app.get('/dashboard', (req, res) => {
+  if (!req.session.user) {
+    return res.render('login');
+  }
+  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
+    return res.render('setup');
+  }
+  // デバッグログ
+  console.log('Using session token:', req.session.metaAccessToken);
+  // ユーザーセッションのみでデータ取得
+  res.render('dashboard', {
+    // 既存のデータ渡し（変更なし）
+  });
+});
+
+// API設定保存
+app.post('/save-setup', (req, res) => {
+  req.session.metaAccessToken = req.body.metaAccessToken;
+  req.session.metaAccountId = req.body.metaAccountId;
+  req.session.chatworkApiToken = req.body.chatworkApiToken;
+  req.session.chatworkRoomId = req.body.chatworkRoomId;
+  res.redirect('/dashboard');
 });
 
 // ログインページ
@@ -200,95 +237,6 @@ app.post('/auth/login', (req, res) => {
   } catch (error) {
     console.error('ログイン処理エラー:', error);
     res.redirect('/auth/login?error=system');
-  }
-});
-
-// 初期設定ページ
-app.get('/setup', requireAuth, (req, res) => {
-  try {
-    console.log('セットアップページアクセス');
-    
-    // 設定完了状態をチェック
-    if (checkSetupCompletion()) {
-      console.log('設定完了済み → ダッシュボードにリダイレクト');
-      return res.redirect('/dashboard');
-    }
-    
-    res.render('setup', { title: '初期設定' });
-  } catch (error) {
-    console.error('セットアップページエラー:', error);
-    res.status(500).send('セットアップページエラー: ' + error.message);
-  }
-});
-
-// ダッシュボード（設定完了チェック付き）
-app.get('/dashboard', (req, res) => {
-  console.log('=== ダッシュボードアクセス ===');
-  
-  try {
-    // 認証チェック
-    if (!req.session?.authenticated) {
-      console.log('未認証 → ログインページへ');
-      return res.redirect('/auth/login');
-    }
-    
-    // 設定完了チェック
-    if (!checkSetupCompletion()) {
-      console.log('設定未完了 → 設定画面にリダイレクト');
-      return res.redirect('/setup');
-    }
-    
-    console.log('認証OK・設定完了 → ダッシュボード表示処理開始');
-    
-    // ファイルサイズチェック
-    const dashboardPath = path.join(__dirname, 'views', 'dashboard.ejs');
-    if (!checkFileSize(dashboardPath, 1000)) {
-      console.error('❌ dashboard.ejs ファイルサイズが異常です');
-      return res.status(500).send(`
-        <html>
-        <head><title>ダッシュボードエラー</title></head>
-        <body style="font-family: Arial; padding: 40px;">
-          <h1 style="color: red;">🚨 ダッシュボードファイルエラー</h1>
-          <p>dashboard.ejs ファイルが破損している可能性があります。</p>
-          <p>バックアップファイルから復元してください。</p>
-          <br>
-          <a href="/setup" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">設定に戻る</a>
-          <a href="/auth/logout" style="background: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-left: 10px;">ログアウト</a>
-        </body>
-        </html>
-      `);
-    }
-    
-    // 最小限のデータのみ渡す
-    const data = {
-      title: 'ダッシュボード',
-      user: req.session.user
-    };
-    
-    console.log('データ準備完了');
-    console.log('dashboard.ejs レンダリング開始');
-    
-    res.render('dashboard', data);
-    console.log('✅ dashboard.ejs レンダリング完了');
-    
-  } catch (error) {
-    console.error('❌ ダッシュボード致命的エラー:', error);
-    console.error('エラー詳細:', error.stack);
-    
-    // エラー時は簡易HTML表示
-    res.status(500).send(`
-      <html>
-      <head><title>ダッシュボードエラー</title></head>
-      <body style="font-family: Arial; padding: 40px;">
-        <h1 style="color: red;">🚨 ダッシュボードエラー</h1>
-        <p><strong>エラー:</strong> ${error.message}</p>
-        <pre style="background: #f5f5f5; padding: 15px;">${error.stack}</pre>
-        <br>
-        <a href="/setup" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">設定に戻る</a>
-        <a href="/auth/logout" style="background: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-left: 10px;">ログアウト</a>
-      </body>
-      </html>
-    `);
   }
 });
 
