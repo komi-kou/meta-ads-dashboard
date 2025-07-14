@@ -1825,8 +1825,9 @@ app.post('/temp-api-setup', (req, res) => {
 
 // Phase 2: セットアップ保存
 app.post('/save-setup', (req, res) => {
-  console.log('=== SETUP SAVE START ===');
+  console.log('=== SETUP FORM RECEIVED ===');
   console.log('Request body:', req.body);
+  console.log('Session user:', req.session.user);
   if (!req.session.user) {
     console.log('No user session, redirecting to login');
     return res.redirect('/login');
@@ -1836,7 +1837,7 @@ app.post('/save-setup', (req, res) => {
     req.session.metaAccountId = req.body.metaAccountId;
     req.session.chatworkApiToken = req.body.chatworkApiToken;
     req.session.chatworkRoomId = req.body.chatworkRoomId;
-    console.log('Session updated:', {
+    console.log('Session data saved:', {
       hasMetaToken: !!req.session.metaAccessToken,
       hasMetaAccount: !!req.session.metaAccountId,
       hasChatworkToken: !!req.session.chatworkApiToken,
@@ -1845,20 +1846,19 @@ app.post('/save-setup', (req, res) => {
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
-        return res.status(500).send('Session save failed');
+        return res.status(500).json({ error: 'Session save failed' });
       }
       console.log('Session saved successfully, redirecting to dashboard');
       res.redirect('/dashboard');
     });
   } catch (error) {
     console.error('Setup save error:', error);
-    res.status(500).send('Setup save failed');
+    res.status(500).json({ error: 'Setup failed: ' + error.message });
   }
 });
 
-// GET版のセットアップ保存（超簡単送信ボタン用）
 app.get('/save-setup-get', (req, res) => {
-  console.log('=== GET SETUP SAVE START ===');
+  console.log('=== GET SETUP BACKUP ===');
   console.log('Query params:', req.query);
   if (!req.session.user) {
     return res.redirect('/login');
@@ -1868,16 +1868,10 @@ app.get('/save-setup-get', (req, res) => {
     req.session.metaAccountId = req.query.metaAccountId;
     req.session.chatworkApiToken = req.query.chatworkApiToken;
     req.session.chatworkRoomId = req.query.chatworkRoomId;
-    req.session.save((err) => {
-      if (err) {
-        console.error('GET session save error:', err);
-        return res.status(500).send('Session save failed');
-      }
-      console.log('GET session saved successfully');
-      res.redirect('/dashboard');
-    });
+    console.log('GET session saved, redirecting to dashboard');
+    res.redirect('/dashboard');
   } catch (error) {
-    console.error('GET setup save error:', error);
-    res.status(500).send('GET setup save failed');
+    console.error('GET setup error:', error);
+    res.status(500).send('GET setup failed');
   }
 });

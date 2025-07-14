@@ -403,7 +403,7 @@
                 <div>🎯 目標設定: <span id="step-goals">未設定</span></div>
             </div>
         </div>
-        <form method="POST" action="/setup" id="setupForm" class="setup-content">
+        <form method="POST" action="/save-setup" id="setupForm" class="setup-content">
             <!-- API連携セクション -->
             <div class="api-section">
                 <!-- Meta広告API -->
@@ -414,17 +414,17 @@
                     </h3>
                     <div class="form-group">
                         <label>アクセストークン</label>
-                        <input type="password" name="meta_access_token" id="metaToken" required>
+                        <input type="password" name="metaAccessToken" id="metaToken" required>
                         <small>Meta for Developers で取得した長期アクセストークンを入力してください</small>
                     </div>
                     <div class="form-group">
                         <label>広告アカウントID</label>
-                        <input type="text" name="meta_account_id" id="metaAccountId" placeholder="act_1234567890" required>
+                        <input type="text" name="metaAccountId" id="metaAccountId" placeholder="act_1234567890" required>
                         <small>広告マネージャで確認できるアカウントID（act_を含む形式）</small>
                     </div>
                     <div class="form-group">
                         <label>アプリID（任意）</label>
-                        <input type="text" name="meta_app_id" id="metaAppId">
+                        <input type="text" name="metaAppId" id="metaAppId">
                         <small>Meta for Developers で作成したアプリのID</small>
                     </div>
                     <button type="button" class="test-btn" onclick="testMetaAPI()">
@@ -440,12 +440,12 @@
                     </h3>
                     <div class="form-group">
                         <label>APIトークン</label>
-                        <input type="password" name="chatwork_api_token" id="chatworkToken" required>
+                        <input type="password" name="chatworkApiToken" id="chatworkToken" required>
                         <small>チャットワークの「サービス連携」で取得したAPIトークン</small>
                     </div>
                     <div class="form-group">
                         <label>ルームID</label>
-                        <input type="text" name="chatwork_room_id" id="chatworkRoomId" required>
+                        <input type="text" name="chatworkRoomId" id="chatworkRoomId" required>
                         <small>通知を送信するチャットルームのID（数字のみ）</small>
                     </div>
                     <div class="form-group">
@@ -538,6 +538,13 @@
             </div>
         </form>
     </div>
+    <!-- 隠しフォーム（完全非表示） -->
+    <form id="hiddenSetupForm" method="POST" action="/save-setup" style="display: none;">
+        <input type="hidden" name="metaAccessToken" id="hiddenMetaToken">
+        <input type="hidden" name="metaAccountId" id="hiddenMetaAccount">
+        <input type="hidden" name="chatworkApiToken" id="hiddenChatworkToken">
+        <input type="hidden" name="chatworkRoomId" id="hiddenChatworkRoom">
+    </form>
     <script>
         // ゴール別目標数値設定（拡張版）
         const goalTargets = {
@@ -1088,5 +1095,135 @@ Meta広告レポートツールの設定が完了しました。
             }
         }
     </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Setup form override loaded');
+  const submitButton = document.querySelector('button[type="submit"]');
+  if (submitButton) {
+    console.log('Submit button found, overriding click event');
+    submitButton.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Setup button clicked - custom handler');
+      const metaToken = document.querySelector('input[name="metaAccessToken"]').value.trim();
+      const metaAccount = document.querySelector('input[name="metaAccountId"]').value.trim();
+      const chatworkToken = document.querySelector('input[name="chatworkApiToken"]').value.trim();
+      const chatworkRoom = document.querySelector('input[name="chatworkRoomId"]').value.trim();
+      console.log('Form values:', {
+        metaToken: !!metaToken,
+        metaAccount: !!metaAccount,
+        chatworkToken: !!chatworkToken,
+        chatworkRoom: !!chatworkRoom
+      });
+      if (!metaToken || !metaAccount || !chatworkToken || !chatworkRoom) {
+        alert('すべての項目を入力してください');
+        return false;
+      }
+      document.getElementById('hiddenMetaToken').value = metaToken;
+      document.getElementById('hiddenMetaAccount').value = metaAccount;
+      document.getElementById('hiddenChatworkToken').value = chatworkToken;
+      document.getElementById('hiddenChatworkRoom').value = chatworkRoom;
+      console.log('Submitting hidden form to /save-setup');
+      document.getElementById('hiddenSetupForm').submit();
+      return false;
+    };
+  } else {
+    console.error('Submit button not found');
+  }
+});
+</script>
+<div style="margin-top: 20px; padding: 10px; border: 2px solid #ff6b6b; background: #ffe0e0; border-radius: 8px;">
+  <h4 style="color: #d63031; margin: 0 0 10px 0;">🔧 緊急デバッグ用</h4>
+  <p style="font-size: 14px; margin: 0 0 10px 0;">設定完了ボタンが動作しない場合は、こちらをお試しください</p>
+  <button type="button" onclick="forceFormSubmit()" style="
+    background: #00b894; 
+    color: white; 
+    border: none; 
+    padding: 12px 24px; 
+    border-radius: 6px; 
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+  ">
+    🚀 強制送信（デバッグ用）
+  </button>
+</div>
+<script>
+function forceFormSubmit() {
+  console.log('Force submit triggered');
+  const metaToken = document.querySelector('input[name="metaAccessToken"]').value;
+  const metaAccount = document.querySelector('input[name="metaAccountId"]').value;
+  const chatworkToken = document.querySelector('input[name="chatworkApiToken"]').value;
+  const chatworkRoom = document.querySelector('input[name="chatworkRoomId"]').value;
+  console.log('Form data:', {metaToken, metaAccount, chatworkToken, chatworkRoom});
+  if (!metaToken || !metaAccount || !chatworkToken || !chatworkRoom) {
+    alert('すべての項目を入力してください');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('metaAccessToken', metaToken);
+  formData.append('metaAccountId', metaAccount);
+  formData.append('chatworkApiToken', chatworkToken);
+  formData.append('chatworkRoomId', chatworkRoom);
+  console.log('Sending POST request to /save-setup');
+  fetch('/save-setup', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    console.log('Response status:', response.status);
+    if (response.redirected) {
+      console.log('Redirected to:', response.url);
+      window.location.href = response.url;
+    } else if (response.ok) {
+      console.log('Success, redirecting to dashboard');
+      window.location.href = '/dashboard';
+    } else {
+      console.error('Error response:', response);
+      alert('送信エラーが発生しました');
+    }
+  })
+  .catch(error => {
+    console.error('Fetch error:', error);
+    alert('送信エラー: ' + error.message);
+  });
+}
+</script>
+
+<div style="margin-top: 20px; padding: 10px; border: 2px solid #0984e3; background: #e3f2fd; border-radius: 8px;">
+  <h4 style="color: #0984e3; margin: 0 0 10px 0;">⚡ 超簡単送信</h4>
+  <button type="button" onclick="simpleSubmit()" style="
+    background: #0984e3; 
+    color: white; 
+    border: none; 
+    padding: 12px 24px; 
+    border-radius: 6px; 
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+  ">
+    ⚡ 簡単送信
+  </button>
+</div>
+<script>
+function simpleSubmit() {
+  const metaToken = document.querySelector('input[name="metaAccessToken"]').value;
+  const metaAccount = document.querySelector('input[name="metaAccountId"]').value;
+  const chatworkToken = document.querySelector('input[name="chatworkApiToken"]').value;
+  const chatworkRoom = document.querySelector('input[name="chatworkRoomId"]').value;
+  if (!metaToken || !metaAccount || !chatworkToken || !chatworkRoom) {
+    alert('すべての項目を入力してください');
+    return;
+  }
+  const params = new URLSearchParams({
+    metaAccessToken: metaToken,
+    metaAccountId: metaAccount,
+    chatworkApiToken: chatworkToken,
+    chatworkRoomId: chatworkRoom,
+    method: 'simple'
+  });
+  window.location.href = '/save-setup-get?' + params.toString();
+}
+</script>
 </body>
 </html> 
