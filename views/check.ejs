@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>API連携テスト | Meta広告レポート</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { display: flex; min-height: 100vh; margin: 0; }
+    .side-menu {
+      width: 220px;
+      background: #232e5c;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .side-menu h2 {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin: 1.5em 0 1em 1.2em;
+      color: #7b6cff;
+    }
+    .side-menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .side-menu li {
+      padding: 1em 1.5em;
+      cursor: pointer;
+      font-size: 1.1em;
+      border-left: 4px solid transparent;
+      transition: background 0.2s, border 0.2s;
+    }
+    .side-menu li.active, .side-menu li:hover {
+      background: #1a2240;
+      border-left: 4px solid #7b6cff;
+      color: #7b6cff;
+    }
+    .main-content {
+      flex: 1;
+      background: #f4f7fb;
+      padding: 40px 32px 32px 32px;
+      min-height: 100vh;
+    }
+    .test-section {
+      background: #f7f6fd;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border-left: 4px solid #7b6cff;
+    }
+    .test-success {
+      border-left-color: #4caf50;
+      background: #f1f8e9;
+    }
+    .test-error {
+      border-left-color: #f44336;
+      background: #ffebee;
+    }
+    .test-result {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .test-success .test-result {
+      color: #4caf50;
+    }
+    .test-error .test-result {
+      color: #f44336;
+    }
+    .test-data {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+      font-family: monospace;
+      font-size: 0.9em;
+      overflow-x: auto;
+    }
+    .refresh-btn {
+      background: #7b6cff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-bottom: 20px;
+    }
+    .refresh-btn:hover {
+      background: #6a5acd;
+    }
+    
+    /* 確認事項ページ用スタイル */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .chatwork-send-btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1em;
+    }
+    
+    .chatwork-send-btn:hover:not(:disabled) {
+      background-color: #2563eb;
+    }
+    
+    .chatwork-send-btn:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .alert-summary {
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .alert-item {
+      display: flex;
+      gap: 15px;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: white;
+      border-radius: 6px;
+    }
+    
+    .alert-metric {
+      font-weight: 600;
+      color: #dc2626;
+      min-width: 80px;
+    }
+    
+    .checklist-items {
+      background-color: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .checklist-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background-color: #fafafa;
+    }
+    
+    .item-header {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .priority-badge {
+      background-color: #ef4444;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .metric-badge {
+      background-color: #3b82f6;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .item-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 10px;
+    }
+    
+    .item-description {
+      color: #6b7280;
+      line-height: 1.6;
+      margin: 0;
+    }
+    
+    .no-checklist {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+      font-size: 1.1em;
+    }
+    
+    /* レスポンシブ対応 */
+    @media (max-width: 900px) {
+      .page-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      
+      .chatwork-send-btn {
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      .alert-item {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .item-header {
+        flex-wrap: wrap;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .page-header h1 {
+        font-size: 1.5em !important;
+      }
+      
+      .alert-summary,
+      .checklist-items {
+        padding: 15px;
+      }
+      
+      .checklist-item {
+        padding: 15px;
+      }
+      
+      .item-title {
+        font-size: 14px;
+      }
+      
+      .item-description {
+        font-size: 13px;
+      }
+    }
+    @media (max-width: 900px) {
+      .side-menu {
+        width: 100vw;
+        height: auto;
+        min-height: unset;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 2px 8px rgba(123,108,255,0.08);
+        padding: 0 0.5em;
+      }
+      .side-menu h2 {
+        display: none;
+      }
+      .side-menu ul {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        overflow-x: auto;
+        gap: 0.2em;
+      }
+      .side-menu li {
+        font-size: 0.95em;
+        padding: 0.7em 1em;
+        border-left: none;
+        border-bottom: 4px solid transparent;
+        border-radius: 0 0 8px 8px;
+        min-width: 90px;
+        text-align: center;
+      }
+      .side-menu li.active, .side-menu li:hover {
+        background: #1a2240;
+        border-bottom: 4px solid #7b6cff;
+        color: #7b6cff;
+      }
+      .main-content {
+        padding: 70px 4vw 16px 4vw;
+        min-height: 100vh;
+      }
+      .test-section {
+        padding: 16px 12px;
+        margin-bottom: 16px;
+      }
+      .test-data {
+        padding: 12px 10px;
+        font-size: 0.85em;
+      }
+      .refresh-btn {
+        padding: 10px 20px;
+        font-size: 0.95em;
+      }
+    }
+    @media (max-width: 600px) {
+      .main-content {
+        padding: 60px 2vw 8px 2vw;
+      }
+      .test-section {
+        padding: 12px 8px;
+        margin-bottom: 12px;
+      }
+      .test-data {
+        padding: 10px 8px;
+        font-size: 0.8em;
+      }
+      .refresh-btn {
+        padding: 8px 16px;
+        font-size: 0.9em;
+      }
+      h1 {
+        font-size: 1.2em !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="side-menu">
+    <h2>メニュー</h2>
+    <ul>
+      <li onclick="location.href='/dashboard'">ダッシュボード</li>
+      <li onclick="location.href='/alerts'">アラート内容</li>
+      <li onclick="location.href='/history'">アラート履歴</li>
+      <li class="active">確認事項</li>
+      <li onclick="location.href='/improve'">改善施策</li>
+    </ul>
+  </nav>
+  <div class="main-content">
+    <div class="page-header">
+      <h1 style="font-size:2.2em;">📋 確認事項</h1>
+      <button 
+        class="chatwork-send-btn"
+        onclick="sendToChatwork()"
+        id="chatworkSendBtn"
+        disabled
+      >
+        チャットワークに送信
+      </button>
+    </div>
+    
+    <div id="checklistContainer">
+      <div class="no-checklist" id="noChecklist">
+        <p>現在、確認が必要な項目はありません。</p>
+      </div>
+      
+      <div class="checklist-container" id="checklistContent" style="display: none;">
+        <div class="alert-summary">
+          <h3>🚨 関連アラート</h3>
+          <div id="alertItems"></div>
+        </div>
+
+        <div class="checklist-items">
+          <h3>📋 確認事項（優先度順）</h3>
+          <div id="checklistItems"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 確認事項ルール
+    const checklistRules = {
+      '予算消化率': [
+        {
+          priority: 1,
+          title: '配信されているか確認',
+          description: '広告がアクティブになっているか'
+        },
+        {
+          priority: 2,
+          title: '配信するクリエイティブが枯れている',
+          description: 'CV数が0もしくは目標CPAの到達しておらず予算も消化されていない'
+        },
+        {
+          priority: 3,
+          title: '配信するユーザー層が悪いのか',
+          description: '配信するユーザー層が悪いと表示されないケースがある'
+        }
+      ],
+      'CTR': [
+        {
+          priority: 1,
+          title: '配信しているクリエイティブが刺さっていないor枯れている',
+          description: 'ありきたりのクリエイティブでユーザーに見られていない\n7日間ベースでずっと配信していて、飽きられている'
+        },
+        {
+          priority: 2,
+          title: 'フルークエンシーが2.5%以上ある',
+          description: '同じユーザーばかりに配信されていて、見飽きられている'
+        },
+        {
+          priority: 3,
+          title: '配信するユーザー層が見込み顧客ではない',
+          description: 'サービスに合ったユーザー層に配信されていないので、スルーされている'
+        }
+      ],
+      'CPM': [
+        {
+          priority: 1,
+          title: '最適なCPM値で配信できていない',
+          description: 'クリエイティブが刺さっていないため入力したCPMから乖離している\n配信するユーザー層が悪いため入力したCPMから乖離している'
+        }
+      ],
+      'CV': [
+        {
+          priority: 1,
+          title: 'クリエイティブが刺さっていないorクリエイティブが枯れている',
+          description: '入口のクリエイティブで魅力的に魅せれていないor飽きられてしまっている'
+        },
+        {
+          priority: 2,
+          title: '配信するユーザー層がズレている',
+          description: '購入見込みの低いユーザーに配信されている'
+        },
+        {
+          priority: 3,
+          title: 'LPで離脱されている',
+          description: 'LPの内容がユーザーに刺さっていない'
+        }
+      ],
+      'CPA': [
+        {
+          priority: 1,
+          title: 'クリエイティブが刺さっていないorクリエイティブが枯れている',
+          description: ''
+        },
+        {
+          priority: 2,
+          title: '配信するユーザー層がズレている',
+          description: '購入見込みの低いユーザーに配信されている'
+        },
+        {
+          priority: 3,
+          title: '学習データが適切ではない',
+          description: 'ピクセルで学習しているデータが誤った方向に進んでいる'
+        },
+        {
+          priority: 4,
+          title: 'LPで離脱されている',
+          description: 'LPの内容がユーザーに刺さっていない'
+        }
+      ]
+    };
+
+    let activeAlerts = [];
+    let generatedChecklist = [];
+
+    // ページロード時の初期化
+    document.addEventListener('DOMContentLoaded', function() {
+      loadActiveAlerts();
+    });
+
+    // アクティブなアラートを取得
+    async function loadActiveAlerts() {
+      try {
+        const response = await fetch('/api/alerts');
+        if (response.ok) {
+          const alerts = await response.json();
+          activeAlerts = alerts.filter(alert => alert.status === 'active');
+          generateChecklist();
+        } else {
+          console.error('アラート取得に失敗しました');
+        }
+      } catch (error) {
+        console.error('アラート取得エラー:', error);
+      }
+    }
+
+    // アラートに基づいて確認事項を生成
+    function generateChecklist() {
+      const checklist = [];
+      
+      activeAlerts.forEach(alert => {
+        const metric = alert.metric;
+        const rules = checklistRules[metric];
+        
+        if (rules) {
+          rules.forEach(rule => {
+            checklist.push({
+              ...rule,
+              metric: metric,
+              alertId: alert.id
+            });
+          });
+        }
+      });
+      
+      // 優先度順でソート
+      checklist.sort((a, b) => a.priority - b.priority);
+      generatedChecklist = checklist;
+      
+      updateUI();
+    }
+
+    // UI更新
+    function updateUI() {
+      const noChecklist = document.getElementById('noChecklist');
+      const checklistContent = document.getElementById('checklistContent');
+      const chatworkSendBtn = document.getElementById('chatworkSendBtn');
+      
+      if (generatedChecklist.length === 0) {
+        noChecklist.style.display = 'block';
+        checklistContent.style.display = 'none';
+        chatworkSendBtn.disabled = true;
+      } else {
+        noChecklist.style.display = 'none';
+        checklistContent.style.display = 'block';
+        chatworkSendBtn.disabled = false;
+        
+        renderAlerts();
+        renderChecklist();
+      }
+    }
+
+    // アラート表示
+    function renderAlerts() {
+      const alertItems = document.getElementById('alertItems');
+      alertItems.innerHTML = '';
+      
+      activeAlerts.forEach(alert => {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-item';
+        alertDiv.innerHTML = `
+          <span class="alert-metric">${alert.metric}</span>
+          <span class="alert-message">${alert.message}</span>
+        `;
+        alertItems.appendChild(alertDiv);
+      });
+    }
+
+    // 確認事項表示
+    function renderChecklist() {
+      const checklistItems = document.getElementById('checklistItems');
+      checklistItems.innerHTML = '';
+      
+      generatedChecklist.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'checklist-item';
+        
+        const description = item.description ? 
+          item.description.split('\n').map(line => `<span>${line}</span>`).join('<br>') : '';
+        
+        itemDiv.innerHTML = `
+          <div class="item-header">
+            <span class="priority-badge">優先度 ${item.priority}</span>
+            <span class="metric-badge">${item.metric}</span>
+          </div>
+          <h4 class="item-title">${item.title}</h4>
+          ${description ? `<p class="item-description">${description}</p>` : ''}
+        `;
+        checklistItems.appendChild(itemDiv);
+      });
+    }
+
+    // チャットワークに送信
+    async function sendToChatwork() {
+      if (generatedChecklist.length === 0) {
+        alert('送信する確認事項がありません。');
+        return;
+      }
+
+      const message = formatChatworkMessage();
+      
+      try {
+        const response = await fetch('/api/send-chatwork', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: message
+          })
+        });
+
+        if (response.ok) {
+          alert('チャットワークに送信しました！');
+        } else {
+          const error = await response.json();
+          alert('送信に失敗しました: ' + (error.message || '不明なエラー'));
+        }
+      } catch (error) {
+        console.error('チャットワーク送信エラー:', error);
+        alert('送信に失敗しました: ' + error.message);
+      }
+    }
+
+    // 技術用語を日本語に変換する関数
+    function translateAlertTerms(alertText) {
+      return alertText
+        .replace(/budget_rate/g, '予算消化率')
+        .replace(/ctr/g, 'CTR')
+        .replace(/conversions/g, 'CV')
+        .replace(/cpa_rate/g, 'CPA')
+        .replace(/cpm_increase/g, 'CPM上昇')
+        .replace(/日予算/g, '日予算')
+        .replace(/CPM/g, 'CPM');
+    }
+
+    // チャットワークメッセージフォーマット
+    function formatChatworkMessage() {
+      const dateStr = new Date().toLocaleDateString('ja-JP');
+      let message = `Meta広告 アラート通知 (${dateStr})
+以下のアラートが発生しています：
+
+`;
+      
+      // アラート内容（技術用語を日本語化）
+      activeAlerts.forEach((alert, index) => {
+        const translatedMessage = translateAlertTerms(alert.message);
+        const category = alert.metric;
+        message += `${index + 1}. **${category}**：${translatedMessage}\n`;
+      });
+      
+      // 確認事項
+      message += '\n【📋 確認事項（優先度順）】\n';
+      generatedChecklist.forEach((item, index) => {
+        message += `\n${index + 1}. 【${item.metric}】${item.title}\n`;
+        if (item.description) {
+          message += `   ${item.description.replace(/\n/g, '\n   ')}\n`;
+        }
+      });
+
+      message += `
+確認事項：http://localhost:3000/improvement-tasks
+改善施策：http://localhost:3000/improvement-strategies
+
+📊 ダッシュボードで詳細を確認してください。
+http://localhost:3000/dashboard`;
+      
+      return message;
+    }
+  </script>
+</body>
+</html> 

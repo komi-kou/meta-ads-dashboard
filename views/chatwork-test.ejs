@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チャットワークテスト送信 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .test-page {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section h3 {
+            margin-top: 0;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .test-button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .test-button:hover {
+            background-color: #2563eb;
+        }
+
+        .test-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .status-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .schedule-info {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-info h4 {
+            margin-top: 0;
+            color: #92400e;
+        }
+
+        .schedule-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .schedule-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #fde68a;
+        }
+
+        .schedule-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/alerts" class="nav-item">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+                <a href="/chatwork-test" class="nav-item active">チャットワークテスト</a>
+            </nav>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="test-page">
+                <h2>🧪 チャットワーク自動送信テスト</h2>
+                
+                <div class="schedule-info">
+                    <h4>📅 自動送信スケジュール</h4>
+                    <ul class="schedule-list">
+                        <li><strong>日次レポート</strong>: 毎朝9時</li>
+                        <li><strong>定期更新通知</strong>: 12時、15時、17時、19時</li>
+                        <li><strong>アラート通知</strong>: アラート発生日の朝9時</li>
+                        <li><strong>トークン更新通知</strong>: 期限1週間前の朝9時</li>
+                    </ul>
+                </div>
+
+                <div class="test-section">
+                    <h3>📊 日次レポートテスト</h3>
+                    <p>ダッシュボードの全指標を含む日次レポートを送信します。</p>
+                    <button class="test-button" onclick="sendTest('daily')">日次レポート送信</button>
+                    <div id="daily-status"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🔄 定期更新通知テスト</h3>
+                    <p>数値更新の通知メッセージを送信します。</p>
+                    <button class="test-button" onclick="sendTest('update')">定期更新通知送信</button>
+                    <div id="update-status"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🚨 アラート通知テスト</h3>
+                    <p>今日のアラート内容を含む通知を送信します。</p>
+                    <button class="test-button" onclick="sendTest('alert')">アラート通知送信</button>
+                    <div id="alert-status"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🔑 アクセストークン更新通知テスト</h3>
+                    <p>トークン更新が必要な旨の通知を送信します。</p>
+                    <button class="test-button" onclick="sendTest('token')">トークン更新通知送信</button>
+                    <div id="token-status"></div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🎯 全テスト一括実行</h3>
+                    <p>全てのテスト送信を順次実行します。</p>
+                    <button class="test-button" onclick="sendAllTests()">全テスト実行</button>
+                    <div id="all-status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function sendTest(type) {
+            const button = event.target;
+            const statusDiv = document.getElementById(`${type}-status`);
+            
+            // ボタンを無効化
+            button.disabled = true;
+            button.textContent = '送信中...';
+            
+            // ステータス表示
+            statusDiv.innerHTML = '<div class="status-info">送信中...</div>';
+            
+            try {
+                const response = await fetch('/api/chatwork-test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ type })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusDiv.innerHTML = `<div class="status-success">✅ ${result.message}</div>`;
+                } else {
+                    statusDiv.innerHTML = `<div class="status-error">❌ ${result.error}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status-error">❌ 送信エラー: ${error.message}</div>`;
+            } finally {
+                // ボタンを再有効化
+                button.disabled = false;
+                button.textContent = getButtonText(type);
+            }
+        }
+
+        async function sendAllTests() {
+            const button = event.target;
+            const statusDiv = document.getElementById('all-status');
+            
+            // ボタンを無効化
+            button.disabled = true;
+            button.textContent = '全テスト実行中...';
+            
+            // ステータス表示
+            statusDiv.innerHTML = '<div class="status-info">全テスト実行中...</div>';
+            
+            const testTypes = ['daily', 'update', 'alert', 'token'];
+            const results = [];
+            
+            for (const type of testTypes) {
+                try {
+                    const response = await fetch('/api/chatwork-test', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ type })
+                    });
+                    
+                    const result = await response.json();
+                    results.push({ type, success: result.success, message: result.message || result.error });
+                    
+                    // 少し待機
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } catch (error) {
+                    results.push({ type, success: false, message: error.message });
+                }
+            }
+            
+            // 結果表示
+            const successCount = results.filter(r => r.success).length;
+            const totalCount = results.length;
+            
+            let resultHtml = `<div class="status-${successCount === totalCount ? 'success' : 'error'}">`;
+            resultHtml += `📊 全テスト実行完了: ${successCount}/${totalCount} 成功<br>`;
+            
+            results.forEach(result => {
+                const icon = result.success ? '✅' : '❌';
+                resultHtml += `${icon} ${result.type}: ${result.message}<br>`;
+            });
+            
+            resultHtml += '</div>';
+            statusDiv.innerHTML = resultHtml;
+            
+            // ボタンを再有効化
+            button.disabled = false;
+            button.textContent = '全テスト実行';
+        }
+
+        function getButtonText(type) {
+            const texts = {
+                'daily': '日次レポート送信',
+                'update': '定期更新通知送信',
+                'alert': 'アラート通知送信',
+                'token': 'トークン更新通知送信'
+            };
+            return texts[type] || '送信';
+        }
+    </script>
+</body>
+</html> 

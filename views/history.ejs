@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; }
+        .side-menu { width: 220px; background: #2c3e50; color: white; padding: 25px; min-height: 100vh; }
+        .side-menu h2 { color: #ecf0f1; margin-bottom: 25px; }
+        .side-menu ul { list-style: none; padding: 0; }
+        .side-menu li { padding: 15px 20px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; transition: all 0.3s; }
+        .side-menu li:hover { background: rgba(255,255,255,0.1); }
+        .side-menu li.active { background: rgba(255,255,255,0.2); }
+        .main-content { flex: 1; padding: 30px; background: white; margin: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <nav class="side-menu">
+        <h2>📊 Meta広告管理</h2>
+        <ul>
+            <li onclick="location.href='/dashboard'">🏠 ダッシュボード</li>
+            <li onclick="location.href='/alerts'">🚨 アラート内容</li>
+            <li class="active" onclick="location.href='/history'">📋 アラート履歴</li>
+            <li onclick="location.href='/check'">✅ 確認事項</li>
+            <li onclick="location.href='/improve'">💡 改善施策</li>
+            <li onclick="location.href='/settings'">⚙️ API連携</li>
+        </ul>
+    </nav>
+    
+    <div class="main-content">
+        <h1>📋 アラート履歴</h1>
+        <p>アラート履歴機能は準備中です。近日公開予定！</p>
+    </div>
+</body>
+</html> 

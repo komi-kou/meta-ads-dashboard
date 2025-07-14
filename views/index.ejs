@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Meta広告レポート</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Hiragino Sans', Arial, sans-serif;
+      margin: 0;
+      background: #eaf2fb;
+      color: #222;
+    }
+    .header {
+      background: #1565c0;
+      color: #fff;
+      padding: 1.5em 2em 1em 2em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.08);
+    }
+    .header .user {
+      font-size: 1em;
+      margin-right: 1em;
+    }
+    .header a {
+      color: #fff;
+      text-decoration: underline;
+      font-size: 0.95em;
+    }
+    .container {
+      max-width: 480px;
+      margin: 2.5em auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(21,101,192,0.10);
+      padding: 2.5em 2em 2em 2em;
+    }
+    h1 {
+      color: #1565c0;
+      font-size: 1.5em;
+      margin-bottom: 1.2em;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.5em;
+      margin-bottom: 1.5em;
+    }
+    th, td {
+      padding: 0.7em 1em;
+      text-align: right;
+      font-size: 1.1em;
+    }
+    th {
+      background: #e3f0fd;
+      color: #1565c0;
+      border-radius: 8px 0 0 8px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      background: #f5faff;
+      border-radius: 0 8px 8px 0;
+    }
+    .video-banner {
+      background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+      color: #fff;
+      padding: 1em 1.5em;
+      border-radius: 10px;
+      margin-bottom: 2em;
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.10);
+    }
+    .video-banner .icon {
+      font-size: 2.2em;
+      margin-right: 0.5em;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: #1976d2;
+      color: #fff;
+      padding: 0.7em 2em;
+      border-radius: 6px;
+      font-size: 1.1em;
+      text-decoration: none;
+      margin-top: 1em;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.10);
+      transition: background 0.2s;
+    }
+    .cta-btn:hover {
+      background: #0d47a1;
+    }
+    .alert {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      border-radius: 8px;
+      padding: 1.2em 1em;
+      margin-bottom: 2em;
+      text-align: center;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <span style="font-weight:bold;font-size:1.2em;letter-spacing:1px;">Meta広告レポート</span>
+    </div>
+    <div>
+      <% if (typeof username !== 'undefined') { %>
+        <span class="user">ログイン中：<%= username %></span>
+        <a href="/logout">ログアウト</a>
+      <% } %>
+    </div>
+  </div>
+  <div class="container">
+    <div class="video-banner">
+      <span class="icon">🎬</span>
+      <div>
+        <div style="font-size:1.1em;font-weight:bold;">動画教材ダッシュボード</div>
+        <div style="font-size:0.97em;opacity:0.85;">Meta広告の最新数値を毎日自動でチェック！</div>
+      </div>
+    </div>
+    <% if (typeof needSettings !== 'undefined' && needSettings) { %>
+      <div class="alert">
+        <b>API情報が未設定です。</b><br>
+        <a href="/settings" style="color:#1565c0;text-decoration:underline;">API連携設定ページ</a>で必要な情報を入力してください。
+      </div>
+    <% } %>
+    <% if (!needSettings) { %>
+      <h1><%= data ? data.date : 'データなし' %></h1>
+      <% if (data) { %>
+      <table>
+        <tr><th>消化金額</th><td><%= data.spend %> 円</td></tr>
+        <tr><th>予算消化率</th><td><%= data.budgetRate %> %</td></tr>
+        <tr><th>CTR</th><td><%= data.ctr %> %</td></tr>
+        <tr><th>CPM</th><td><%= data.cpm %> 円</td></tr>
+        <tr><th>CV</th><td><%= data.cv %> 件</td></tr>
+        <tr><th>CVR</th><td><%= data.cvr %> %</td></tr>
+        <tr><th>CPA</th><td><%= data.cpa %> 円</td></tr>
+      </table>
+      <a class="cta-btn" href="#">動画を見る</a>
+      <% } else { %>
+        <p>データがありません。</p>
+      <% } %>
+    <% } %>
+  </div>
+</body>
+</html> 

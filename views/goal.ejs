@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ゴール設定 | Meta広告レポート</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .goal-container {
+      background: #f7f6fd;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(123,108,255,0.07);
+      max-width: 520px;
+      margin: 80px auto;
+      padding: 40px 32px 32px 32px;
+      text-align: center;
+      border: 1.5px solid #7b6cff;
+    }
+    .form-label {
+      display: block;
+      font-weight: bold;
+      margin-top: 1.2em;
+      margin-bottom: 0.3em;
+      color: #7b6cff;
+      text-align: left;
+    }
+    .form-desc {
+      font-size: 0.95em;
+      color: #888;
+      margin-bottom: 0.2em;
+      text-align: left;
+    }
+  </style>
+</head>
+<body class="blue-bg">
+  <div class="goal-container">
+    <h1>ゴール（目標値）設定</h1>
+    <% if (saved) { %>
+      <div class="msg" style="color:#388e3c;font-weight:bold;">保存しました！</div>
+      <script>setTimeout(() => { window.location.href = '/dashboard'; }, 1000);</script>
+    <% } %>
+    <form method="post" action="/goal">
+      <span class="form-label">サービス（ゴール）選択</span>
+      <select name="service_goal" id="service_goal" required>
+        <option value="">選択してください</option>
+        <option value="toc_mail" <%= settings.service_goal === 'toc_mail' ? 'selected' : '' %>>toC（メルマガ登録）</option>
+        <option value="toc_line" <%= settings.service_goal === 'toc_line' ? 'selected' : '' %>>toC（LINE登録）</option>
+        <option value="toc_tel" <%= settings.service_goal === 'toc_tel' ? 'selected' : '' %>>toC（電話ボタン）</option>
+        <option value="toc_buy" <%= settings.service_goal === 'toc_buy' ? 'selected' : '' %>>toC（購入）</option>
+        <option value="tob_mail" <%= settings.service_goal === 'tob_mail' ? 'selected' : '' %>>toB（メルマガ登録）</option>
+        <option value="tob_line" <%= settings.service_goal === 'tob_line' ? 'selected' : '' %>>toB（LINE登録）</option>
+        <option value="tob_tel" <%= settings.service_goal === 'tob_tel' ? 'selected' : '' %>>toB（電話ボタン）</option>
+        <option value="tob_buy" <%= settings.service_goal === 'tob_buy' ? 'selected' : '' %>>toB（購入）</option>
+      </select>
+
+      <span class="form-label">目標CPA（円）</span>
+      <span class="form-desc">ご記入ください（例：2000）</span>
+      <input type="number" name="target_cpa" id="target_cpa" placeholder="ご記入ください" value="<%= settings.target_cpa || '' %>" min="0"><br>
+
+      <span class="form-label">目標CPM（円）</span>
+      <span class="form-desc">ご記入ください（例：1000）</span>
+      <input type="number" name="target_cpm" id="target_cpm" placeholder="ご記入ください" value="<%= settings.target_cpm || '' %>" min="0"><br>
+
+      <span class="form-label">目標CTR（%）</span>
+      <span class="form-desc">ご記入ください（例：2.5）</span>
+      <input type="number" name="target_ctr" id="target_ctr" placeholder="ご記入ください" value="<%= settings.target_ctr || '' %>" min="0" step="0.01"><br>
+
+      <span class="form-label">目標予算消化率（%）</span>
+      <span class="form-desc">ご記入ください（例：80）</span>
+      <input type="number" name="target_budget_rate" id="target_budget_rate" placeholder="ご記入ください" value="<%= settings.target_budget_rate || '' %>" min="0" max="100" step="0.1"><br>
+
+      <span class="form-label">目標CV（件）</span>
+      <span class="form-desc">ご記入ください（例：10）</span>
+      <input type="number" name="target_cv" id="target_cv" placeholder="ご記入ください" value="<%= settings.target_cv || '' %>" min="0"><br>
+
+      <button type="submit" style="margin-top:2.2em;">保存</button>
+    </form>
+  </div>
+  <script>
+    // ゴールごとの相場値プリセット
+    const presets = {
+      toc_mail:  { cpa: 2000, cpm: '', ctr: 2.5, budget: 80, cv: '' },
+      toc_line:  { cpa: 1000, cpm: '', ctr: 2.5, budget: 80, cv: '' },
+      toc_tel:   { cpa: 2000, cpm: '', ctr: 2.5, budget: 80, cv: '' },
+      toc_buy:   { cpa: '',   cpm: '', ctr: 2.5, budget: 80, cv: '' },
+      tob_mail:  { cpa: 15000, cpm: '', ctr: 1.5, budget: 80, cv: '' },
+      tob_line:  { cpa: 10000, cpm: '', ctr: 2.5, budget: 80, cv: '' },
+      tob_tel:   { cpa: 15000, cpm: '', ctr: 2.5, budget: 80, cv: '' },
+      tob_buy:   { cpa: '',   cpm: '', ctr: 2.5, budget: 80, cv: '' }
+    };
+    function setPreset(goal) {
+      if (presets[goal]) {
+        document.getElementById('target_cpa').value = presets[goal].cpa;
+        document.getElementById('target_cpm').value = presets[goal].cpm;
+        document.getElementById('target_ctr').value = presets[goal].ctr;
+        document.getElementById('target_budget_rate').value = presets[goal].budget;
+        document.getElementById('target_cv').value = presets[goal].cv;
+      }
+    }
+    document.getElementById('service_goal').addEventListener('change', function() {
+      setPreset(this.value);
+    });
+    window.addEventListener('DOMContentLoaded', function() {
+      const goal = document.getElementById('service_goal').value;
+      if (goal) setPreset(goal);
+    });
+  </script>
+</body>
+</html> 

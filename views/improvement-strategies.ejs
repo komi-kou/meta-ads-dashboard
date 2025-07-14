@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>改善施策 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* 改善施策ページ専用スタイル */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            background: #f5f6fa;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f9fafb;
+        }
+
+        .strategies-page {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h2 {
+            margin: 0;
+            color: #374151;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-info {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .no-content {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-content-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .no-content h3 {
+            color: #059669;
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .content-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* アラート内容風のスタイル */
+        .alert-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .alert-header {
+            background-color: #dbeafe;
+            padding: 14px 16px;
+            border-bottom: 1px solid #3b82f6;
+        }
+
+        .alert-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .alert-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .alert-metric {
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 16px;
+        }
+
+        .alert-timestamp {
+            color: #1d4ed8;
+            font-size: 12px;
+        }
+
+        .alert-message-row {
+            color: #1e40af;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .alert-content {
+            padding: 0;
+        }
+
+        .strategy-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            background-color: #f0f9ff;
+        }
+
+        .strategy-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-priority {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .priority-indicator {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .priority-text {
+            font-weight: 500;
+            color: #374151;
+            flex: 1;
+        }
+
+        .item-timestamp {
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .strategy-actions {
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .action-item {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .action-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .alert-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/alerts" class="nav-item">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item active">改善施策</a>
+                <a href="/chatwork-test" class="nav-item">チャットワークテスト</a>
+            </nav>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="strategies-page">
+                <div class="page-header">
+                    <h2>🔧 改善施策</h2>
+                    <div class="header-info">
+                        改善項目: <span id="strategyCount">8</span>件 
+                        最終更新: <span id="lastUpdateTime"></span>
+                    </div>
+                </div>
+
+                <div id="content">
+                    <!-- コンテンツはJavaScriptで生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 改善施策の定義
+        const improvementRules = {
+            '予算消化率': {
+                '配信されているか確認': [
+                    '管理画面の上の運用しているキャンペーンが緑でアクティブになっているか、キャンペーンを確認する',
+                    '決済ができておらず配信エラーになっていないか、請求と支払いを確認する',
+                    'クリエイティブが審査落ちしていて配信エラーになっていないか、広告を確認する'
+                ],
+                '配信するクリエイティブが枯れている': [
+                    '過去7日間ベースでCV数が0もしくは目標CPAに達していないクリエイティブを差し替える'
+                ],
+                '配信するユーザー層が悪いのか': [
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）',
+                    'キャンペーンを複製して配信するユーザー層を変える（設定は変えずに）'
+                ]
+            },
+            'CTR': {
+                '配信しているクリエイティブが刺さっていないor枯れている': [
+                    '過去7日間ベースで予算が寄っておらずCVも取れていないクリエイティブを差し替える',
+                    '過去7日間ベースで予算は寄っているけど目標CPAに達しておらずクリック率も目標以下のクリエイティブは差し替える'
+                ],
+                'フリークエンシーが2.5%以上ある': [
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）',
+                    'キャンペーンを複製して配信するユーザー層を変える（設定は変えずに）'
+                ],
+                '配信するユーザー層が見込み顧客ではない': [
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
+                    '類似オーディエンスを活用して、見込み層の高いユーザーに配信する'
+                ]
+            },
+            'CPM': {
+                '最適なCPM値で配信できていない': [
+                    '過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える',
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
+                    'キャンペーンを複製する'
+                ]
+            },
+            'CV': {
+                'クリエイティブが刺さっていないorクリエイティブが枯れている': [
+                    '過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える',
+                    '過去7日間ベースでCVがついておらず配信が寄っていない（予算消化ができていない）クリエイティブを差し替える',
+                    '訴求軸が違うクリエイティブを配信する',
+                    '動画広告を配信する'
+                ],
+                '配信するユーザー層がズレている': [
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
+                    '類似オーディエンスを活用して、見込み層の高いユーザーに配信する',
+                    'キャンペーンを複製して配信するユーザー層を変える',
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）'
+                ],
+                'LPで離脱されている': [
+                    'ヒートマップを導入して離脱箇所が多いところを改善する（clarityがおすすめ）',
+                    'CTAの文言・デザイン・アクションを変更する',
+                    'FVを改善する'
+                ]
+            },
+            'CPA': {
+                'クリエイティブが刺さっていないorクリエイティブが枯れている': [
+                    '過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える',
+                    '過去7日間ベースでCVがついておらず配信が寄っていない（予算消化ができていない）クリエイティブを差し替える',
+                    '訴求軸が違うクリエイティブを配信する',
+                    '動画広告を配信する'
+                ],
+                '配信するユーザー層がズレている': [
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
+                    '類似オーディエンスを活用して、見込み層の高いユーザーに配信する',
+                    'キャンペーンを複製して配信するユーザー層を変える',
+                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）'
+                ],
+                '学習データが適切ではない': [
+                    'ピクセルを作成し直してデータを再度学習し直す'
+                ],
+                'LPで離脱されている': [
+                    'ヒートマップを導入して離脱箇所が多いところを改善する（clarityがおすすめ）',
+                    'CTAの文言・デザイン・アクションを変更する',
+                    'FVを改善する'
+                ]
+            }
+        };
+
+        // 確認事項リスト
+        const checklistItems = {
+            '予算消化率': [
+                { priority: 1, title: '配信されているか確認' },
+                { priority: 2, title: '配信するクリエイティブが枯れている' },
+                { priority: 3, title: '配信するユーザー層が悪いのか' }
+            ],
+            'CTR': [
+                { priority: 1, title: '配信しているクリエイティブが刺さっていないor枯れている' },
+                { priority: 2, title: 'フリークエンシーが2.5%以上ある' },
+                { priority: 3, title: '配信するユーザー層が見込み顧客ではない' }
+            ],
+            'CPM': [
+                { priority: 1, title: '最適なCPM値で配信できていない' }
+            ],
+            'CV': [
+                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている' },
+                { priority: 2, title: '配信するユーザー層がズレている' },
+                { priority: 3, title: 'LPで離脱されている' }
+            ],
+            'CPA': [
+                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている' },
+                { priority: 2, title: '配信するユーザー層がズレている' },
+                { priority: 3, title: '学習データが適切ではない' },
+                { priority: 4, title: 'LPで離脱されている' }
+            ]
+        };
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== 改善施策ページ: 初期化開始 ===');
+            generateStrategies();
+            updateLastUpdateTime();
+        });
+
+        // 改善施策を生成
+        function generateStrategies() {
+            console.log('改善施策を生成開始');
+            
+            const testAlerts = [
+                {
+                    id: 1,
+                    metric: '予算消化率',
+                    message: '予算消化率が80%以下の65%が3日間続いています',
+                    level: 'medium',
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    metric: 'CTR',
+                    message: 'CTRが2%以下の1.5%が3日間続いています',
+                    level: 'medium',
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 3,
+                    metric: 'CV',
+                    message: 'CV数が1件以下の0件が続いています',
+                    level: 'high',
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 4,
+                    metric: 'CPA',
+                    message: 'CPAが10,000円以上の12,000円が続いています',
+                    level: 'high',
+                    timestamp: new Date().toISOString()
+                }
+            ];
+
+            const generatedStrategies = [];
+            
+            testAlerts.forEach(alert => {
+                const metric = alert.metric;
+                const items = checklistItems[metric] || [];
+                const improvements = improvementRules[metric] || {};
+                
+                items.forEach(item => {
+                    const actions = improvements[item.title] || [];
+                    if (actions.length > 0) {
+                        generatedStrategies.push({
+                            metric: metric,
+                            alertMessage: alert.message,
+                            alertLevel: alert.level,
+                            timestamp: alert.timestamp,
+                            checklistTitle: item.title,
+                            priority: item.priority,
+                            actions: actions
+                        });
+                    }
+                });
+            });
+
+            console.log('生成された改善施策:', generatedStrategies);
+            renderStrategies(generatedStrategies);
+        }
+
+        // 改善施策を表示
+        function renderStrategies(strategies) {
+            const contentDiv = document.getElementById('content');
+            
+            if (strategies.length === 0) {
+                contentDiv.innerHTML = `
+                    <div class="no-content">
+                        <div class="no-content-icon">✅</div>
+                        <h3>改善が必要な項目はありません。</h3>
+                    </div>
+                `;
+            } else {
+                const strategiesHTML = strategies.map((strategy, index) => `
+                    <div class="alert-card">
+                        <!-- アラート内容と同じスタイルのヘッダー -->
+                        <div class="alert-header">
+                            <div class="alert-title-row">
+                                <span class="alert-icon">🔧</span>
+                                <span class="alert-metric">${strategy.metric}</span>
+                                <span class="alert-timestamp">
+                                    ${new Date(strategy.timestamp).toLocaleString('ja-JP')}
+                                </span>
+                            </div>
+                            <div class="alert-message-row">
+                                ${strategy.alertMessage}
+                            </div>
+                        </div>
+
+                        <!-- 改善施策内容 -->
+                        <div class="alert-content">
+                            <div class="strategy-item">
+                                <div class="item-priority">
+                                    <span class="priority-indicator">🔧</span>
+                                    <span class="priority-text">${strategy.checklistTitle}</span>
+                                </div>
+                                <div class="item-timestamp">
+                                    ${new Date(strategy.timestamp).toLocaleString('ja-JP')}
+                                </div>
+                                <div class="strategy-actions">
+                                    ${strategy.actions.map((action, actionIndex) => `
+                                        <div class="action-item">
+                                            ${actionIndex + 1}. ${action}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                contentDiv.innerHTML = strategiesHTML;
+            }
+        }
+
+        // 最終更新時間を更新
+        function updateLastUpdateTime() {
+            document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('ja-JP');
+        }
+
+        // 10秒ごとに更新
+        setInterval(() => {
+            updateLastUpdateTime();
+        }, 10 * 1000);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "accessToken": "EAAcUd0aSHKMBPHZBV0ohbyvPznZAruZCpKZAQPN5UAi9rrR77ZChNEV18C2gfhVI6K80YbZCjlmYKwPsWtZCLSFJZAZA2X2HxdbTH5C2dbEaN3I2sDr0F2BSqKBkICl7XNfY5hPgSxGz2YirfKj8YLts5T0G64ZBm0F19Q8sXemLIyCYn5VyO2WJN6OXnaZBiyqqOnBVsL1zfXy2X2ZALjCl",
+    "accountId": "act_1669198827008948",
+    "appId": "1992827354619043"
+  },
+  "chatwork": {
+    "apiToken": "10e7538af625f74890e0f0bc4747c976",
+    "roomId": "404474083"
+  },
+  "goal": {
+    "type": "toB_newsletter",
+    "name": "toB（メルマガ登録）"
+  },
+  "isConfigured": true,
+  "setupCompletedAt": "2025-07-13T16:44:05.845Z"
+}

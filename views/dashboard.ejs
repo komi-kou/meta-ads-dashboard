@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta広告レポート</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+        }
+        
+        /* 統一レイアウト（app-container使用） */
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 30px;
+        }
+        
+        .content-title {
+            font-size: 28px;
+            font-weight: 300;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        
+        .metric-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+        
+        .metric-title {
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 15px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .metric-unit {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .metric-card.spend {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .metric-card.budget {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .metric-card.ctr {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .metric-card.cpm {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        /* 視認性改善: CV、CPA、フリークエンシーカードの色変更 */
+        .metric-card.cv {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+            color: white !important;
+        }
+        
+        .metric-card.cpa {
+            background: linear-gradient(135deg, #14532d 0%, #16a34a 100%) !important;
+            color: white !important;
+        }
+        
+        .metric-card.frequency {
+            background: linear-gradient(135deg, #374151 0%, #6b7280 100%) !important;
+            color: white !important;
+        }
+        
+        .chart-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .chart-header {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-header::before {
+            content: '📊';
+            font-size: 24px;
+        }
+        
+        .chart-legend {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        
+        .legend-item:hover {
+            background: #e9ecef;
+            transform: scale(1.05);
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: #888;
+            font-size: 16px;
+        }
+        
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #c33;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー（統一デザイン） -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item active">ダッシュボード</a>
+                <a href="/alerts" class="nav-item" id="alerts-link">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+                <a href="/chatwork-test" class="nav-item">チャットワークテスト</a>
+            </nav>
+        </div>
+        
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- 既存の「現状の数値」ヘッダー部分（元のまま） -->
+            <div class="dashboard-header">
+                <h1>現状の数値</h1>
+            </div>
+            
+            <!-- 30分前の状態に復元 - ヘッダーコントロール部分 -->
+            <div class="header-controls">
+                <div class="display-mode-section">
+                    <label>表示モード:</label>
+                    <select id="dateMode">
+                        <option value="1日ずつ" selected>1日ずつ</option>
+                        <option value="期間">期間</option>
+                    </select>
+                </div>
+                
+                <!-- 期間選択は表示モードが'期間'の時のみ表示 -->
+                <div id="periodSelector" class="period-section">
+                    <label>期間:</label>
+                    <select id="periodRange">
+                        <option value="7">過去7日間</option>
+                        <option value="14">過去14日間</option>
+                        <option value="30">過去30日間</option>
+                    </select>
+                </div>
+                
+                <div class="date-section">
+                    <label>日付:</label>
+                    <input type="date" id="selectedDate">
+                </div>
+            </div>
+            
+                <!-- 既存のメトリクスカード（数値部分は一切変更なし） -->
+                <div class="metrics-grid">
+                    <div class="metric-card spend">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-title">消化金額（合計）</div>
+                        <div class="metric-value">
+                            <span data-metric="spend">11,078</span><span class="metric-unit">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card budget">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-title">予算消化率（平均）</div>
+                        <div class="metric-value">
+                            <span data-metric="budget-rate">100.74</span><span class="metric-unit">%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card ctr">
+                        <div class="metric-icon">👆</div>
+                        <div class="metric-title">CTR（平均）</div>
+                        <div class="metric-value">
+                            <span data-metric="ctr">3.77</span><span class="metric-unit">%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card cpm">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-title">CPM（平均）</div>
+                        <div class="metric-value">
+                            <span data-metric="cpm">5,449</span><span class="metric-unit">円</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 下段指標 -->
+                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 40px;">
+                    <div class="metric-card cv">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-title">CV（合計）</div>
+                        <div class="metric-value">
+                            <span data-metric="conversions">24</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card cpa">
+                        <div class="metric-icon">💸</div>
+                        <div class="metric-title">CPA（平均）</div>
+                        <div class="metric-value">
+                            <span data-metric="cpa">503</span><span class="metric-unit">円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card frequency">
+                        <div class="metric-icon">🔄</div>
+                        <div class="metric-title">フリークエンシー（平均）</div>
+                        <div class="metric-value">
+                            <span data-metric="frequency">1.12</span><span class="metric-unit">%</span>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- 既存のグラフ部分（完全に元のまま） -->
+            <div class="chart-section">
+                <h2>📊 主要指標の推移</h2>
+                
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #8b5cf6;"></div>
+                        <span>消化金額</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3b82f6;"></div>
+                        <span>CTR(%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span>CPM</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f59e0b;"></div>
+                        <span>CV</span>
+                    </div>
+                    <!-- ✅ CPA追加 -->
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444;"></div>
+                        <span>CPA</span>
+                    </div>
+                    <!-- ✅ フリークエンシー追加 -->
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #6b7280;"></div>
+                        <span>フリークエンシー</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- エラーメッセージ表示 -->
+            <div class="error-message" style="display: none;"></div>
+            
+            <!-- ローディング表示 -->
+            <div class="loading-message" style="display: none; text-align: center; padding: 20px; color: #666;">
+                <div>🔄 データを読み込み中...</div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        // ページロード時の設定確認と自動データ取得
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('=== ダッシュボード初期化 ===');
+            
+            try {
+                // 設定状況確認
+                const debugResponse = await fetch('/api/debug-meta-config');
+                const debugData = await debugResponse.json();
+                console.log('設定デバッグ情報:', debugData);
+                
+                if (debugData.finalResult.configFound) {
+                    console.log('✅ Meta API設定が見つかりました');
+                    hideErrorMessage();
+                    
+                    // 今日の日付をデフォルト設定
+                    const today = new Date().toISOString().split('T')[0];
+                    const dateInput = document.getElementById('selectedDate');
+                    if (dateInput) {
+                        dateInput.value = today;
+                    }
+                    
+                    // イベントリスナー設定
+                    setupEventListeners();
+                    
+                    // 初期表示状態設定（デフォルトを1日に変更）
+                    const dateMode = document.getElementById('dateMode');
+                    if (dateMode) {
+                        dateMode.value = '1日ずつ'; // デフォルトを1日に設定
+                        document.getElementById('periodSelector').style.display = 'none';
+                    }
+                    
+                    // 初期データ取得
+                    setTimeout(() => {
+                        updateDashboardData();
+                    }, 100);
+                } else {
+                    console.log('❌ Meta API設定が見つかりません');
+                    showErrorMessage('Meta API設定が見つかりません。設定画面で再度設定してください。');
+                }
+                
+            } catch (error) {
+                console.error('初期化エラー:', error);
+                showErrorMessage('ダッシュボードの初期化に失敗しました。');
+            }
+        });
+
+        // 状態管理を30分前の状態に戻す
+        let displayMode = 'daily'; // デフォルトは1日ずつ
+        let period = '1'; // デフォルトを1日に変更
+        let selectedDate = new Date().toISOString().split('T')[0]; // 最新日（当日）をデフォルトに
+
+        function setupEventListeners() {
+            const dateMode = document.getElementById('dateMode');
+            const selectedDateInput = document.getElementById('selectedDate');
+            const periodRange = document.getElementById('periodRange');
+            
+            // 初期設定
+            const today = new Date().toISOString().split('T')[0];
+            if (selectedDateInput) {
+                selectedDateInput.value = today;
+            }
+            
+            // デフォルト表示モードを1日に設定
+            if (dateMode) {
+                dateMode.value = '1日ずつ';
+                // 1日ずつ選択時：期間選択を非表示
+                document.getElementById('periodSelector').style.display = 'none';
+            }
+            
+            if (dateMode) {
+                dateMode.addEventListener('change', function() {
+                    const mode = this.value;
+                    console.log('表示モード変更:', mode);
+                    
+                    // 表示モードによる条件分岐（30分前の状態）
+                    if (mode === '1日ずつ') {
+                        // 1日ずつ選択時：期間選択を非表示
+                        document.getElementById('periodSelector').style.display = 'none';
+                    } else {
+                        // 期間選択時：期間選択を表示
+                        document.getElementById('periodSelector').style.display = 'flex';
+                    }
+                    
+                    // 即座にデータ更新
+                    updateDashboardData();
+                });
+            }
+            
+            if (selectedDateInput) {
+                selectedDateInput.addEventListener('change', function() {
+                    const date = this.value;
+                    console.log('選択日付変更:', date);
+                    
+                    if (date) {
+                        updateDashboardData();
+                    }
+                });
+            }
+            
+            if (periodRange) {
+                periodRange.addEventListener('change', function() {
+                    const periodValue = this.value;
+                    console.log('選択期間変更:', periodValue + '日間');
+                    updateDashboardData();
+                });
+            }
+        }
+
+
+
+        // フロントエンドでのエラー表示改善
+        async function updateDashboardData() {
+            console.log('=== 実際のMeta広告データ更新 ===');
+            
+            const mode = document.getElementById('dateMode').value;
+            const params = new URLSearchParams();
+            
+            showLoadingState();
+            hideErrorMessage();
+            
+            if (mode === '1日ずつ') {
+                const selectedDate = document.getElementById('selectedDate').value;
+                if (!selectedDate) {
+                    hideLoadingState();
+                    showErrorMessage('日付を選択してください');
+                    return;
+                }
+                params.append('type', 'daily');
+                params.append('date', selectedDate);
+            } else {
+                const period = document.getElementById('periodRange').value;
+                params.append('type', 'period');
+                params.append('period', period);
+            }
+            
+            try {
+                const response = await fetch(`/api/meta-ads-data?${params}`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'データ取得に失敗しました');
+                }
+                
+                const data = await response.json();
+                console.log('実際のMeta広告データ受信:', data);
+                
+                updateMetricsDisplay(data);
+                updateChart(data);
+                
+                hideLoadingState();
+                
+            } catch (error) {
+                console.error('Meta広告データ取得エラー:', error);
+                hideLoadingState();
+                showErrorMessage(`Meta広告データ取得エラー: ${error.message}`);
+            }
+        }
+
+        // ダミーデータ生成
+        function generateDummyData() {
+            return {
+                spend: Math.floor(Math.random() * 50000) + 10000,
+                budgetRate: (Math.random() * 50 + 50).toFixed(2),
+                ctr: (Math.random() * 5 + 1).toFixed(2),
+                cpm: Math.floor(Math.random() * 3000) + 2000,
+                conversions: Math.floor(Math.random() * 50) + 10,
+                cpa: Math.floor(Math.random() * 2000) + 300,
+                frequency: (Math.random() * 3 + 0.5).toFixed(2),
+                chartData: {
+                    labels: ['7/6', '7/7', '7/8', '7/9', '7/10', '7/11', '7/12'],
+                    spend: Array.from({length: 7}, () => Math.floor(Math.random() * 20000) + 5000),
+                    ctr: Array.from({length: 7}, () => (Math.random() * 5 + 1).toFixed(2)),
+                    cpm: Array.from({length: 7}, () => Math.floor(Math.random() * 3000) + 2000),
+                    conversions: Array.from({length: 7}, () => Math.floor(Math.random() * 30) + 5),
+                    cpa: Array.from({length: 7}, () => Math.floor(Math.random() * 2000) + 300),           // ✅ CPA追加
+                    frequency: Array.from({length: 7}, () => (Math.random() * 3 + 0.5).toFixed(2))        // ✅ フリークエンシー追加
+                }
+            };
+        }
+
+        // メトリクス表示更新（確実なデータバインディング）
+        function updateMetricsDisplay(data) {
+            console.log('=== メトリクス更新開始 ===');
+            
+            const updates = [
+                { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}円` },
+                { selector: '[data-metric="budget-rate"]', value: `${data.budgetRate}%` },
+                { selector: '[data-metric="ctr"]', value: `${data.ctr}%` },
+                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}円` },
+                { selector: '[data-metric="conversions"]', value: data.conversions },
+                { selector: '[data-metric="cpa"]', value: `${data.cpa.toLocaleString()}円` },
+                { selector: '[data-metric="frequency"]', value: `${data.frequency}%` }
+            ];
+            
+            updates.forEach(update => {
+                const element = document.querySelector(update.selector);
+                if (element) {
+                    element.textContent = update.value;
+                    console.log(`更新完了: ${update.selector} = ${update.value}`);
+                } else {
+                    console.error(`要素が見つかりません: ${update.selector}`);
+                }
+            });
+        }
+
+        // グラフ更新機能（Chart.js確実動作）
+        function updateChart(data) {
+            console.log('=== グラフ更新（CPA・フリークエンシー追加版） ===', data.chartData);
+            
+            const canvas = document.getElementById('performanceChart');
+            if (!canvas) {
+                console.error('Canvas要素が見つかりません');
+                return;
+            }
+            
+            // 既存チャート破棄
+            if (window.chartInstance) {
+                window.chartInstance.destroy();
+                window.chartInstance = null;
+            }
+            
+            try {
+                const ctx = canvas.getContext('2d');
+                
+                window.chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.chartData.labels,
+                        datasets: [
+                            {
+                                label: '消化金額',
+                                data: data.chartData.spend,
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'CTR(%)',
+                                data: data.chartData.ctr,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y1'
+                            },
+                            {
+                                label: 'CPM',
+                                data: data.chartData.cpm,
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'CV',
+                                data: data.chartData.conversions,
+                                borderColor: '#f59e0b',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y2'
+                            },
+                            // ✅ CPA追加
+                            {
+                                label: 'CPA',
+                                data: data.chartData.cpa || [],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y'
+                            },
+                            // ✅ フリークエンシー追加
+                            {
+                                label: 'フリークエンシー',
+                                data: data.chartData.frequency || [],
+                                borderColor: '#6b7280',
+                                backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: '金額'
+                                },
+                                beginAtZero: true
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '率・回数'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                                beginAtZero: true
+                            },
+                            y2: {
+                                type: 'linear',
+                                display: false,
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+                
+                console.log('✅ グラフ作成完了（CPA・フリークエンシー含む）');
+                
+            } catch (error) {
+                console.error('❌ グラフ作成エラー:', error);
+            }
+        }
+
+        // ローディング表示
+        function showLoadingState() {
+            const loadingElement = document.querySelector('.loading-message');
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+        }
+
+        function hideLoadingState() {
+            const loadingElement = document.querySelector('.loading-message');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        // エラーメッセージ表示
+        function showErrorMessage(message) {
+            const errorElement = document.querySelector('.error-message');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // エラーメッセージ非表示
+        function hideErrorMessage() {
+            const errorElement = document.querySelector('.error-message');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // 設定完了時の処理
+        async function handleSetupCompletion() {
+            console.log('=== ダッシュボード設定完了処理 ===');
+            
+            try {
+                // 設定完了通知を送信
+                const response = await fetch('/api/send-chatwork-notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messageType: 'setup_completion',
+                        message: `[info][title]✅ Meta広告レポートツール設定完了[/title]
+Meta広告レポートツールの設定が完了しました。
+
+設定内容:
+- Meta広告API: 連携済み
+- チャットワーク通知: 有効
+- 自動レポート: 設定済み
+
+今後、定期レポートとアラート通知を自動送信いたします。
+[/info]`
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ 設定完了通知送信成功');
+                } else {
+                    console.error('❌ 設定完了通知送信失敗:', result.error);
+                }
+                
+            } catch (error) {
+                console.error('❌ 設定完了処理エラー:', error);
+            }
+        }
+
+        // ページロード時に設定完了処理を実行
+        document.addEventListener('DOMContentLoaded', function() {
+            // URLパラメータで設定完了フラグをチェック
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('setup_completed') === 'true') {
+                handleSetupCompletion();
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アラート履歴 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .alert-history-page {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h2 {
+            margin: 0 0 10px 0;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        .header-info {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .history-section h3 {
+            margin: 0 0 25px 0;
+            color: #333;
+            font-size: 1.5em;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .no-history {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-history-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .no-history-icon {
+            font-size: 48px;
+            opacity: 0.6;
+        }
+
+        .no-history p {
+            font-size: 1.2em;
+            margin: 0;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .alert-level {
+            font-size: 1.2em;
+            min-width: 30px;
+        }
+
+        .alert-level-high {
+            color: #dc3545;
+        }
+
+        .alert-level-medium {
+            color: #ffc107;
+        }
+
+        .alert-level-low {
+            color: #28a745;
+        }
+
+        .alert-metric {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .alert-message {
+            flex: 1;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .alert-timestamp {
+            color: #6c757d;
+            font-size: 0.9em;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .alert-history-page {
+                padding: 15px;
+            }
+
+            .page-header {
+                padding: 20px;
+            }
+
+            .page-header h2 {
+                font-size: 1.8em;
+            }
+
+            .history-section {
+                padding: 20px;
+            }
+
+            .alert-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .alert-timestamp {
+                text-align: left;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー（ダッシュボードと完全統一） -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/alerts" class="nav-item">アラート内容</a>
+                <a href="/alert-history" class="nav-item active">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+                <a href="/chatwork-test" class="nav-item">チャットワークテスト</a>
+            </nav>
+        </div>
+
+        <main class="main-content">
+
+    <div class="alert-history-page">
+        <div class="page-header">
+            <h2>📋 アラート履歴</h2>
+            <div class="header-info">
+                過去30日間の履歴
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3>過去30日間のアラート履歴</h3>
+            
+            <div id="history-content">
+                <div class="loading">読み込み中...</div>
+            </div>
+        </div>
+        </main>
+    </div>
+
+    <script>
+        // アラート履歴を取得して表示
+        async function loadAlertHistory() {
+            try {
+                // まずローカルストレージから読み込み
+                const stored = localStorage.getItem('alert_history');
+                let history = stored ? JSON.parse(stored) : [];
+                
+                // 過去30日分のデータをフィルター
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const filteredHistory = history.filter(item => 
+                    new Date(item.timestamp) > thirtyDaysAgo
+                );
+                
+                const historyContent = document.getElementById('history-content');
+                
+                if (filteredHistory.length === 0) {
+                    historyContent.innerHTML = `
+                        <div class="no-history">
+                            <div class="no-history-content">
+                                <span class="no-history-icon">📋</span>
+                                <p>アラート履歴はありません</p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const historyList = filteredHistory.map(alert => {
+                    const levelClass = getLevelClass(alert.level);
+                    const levelIcon = getLevelIcon(alert.level);
+                    const formattedDate = formatDate(alert.timestamp);
+                    
+                    return `
+                        <div class="history-item">
+                            <div class="alert-info">
+                                <span class="alert-level ${levelClass}">
+                                    ${levelIcon}
+                                </span>
+                                <span class="alert-metric">${alert.metric || '不明'}</span>
+                                <span class="alert-message">${alert.message || 'メッセージなし'}</span>
+                            </div>
+                            <div class="alert-timestamp">
+                                ${formattedDate}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                historyContent.innerHTML = `
+                    <div class="history-list">
+                        ${historyList}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('アラート履歴の取得エラー:', error);
+                document.getElementById('history-content').innerHTML = `
+                    <div class="no-history">
+                        <div class="no-history-content">
+                            <span class="no-history-icon">❌</span>
+                            <p>エラーが発生しました</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function getLevelClass(level) {
+            switch(level) {
+                case 'high': return 'alert-level-high';
+                case 'medium': return 'alert-level-medium';
+                case 'low': return 'alert-level-low';
+                default: return 'alert-level-medium';
+            }
+        }
+
+        function getLevelIcon(level) {
+            switch(level) {
+                case 'high': return '🔴';
+                case 'medium': return '🟡';
+                case 'low': return '🟢';
+                default: return '🟡';
+            }
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleString('ja-JP');
+        }
+
+        // ページ読み込み時に履歴を取得
+        document.addEventListener('DOMContentLoaded', loadAlertHistory);
+    </script>
+</body>
+</html> 
