@@ -1088,5 +1088,49 @@ Meta広告レポートツールの設定が完了しました。
             }
         }
     </script>
+    <script>
+// 緊急修正：すべての既存JavaScriptによるフォーム送信制御を無効化し、シンプルな送信のみ許可
+window.addEventListener('load', function() {
+  // プログレス関連・自動遷移を無効化
+  if (typeof showSetupCompleteMessage === 'function') {
+    window.showSetupCompleteMessage = function() {};
+  }
+  if (typeof handleSetupCompletion === 'function') {
+    window.handleSetupCompletion = function() {};
+  }
+  // 既存のsubmitイベントを解除し、シンプルな送信処理に上書き
+  const form = document.querySelector('form[action="/save-setup"]');
+  if (form) {
+    form.onsubmit = null;
+    form.addEventListener('submit', function(e) {
+      console.log('Simple form submit');
+      // 必須フィールドのみチェック
+      const metaToken = this.querySelector('input[name="metaAccessToken"]').value;
+      const metaAccount = this.querySelector('input[name="metaAccountId"]').value;
+      const chatworkToken = this.querySelector('input[name="chatworkApiToken"]').value;
+      const chatworkRoom = this.querySelector('input[name="chatworkRoomId"]').value;
+      if (!metaToken || !metaAccount || !chatworkToken || !chatworkRoom) {
+        e.preventDefault();
+        alert('すべての項目を入力してください');
+        return false;
+      }
+      // それ以外は常に送信許可
+      return true;
+    });
+    // 送信ボタンを常に有効化
+    setTimeout(function() {
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute('disabled');
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+        submitBtn.style.pointerEvents = 'auto';
+        console.log('Submit button force enabled');
+      }
+    }, 500);
+  }
+});
+</script>
 </body>
 </html> 
