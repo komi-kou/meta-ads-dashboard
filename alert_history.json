@@ -1,0 +1,394 @@
+[
+  {
+    "id": "cpa_rate_1752451201973",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-14T00:00:01.973Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_1752451201972",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-14T00:00:01.972Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_1752451201554",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-14T00:00:01.554Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_1752451201554",
+    "metric": "CPM",
+    "message": "CPMが6000円以上の状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-14T00:00:01.554Z",
+    "status": "active"
+  },
+  {
+    "id": "ctr_1752451201553",
+    "metric": "CTR",
+    "message": "ctrが1.5%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-14T00:00:01.553Z",
+    "status": "active"
+  },
+  {
+    "id": "daily_budget_1752451201553",
+    "metric": "日予算",
+    "message": "日予算が1000円以上の状態が1日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-14T00:00:01.553Z",
+    "status": "active"
+  },
+  {
+    "id": "budget_rate_1752451201553",
+    "metric": "予算消化率",
+    "message": "budget_rateが80%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-14T00:00:01.553Z",
+    "status": "active"
+  },
+  {
+    "id": "cpa_rate_1752422401761",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T16:00:01.761Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_1752422401761",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T16:00:01.761Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_1752422401292",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-13T16:00:01.292Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_1752422401292",
+    "metric": "CPM",
+    "message": "CPMが6000円以上の状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T16:00:01.292Z",
+    "status": "active"
+  },
+  {
+    "id": "ctr_1752422401292",
+    "metric": "CTR",
+    "message": "ctrが1.5%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T16:00:01.292Z",
+    "status": "active"
+  },
+  {
+    "id": "daily_budget_1752422401292",
+    "metric": "日予算",
+    "message": "日予算が1000円以上の状態が1日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T16:00:01.292Z",
+    "status": "active"
+  },
+  {
+    "id": "budget_rate_1752422401291",
+    "metric": "予算消化率",
+    "message": "budget_rateが80%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T16:00:01.292Z",
+    "status": "active"
+  },
+  {
+    "id": "cpa_rate_1752418801435",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T15:00:01.435Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_1752418801435",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T15:00:01.435Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_1752418800950",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-13T15:00:00.950Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_1752418800950",
+    "metric": "CPM",
+    "message": "CPMが6000円以上の状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T15:00:00.950Z",
+    "status": "active"
+  },
+  {
+    "id": "ctr_1752418800950",
+    "metric": "CTR",
+    "message": "ctrが1.5%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T15:00:00.950Z",
+    "status": "active"
+  },
+  {
+    "id": "daily_budget_1752418800949",
+    "metric": "日予算",
+    "message": "日予算が1000円以上の状態が1日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T15:00:00.949Z",
+    "status": "active"
+  },
+  {
+    "id": "budget_rate_1752418800949",
+    "metric": "予算消化率",
+    "message": "budget_rateが80%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T15:00:00.949Z",
+    "status": "active"
+  },
+  {
+    "id": "cpa_rate_1752415203946",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T14:00:03.946Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_1752415203945",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T14:00:03.945Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_1752415201259",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-13T14:00:01.259Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_1752415201259",
+    "metric": "CPM",
+    "message": "CPMが6000円以上の状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T14:00:01.259Z",
+    "status": "active"
+  },
+  {
+    "id": "ctr_1752415201259",
+    "metric": "CTR",
+    "message": "ctrが1.5%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T14:00:01.259Z",
+    "status": "active"
+  },
+  {
+    "id": "daily_budget_1752415201259",
+    "metric": "日予算",
+    "message": "日予算が1000円以上の状態が1日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T14:00:01.259Z",
+    "status": "active"
+  },
+  {
+    "id": "budget_rate_1752415201258",
+    "metric": "予算消化率",
+    "message": "budget_rateが80%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T14:00:01.259Z",
+    "status": "active"
+  },
+  {
+    "id": "cpa_rate_1752411601492",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T13:00:01.492Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_1752411601492",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T13:00:01.492Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_1752411601005",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-13T13:00:01.005Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_1752411601005",
+    "metric": "CPM",
+    "message": "CPMが6000円以上の状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T13:00:01.005Z",
+    "status": "active"
+  },
+  {
+    "id": "ctr_1752411601005",
+    "metric": "CTR",
+    "message": "ctrが1.5%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T13:00:01.005Z",
+    "status": "active"
+  },
+  {
+    "id": "daily_budget_1752411601005",
+    "metric": "日予算",
+    "message": "日予算が1000円以上の状態が1日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T13:00:01.005Z",
+    "status": "active"
+  },
+  {
+    "id": "budget_rate_1752411601005",
+    "metric": "予算消化率",
+    "message": "budget_rateが80%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T13:00:01.005Z",
+    "status": "active"
+  },
+  {
+    "id": "cpa_rate_1752408002180",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T12:00:02.180Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_1752408002180",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T12:00:02.180Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_1752408001639",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-13T12:00:01.639Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_1752408001639",
+    "metric": "CPM",
+    "message": "CPMが6000円以上の状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T12:00:01.639Z",
+    "status": "active"
+  },
+  {
+    "id": "ctr_1752408001638",
+    "metric": "CTR",
+    "message": "ctrが1.5%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T12:00:01.638Z",
+    "status": "active"
+  },
+  {
+    "id": "daily_budget_1752408001638",
+    "metric": "日予算",
+    "message": "日予算が1000円以上の状態が1日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T12:00:01.638Z",
+    "status": "active"
+  },
+  {
+    "id": "budget_rate_1752408001638",
+    "metric": "予算消化率",
+    "message": "budget_rateが80%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T12:00:01.638Z",
+    "status": "active"
+  },
+  {
+    "id": "cpa_rate_1752404402196",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T11:00:02.196Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_1752404402196",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T11:00:02.196Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_1752404401687",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-13T11:00:01.687Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_1752404401687",
+    "metric": "CPM",
+    "message": "CPMが6000円以上の状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T11:00:01.687Z",
+    "status": "active"
+  },
+  {
+    "id": "ctr_1752404401687",
+    "metric": "CTR",
+    "message": "ctrが1.5%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T11:00:01.687Z",
+    "status": "active"
+  },
+  {
+    "id": "daily_budget_1752404401687",
+    "metric": "日予算",
+    "message": "日予算が1000円以上の状態が1日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-13T11:00:01.687Z",
+    "status": "active"
+  },
+  {
+    "id": "budget_rate_1752404401687",
+    "metric": "予算消化率",
+    "message": "budget_rateが80%以下の状態が3日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-13T11:00:01.687Z",
+    "status": "active"
+  }
+]
