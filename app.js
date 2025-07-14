@@ -1844,3 +1844,18 @@ app.post('/save-setup', (req, res) => {
     res.status(500).send('Setup save failed');
   }
 });
+
+// GET版のセットアップ保存（超簡単送信ボタン用）
+app.get('/save-setup-get', (req, res) => {
+  console.log('=== GET SETUP SAVE ===');
+  console.log('Query params:', req.query);
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  req.session.metaAccessToken = req.query.metaAccessToken;
+  req.session.metaAccountId = req.query.metaAccountId;
+  req.session.chatworkApiToken = req.query.chatworkApiToken;
+  req.session.chatworkRoomId = req.query.chatworkRoomId;
+  console.log('Session updated via GET');
+  res.redirect('/dashboard');
+});
