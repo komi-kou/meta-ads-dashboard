@@ -39,12 +39,14 @@ app.use(express.json());
 
 // セッション設定
 app.use(session({
-  secret: 'meta-dashboard-secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { 
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000
+  cookie: {
+    secure: false, // 本番はtrue
+    maxAge: 24 * 60 * 60 * 1000, // 24時間
+    httpOnly: true,
+    sameSite: 'lax'
   }
 }));
 
@@ -141,22 +143,13 @@ function requireSetup(req, res, next) {
 
 // ルートアクセス（設定完了状態に応じて遷移）
 app.get('/', (req, res) => {
-  console.log('=== ルートアクセス ===');
-  
-  // 認証チェック
-  if (!req.session?.authenticated) {
-    console.log('未認証 → ログインページへ');
-    return res.redirect('/auth/login');
+  if (!req.session.user) {
+    return res.redirect('/login');
   }
-  
-  // 設定完了状態をチェック
-  if (checkSetupCompletion()) {
-    console.log('設定完了済み → ダッシュボードにリダイレクト');
-    res.redirect('/dashboard');
-  } else {
-    console.log('設定未完了 → 設定画面にリダイレクト');
-    res.redirect('/setup');
+  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
+    return res.redirect('/setup');
   }
+  res.redirect('/dashboard');
 });
 
 // ログインページ
@@ -204,37 +197,40 @@ app.post('/auth/login', (req, res) => {
 });
 
 // 初期設定ページ
-app.get('/setup', requireAuth, (req, res) => {
-  try {
-    console.log('セットアップページアクセス');
-    
-    // 設定完了状態をチェック
-    if (checkSetupCompletion()) {
-      console.log('設定完了済み → ダッシュボードにリダイレクト');
-      return res.redirect('/dashboard');
-    }
-    
-    res.render('setup', { title: '初期設定' });
-  } catch (error) {
-    console.error('セットアップページエラー:', error);
-    res.status(500).send('セットアップページエラー: ' + error.message);
+app.get('/setup', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
   }
+  res.render('setup', {
+    currentConfig: {
+      metaAccessToken: req.session.metaAccessToken || '',
+      metaAccountId: req.session.metaAccountId || '',
+      chatworkApiToken: req.session.chatworkApiToken || '',
+      chatworkRoomId: req.session.chatworkRoomId || ''
+    }
+  });
 });
 
 // ダッシュボード（設定完了チェック付き）
 app.get('/dashboard', (req, res) => {
-  // 軽微なログ追加
-  console.log('Dashboard access:', req.session.user ? 'logged in' : 'not logged in');
-
-  // セッション優先、環境変数はフォールバック
-  const metaToken = req.session.metaAccessToken || process.env.META_ACCESS_TOKEN;
-  const chatworkToken = req.session.chatworkApiToken || process.env.CHATWORK_API_TOKEN;
-
-  // 既存のレンダリング（変数名・UIは変更しない）
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
+    return res.redirect('/setup');
+  }
+  const metaToken = req.session.metaAccessToken;
+  const chatworkToken = req.session.chatworkApiToken;
+  console.log('Dashboard access with user tokens:', {
+    hasMetaToken: !!metaToken,
+    hasChatworkToken: !!chatworkToken,
+    user: req.session.user?.username
+  });
   res.render('dashboard', {
-    // 必要に応じて既存の変数をそのまま維持
-    metaToken,
-    chatworkToken,
+    userTokens: {
+      meta: metaToken,
+      chatwork: chatworkToken
+    },
     user: req.session.user
     // ...他の既存変数...
   });
@@ -1823,5 +1819,17 @@ app.post('/temp-api-setup', (req, res) => {
   if (req.body.chatworkApiToken) {
     req.session.chatworkApiToken = req.body.chatworkApiToken;
   }
+  res.redirect('/dashboard');
+});
+
+// Phase 2: セットアップ保存
+app.post('/save-setup', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  req.session.metaAccessToken = req.body.metaAccessToken;
+  req.session.metaAccountId = req.body.metaAccountId;
+  req.session.chatworkApiToken = req.body.chatworkApiToken;
+  req.session.chatworkRoomId = req.body.chatworkRoomId;
   res.redirect('/dashboard');
 });
