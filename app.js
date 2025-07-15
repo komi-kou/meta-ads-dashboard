@@ -1688,6 +1688,7 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
 
 // 404ハンドリング
 app.use((req, res) => {
+  console.log('404エラー:', req.method, req.url);
   res.status(404).send('ページが見つかりません');
 });
 
