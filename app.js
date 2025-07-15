@@ -161,6 +161,16 @@ function requireSetup(req, res, next) {
   }
 }
 
+// デバッグ用ミドルウェア（全ルートの前）
+app.use((req, res, next) => {
+  console.log('=== 全リクエストデバッグ ===');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  next();
+});
+
 // ルートアクセス（設定完了状態に応じて遷移）
 app.get('/', (req, res) => {
   if (!req.session.user) {
@@ -260,6 +270,193 @@ app.get('/dashboard', (req, res) => {
 // アラートページ表示
 app.get('/alerts', requireAuth, (req, res) => {
     res.render('alerts');
+});
+
+// ゴール名取得ヘルパー関数
+function getGoalName(goalType) {
+  const goalNames = {
+    'toC_newsletter': 'toC（メルマガ登録）',
+    'toC_line': 'toC（LINE登録）',
+    'toC_phone': 'toC（電話ボタン）',
+    'toC_purchase': 'toC（購入）',
+    'toB_newsletter': 'toB（メルマガ登録）',
+    'toB_line': 'toB（LINE登録）',
+    'toB_phone': 'toB（電話ボタン）',
+    'toB_purchase': 'toB（購入）'
+  };
+  return goalNames[goalType] || goalType;
+}
+
+// Phase 2: セットアップ保存（強化版）
+app.post('/save-setup', async (req, res) => {
+  console.log('🚨 POST /save-setup が呼ばれました!');
+  console.log('=== 設定保存処理開始 ===');
+  console.log('受信データ:', req.body);
+  
+  // 認証チェック
+  if (!req.session || !req.session.user) {
+    console.log('❌ 認証失敗 - ログインが必要');
+    return res.status(401).json({ 
+      success: false, 
+      message: '認証が必要です',
+      redirectUrl: '/login' 
+    });
+  }
+  
+  try {
+    // フォームデータの取得（両方の形式に対応）
+    const metaAccessToken = req.body.meta_access_token || req.body.metaAccessToken;
+    const metaAccountId = req.body.meta_account_id || req.body.metaAccountId;
+    const chatworkApiToken = req.body.chatwork_api_token || req.body.chatworkApiToken;
+    const chatworkRoomId = req.body.chatwork_room_id || req.body.chatworkRoomId;
+    const goalType = req.body.goal_type || req.body.goalType || 'toC_newsletter';
+    
+    console.log('抽出したデータ:', {
+      hasMetaToken: !!metaAccessToken,
+      hasMetaAccount: !!metaAccountId,
+      hasChatworkToken: !!chatworkApiToken,
+      hasChatworkRoom: !!chatworkRoomId,
+      goalType
+    });
+    
+    // 必須項目チェック
+    if (!metaAccessToken || !metaAccountId || !chatworkApiToken || !chatworkRoomId) {
+      return res.status(400).json({
+        success: false,
+        message: '必須項目が入力されていません',
+        missing: {
+          metaToken: !metaAccessToken,
+          metaAccount: !metaAccountId,
+          chatworkToken: !chatworkApiToken,
+          chatworkRoom: !chatworkRoomId
+        }
+      });
+    }
+    
+    // セッションに保存
+    req.session.metaAccessToken = metaAccessToken;
+    req.session.metaAccountId = metaAccountId;
+    req.session.chatworkApiToken = chatworkApiToken;
+    req.session.chatworkRoomId = chatworkRoomId;
+    
+    // 設定データ作成
+    const settings = {
+      meta: {
+        accessToken: metaAccessToken,
+        accountId: metaAccountId,
+        appId: req.body.meta_app_id || ''
+      },
+      chatwork: {
+        apiToken: chatworkApiToken,
+        roomId: chatworkRoomId
+      },
+      goal: {
+        type: goalType,
+        name: getGoalName(goalType)
+      },
+      notifications: {
+        daily_report: {
+          enabled: req.body.daily_report_enabled === 'true' || false,
+          time: req.body.daily_report_time || '09:00'
+        },
+        update_notifications: {
+          enabled: req.body.update_notifications_enabled === 'true' || false
+        },
+        alert_notifications: {
+          enabled: req.body.alert_notifications_enabled === 'true' || false
+        }
+      },
+      isConfigured: true,
+      setupCompletedAt: new Date().toISOString()
+    };
+    
+    console.log('保存する設定:', settings);
+    
+    // config/setup.json に保存
+    const configDir = './config';
+    if (!fs.existsSync(configDir)) {
+      fs.mkdirSync(configDir, { recursive: true });
+    }
+    
+    fs.writeFileSync('./config/setup.json', JSON.stringify(settings, null, 2));
+    console.log('✅ config/setup.json 保存完了');
+    
+    // settings.json にも保存（後方互換性）
+    fs.writeFileSync('./settings.json', JSON.stringify(settings, null, 2));
+    console.log('✅ settings.json 保存完了');
+    
+    // config/meta-config.json にも保存（ダッシュボード用）
+    const metaConfig = {
+      meta_access_token: metaAccessToken,
+      meta_account_id: metaAccountId,
+      meta_app_id: req.body.meta_app_id || ''
+    };
+    
+    fs.writeFileSync('./config/meta-config.json', JSON.stringify(metaConfig, null, 2));
+    console.log('✅ config/meta-config.json 保存完了');
+    
+    // セッション保存
+    req.session.save((err) => {
+      if (err) {
+        console.error('❌ セッション保存エラー:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'セッション保存に失敗しました',
+          error: err.message 
+        });
+      }
+      
+      console.log('✅ セッション保存完了');
+      console.log('🔄 ダッシュボードにリダイレクト');
+      
+      // JSONレスポンスを返す（フロントエンドがリダイレクト処理）
+      res.json({ 
+        success: true, 
+        message: 'セットアップが正常に保存されました',
+        redirectUrl: '/dashboard?setup_completed=true'
+      });
+    });
+    
+  } catch (error) {
+    console.error('❌ 設定保存エラー:', error);
+    res.status(500).json({
+      success: false,
+      message: 'セットアップの保存に失敗しました',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
+// Phase 1: セッション設定用の簡易ルート追加（既存ルーティングは削除しない）
+app.post('/temp-api-setup', (req, res) => {
+  // テスト用：セッションに一時保存
+  if (req.body.metaAccessToken) {
+    req.session.metaAccessToken = req.body.metaAccessToken;
+  }
+  if (req.body.chatworkApiToken) {
+    req.session.chatworkApiToken = req.body.chatworkApiToken;
+  }
+  res.redirect('/dashboard');
+});
+
+app.get('/save-setup-get', (req, res) => {
+  console.log('=== GET SETUP BACKUP ===');
+  console.log('Query params:', req.query);
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  try {
+    req.session.metaAccessToken = req.query.metaAccessToken;
+    req.session.metaAccountId = req.query.metaAccountId;
+    req.session.chatworkApiToken = req.query.chatworkApiToken;
+    req.session.chatworkRoomId = req.query.chatworkRoomId;
+    console.log('GET session saved, redirecting to dashboard');
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error('GET setup error:', error);
+    res.status(500).send('GET setup failed');
+  }
 });
 
 // アラートシステムのインポート
@@ -512,18 +709,7 @@ app.get('/auth/logout', (req, res) => {
 });
 
 // ================================
-// POST /setup ルート（設定保存）
-// ================================
-// ❌ この部分を完全に削除
-
-// 後方互換性のための /setup ルート（簡潔版）
-app.post('/setup', (req, res) => {
-  console.log('🔄 /setup → /save-setup リダイレクト');
-  // リクエストを /save-setup に転送
-  req.url = '/save-setup';
-  // Express内部でルートを再処理
-  app.handle(req, res);
-});
+// 競合するPOST /setupルートを削除済み
 
 // ダッシュボードデータ取得API
 app.get('/api/dashboard-data', requireAuth, async (req, res) => {
@@ -1686,11 +1872,7 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
     }
 });
 
-// 404ハンドリング
-app.use((req, res) => {
-  console.log('404エラー:', req.method, req.url);
-  res.status(404).send('ページが見つかりません');
-});
+// 早すぎる404ハンドラーを削除
 
 // Meta API接続テスト用
 app.get('/api/test-meta-connection', requireAuth, async (req, res) => {
@@ -1983,194 +2165,15 @@ app.get('/health', (req, res) => {
   });
 });
 
+// 重複した404ハンドラーと/save-setupルートを削除（正しい場所に移動予定）
+
+// 404ハンドリング（必ず最後に配置）
+app.use((req, res) => {
+  console.log('404エラー:', req.method, req.url);
+  res.status(404).send('ページが見つかりません');
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n==========================================\n✅ サーバー起動成功！\n🌐 URL: http://localhost:${PORT}\n👤 ログイン: komiya / komiya\n==========================================\n  `);
-});
-
-// Phase 1: セッション設定用の簡易ルート追加（既存ルーティングは削除しない）
-app.post('/temp-api-setup', (req, res) => {
-  // テスト用：セッションに一時保存
-  if (req.body.metaAccessToken) {
-    req.session.metaAccessToken = req.body.metaAccessToken;
-  }
-  if (req.body.chatworkApiToken) {
-    req.session.chatworkApiToken = req.body.chatworkApiToken;
-  }
-  res.redirect('/dashboard');
-});
-
-// ゴール名取得ヘルパー関数
-function getGoalName(goalType) {
-  const goalNames = {
-    'toC_newsletter': 'toC（メルマガ登録）',
-    'toC_line': 'toC（LINE登録）',
-    'toC_phone': 'toC（電話ボタン）',
-    'toC_purchase': 'toC（購入）',
-    'toB_newsletter': 'toB（メルマガ登録）',
-    'toB_line': 'toB（LINE登録）',
-    'toB_phone': 'toB（電話ボタン）',
-    'toB_purchase': 'toB（購入）'
-  };
-  return goalNames[goalType] || goalType;
-}
-
-// Phase 2: セットアップ保存（強化版）
-app.post('/save-setup', async (req, res) => {
-  console.log('🚨 POST /save-setup が呼ばれました!');
-  console.log('=== 設定保存処理開始 ===');
-  console.log('受信データ:', req.body);
-  
-  // 認証チェック
-  if (!req.session || !req.session.user) {
-    console.log('❌ 認証失敗 - ログインが必要');
-    return res.status(401).json({ 
-      success: false, 
-      message: '認証が必要です',
-      redirectUrl: '/login' 
-    });
-  }
-  
-  try {
-    // フォームデータの取得（両方の形式に対応）
-    const metaAccessToken = req.body.meta_access_token || req.body.metaAccessToken;
-    const metaAccountId = req.body.meta_account_id || req.body.metaAccountId;
-    const chatworkApiToken = req.body.chatwork_api_token || req.body.chatworkApiToken;
-    const chatworkRoomId = req.body.chatwork_room_id || req.body.chatworkRoomId;
-    const goalType = req.body.goal_type || req.body.goalType || 'toC_newsletter';
-    
-    console.log('抽出したデータ:', {
-      hasMetaToken: !!metaAccessToken,
-      hasMetaAccount: !!metaAccountId,
-      hasChatworkToken: !!chatworkApiToken,
-      hasChatworkRoom: !!chatworkRoomId,
-      goalType
-    });
-    
-    // 必須項目チェック
-    if (!metaAccessToken || !metaAccountId || !chatworkApiToken || !chatworkRoomId) {
-      return res.status(400).json({
-        success: false,
-        message: '必須項目が入力されていません',
-        missing: {
-          metaToken: !metaAccessToken,
-          metaAccount: !metaAccountId,
-          chatworkToken: !chatworkApiToken,
-          chatworkRoom: !chatworkRoomId
-        }
-      });
-    }
-    
-    // セッションに保存
-    req.session.metaAccessToken = metaAccessToken;
-    req.session.metaAccountId = metaAccountId;
-    req.session.chatworkApiToken = chatworkApiToken;
-    req.session.chatworkRoomId = chatworkRoomId;
-    
-    // 設定データ作成
-    const settings = {
-      meta: {
-        accessToken: metaAccessToken,
-        accountId: metaAccountId,
-        appId: req.body.meta_app_id || ''
-      },
-      chatwork: {
-        apiToken: chatworkApiToken,
-        roomId: chatworkRoomId
-      },
-      goal: {
-        type: goalType,
-        name: getGoalName(goalType)
-      },
-      notifications: {
-        daily_report: {
-          enabled: req.body.daily_report_enabled === 'true' || false,
-          time: req.body.daily_report_time || '09:00'
-        },
-        update_notifications: {
-          enabled: req.body.update_notifications_enabled === 'true' || false
-        },
-        alert_notifications: {
-          enabled: req.body.alert_notifications_enabled === 'true' || false
-        }
-      },
-      isConfigured: true,
-      setupCompletedAt: new Date().toISOString()
-    };
-    
-    console.log('保存する設定:', settings);
-    
-    // config/setup.json に保存
-    const configDir = './config';
-    if (!fs.existsSync(configDir)) {
-      fs.mkdirSync(configDir, { recursive: true });
-    }
-    
-    fs.writeFileSync('./config/setup.json', JSON.stringify(settings, null, 2));
-    console.log('✅ config/setup.json 保存完了');
-    
-    // settings.json にも保存（後方互換性）
-    fs.writeFileSync('./settings.json', JSON.stringify(settings, null, 2));
-    console.log('✅ settings.json 保存完了');
-    
-    // config/meta-config.json にも保存（ダッシュボード用）
-    const metaConfig = {
-      meta_access_token: metaAccessToken,
-      meta_account_id: metaAccountId,
-      meta_app_id: req.body.meta_app_id || ''
-    };
-    
-    fs.writeFileSync('./config/meta-config.json', JSON.stringify(metaConfig, null, 2));
-    console.log('✅ config/meta-config.json 保存完了');
-    
-    // セッション保存
-    req.session.save((err) => {
-      if (err) {
-        console.error('❌ セッション保存エラー:', err);
-        return res.status(500).json({ 
-          success: false, 
-          message: 'セッション保存に失敗しました',
-          error: err.message 
-        });
-      }
-      
-      console.log('✅ セッション保存完了');
-      console.log('🔄 ダッシュボードにリダイレクト');
-      
-      // JSONレスポンスを返す（フロントエンドがリダイレクト処理）
-      res.json({ 
-        success: true, 
-        message: 'セットアップが正常に保存されました',
-        redirectUrl: '/dashboard?setup_completed=true'
-      });
-    });
-    
-  } catch (error) {
-    console.error('❌ 設定保存エラー:', error);
-    res.status(500).json({
-      success: false,
-      message: 'セットアップの保存に失敗しました',
-      error: error.message,
-      stack: error.stack
-    });
-  }
-});
-
-app.get('/save-setup-get', (req, res) => {
-  console.log('=== GET SETUP BACKUP ===');
-  console.log('Query params:', req.query);
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
-  try {
-    req.session.metaAccessToken = req.query.metaAccessToken;
-    req.session.metaAccountId = req.query.metaAccountId;
-    req.session.chatworkApiToken = req.query.chatworkApiToken;
-    req.session.chatworkRoomId = req.query.chatworkRoomId;
-    console.log('GET session saved, redirecting to dashboard');
-    res.redirect('/dashboard');
-  } catch (error) {
-    console.error('GET setup error:', error);
-    res.status(500).send('GET setup failed');
-  }
 });
