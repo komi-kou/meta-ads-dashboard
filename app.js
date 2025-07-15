@@ -39,7 +39,7 @@ app.use(express.json());
 
 // セッション設定
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'default-secret-key-for-development',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -96,83 +96,23 @@ function requireAuth(req, res, next) {
 }
 
 // 設定完了判定機能
-function checkSetupCompletion(req = null) {
+function checkSetupCompletion() {
   try {
-    console.log('=== セットアップ完了状態チェック開始 ===');
-    console.log('リクエストオブジェクト:', req ? '存在' : 'なし');
-    
-    // セッションから設定をチェック（優先）
-    let sessionHasMeta = false;
-    let sessionHasChatwork = false;
-    let sessionHasGoal = false;
-    
-    if (req && req.session) {
-      console.log('🔍 セッション情報確認:', {
-        user: req.session.user,
-        authenticated: req.session.authenticated,
-        metaAccessToken: req.session.metaAccessToken ? '設定済み' : '未設定',
-        metaAccountId: req.session.metaAccountId ? '設定済み' : '未設定',
-        chatworkApiToken: req.session.chatworkApiToken ? '設定済み' : '未設定',
-        chatworkRoomId: req.session.chatworkRoomId ? '設定済み' : '未設定',
-        goalType: req.session.goalType ? '設定済み' : '未設定'
-      });
-      
-      sessionHasMeta = !!(req.session.metaAccessToken && req.session.metaAccountId);
-      sessionHasChatwork = !!(req.session.chatworkApiToken && req.session.chatworkRoomId);
-      sessionHasGoal = !!(req.session.goalType);
-      
-      console.log('📊 セッション設定状態:', {
-        meta: sessionHasMeta,
-        chatwork: sessionHasChatwork,
-        goal: sessionHasGoal
-      });
-    } else {
-      console.log('⚠️ セッション情報なし');
-    }
-    
-    // settings.jsonから設定を読み込み（フォールバック）
-    let fileHasMeta = false;
-    let fileHasChatwork = false;
-    let fileHasGoal = false;
-    let isConfigured = false;
-    
+    // settings.jsonから設定を読み込み
     if (fs.existsSync('./settings.json')) {
-      console.log('📁 settings.jsonファイル存在確認');
       const settings = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
       
-      fileHasMeta = !!(settings.meta?.accessToken && settings.meta?.accountId);
-      fileHasChatwork = !!(settings.chatwork?.apiToken && settings.chatwork?.roomId);
-      fileHasGoal = !!(settings.goal?.type);
-      isConfigured = settings.isConfigured === true;
+      // 必須設定項目の確認
+      const hasMetaAPI = !!(settings.meta?.accessToken && settings.meta?.accountId);
+      const hasChatwork = !!(settings.chatwork?.apiToken && settings.chatwork?.roomId);
+      const hasGoal = !!(settings.goal?.type);
+      const isConfigured = settings.isConfigured === true;
       
-      console.log('📊 ファイル設定状態:', {
-        meta: fileHasMeta,
-        chatwork: fileHasChatwork,
-        goal: fileHasGoal,
-        isConfigured: isConfigured
-      });
-    } else {
-      console.log('⚠️ settings.jsonファイルなし');
+      return hasMetaAPI && hasChatwork && hasGoal && isConfigured;
     }
-    
-    // セッションまたはファイルのどちらかで完了していればOK
-    const hasMetaAPI = sessionHasMeta || fileHasMeta;
-    const hasChatwork = sessionHasChatwork || fileHasChatwork;
-    const hasGoal = sessionHasGoal || fileHasGoal;
-    
-    const isComplete = hasMetaAPI && hasChatwork && hasGoal;
-    
-    console.log('🎯 最終判定:', {
-      hasMetaAPI,
-      hasChatwork,
-      hasGoal,
-      isComplete
-    });
-    
-    console.log('=== セットアップ完了状態チェック終了 ===');
-    return isComplete;
+    return false;
   } catch (error) {
-    console.error('❌ 設定完了チェックエラー:', error);
+    console.error('設定完了チェックエラー:', error);
     return false;
   }
 }
@@ -201,27 +141,15 @@ function requireSetup(req, res, next) {
   }
 }
 
-// ルートアクセス（セットアップ完了チェック付き）
+// ルートアクセス（設定完了状態に応じて遷移）
 app.get('/', (req, res) => {
-  console.log('=== ROOT ACCESS ===');
-  console.log('Session:', req.session);
-  
-  // 認証チェック
-  if (!req.session.user && !req.session.authenticated) {
-    console.log('No session, redirecting to login');
+  if (!req.session.user) {
     return res.redirect('/login');
   }
-  
-  // セットアップ完了チェック
-  const isSetupComplete = checkSetupCompletion(req);
-  
-  if (isSetupComplete) {
-    console.log('Setup complete, redirecting to dashboard');
-    res.redirect('/dashboard');
-  } else {
-    console.log('Setup not complete, redirecting to setup');
-    res.redirect('/setup');
+  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
+    return res.redirect('/setup');
   }
+  res.redirect('/dashboard');
 });
 
 // ログインページ
@@ -237,38 +165,33 @@ app.get('/login', (req, res) => {
   res.redirect('/auth/login');
 });
 
-// ログイン処理（常にセットアップページへリダイレクト）
+// ログイン処理（設定完了状態に応じて遷移）
 app.post('/auth/login', (req, res) => {
   try {
     const { username, password } = req.body;
     console.log('=== ログイン処理開始 ===');
     console.log('ユーザー名:', username);
-    console.log('パスワード:', password ? '入力済み' : '未入力');
     
     if (username === 'komiya' && (password === 'komiya' || password === 'password')) {
       req.session.authenticated = true;
       req.session.user = username;
-      console.log('✅ 認証成功');
+      console.log('認証成功');
       console.log('セッション状態:', req.session);
       
       // 設定完了状態をチェック
-      console.log('🔍 セットアップ完了状態チェック開始');
-      const isSetupComplete = checkSetupCompletion(req);
-      console.log('📊 セットアップ完了状態:', isSetupComplete);
-      
-      if (isSetupComplete) {
-        console.log('✅ 設定完了済み → ダッシュボードにリダイレクト');
+      if (checkSetupCompletion()) {
+        console.log('設定完了済み → ダッシュボードにリダイレクト');
         res.redirect('/dashboard');
       } else {
-        console.log('⚠️ 設定未完了 → セットアップ画面にリダイレクト');
+        console.log('設定未完了 → 設定画面にリダイレクト');
         res.redirect('/setup');
       }
     } else {
-      console.log('❌ 認証失敗');
+      console.log('認証失敗');
       res.redirect('/auth/login?error=invalid');
     }
   } catch (error) {
-    console.error('❌ ログイン処理エラー:', error);
+    console.error('ログイン処理エラー:', error);
     res.redirect('/auth/login?error=system');
   }
 });
@@ -288,57 +211,30 @@ app.get('/setup', (req, res) => {
   });
 });
 
-// ダッシュボード（セットアップ完了チェック付き）
+// ダッシュボード（設定完了チェック付き）
 app.get('/dashboard', (req, res) => {
-  console.log('=== DASHBOARD ACCESS ===');
-  console.log('Session:', req.session);
-  
-  // 認証チェック
-  if (!req.session.user && !req.session.authenticated) {
-    console.log('❌ No user session, redirecting to login');
+  console.log('Dashboard route accessed');
+  console.log('Session user:', req.session.user);
+  console.log('Session tokens:', {
+    meta: !!req.session.metaAccessToken,
+    chatwork: !!req.session.chatworkApiToken
+  });
+  if (!req.session.user) {
+    console.log('No user, redirecting to login');
     return res.redirect('/login');
   }
-  
-  console.log('✅ 認証OK、セットアップ完了チェック開始');
-  
-  // セットアップ完了チェック
-  const isSetupComplete = checkSetupCompletion(req);
-  
-  if (!isSetupComplete) {
-    console.log('⚠️ Setup not complete, redirecting to setup page');
+  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
+    console.log('Missing API tokens, redirecting to setup');
     return res.redirect('/setup');
   }
-  
-  console.log('✅ Setup complete, rendering dashboard');
-  try {
-    res.render('dashboard', {
-      userTokens: {
-        meta: req.session?.metaAccessToken || '',
-        chatwork: req.session?.chatworkApiToken || ''
-      },
-      user: req.session?.user || 'User'
-    });
-  } catch (error) {
-    console.error('❌ Dashboard render error:', error);
-    res.status(500).send('Dashboard error: ' + error.message);
-  }
-});
-
-// ダッシュボードの代替ルート（認証なし）
-app.get('/dashboard-test', (req, res) => {
-  console.log('=== DASHBOARD TEST ACCESS ===');
-  try {
-    res.render('dashboard', {
-      userTokens: {
-        meta: 'test-token',
-        chatwork: 'test-token'
-      },
-      user: 'TestUser'
-    });
-  } catch (error) {
-    console.error('Dashboard test render error:', error);
-    res.status(500).send('Dashboard test error: ' + error.message);
-  }
+  console.log('Rendering dashboard');
+  res.render('dashboard', {
+    userTokens: {
+      meta: req.session.metaAccessToken,
+      chatwork: req.session.chatworkApiToken
+    },
+    user: req.session.user
+  });
 });
 
 // アラートページ表示
@@ -346,13 +242,8 @@ app.get('/alerts', requireAuth, (req, res) => {
     res.render('alerts');
 });
 
-// アラートシステムのインポート（一時的に無効化）
-// const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSystem');
-
-// ダミー関数で代替
-const checkAllAlerts = () => [];
-const getAlertHistory = () => [];
-const getAlertSettings = () => ({});
+// アラートシステムのインポート
+const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSystem');
 
 // アラート関連のルートを app.js に追加
 
@@ -1922,57 +1813,14 @@ app.listen(PORT, () => {
 
 // Phase 1: セッション設定用の簡易ルート追加（既存ルーティングは削除しない）
 app.post('/temp-api-setup', (req, res) => {
-  console.log('=== TEMP API SETUP RECEIVED ===');
-  console.log('Request body:', req.body);
-  
-  if (!req.session.user) {
-    console.log('No user session, redirecting to login');
-    return res.redirect('/login');
+  // テスト用：セッションに一時保存
+  if (req.body.metaAccessToken) {
+    req.session.metaAccessToken = req.body.metaAccessToken;
   }
-  
-  try {
-    // API設定をセッションに保存
-    if (req.body.metaAccessToken) {
-      req.session.metaAccessToken = req.body.metaAccessToken;
-    }
-    if (req.body.metaAccountId) {
-      req.session.metaAccountId = req.body.metaAccountId;
-    }
-    if (req.body.chatworkApiToken) {
-      req.session.chatworkApiToken = req.body.chatworkApiToken;
-    }
-    if (req.body.chatworkRoomId) {
-      req.session.chatworkRoomId = req.body.chatworkRoomId;
-    }
-    
-    // ゴール設定も保存（デフォルト値）
-    if (!req.session.goalType) {
-      req.session.goalType = 'toC_newsletter';
-    }
-    
-    console.log('Session data saved:', {
-      hasMetaToken: !!req.session.metaAccessToken,
-      hasMetaAccount: !!req.session.metaAccountId,
-      hasChatworkToken: !!req.session.chatworkApiToken,
-      hasChatworkRoom: !!req.session.chatworkRoomId,
-      hasGoal: !!req.session.goalType
-    });
-    
-    // セットアップ完了状態をチェック
-    const isSetupComplete = checkSetupCompletion(req);
-    
-    if (isSetupComplete) {
-      console.log('Setup complete, redirecting to dashboard');
-      res.redirect('/dashboard');
-    } else {
-      console.log('Setup not complete, staying on setup page');
-      res.redirect('/setup');
-    }
-    
-  } catch (error) {
-    console.error('Temp setup save error:', error);
-    res.status(500).json({ error: 'Setup failed: ' + error.message });
+  if (req.body.chatworkApiToken) {
+    req.session.chatworkApiToken = req.body.chatworkApiToken;
   }
+  res.redirect('/dashboard');
 });
 
 // Phase 2: セットアップ保存

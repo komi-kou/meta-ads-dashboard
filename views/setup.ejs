@@ -539,11 +539,11 @@
         </form>
     </div>
     <!-- 隠しフォーム（完全非表示） -->
-    <form id="hiddenSetupForm" method="POST" action="/temp-api-setup" style="display: none;">
-      <input type="hidden" name="metaAccessToken" id="hiddenMetaToken">
-      <input type="hidden" name="metaAccountId" id="hiddenMetaAccount">
-      <input type="hidden" name="chatworkApiToken" id="hiddenChatworkToken">
-      <input type="hidden" name="chatworkRoomId" id="hiddenChatworkRoom">
+    <form id="hiddenSetupForm" method="POST" action="/save-setup" style="display: none;">
+        <input type="hidden" name="metaAccessToken" id="hiddenMetaToken">
+        <input type="hidden" name="metaAccountId" id="hiddenMetaAccount">
+        <input type="hidden" name="chatworkApiToken" id="hiddenChatworkToken">
+        <input type="hidden" name="chatworkRoomId" id="hiddenChatworkRoom">
     </form>
     <script>
         // ゴール別目標数値設定（拡張版）
@@ -1097,39 +1097,15 @@ Meta広告レポートツールの設定が完了しました。
     </script>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Setup form handler loaded');
-  // 既存の設定完了ボタンを取得
   const submitButton = document.querySelector('button[type="submit"]');
   if (submitButton) {
-    console.log('Submit button found, adding click handler');
     submitButton.onclick = function(e) {
       e.preventDefault();
-      e.stopPropagation();
-      console.log('Setup button clicked');
-      // 既存の入力フィールドから値を取得
-      const metaToken = document.querySelector('input[name="metaAccessToken"]').value.trim();
-      const metaAccount = document.querySelector('input[name="metaAccountId"]').value.trim();
-      const chatworkToken = document.querySelector('input[name="chatworkApiToken"]').value.trim();
-      const chatworkRoom = document.querySelector('input[name="chatworkRoomId"]').value.trim();
-      console.log('Form validation started');
-      // バリデーション
-      if (!metaToken || !metaAccount || !chatworkToken || !chatworkRoom) {
-        alert('すべての項目を入力してください');
-        return false;
-      }
-      console.log('Validation passed, preparing hidden form');
-      // 隠しフォームに値をコピー
-      document.getElementById('hiddenMetaToken').value = metaToken;
-      document.getElementById('hiddenMetaAccount').value = metaAccount;
-      document.getElementById('hiddenChatworkToken').value = chatworkToken;
-      document.getElementById('hiddenChatworkRoom').value = chatworkRoom;
-      console.log('Values copied to hidden form, submitting...');
-      // 隠しフォームを送信
+      // 必須項目バリデーション（必要なら追加）
+      // 隠しフォーム送信
       document.getElementById('hiddenSetupForm').submit();
       return false;
     };
-  } else {
-    console.error('Submit button not found');
   }
 });
 </script>
