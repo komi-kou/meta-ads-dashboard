@@ -39,7 +39,7 @@ app.use(express.json());
 
 // セッション設定
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -514,89 +514,181 @@ app.get('/auth/logout', (req, res) => {
 // ================================
 // POST /setup ルート（設定保存）
 // ================================
-app.post('/setup', requireAuth, async (req, res) => {
-  console.log('🚨 POST /setup が呼ばれました!');
-  console.log('=== 設定保存処理開始 ===');
-  console.log('受信データ:', req.body);
-  
+// ❌ この部分を完全に削除
+
+// 後方互換性のための /setup ルート（簡潔版）
+app.post('/setup', (req, res) => {
+  console.log('🔄 /setup → /save-setup リダイレクト');
+  // リクエストを /save-setup に転送
+  req.url = '/save-setup';
+  // Express内部でルートを再処理
+  app.handle(req, res);
+});
+
+// ダッシュボードデータ取得API
+app.get('/api/dashboard-data', requireAuth, async (req, res) => {
   try {
+    console.log('=== ダッシュボードデータ取得開始 ===');
     
-    // 設定データ作成
-    const settings = {
-      meta: {
-        accessToken: req.body.meta_access_token || '',
-        accountId: req.body.meta_account_id || '',
-        appId: req.body.meta_app_id || ''
-      },
-      chatwork: {
-        apiToken: req.body.chatwork_api_token || '',
-        roomId: req.body.chatwork_room_id || ''
-      },
-      goal: {
-        type: req.body.goal_type || 'toC_newsletter',
-        name: getGoalName(req.body.goal_type || 'toC_newsletter')
-      },
-      isConfigured: true,
-      setupCompletedAt: new Date().toISOString()
-    };
-    
-    console.log('保存する設定:', settings);
-    
-    // settings.json に保存
-    fs.writeFileSync('./settings.json', JSON.stringify(settings, null, 2));
-    console.log('✅ settings.json 保存完了');
-    
-    // config/meta-config.json にも保存（ダッシュボード用）
-    const metaConfig = {
-      meta_access_token: req.body.meta_access_token || '',
-      meta_account_id: req.body.meta_account_id || '',
-      meta_app_id: req.body.meta_app_id || ''
-    };
-    
-    // configディレクトリが存在しない場合は作成
-    if (!fs.existsSync('./config')) {
-      fs.mkdirSync('./config');
+    // セットアップデータを読み込み
+    let setupData = null;
+    if (fs.existsSync('./config/setup.json')) {
+      setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
     }
     
-    fs.writeFileSync('./config/meta-config.json', JSON.stringify(metaConfig, null, 2));
-    console.log('✅ config/meta-config.json 保存完了');
-    
-    console.log('✅ 設定保存完了');
-    
-    // 設定完了状態をマーク
-    markSetupAsComplete();
-    
-    // トークン管理システムに登録
-    try {
-        await tokenManager.registerToken();
-        console.log('✅ トークン管理システムに登録完了');
-    } catch (error) {
-        console.error('⚠️ トークン管理システム登録エラー:', error);
+    if (!setupData || !setupData.meta?.accessToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Meta広告の設定が完了していません',
+        error: 'SETUP_INCOMPLETE'
+      });
     }
     
-    // ダッシュボードにリダイレクト（設定完了フラグ付き）
-    console.log('🔄 ダッシュボードにリダイレクト（設定完了）');
-    res.redirect('/dashboard?setup_completed=true');
+    // Meta広告データを取得
+    const metaData = await fetchMetaAdsData(setupData.meta.accessToken, setupData.meta.accountId);
+    
+    res.json({
+      success: true,
+      data: {
+        campaigns: metaData.campaigns,
+        performance: metaData.performance,
+        insights: metaData.insights,
+        lastUpdate: new Date().toISOString()
+      }
+    });
     
   } catch (error) {
-    console.error('❌ 設定保存エラー:', error);
-    res.status(500).send(`設定保存エラー: ${error.message}`);
+    console.error('ダッシュボードデータ取得エラー:', error);
+    res.status(500).json({
+      success: false,
+      message: 'ダッシュボードデータの取得に失敗しました',
+      error: error.message
+    });
   }
 });
 
-// ゴール名取得ヘルパー
-function getGoalName(goalType) {
-  const goalNames = {
-    'toC_newsletter': 'toC（メルマガ登録）',
-    'toC_line': 'toC（LINE登録）',
-    'toC_phone': 'toC（電話ボタン）',
-    'toC_purchase': 'toC（購入）',
-    'toB_newsletter': 'toB（メルマガ登録）',
-    'toB_line': 'toB（LINE登録）',
-    'toB_phone': 'toB（電話ボタン）',
-    'toB_purchase': 'toB（購入）'
-  };
-  return goalNames[goalType] || goalType;
+// Meta広告データ取得関数
+async function fetchMetaAdsData(accessToken, accountId) {
+  try {
+    console.log('Meta広告データ取得開始:', { accountId });
+    
+    // アカウント情報取得
+    const accountResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${accountId}`,
+      {
+        params: {
+          fields: 'name,currency,timezone_name'
+        },
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    
+    console.log('アカウント情報取得成功:', accountResponse.data);
+    
+    // キャンペーンデータ取得
+    const campaignResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${accountId}/campaigns`,
+      {
+        params: {
+          fields: 'name,status,objective,created_time,updated_time',
+          limit: 25
+        },
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    
+    console.log('キャンペーンデータ取得成功:', campaignResponse.data.data.length, '件');
+    
+    // インサイトデータ取得（過去7日間）
+    const insightsResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${accountId}/insights`,
+      {
+        params: {
+          fields: 'spend,impressions,clicks,ctr,cpc,cpp,reach,frequency',
+          date_preset: 'last_7_days',
+          time_increment: 1
+        },
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    
+    console.log('インサイトデータ取得成功:', insightsResponse.data.data.length, '件');
+    
+    // インサイト生成
+    const insights = generateInsights(insightsResponse.data.data);
+    
+    return {
+      campaigns: campaignResponse.data.data,
+      performance: insightsResponse.data.data,
+      insights: insights,
+      account: accountResponse.data
+    };
+    
+  } catch (error) {
+    console.error('Meta広告データ取得エラー:', error);
+    throw error;
+  }
+}
+
+// インサイト生成関数
+function generateInsights(performanceData) {
+  const insights = [];
+  
+  if (!performanceData || performanceData.length === 0) {
+    insights.push({
+      type: 'info',
+      message: 'データがありません。広告キャンペーンを確認してください。'
+    });
+    return insights;
+  }
+  
+  // 最新のデータを使用
+  const latestData = performanceData[performanceData.length - 1];
+  
+  if (latestData.ctr) {
+    const ctr = parseFloat(latestData.ctr);
+    if (ctr < 1.0) {
+      insights.push({
+        type: 'warning',
+        message: 'CTRが1%を下回っています。広告クリエイティブの見直しを検討してください。'
+      });
+    }
+  }
+  
+  if (latestData.cpc) {
+    const cpc = parseFloat(latestData.cpc);
+    if (cpc > 100) {
+      insights.push({
+        type: 'warning',
+        message: 'CPCが高めです。ターゲティングの最適化を検討してください。'
+      });
+    }
+  }
+  
+  if (latestData.spend) {
+    const spend = parseFloat(latestData.spend);
+    if (spend < 1000) {
+      insights.push({
+        type: 'info',
+        message: '支出が少なめです。予算の見直しを検討してください。'
+      });
+    }
+  }
+  
+  if (insights.length === 0) {
+    insights.push({
+      type: 'success',
+      message: '現在、特に改善点はありません。継続して監視してください。'
+    });
+  }
+  
+  return insights;
 }
 
 // エラーハンドリング
@@ -1858,6 +1950,38 @@ try {
     console.error('❌ チャットワーク自動送信機能の開始に失敗:', error.message);
 }
 
+// 🧪 デバッグ用エンドポイント
+app.all('/debug-routes', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach(middleware => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods),
+        stackCount: middleware.route.stack.length
+      });
+    }
+  });
+  
+  const setupRoutes = routes.filter(r => r.path.includes('setup') || r.path.includes('save'));
+  
+  res.json({ 
+    totalRoutes: routes.length,
+    setupRoutes: setupRoutes,
+    allRoutes: routes.sort((a, b) => a.path.localeCompare(b.path))
+  });
+});
+
+// ヘルスチェック用エンドポイント
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage()
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n==========================================\n✅ サーバー起動成功！\n🌐 URL: http://localhost:${PORT}\n👤 ログイン: komiya / komiya\n==========================================\n  `);
@@ -1875,14 +1999,30 @@ app.post('/temp-api-setup', (req, res) => {
   res.redirect('/dashboard');
 });
 
-// Phase 2: セットアップ保存（改善版）
+// ゴール名取得ヘルパー関数
+function getGoalName(goalType) {
+  const goalNames = {
+    'toC_newsletter': 'toC（メルマガ登録）',
+    'toC_line': 'toC（LINE登録）',
+    'toC_phone': 'toC（電話ボタン）',
+    'toC_purchase': 'toC（購入）',
+    'toB_newsletter': 'toB（メルマガ登録）',
+    'toB_line': 'toB（LINE登録）',
+    'toB_phone': 'toB（電話ボタン）',
+    'toB_purchase': 'toB（購入）'
+  };
+  return goalNames[goalType] || goalType;
+}
+
+// Phase 2: セットアップ保存（強化版）
 app.post('/save-setup', async (req, res) => {
-  console.log('=== SETUP FORM RECEIVED ===');
-  console.log('Request body:', req.body);
-  console.log('Session user:', req.session.user);
+  console.log('🚨 POST /save-setup が呼ばれました!');
+  console.log('=== 設定保存処理開始 ===');
+  console.log('受信データ:', req.body);
   
-  if (!req.session.user) {
-    console.log('No user session, redirecting to login');
+  // 認証チェック
+  if (!req.session || !req.session.user) {
+    console.log('❌ 認証失敗 - ログインが必要');
     return res.status(401).json({ 
       success: false, 
       message: '認証が必要です',
@@ -1891,17 +2031,34 @@ app.post('/save-setup', async (req, res) => {
   }
   
   try {
-    const { 
-      metaAccessToken, 
-      metaAccountId, 
-      chatworkApiToken, 
-      chatworkRoomId,
-      goal_type,
-      daily_report_enabled,
-      daily_report_time,
-      update_notifications_enabled,
-      alert_notifications_enabled
-    } = req.body;
+    // フォームデータの取得（両方の形式に対応）
+    const metaAccessToken = req.body.meta_access_token || req.body.metaAccessToken;
+    const metaAccountId = req.body.meta_account_id || req.body.metaAccountId;
+    const chatworkApiToken = req.body.chatwork_api_token || req.body.chatworkApiToken;
+    const chatworkRoomId = req.body.chatwork_room_id || req.body.chatworkRoomId;
+    const goalType = req.body.goal_type || req.body.goalType || 'toC_newsletter';
+    
+    console.log('抽出したデータ:', {
+      hasMetaToken: !!metaAccessToken,
+      hasMetaAccount: !!metaAccountId,
+      hasChatworkToken: !!chatworkApiToken,
+      hasChatworkRoom: !!chatworkRoomId,
+      goalType
+    });
+    
+    // 必須項目チェック
+    if (!metaAccessToken || !metaAccountId || !chatworkApiToken || !chatworkRoomId) {
+      return res.status(400).json({
+        success: false,
+        message: '必須項目が入力されていません',
+        missing: {
+          metaToken: !metaAccessToken,
+          metaAccount: !metaAccountId,
+          chatworkToken: !chatworkApiToken,
+          chatworkRoom: !chatworkRoomId
+        }
+      });
+    }
     
     // セッションに保存
     req.session.metaAccessToken = metaAccessToken;
@@ -1909,55 +2066,66 @@ app.post('/save-setup', async (req, res) => {
     req.session.chatworkApiToken = chatworkApiToken;
     req.session.chatworkRoomId = chatworkRoomId;
     
-    // 設定データをJSONファイルに保存
-    const setupData = {
+    // 設定データ作成
+    const settings = {
       meta: {
         accessToken: metaAccessToken,
-        accountId: metaAccountId
+        accountId: metaAccountId,
+        appId: req.body.meta_app_id || ''
       },
       chatwork: {
         apiToken: chatworkApiToken,
         roomId: chatworkRoomId
       },
       goal: {
-        type: goal_type
+        type: goalType,
+        name: getGoalName(goalType)
       },
       notifications: {
         daily_report: {
-          enabled: daily_report_enabled === 'true',
-          time: daily_report_time || '09:00'
+          enabled: req.body.daily_report_enabled === 'true' || false,
+          time: req.body.daily_report_time || '09:00'
         },
         update_notifications: {
-          enabled: update_notifications_enabled === 'true'
+          enabled: req.body.update_notifications_enabled === 'true' || false
         },
         alert_notifications: {
-          enabled: alert_notifications_enabled === 'true'
+          enabled: req.body.alert_notifications_enabled === 'true' || false
         }
       },
       isConfigured: true,
       setupCompletedAt: new Date().toISOString()
     };
     
-    // config/setup.jsonに保存
+    console.log('保存する設定:', settings);
+    
+    // config/setup.json に保存
     const configDir = './config';
     if (!fs.existsSync(configDir)) {
       fs.mkdirSync(configDir, { recursive: true });
     }
     
-    fs.writeFileSync('./config/setup.json', JSON.stringify(setupData, null, 2));
+    fs.writeFileSync('./config/setup.json', JSON.stringify(settings, null, 2));
+    console.log('✅ config/setup.json 保存完了');
     
-    console.log('✅ セットアップデータを保存しました');
-    console.log('Session data saved:', {
-      hasMetaToken: !!req.session.metaAccessToken,
-      hasMetaAccount: !!req.session.metaAccountId,
-      hasChatworkToken: !!req.session.chatworkApiToken,
-      hasChatworkRoom: !!req.session.chatworkRoomId
-    });
+    // settings.json にも保存（後方互換性）
+    fs.writeFileSync('./settings.json', JSON.stringify(settings, null, 2));
+    console.log('✅ settings.json 保存完了');
+    
+    // config/meta-config.json にも保存（ダッシュボード用）
+    const metaConfig = {
+      meta_access_token: metaAccessToken,
+      meta_account_id: metaAccountId,
+      meta_app_id: req.body.meta_app_id || ''
+    };
+    
+    fs.writeFileSync('./config/meta-config.json', JSON.stringify(metaConfig, null, 2));
+    console.log('✅ config/meta-config.json 保存完了');
     
     // セッション保存
     req.session.save((err) => {
       if (err) {
-        console.error('Session save error:', err);
+        console.error('❌ セッション保存エラー:', err);
         return res.status(500).json({ 
           success: false, 
           message: 'セッション保存に失敗しました',
@@ -1965,20 +2133,24 @@ app.post('/save-setup', async (req, res) => {
         });
       }
       
-      console.log('✅ セッション保存完了、ダッシュボードにリダイレクト');
+      console.log('✅ セッション保存完了');
+      console.log('🔄 ダッシュボードにリダイレクト');
+      
+      // JSONレスポンスを返す（フロントエンドがリダイレクト処理）
       res.json({ 
         success: true, 
         message: 'セットアップが正常に保存されました',
-        redirectUrl: '/dashboard' 
+        redirectUrl: '/dashboard?setup_completed=true'
       });
     });
     
   } catch (error) {
-    console.error('Setup save error:', error);
-    res.status(500).json({ 
-      success: false, 
+    console.error('❌ 設定保存エラー:', error);
+    res.status(500).json({
+      success: false,
       message: 'セットアップの保存に失敗しました',
-      error: error.message 
+      error: error.message,
+      stack: error.stack
     });
   }
 });
@@ -2001,169 +2173,3 @@ app.get('/save-setup-get', (req, res) => {
     res.status(500).send('GET setup failed');
   }
 });
-
-// ダッシュボードデータ取得API
-app.get('/api/dashboard-data', requireAuth, async (req, res) => {
-  try {
-    console.log('=== ダッシュボードデータ取得開始 ===');
-    
-    // セットアップデータを読み込み
-    let setupData = null;
-    if (fs.existsSync('./config/setup.json')) {
-      setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
-    }
-    
-    if (!setupData || !setupData.meta?.accessToken) {
-      return res.status(400).json({
-        success: false,
-        message: 'Meta広告の設定が完了していません',
-        error: 'SETUP_INCOMPLETE'
-      });
-    }
-    
-    // Meta広告データを取得
-    const metaData = await fetchMetaAdsData(setupData.meta.accessToken, setupData.meta.accountId);
-    
-    res.json({
-      success: true,
-      data: {
-        campaigns: metaData.campaigns,
-        performance: metaData.performance,
-        insights: metaData.insights,
-        lastUpdate: new Date().toISOString()
-      }
-    });
-    
-  } catch (error) {
-    console.error('ダッシュボードデータ取得エラー:', error);
-    res.status(500).json({
-      success: false,
-      message: 'ダッシュボードデータの取得に失敗しました',
-      error: error.message
-    });
-  }
-});
-
-// Meta広告データ取得関数
-async function fetchMetaAdsData(accessToken, accountId) {
-  try {
-    console.log('Meta広告データ取得開始:', { accountId });
-    
-    // アカウント情報取得
-    const accountResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/${accountId}`,
-      {
-        params: {
-          fields: 'name,currency,timezone_name'
-        },
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      }
-    );
-    
-    console.log('アカウント情報取得成功:', accountResponse.data);
-    
-    // キャンペーンデータ取得
-    const campaignResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/${accountId}/campaigns`,
-      {
-        params: {
-          fields: 'name,status,objective,created_time,updated_time',
-          limit: 25
-        },
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      }
-    );
-    
-    console.log('キャンペーンデータ取得成功:', campaignResponse.data.data.length, '件');
-    
-    // インサイトデータ取得（過去7日間）
-    const insightsResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/${accountId}/insights`,
-      {
-        params: {
-          fields: 'spend,impressions,clicks,ctr,cpc,cpp,reach,frequency',
-          date_preset: 'last_7_days',
-          time_increment: 1
-        },
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      }
-    );
-    
-    console.log('インサイトデータ取得成功:', insightsResponse.data.data.length, '件');
-    
-    // インサイト生成
-    const insights = generateInsights(insightsResponse.data.data);
-    
-    return {
-      campaigns: campaignResponse.data.data,
-      performance: insightsResponse.data.data,
-      insights: insights,
-      account: accountResponse.data
-    };
-    
-  } catch (error) {
-    console.error('Meta広告データ取得エラー:', error);
-    throw error;
-  }
-}
-
-// インサイト生成関数
-function generateInsights(performanceData) {
-  const insights = [];
-  
-  if (!performanceData || performanceData.length === 0) {
-    insights.push({
-      type: 'info',
-      message: 'データがありません。広告キャンペーンを確認してください。'
-    });
-    return insights;
-  }
-  
-  // 最新のデータを使用
-  const latestData = performanceData[performanceData.length - 1];
-  
-  if (latestData.ctr) {
-    const ctr = parseFloat(latestData.ctr);
-    if (ctr < 1.0) {
-      insights.push({
-        type: 'warning',
-        message: 'CTRが1%を下回っています。広告クリエイティブの見直しを検討してください。'
-      });
-    }
-  }
-  
-  if (latestData.cpc) {
-    const cpc = parseFloat(latestData.cpc);
-    if (cpc > 100) {
-      insights.push({
-        type: 'warning',
-        message: 'CPCが高めです。ターゲティングの最適化を検討してください。'
-      });
-    }
-  }
-  
-  if (latestData.spend) {
-    const spend = parseFloat(latestData.spend);
-    if (spend < 1000) {
-      insights.push({
-        type: 'info',
-        message: '支出が少なめです。予算の見直しを検討してください。'
-      });
-    }
-  }
-  
-  if (insights.length === 0) {
-    insights.push({
-      type: 'success',
-      message: '現在、特に改善点はありません。継続して監視してください。'
-    });
-  }
-  
-  return insights;
-}
