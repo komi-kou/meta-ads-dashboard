@@ -95,14 +95,33 @@ function requireAuth(req, res, next) {
   }
 }
 
-// 設定完了判定機能
+// 設定完了判定機能（改善版）
 function checkSetupCompletion() {
   try {
-    // settings.jsonから設定を読み込み
+    // config/setup.jsonから設定を読み込み
+    if (fs.existsSync('./config/setup.json')) {
+      const setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
+      
+      // 必須設定項目の確認
+      const hasMetaAPI = !!(setupData.meta?.accessToken && setupData.meta?.accountId);
+      const hasChatwork = !!(setupData.chatwork?.apiToken && setupData.chatwork?.roomId);
+      const hasGoal = !!(setupData.goal?.type);
+      const isConfigured = setupData.isConfigured === true;
+      
+      console.log('設定完了チェック:', {
+        hasMetaAPI,
+        hasChatwork,
+        hasGoal,
+        isConfigured
+      });
+      
+      return hasMetaAPI && hasChatwork && hasGoal && isConfigured;
+    }
+    
+    // 従来のsettings.jsonもチェック（後方互換性）
     if (fs.existsSync('./settings.json')) {
       const settings = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
       
-      // 必須設定項目の確認
       const hasMetaAPI = !!(settings.meta?.accessToken && settings.meta?.accountId);
       const hasChatwork = !!(settings.chatwork?.apiToken && settings.chatwork?.roomId);
       const hasGoal = !!(settings.goal?.type);
@@ -110,6 +129,7 @@ function checkSetupCompletion() {
       
       return hasMetaAPI && hasChatwork && hasGoal && isConfigured;
     }
+    
     return false;
   } catch (error) {
     console.error('設定完了チェックエラー:', error);
@@ -1788,6 +1808,38 @@ app.get('/dashboard-test', (req, res) => {
   }
 });
 
+// セットアップ状態確認API（テスト用）
+app.get('/api/test-setup-status', (req, res) => {
+  try {
+    const isComplete = checkSetupCompletion();
+    const hasSetupFile = fs.existsSync('./config/setup.json');
+    const hasSettingsFile = fs.existsSync('./settings.json');
+    
+    let setupData = null;
+    if (hasSetupFile) {
+      setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
+    }
+    
+    res.json({
+      success: true,
+      isComplete,
+      hasSetupFile,
+      hasSettingsFile,
+      setupData: setupData ? {
+        hasMeta: !!(setupData.meta?.accessToken && setupData.meta?.accountId),
+        hasChatwork: !!(setupData.chatwork?.apiToken && setupData.chatwork?.roomId),
+        hasGoal: !!(setupData.goal?.type),
+        isConfigured: setupData.isConfigured
+      } : null
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // スケジューラーを読み込み
 try {
     require('./scheduler');
@@ -1823,37 +1875,111 @@ app.post('/temp-api-setup', (req, res) => {
   res.redirect('/dashboard');
 });
 
-// Phase 2: セットアップ保存
-app.post('/save-setup', (req, res) => {
+// Phase 2: セットアップ保存（改善版）
+app.post('/save-setup', async (req, res) => {
   console.log('=== SETUP FORM RECEIVED ===');
   console.log('Request body:', req.body);
   console.log('Session user:', req.session.user);
+  
   if (!req.session.user) {
     console.log('No user session, redirecting to login');
-    return res.redirect('/login');
+    return res.status(401).json({ 
+      success: false, 
+      message: '認証が必要です',
+      redirectUrl: '/login' 
+    });
   }
+  
   try {
-    req.session.metaAccessToken = req.body.metaAccessToken;
-    req.session.metaAccountId = req.body.metaAccountId;
-    req.session.chatworkApiToken = req.body.chatworkApiToken;
-    req.session.chatworkRoomId = req.body.chatworkRoomId;
+    const { 
+      metaAccessToken, 
+      metaAccountId, 
+      chatworkApiToken, 
+      chatworkRoomId,
+      goal_type,
+      daily_report_enabled,
+      daily_report_time,
+      update_notifications_enabled,
+      alert_notifications_enabled
+    } = req.body;
+    
+    // セッションに保存
+    req.session.metaAccessToken = metaAccessToken;
+    req.session.metaAccountId = metaAccountId;
+    req.session.chatworkApiToken = chatworkApiToken;
+    req.session.chatworkRoomId = chatworkRoomId;
+    
+    // 設定データをJSONファイルに保存
+    const setupData = {
+      meta: {
+        accessToken: metaAccessToken,
+        accountId: metaAccountId
+      },
+      chatwork: {
+        apiToken: chatworkApiToken,
+        roomId: chatworkRoomId
+      },
+      goal: {
+        type: goal_type
+      },
+      notifications: {
+        daily_report: {
+          enabled: daily_report_enabled === 'true',
+          time: daily_report_time || '09:00'
+        },
+        update_notifications: {
+          enabled: update_notifications_enabled === 'true'
+        },
+        alert_notifications: {
+          enabled: alert_notifications_enabled === 'true'
+        }
+      },
+      isConfigured: true,
+      setupCompletedAt: new Date().toISOString()
+    };
+    
+    // config/setup.jsonに保存
+    const configDir = './config';
+    if (!fs.existsSync(configDir)) {
+      fs.mkdirSync(configDir, { recursive: true });
+    }
+    
+    fs.writeFileSync('./config/setup.json', JSON.stringify(setupData, null, 2));
+    
+    console.log('✅ セットアップデータを保存しました');
     console.log('Session data saved:', {
       hasMetaToken: !!req.session.metaAccessToken,
       hasMetaAccount: !!req.session.metaAccountId,
       hasChatworkToken: !!req.session.chatworkApiToken,
       hasChatworkRoom: !!req.session.chatworkRoomId
     });
+    
+    // セッション保存
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
-        return res.status(500).json({ error: 'Session save failed' });
+        return res.status(500).json({ 
+          success: false, 
+          message: 'セッション保存に失敗しました',
+          error: err.message 
+        });
       }
-      console.log('Session saved successfully, redirecting to dashboard');
-      res.redirect('/dashboard');
+      
+      console.log('✅ セッション保存完了、ダッシュボードにリダイレクト');
+      res.json({ 
+        success: true, 
+        message: 'セットアップが正常に保存されました',
+        redirectUrl: '/dashboard' 
+      });
     });
+    
   } catch (error) {
     console.error('Setup save error:', error);
-    res.status(500).json({ error: 'Setup failed: ' + error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: 'セットアップの保存に失敗しました',
+      error: error.message 
+    });
   }
 });
 
@@ -1875,3 +2001,169 @@ app.get('/save-setup-get', (req, res) => {
     res.status(500).send('GET setup failed');
   }
 });
+
+// ダッシュボードデータ取得API
+app.get('/api/dashboard-data', requireAuth, async (req, res) => {
+  try {
+    console.log('=== ダッシュボードデータ取得開始 ===');
+    
+    // セットアップデータを読み込み
+    let setupData = null;
+    if (fs.existsSync('./config/setup.json')) {
+      setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
+    }
+    
+    if (!setupData || !setupData.meta?.accessToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Meta広告の設定が完了していません',
+        error: 'SETUP_INCOMPLETE'
+      });
+    }
+    
+    // Meta広告データを取得
+    const metaData = await fetchMetaAdsData(setupData.meta.accessToken, setupData.meta.accountId);
+    
+    res.json({
+      success: true,
+      data: {
+        campaigns: metaData.campaigns,
+        performance: metaData.performance,
+        insights: metaData.insights,
+        lastUpdate: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('ダッシュボードデータ取得エラー:', error);
+    res.status(500).json({
+      success: false,
+      message: 'ダッシュボードデータの取得に失敗しました',
+      error: error.message
+    });
+  }
+});
+
+// Meta広告データ取得関数
+async function fetchMetaAdsData(accessToken, accountId) {
+  try {
+    console.log('Meta広告データ取得開始:', { accountId });
+    
+    // アカウント情報取得
+    const accountResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${accountId}`,
+      {
+        params: {
+          fields: 'name,currency,timezone_name'
+        },
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    
+    console.log('アカウント情報取得成功:', accountResponse.data);
+    
+    // キャンペーンデータ取得
+    const campaignResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${accountId}/campaigns`,
+      {
+        params: {
+          fields: 'name,status,objective,created_time,updated_time',
+          limit: 25
+        },
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    
+    console.log('キャンペーンデータ取得成功:', campaignResponse.data.data.length, '件');
+    
+    // インサイトデータ取得（過去7日間）
+    const insightsResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${accountId}/insights`,
+      {
+        params: {
+          fields: 'spend,impressions,clicks,ctr,cpc,cpp,reach,frequency',
+          date_preset: 'last_7_days',
+          time_increment: 1
+        },
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
+    
+    console.log('インサイトデータ取得成功:', insightsResponse.data.data.length, '件');
+    
+    // インサイト生成
+    const insights = generateInsights(insightsResponse.data.data);
+    
+    return {
+      campaigns: campaignResponse.data.data,
+      performance: insightsResponse.data.data,
+      insights: insights,
+      account: accountResponse.data
+    };
+    
+  } catch (error) {
+    console.error('Meta広告データ取得エラー:', error);
+    throw error;
+  }
+}
+
+// インサイト生成関数
+function generateInsights(performanceData) {
+  const insights = [];
+  
+  if (!performanceData || performanceData.length === 0) {
+    insights.push({
+      type: 'info',
+      message: 'データがありません。広告キャンペーンを確認してください。'
+    });
+    return insights;
+  }
+  
+  // 最新のデータを使用
+  const latestData = performanceData[performanceData.length - 1];
+  
+  if (latestData.ctr) {
+    const ctr = parseFloat(latestData.ctr);
+    if (ctr < 1.0) {
+      insights.push({
+        type: 'warning',
+        message: 'CTRが1%を下回っています。広告クリエイティブの見直しを検討してください。'
+      });
+    }
+  }
+  
+  if (latestData.cpc) {
+    const cpc = parseFloat(latestData.cpc);
+    if (cpc > 100) {
+      insights.push({
+        type: 'warning',
+        message: 'CPCが高めです。ターゲティングの最適化を検討してください。'
+      });
+    }
+  }
+  
+  if (latestData.spend) {
+    const spend = parseFloat(latestData.spend);
+    if (spend < 1000) {
+      insights.push({
+        type: 'info',
+        message: '支出が少なめです。予算の見直しを検討してください。'
+      });
+    }
+  }
+  
+  if (insights.length === 0) {
+    insights.push({
+      type: 'success',
+      message: '現在、特に改善点はありません。継続して監視してください。'
+    });
+  }
+  
+  return insights;
+}

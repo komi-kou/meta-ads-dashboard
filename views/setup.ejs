@@ -1050,22 +1050,87 @@ Meta広告レポートツールの設定が完了しました。
             }, 1500);
         }
 
-        // フォーム送信時の処理
+        // フォーム送信時の処理（改善版）
         document.getElementById('setupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
             const progress = calculateSetupProgress();
             
-            if (progress.percentage >= 75) {
-                // 設定完了通知を送信
-                await handleSetupCompletion();
-                
-                // 設定完了メッセージ表示と自動遷移
-                showSetupCompleteMessage();
-            } else {
-                // 設定が不完全な場合は送信をキャンセル
-                e.preventDefault();
+            if (progress.percentage < 75) {
                 alert('設定が不完全です。必須項目を入力してください。');
+                return;
+            }
+            
+            // フォームデータを収集
+            const formData = new FormData(e.target);
+            const setupData = {
+                metaAccessToken: formData.get('metaAccessToken'),
+                metaAccountId: formData.get('metaAccountId'),
+                chatworkApiToken: formData.get('chatworkApiToken'),
+                chatworkRoomId: formData.get('chatworkRoomId'),
+                goal_type: formData.get('goal_type'),
+                daily_report_enabled: formData.get('daily_report_enabled'),
+                daily_report_time: formData.get('daily_report_time'),
+                update_notifications_enabled: formData.get('update_notifications_enabled'),
+                alert_notifications_enabled: formData.get('alert_notifications_enabled')
+            };
+            
+            // 送信ボタンを無効化
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '🔄 設定を保存中...';
+            
+            try {
+                const response = await fetch('/save-setup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(setupData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 設定完了通知を送信
+                    await handleSetupCompletion();
+                    
+                    // 成功メッセージ表示
+                    showSuccessMessage('セットアップが完了しました');
+                    
+                    // ダッシュボードにリダイレクト
+                    setTimeout(() => {
+                        window.location.href = result.redirectUrl || '/dashboard';
+                    }, 1500);
+                } else {
+                    showErrorMessage(result.message || 'セットアップの保存に失敗しました');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 設定完了してダッシュボードを開始';
+                }
+            } catch (error) {
+                showErrorMessage('セットアップの保存に失敗しました: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 設定完了してダッシュボードを開始';
             }
         });
+        
+        // 成功メッセージ表示関数
+        function showSuccessMessage(message) {
+            const progressText = document.getElementById('progressText');
+            if (progressText) {
+                progressText.textContent = '✅ ' + message;
+                progressText.style.color = '#10b981';
+            }
+        }
+        
+        // エラーメッセージ表示関数
+        function showErrorMessage(message) {
+            const progressText = document.getElementById('progressText');
+            if (progressText) {
+                progressText.textContent = '❌ ' + message;
+                progressText.style.color = '#ef4444';
+            }
+        }
 
         // ページロード時にプログレストラッキング開始
         document.addEventListener('DOMContentLoaded', function() {

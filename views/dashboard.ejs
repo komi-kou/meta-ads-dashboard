@@ -231,6 +231,93 @@
             border-left: 4px solid #c33;
             display: none;
         }
+        
+        /* キャンペーン一覧とインサイトのスタイル */
+        .campaign-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .campaign-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .campaign-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .campaign-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-paused {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-deleted {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .campaign-objective {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .insight-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #6b7280;
+            transition: all 0.3s ease;
+        }
+        
+        .insight-item.warning {
+            border-left-color: #f59e0b;
+            background: #fef3c7;
+        }
+        
+        .insight-item.success {
+            border-left-color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .insight-item.info {
+            border-left-color: #3b82f6;
+            background: #dbeafe;
+        }
+        
+        .insight-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .insight-message {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #374151;
+        }
     </style>
 </head>
 <body>
@@ -389,6 +476,34 @@
             <!-- ローディング表示 -->
             <div class="loading-message" style="display: none; text-align: center; padding: 20px; color: #666;">
                 <div>🔄 データを読み込み中...</div>
+            </div>
+            
+            <!-- キャンペーン一覧とインサイト表示エリア -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px;">
+                <!-- キャンペーン一覧 -->
+                <div class="chart-section">
+                    <h2>📋 アクティブキャンペーン</h2>
+                    <div id="campaigns-list" style="max-height: 400px; overflow-y: auto;">
+                        <div style="text-align: center; color: #666; padding: 20px;">
+                            🔄 キャンペーンデータを読み込み中...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- インサイト・改善点 -->
+                <div class="chart-section">
+                    <h2>💡 インサイト・改善点</h2>
+                    <div id="insights-list" style="max-height: 400px; overflow-y: auto;">
+                        <div style="text-align: center; color: #666; padding: 20px;">
+                            🔄 インサイトを分析中...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 最終更新時間表示 -->
+            <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+                最終更新: <span id="last-update">-</span>
             </div>
         </div>
         </div>
@@ -801,13 +916,145 @@ Meta広告レポートツールの設定が完了しました。
             }
         }
 
-        // ページロード時に設定完了処理を実行
+        // 新しいダッシュボードデータ取得機能
+        async function loadDashboardData() {
+            try {
+                console.log('=== ダッシュボードデータ取得開始 ===');
+                showLoadingState();
+                hideErrorMessage();
+                
+                const response = await fetch('/api/dashboard-data');
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateDashboard(result.data);
+                    console.log('✅ ダッシュボードデータ更新完了');
+                } else {
+                    showErrorMessage('データの読み込みに失敗しました: ' + result.message);
+                    console.error('❌ ダッシュボードデータ取得失敗:', result.message);
+                }
+            } catch (error) {
+                showErrorMessage('データの読み込みに失敗しました: ' + error.message);
+                console.error('❌ ダッシュボードデータ取得エラー:', error);
+            } finally {
+                hideLoadingState();
+            }
+        }
+
+        // ダッシュボード更新関数
+        function updateDashboard(data) {
+            // パフォーマンス概要を更新
+            if (data.performance && data.performance.length > 0) {
+                const perf = data.performance[data.performance.length - 1];
+                
+                // メトリクスカードを更新
+                updateMetricCard('spend', formatCurrency(perf.spend || 0));
+                updateMetricCard('impressions', formatNumber(perf.impressions || 0));
+                updateMetricCard('clicks', formatNumber(perf.clicks || 0));
+                updateMetricCard('ctr', (perf.ctr || 0) + '%');
+                updateMetricCard('cpm', formatCurrency(perf.cpm || 0));
+                updateMetricCard('cpc', formatCurrency(perf.cpc || 0));
+            }
+            
+            // キャンペーン一覧を更新
+            updateCampaignsList(data.campaigns);
+            
+            // インサイトを更新
+            updateInsightsList(data.insights);
+            
+            // 最終更新時間を更新
+            updateLastUpdateTime(data.lastUpdate);
+        }
+
+        // メトリクスカード更新
+        function updateMetricCard(type, value) {
+            const card = document.querySelector(`.metric-card.${type}`);
+            if (card) {
+                const valueElement = card.querySelector('.metric-value');
+                if (valueElement) {
+                    valueElement.textContent = value;
+                }
+            }
+        }
+
+        // キャンペーン一覧更新
+        function updateCampaignsList(campaigns) {
+            const campaignsContainer = document.getElementById('campaigns-list');
+            if (!campaignsContainer) return;
+            
+            campaignsContainer.innerHTML = '';
+            
+            if (campaigns && campaigns.length > 0) {
+                campaigns.forEach(campaign => {
+                    const campaignElement = document.createElement('div');
+                    campaignElement.className = 'campaign-item';
+                    campaignElement.innerHTML = `
+                        <div class="campaign-name">${campaign.name}</div>
+                        <div class="campaign-status status-${campaign.status.toLowerCase()}">${campaign.status}</div>
+                        <div class="campaign-objective">${campaign.objective}</div>
+                    `;
+                    campaignsContainer.appendChild(campaignElement);
+                });
+            } else {
+                campaignsContainer.innerHTML = '<p>キャンペーンが見つかりません</p>';
+            }
+        }
+
+        // インサイト一覧更新
+        function updateInsightsList(insights) {
+            const insightsContainer = document.getElementById('insights-list');
+            if (!insightsContainer) return;
+            
+            insightsContainer.innerHTML = '';
+            
+            if (insights && insights.length > 0) {
+                insights.forEach(insight => {
+                    const insightElement = document.createElement('div');
+                    insightElement.className = `insight-item ${insight.type}`;
+                    insightElement.innerHTML = `
+                        <div class="insight-message">${insight.message}</div>
+                    `;
+                    insightsContainer.appendChild(insightElement);
+                });
+            } else {
+                insightsContainer.innerHTML = '<p>現在、特に改善点はありません</p>';
+            }
+        }
+
+        // 最終更新時間更新
+        function updateLastUpdateTime(lastUpdate) {
+            const lastUpdateElement = document.getElementById('last-update');
+            if (lastUpdateElement && lastUpdate) {
+                lastUpdateElement.textContent = new Date(lastUpdate).toLocaleString('ja-JP');
+            }
+        }
+
+        // 通貨フォーマット
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ja-JP', {
+                style: 'currency',
+                currency: 'JPY'
+            }).format(amount);
+        }
+
+        // 数値フォーマット
+        function formatNumber(num) {
+            return new Intl.NumberFormat('ja-JP').format(num);
+        }
+
+        // ページロード時の処理
         document.addEventListener('DOMContentLoaded', function() {
             // URLパラメータで設定完了フラグをチェック
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('setup_completed') === 'true') {
                 handleSetupCompletion();
             }
+            
+            // ダッシュボードデータを読み込み
+            loadDashboardData();
+            
+            // 5分ごとにデータを更新
+            setInterval(loadDashboardData, 5 * 60 * 1000);
         });
     </script>
 </body>
