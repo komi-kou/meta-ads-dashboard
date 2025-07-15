@@ -39,7 +39,7 @@ app.use(express.json());
 
 // セッション設定
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'default-secret-key-for-development',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -98,7 +98,8 @@ function requireAuth(req, res, next) {
 // 設定完了判定機能
 function checkSetupCompletion(req = null) {
   try {
-    console.log('=== セットアップ完了状態チェック ===');
+    console.log('=== セットアップ完了状態チェック開始 ===');
+    console.log('リクエストオブジェクト:', req ? '存在' : 'なし');
     
     // セッションから設定をチェック（優先）
     let sessionHasMeta = false;
@@ -106,15 +107,27 @@ function checkSetupCompletion(req = null) {
     let sessionHasGoal = false;
     
     if (req && req.session) {
+      console.log('🔍 セッション情報確認:', {
+        user: req.session.user,
+        authenticated: req.session.authenticated,
+        metaAccessToken: req.session.metaAccessToken ? '設定済み' : '未設定',
+        metaAccountId: req.session.metaAccountId ? '設定済み' : '未設定',
+        chatworkApiToken: req.session.chatworkApiToken ? '設定済み' : '未設定',
+        chatworkRoomId: req.session.chatworkRoomId ? '設定済み' : '未設定',
+        goalType: req.session.goalType ? '設定済み' : '未設定'
+      });
+      
       sessionHasMeta = !!(req.session.metaAccessToken && req.session.metaAccountId);
       sessionHasChatwork = !!(req.session.chatworkApiToken && req.session.chatworkRoomId);
       sessionHasGoal = !!(req.session.goalType);
       
-      console.log('セッション設定状態:', {
+      console.log('📊 セッション設定状態:', {
         meta: sessionHasMeta,
         chatwork: sessionHasChatwork,
         goal: sessionHasGoal
       });
+    } else {
+      console.log('⚠️ セッション情報なし');
     }
     
     // settings.jsonから設定を読み込み（フォールバック）
@@ -124,6 +137,7 @@ function checkSetupCompletion(req = null) {
     let isConfigured = false;
     
     if (fs.existsSync('./settings.json')) {
+      console.log('📁 settings.jsonファイル存在確認');
       const settings = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
       
       fileHasMeta = !!(settings.meta?.accessToken && settings.meta?.accountId);
@@ -131,12 +145,14 @@ function checkSetupCompletion(req = null) {
       fileHasGoal = !!(settings.goal?.type);
       isConfigured = settings.isConfigured === true;
       
-      console.log('ファイル設定状態:', {
+      console.log('📊 ファイル設定状態:', {
         meta: fileHasMeta,
         chatwork: fileHasChatwork,
         goal: fileHasGoal,
         isConfigured: isConfigured
       });
+    } else {
+      console.log('⚠️ settings.jsonファイルなし');
     }
     
     // セッションまたはファイルのどちらかで完了していればOK
@@ -146,16 +162,17 @@ function checkSetupCompletion(req = null) {
     
     const isComplete = hasMetaAPI && hasChatwork && hasGoal;
     
-    console.log('最終判定:', {
+    console.log('🎯 最終判定:', {
       hasMetaAPI,
       hasChatwork,
       hasGoal,
       isComplete
     });
     
+    console.log('=== セットアップ完了状態チェック終了 ===');
     return isComplete;
   } catch (error) {
-    console.error('設定完了チェックエラー:', error);
+    console.error('❌ 設定完了チェックエラー:', error);
     return false;
   }
 }
@@ -226,29 +243,32 @@ app.post('/auth/login', (req, res) => {
     const { username, password } = req.body;
     console.log('=== ログイン処理開始 ===');
     console.log('ユーザー名:', username);
+    console.log('パスワード:', password ? '入力済み' : '未入力');
     
     if (username === 'komiya' && (password === 'komiya' || password === 'password')) {
       req.session.authenticated = true;
       req.session.user = username;
-      console.log('認証成功');
+      console.log('✅ 認証成功');
       console.log('セッション状態:', req.session);
       
       // 設定完了状態をチェック
+      console.log('🔍 セットアップ完了状態チェック開始');
       const isSetupComplete = checkSetupCompletion(req);
+      console.log('📊 セットアップ完了状態:', isSetupComplete);
       
       if (isSetupComplete) {
-        console.log('設定完了済み → ダッシュボードにリダイレクト');
+        console.log('✅ 設定完了済み → ダッシュボードにリダイレクト');
         res.redirect('/dashboard');
       } else {
-        console.log('設定未完了 → セットアップ画面にリダイレクト');
+        console.log('⚠️ 設定未完了 → セットアップ画面にリダイレクト');
         res.redirect('/setup');
       }
     } else {
-      console.log('認証失敗');
+      console.log('❌ 認証失敗');
       res.redirect('/auth/login?error=invalid');
     }
   } catch (error) {
-    console.error('ログイン処理エラー:', error);
+    console.error('❌ ログイン処理エラー:', error);
     res.redirect('/auth/login?error=system');
   }
 });
@@ -275,19 +295,21 @@ app.get('/dashboard', (req, res) => {
   
   // 認証チェック
   if (!req.session.user && !req.session.authenticated) {
-    console.log('No user session, redirecting to login');
+    console.log('❌ No user session, redirecting to login');
     return res.redirect('/login');
   }
+  
+  console.log('✅ 認証OK、セットアップ完了チェック開始');
   
   // セットアップ完了チェック
   const isSetupComplete = checkSetupCompletion(req);
   
   if (!isSetupComplete) {
-    console.log('Setup not complete, redirecting to setup page');
+    console.log('⚠️ Setup not complete, redirecting to setup page');
     return res.redirect('/setup');
   }
   
-  console.log('Setup complete, rendering dashboard');
+  console.log('✅ Setup complete, rendering dashboard');
   try {
     res.render('dashboard', {
       userTokens: {
@@ -297,7 +319,7 @@ app.get('/dashboard', (req, res) => {
       user: req.session?.user || 'User'
     });
   } catch (error) {
-    console.error('Dashboard render error:', error);
+    console.error('❌ Dashboard render error:', error);
     res.status(500).send('Dashboard error: ' + error.message);
   }
 });
@@ -324,8 +346,13 @@ app.get('/alerts', requireAuth, (req, res) => {
     res.render('alerts');
 });
 
-// アラートシステムのインポート
-const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSystem');
+// アラートシステムのインポート（一時的に無効化）
+// const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSystem');
+
+// ダミー関数で代替
+const checkAllAlerts = () => [];
+const getAlertHistory = () => [];
+const getAlertSettings = () => ({});
 
 // アラート関連のルートを app.js に追加
 
