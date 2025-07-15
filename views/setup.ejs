@@ -538,13 +538,6 @@
             </div>
         </form>
     </div>
-    <!-- 隠しフォーム（完全非表示） -->
-    <form id="hiddenSetupForm" method="POST" action="/save-setup" style="display: none;">
-        <input type="hidden" name="metaAccessToken" id="hiddenMetaToken">
-        <input type="hidden" name="metaAccountId" id="hiddenMetaAccount">
-        <input type="hidden" name="chatworkApiToken" id="hiddenChatworkToken">
-        <input type="hidden" name="chatworkRoomId" id="hiddenChatworkRoom">
-    </form>
     <script>
         // ゴール別目標数値設定（拡張版）
         const goalTargets = {
@@ -1054,6 +1047,10 @@ Meta広告レポートツールの設定が完了しました。
         document.getElementById('setupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            console.log('=== フォーム送信デバッグ ===');
+            console.log('送信先URL: /save-setup');
+            console.log('Method: POST');
+            
             const progress = calculateSetupProgress();
             
             if (progress.percentage < 75) {
@@ -1075,12 +1072,15 @@ Meta広告レポートツールの設定が完了しました。
                 alert_notifications_enabled: formData.get('alert_notifications_enabled')
             };
             
+            console.log('送信データ:', setupData);
+            
             // 送信ボタンを無効化
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = '🔄 設定を保存中...';
             
             try {
+                console.log('fetchリクエスト送信中...');
                 const response = await fetch('/save-setup', {
                     method: 'POST',
                     headers: {
@@ -1088,6 +1088,8 @@ Meta広告レポートツールの設定が完了しました。
                     },
                     body: JSON.stringify(setupData)
                 });
+                
+                console.log('レスポンス:', response.status, response.statusText);
                 
                 const result = await response.json();
                 
@@ -1160,19 +1162,5 @@ Meta広告レポートツールの設定が完了しました。
             }
         }
     </script>
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const submitButton = document.querySelector('button[type="submit"]');
-  if (submitButton) {
-    submitButton.onclick = function(e) {
-      e.preventDefault();
-      // 必須項目バリデーション（必要なら追加）
-      // 隠しフォーム送信
-      document.getElementById('hiddenSetupForm').submit();
-      return false;
-    };
-  }
-});
-</script>
 </body>
 </html> 
