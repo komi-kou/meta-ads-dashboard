@@ -377,7 +377,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 更新手順
 ①アクセストークン発行：https://developers.facebook.com/tools/explorer/ 
 ②長期トークン発行：https://developers.facebook.com/tools/debug/accesstoken/
-③設定画面で更新： http://localhost:3000/setup
+③設定画面で更新： https://meta-ads-dashboard.onrender.com/setup
 
 トークンが期限切れになると、自動送信機能が停止します。`;
 
