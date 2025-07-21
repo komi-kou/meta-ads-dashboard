@@ -27,8 +27,32 @@ function writeLog(message) {
   }
 }
 
+// 環境変数から設定情報を取得する関数
+function getEnvironmentSettings() {
+  return {
+    // Meta API設定
+    meta_token: process.env.META_ACCESS_TOKEN,
+    meta_account_id: process.env.META_ACCOUNT_ID,
+    meta_app_id: process.env.META_APP_ID,
+    // Chatwork設定
+    chatwork_token: process.env.CHATWORK_TOKEN,
+    chatwork_room_id: process.env.CHATWORK_ROOM_ID,
+    // 通知設定
+    notifications: {
+      daily_report: { enabled: process.env.DAILY_REPORT_ENABLED === 'true' || false },
+      update_notifications: { enabled: process.env.UPDATE_NOTIFICATIONS_ENABLED === 'true' || false },
+      alert_notifications: { enabled: process.env.ALERT_NOTIFICATIONS_ENABLED === 'true' || false }
+    }
+  };
+}
+
 // 設定情報を取得する関数
 function getSettings() {
+  // 本番環境では環境変数から設定を取得
+  if (process.env.NODE_ENV === 'production') {
+    return getEnvironmentSettings();
+  }
+  
   if (fs.existsSync(SETTINGS_FILE)) {
     try {
       const settings = JSON.parse(fs.readFileSync(SETTINGS_FILE));
@@ -67,6 +91,12 @@ function getSettings() {
 
 // 広告データを取得する関数
 function getAdData() {
+  // 本番環境では空のデータ配列を返す（ファイルがないため）
+  if (process.env.NODE_ENV === 'production') {
+    writeLog('広告データ読み込みスキップ（本番環境）');
+    return [];
+  }
+  
   if (fs.existsSync(DATA_FILE)) {
     try {
       const data = JSON.parse(fs.readFileSync(DATA_FILE));
@@ -82,6 +112,12 @@ function getAdData() {
 
 // 広告データを保存する関数
 function saveAdData(data) {
+  // 本番環境ではファイル保存をスキップ（読み取り専用のため）
+  if (process.env.NODE_ENV === 'production') {
+    writeLog(`広告データ保存スキップ（本番環境）: ${data.length}件`);
+    return;
+  }
+  
   try {
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
     writeLog(`広告データ保存完了: ${data.length}件`);
