@@ -1,6 +1,7 @@
 console.log("scheduler.jsが実行されました");
 const cron = require('node-cron');
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const { fetchMetaAdDailyStats, fetchMetaTokenExpiry } = require('./metaApi');
 const { sendChatworkMessage } = require('./chatworkApi');
@@ -31,8 +32,30 @@ function getSettings() {
   if (fs.existsSync(SETTINGS_FILE)) {
     try {
       const settings = JSON.parse(fs.readFileSync(SETTINGS_FILE));
-      writeLog(`設定読み込み完了: Meta=${!!settings.meta_token}, Chatwork=${!!settings.chatwork_token}`);
-      return settings;
+      
+      // 新しいネスト形式の設定を古いフラット形式に変換
+      const convertedSettings = {
+        // Meta API設定
+        meta_token: settings.meta?.accessToken,
+        meta_account_id: settings.meta?.accountId,
+        meta_app_id: settings.meta?.appId,
+        
+        // チャットワーク設定
+        chatwork_token: settings.chatwork?.apiToken,
+        chatwork_room_id: settings.chatwork?.roomId,
+        
+        // その他の設定（既存の形式を保持）
+        daily_budget: settings.daily_budget,
+        service_goal: settings.goal?.type,
+        target_cpa: settings.target_cpa,
+        target_cpm: settings.target_cpm,
+        target_ctr: settings.target_ctr,
+        target_budget_rate: settings.target_budget_rate,
+        target_cv: settings.target_cv
+      };
+      
+      writeLog(`設定読み込み完了: Meta=${!!convertedSettings.meta_token}, Chatwork=${!!convertedSettings.chatwork_token}`);
+      return convertedSettings;
     } catch (e) {
       writeLog(`設定ファイル読み込みエラー: ${e.message}`);
     }
@@ -887,18 +910,14 @@ http://localhost:3000/dashboard`;
 
 // トークン期限警告メッセージ生成
 function generateTokenExpiryWarning() {
-    return `[info][title]⚠️ アクセストークン有効期限警告[/title]
-アクセストークンの有効期限1週間前です。
-アクセストークンを発行して、有効期限を2ヶ月間に更新してください。
+    return `Meta APIのアクセストークンが2ヶ月経過し更新が必要です。
 
-▼アクセストークン発行
-https://developers.facebook.com/tools/explorer/
+更新手順
+①アクセストークン発行：https://developers.facebook.com/tools/explorer/ 
+②長期トークン発行：https://developers.facebook.com/tools/debug/accesstoken/
+③設定画面で更新： https://meta-ads-dashboard.onrender.com/setup
 
-▼長期アクセストークンの発行
-https://developers.facebook.com/tools/debug/accesstoken/
-
-対応をお願いします。
-[/info]`;
+トークンが期限切れになると、自動送信機能が停止します。`;
 }
 
 // 設定完了メッセージ生成
@@ -953,121 +972,29 @@ async function sendScheduledChatworkNotification(type, data = {}) {
     }
 }
 
-// 朝9時のメイン通知（毎日実行）
+// データ取得・保存のみのスケジュール（チャットワーク送信は chatworkAutoSender.js で統一管理）
+// 朝9時のデータ取得
 cron.schedule('0 9 * * *', async () => {
-  writeLog('朝9時のスケジュール実行開始');
-  await runBatch(true); // 詳細版
+  writeLog('朝9時のデータ取得スケジュール実行開始');
+  await runBatch(true); // データ取得のみ
 }, {
   timezone: "Asia/Tokyo"
 });
 
-// その他の時間帯の通知（12時、15時、17時、19時）
+// その他の時間帯のデータ取得（12時、15時、17時、19時）
 cron.schedule('0 12,15,17,19 * * *', async () => {
-  writeLog('定期スケジュール実行開始');
-  await runBatch(false); // 簡易版
+  writeLog('定期データ取得スケジュール実行開始');
+  await runBatch(false); // データ取得のみ
 }, {
   timezone: "Asia/Tokyo"
-});
-
-// 毎日5回のテストメッセージ送信（9時、12時、15時、17時、19時）
-cron.schedule('0 9,12,15,17,19 * * *', async () => {
-  writeLog('テストメッセージスケジュール実行開始');
-  await sendTestMessage();
-}, {
-  timezone: "Asia/Tokyo"
-});
-
-// 日次レポート送信（毎日朝9時）
-cron.schedule('0 9 * * *', async () => {
-    console.log('=== 日次レポート自動送信 ===');
-    
-    try {
-        // 昨日のデータを取得
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const dateString = yesterday.toISOString().split('T')[0];
-        
-        const metaData = await fetchMetaDataForDate(dateString);
-        
-        if (metaData) {
-            // データを整形
-            const reportData = {
-                spend: parseFloat(metaData.spend),
-                budgetRate: ((parseFloat(metaData.spend) / 15000) * 100).toFixed(2), // 1日15,000円予算想定
-                ctr: parseFloat(metaData.ctr),
-                cpm: parseFloat(metaData.cpm),
-                conversions: metaData.actions ? metaData.actions.filter(a => a.action_type.includes('complete_registration')).length : 0,
-                cpa: metaData.cost_per_action_type ? parseFloat(metaData.cost_per_action_type.find(c => c.action_type.includes('complete_registration'))?.value || 0) : 0,
-                frequency: parseFloat(metaData.frequency)
-            };
-            
-            await sendScheduledChatworkNotification('daily_report', reportData);
-        } else {
-            console.log('昨日のデータが見つかりません');
-        }
-        
-    } catch (error) {
-        console.error('日次レポート送信エラー:', error);
-    }
-});
-
-// トークン期限チェック（毎日朝9時、通知は1回のみ）
-cron.schedule('0 9 * * *', async () => {
-    console.log('=== トークン期限チェック ===');
-    
-    try {
-        const checkResult = await tokenManager.checkTokenExpiry();
-        
-        if (checkResult.shouldNotify) {
-            console.log('⚠️ トークン期限警告送信');
-            await sendScheduledChatworkNotification('token_expiry_warning');
-            await tokenManager.markNotificationSent();
-        } else {
-            console.log(`ℹ️ トークン期限チェック: ${checkResult.reason}`);
-        }
-        
-    } catch (error) {
-        console.error('トークン期限チェックエラー:', error);
-    }
-});
-
-// 定期更新通知（12時、15時、17時、19時）
-cron.schedule('0 12,15,17,19 * * *', async () => {
-    console.log('=== 定期更新通知送信 ===');
-    
-    try {
-        await sendScheduledChatworkNotification('update_notification');
-    } catch (error) {
-        console.error('定期更新通知送信エラー:', error);
-    }
-});
-
-// アラート通知（毎日朝9時、発生時のみ）
-cron.schedule('0 9 * * *', async () => {
-    console.log('=== アラート通知送信 ===');
-    
-    try {
-        const alerts = await checkAllAlerts();
-        
-        if (alerts && alerts.length > 0) {
-            // アラートが発生している場合のみ送信
-            await sendScheduledChatworkNotification('alert_notification', { alerts });
-        } else {
-            console.log('📝 今日のアラートはありません');
-        }
-    } catch (error) {
-        console.error('アラート通知送信エラー:', error);
-    }
 });
 
 
 
 // スケジューラー開始
-console.log('🕐 スケジューラーを開始しました');
-console.log('📅 日次レポート: 毎日朝9時');
-console.log('🔄 定期更新通知: 12時、15時、17時、19時');
-console.log('⚠️ アラート通知: 毎日朝9時（発生時のみ）');
-console.log('🔐 トークン期限チェック: 期限1週間前に通知');
+console.log('🕐 データ取得スケジューラーを開始しました');
+console.log('📊 データ取得: 9時、12時、15時、17時、19時');
+console.log('💬 チャットワーク送信: chatworkAutoSender.js で管理');
 
 // node scheduler.js で即時実行できるように
 if (require.main === module) {

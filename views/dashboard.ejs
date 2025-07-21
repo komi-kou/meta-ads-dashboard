@@ -318,6 +318,35 @@
             line-height: 1.5;
             color: #374151;
         }
+        
+        /* キャンペーン選択セクション */
+        .campaign-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .campaign-section label {
+            font-weight: 500;
+            color: #4a5568;
+            white-space: nowrap;
+        }
+        
+        .campaign-section select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            min-width: 150px;
+            color: #374151;
+        }
+        
+        .campaign-section select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -367,6 +396,14 @@
                 <div class="date-section">
                     <label>日付:</label>
                     <input type="date" id="selectedDate">
+                </div>
+                
+                <div class="campaign-section">
+                    <label>キャンペーン:</label>
+                    <select id="selectedCampaign">
+                        <option value="">全キャンペーン</option>
+                        <option value="loading">読み込み中...</option>
+                    </select>
                 </div>
             </div>
             
@@ -522,6 +559,9 @@
                 
                 if (debugData.finalResult.configFound) {
                     console.log('✅ Meta API設定が見つかりました');
+                    
+                    // キャンペーンリスト読み込み
+                    await loadCampaigns();
                     hideErrorMessage();
                     
                     // 今日の日付をデフォルト設定
@@ -643,6 +683,11 @@
                 const period = document.getElementById('periodRange').value;
                 params.append('type', 'period');
                 params.append('period', period);
+            }
+            
+            const selectedCampaign = document.getElementById('selectedCampaign').value;
+            if (selectedCampaign) {
+                params.append('campaignId', selectedCampaign);
             }
             
             try {
@@ -917,6 +962,46 @@ Meta広告レポートツールの設定が完了しました。
         }
 
         // 新しいダッシュボードデータ取得機能
+        // キャンペーンリスト読み込み
+        async function loadCampaigns() {
+            try {
+                console.log('=== キャンペーンリスト読み込み開始 ===');
+                const campaignSelect = document.getElementById('selectedCampaign');
+                
+                const response = await fetch('/api/campaigns');
+                const result = await response.json();
+                
+                if (result.success && result.campaigns) {
+                    console.log(`✅ キャンペーンリスト取得成功: ${result.campaigns.length}件`);
+                    
+                    // オプションをクリア
+                    campaignSelect.innerHTML = '<option value="">全キャンペーン</option>';
+                    
+                    // キャンペーンオプションを追加
+                    result.campaigns.forEach(campaign => {
+                        const option = document.createElement('option');
+                        option.value = campaign.id;
+                        option.textContent = `${campaign.name} (${campaign.status})`;
+                        campaignSelect.appendChild(option);
+                    });
+                    
+                    // 変更イベントリスナーを追加
+                    campaignSelect.addEventListener('change', () => {
+                        console.log('キャンペーン選択変更:', campaignSelect.value);
+                        updateDashboardData();
+                    });
+                    
+                } else {
+                    console.error('❌ キャンペーンリスト取得失敗:', result.error);
+                    campaignSelect.innerHTML = '<option value="">キャンペーン取得失敗</option>';
+                }
+            } catch (error) {
+                console.error('❌ キャンペーンリスト読み込みエラー:', error);
+                const campaignSelect = document.getElementById('selectedCampaign');
+                campaignSelect.innerHTML = '<option value="">エラーが発生しました</option>';
+            }
+        }
+        
         async function loadDashboardData() {
             try {
                 console.log('=== ダッシュボードデータ取得開始 ===');

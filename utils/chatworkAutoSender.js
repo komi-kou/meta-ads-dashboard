@@ -31,17 +31,20 @@ class ChatworkAutoSender {
         this.loadSettings();
     }
 
-    // 送信履歴をチェック（重複送信防止）
+    // 送信履歴をチェック（重複送信防止）- 時間単位に変更
     checkSentHistory(type, date = null) {
-        const today = new Date().toISOString().split('T')[0];
-        const key = `${type}_${date || today}`;
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        const currentHour = now.getHours();
+        const key = `${type}_${date || today}_${currentHour}`;
         
         if (this.sentHistory.has(key)) {
-            console.log(`⚠️ ${type}は既に送信済みです: ${key}`);
+            console.log(`⚠️ ${type}は既にこの時間に送信済みです: ${key}`);
             return false;
         }
         
         this.sentHistory.set(key, new Date().toISOString());
+        console.log(`✅ ${type}送信履歴を記録: ${key}`);
         return true;
     }
 
@@ -159,37 +162,53 @@ class ChatworkAutoSender {
     }
 
     // アラート履歴を取得（重複除去強化版）
-    getAlertHistory() {
+    getAlertHistory(isTestMode = false) {
         try {
             const alertHistoryPath = path.join(__dirname, '..', 'alert_history.json');
             if (fs.existsSync(alertHistoryPath)) {
                 const alertHistory = JSON.parse(fs.readFileSync(alertHistoryPath, 'utf8'));
                 
-                // 今日のアラートのみをフィルタリング
-                const today = new Date();
-                const todayStr = today.toISOString().split('T')[0];
+                let filteredAlerts;
                 
-                const todayAlerts = alertHistory.filter(alert => {
-                    const alertDate = new Date(alert.timestamp);
-                    const alertDateStr = alertDate.toISOString().split('T')[0];
-                    return alertDateStr === todayStr;
-                });
+                if (isTestMode) {
+                    // テストモード時は最新のアクティブなアラートを取得（過去3日間）
+                    const threeDaysAgo = new Date();
+                    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+                    
+                    filteredAlerts = alertHistory.filter(alert => {
+                        const alertDate = new Date(alert.timestamp);
+                        return alertDate >= threeDaysAgo && alert.status === 'active';
+                    });
+                    
+                    console.log(`🧪 テストモード: 過去3日間のアクティブアラート数: ${filteredAlerts.length}件`);
+                } else {
+                    // 通常モード：今日のアラートのみをフィルタリング
+                    const today = new Date();
+                    const todayStr = today.toISOString().split('T')[0];
+                    
+                    filteredAlerts = alertHistory.filter(alert => {
+                        const alertDate = new Date(alert.timestamp);
+                        const alertDateStr = alertDate.toISOString().split('T')[0];
+                        return alertDateStr === todayStr && alert.status === 'active';
+                    });
+                    
+                    console.log(`📊 今日のアラート数: ${filteredAlerts.length}件`);
+                }
 
                 // 重複を除去（同じmetricの最新のアラートのみを保持）
                 const uniqueAlerts = [];
                 const seenMetrics = new Set();
                 
                 // タイムスタンプでソート（新しい順）
-                todayAlerts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                filteredAlerts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
-                todayAlerts.forEach(alert => {
+                filteredAlerts.forEach(alert => {
                     if (!seenMetrics.has(alert.metric)) {
                         seenMetrics.add(alert.metric);
                         uniqueAlerts.push(alert);
                     }
                 });
 
-                console.log(`📊 今日のアラート数: ${uniqueAlerts.length}件`);
                 return uniqueAlerts;
             }
         } catch (error) {
@@ -283,7 +302,7 @@ CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
 コンバージョン数：${dashboardData.conversions || 0}件  
 
 確認はこちら
-http://localhost:3000/dashboard`;
+https://meta-ads-dashboard.onrender.com/dashboard`;
 
         await this.sendMessage(message);
     }
@@ -303,22 +322,22 @@ http://localhost:3000/dashboard`;
 ご確認よろしくお願いいたします！
 
 確認はこちら
-http://localhost:3000/dashboard`;
+https://meta-ads-dashboard.onrender.com/dashboard`;
 
         await this.sendMessage(message);
     }
 
     // アラート通知送信（統一版・重複送信防止）
-    async sendAlertNotification() {
+    async sendAlertNotification(isTestMode = false) {
         console.log('🚨 アラート通知送信開始');
         
-        // 重複送信チェック
-        if (!this.checkSentHistory('alert')) {
+        // 重複送信チェック（テストモード時はスキップ）
+        if (!isTestMode && !this.checkSentHistory('alert')) {
             console.log('⚠️ アラート通知は既に送信済みです');
             return;
         }
         
-        const todayAlerts = this.getAlertHistory();
+        const todayAlerts = this.getAlertHistory(isTestMode);
         if (todayAlerts.length === 0) {
             console.log('📝 今日のアラートはありません');
             return;
@@ -336,9 +355,9 @@ http://localhost:3000/dashboard`;
         });
 
         message += `
-確認事項：http://localhost:3000/improvement-tasks
-改善施策：http://localhost:3000/improvement-strategies
-ダッシュボード：http://localhost:3000/dashboard`;
+確認事項：https://meta-ads-dashboard.onrender.com/improvement-taskss
+改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategiess
+ダッシュボード：https://meta-ads-dashboard.onrender.com/dashboard`;
 
         await this.sendMessage(message);
     }
@@ -369,21 +388,30 @@ http://localhost:3000/dashboard`;
     async sendTestMessage(type) {
         console.log(`🧪 テスト送信開始: ${type}`);
         
-        switch (type) {
-            case 'daily':
-                await this.sendDailyReport();
-                break;
-            case 'update':
-                await this.sendUpdateNotification();
-                break;
-            case 'alert':
-                await this.sendAlertNotification();
-                break;
-            case 'token':
-                await this.sendTokenUpdateNotification();
-                break;
-            default:
-                console.log('❌ 不明なテストタイプ:', type);
+        // テスト送信時は重複送信チェックを一時的に無効化
+        const originalCheckSentHistory = this.checkSentHistory;
+        this.checkSentHistory = () => true; // 常にtrueを返す
+        
+        try {
+            switch (type) {
+                case 'daily':
+                    await this.sendDailyReport();
+                    break;
+                case 'update':
+                    await this.sendUpdateNotification();
+                    break;
+                case 'alert':
+                    await this.sendAlertNotification(true);
+                    break;
+                case 'token':
+                    await this.sendTokenUpdateNotification();
+                    break;
+                default:
+                    console.log('❌ 不明なテストタイプ:', type);
+            }
+        } finally {
+            // 重複送信チェック機能を復元
+            this.checkSentHistory = originalCheckSentHistory;
         }
     }
 
@@ -407,8 +435,8 @@ http://localhost:3000/dashboard`;
             timezone: 'Asia/Tokyo'
         });
 
-        // アラート通知: 毎朝9時（アラートがある場合）
-        cron.schedule('0 9 * * *', async () => {
+        // アラート通知: 9時、12時、15時、17時、19時（アラートがある場合）
+        cron.schedule('0 9,12,15,17,19 * * *', async () => {
             console.log('🚨 アラート通知送信スケジュール実行');
             await this.sendAlertNotification();
         }, {

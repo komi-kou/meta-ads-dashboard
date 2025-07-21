@@ -206,14 +206,34 @@ app.post('/auth/login', (req, res) => {
       req.session.authenticated = true;
       req.session.user = username;
       console.log('認証成功');
+      
+      // 既存設定をセッションに読み込み
+      try {
+        const settingsPath = path.join(__dirname, 'settings.json');
+        if (fs.existsSync(settingsPath)) {
+          const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+          if (settings.meta?.accessToken) {
+            req.session.metaAccessToken = settings.meta.accessToken;
+            req.session.metaAccountId = settings.meta.accountId;
+          }
+          if (settings.chatwork?.apiToken) {
+            req.session.chatworkApiToken = settings.chatwork.apiToken;
+            req.session.chatworkRoomId = settings.chatwork.roomId;
+          }
+          console.log('✅ 既存設定をセッションに読み込み完了');
+        }
+      } catch (error) {
+        console.error('⚠️ 設定読み込みエラー:', error);
+      }
+      
       console.log('セッション状態:', req.session);
       
-      // 設定完了状態をチェック
-      if (checkSetupCompletion()) {
-        console.log('設定完了済み → ダッシュボードにリダイレクト');
+      // 設定完了状態をチェック（セッションベース）
+      if (req.session.setupCompleted) {
+        console.log('セッション: 設定完了済み → ダッシュボードにリダイレクト');
         res.redirect('/dashboard');
       } else {
-        console.log('設定未完了 → 設定画面にリダイレクト');
+        console.log('セッション: 設定未完了 → 設定画面にリダイレクト');
         res.redirect('/setup');
       }
     } else {
@@ -407,6 +427,10 @@ app.post('/save-setup', async (req, res) => {
       }
       
       console.log('✅ セッション保存完了');
+      
+      // セッションに設定完了フラグを設定
+      req.session.setupCompleted = true;
+      console.log('✅ セットアップ完了フラグを設定');
       console.log('🔄 ダッシュボードにリダイレクト');
       
       // JSONレスポンスを返す（フロントエンドがリダイレクト処理）
@@ -424,6 +448,65 @@ app.post('/save-setup', async (req, res) => {
       message: 'セットアップの保存に失敗しました',
       error: error.message,
       stack: error.stack
+    });
+  }
+});
+
+// キャンペーンリスト取得API
+app.get('/api/campaigns', requireAuth, async (req, res) => {
+  try {
+    console.log('=== キャンペーンリスト取得開始 ===');
+    
+    const config = getMetaApiConfigFromSetup();
+    if (!config || !config.accessToken || !config.accountId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Meta API設定が見つかりません'
+      });
+    }
+    
+    const { accessToken, accountId } = config;
+    const baseUrl = 'https://graph.facebook.com/v18.0';
+    const endpoint = `${baseUrl}/${accountId}/campaigns`;
+    
+    const params = new URLSearchParams({
+      access_token: accessToken,
+      fields: 'id,name,status,objective,created_time,updated_time',
+      limit: '100'
+    });
+    
+    console.log('Meta API呼び出し:', `${endpoint}?${params}`);
+    
+    const response = await axios.get(`${endpoint}?${params}`, {
+      timeout: 30000
+    });
+    
+    if (response.data && response.data.data) {
+      const campaigns = response.data.data.map(campaign => ({
+        id: campaign.id,
+        name: campaign.name,
+        status: campaign.status,
+        objective: campaign.objective,
+        created_time: campaign.created_time,
+        updated_time: campaign.updated_time
+      }));
+      
+      console.log(`✅ キャンペーンリスト取得成功: ${campaigns.length}件`);
+      res.json({
+        success: true,
+        campaigns: campaigns,
+        total: campaigns.length
+      });
+    } else {
+      throw new Error('Invalid API response format');
+    }
+    
+  } catch (error) {
+    console.error('❌ キャンペーンリスト取得失敗:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'キャンペーンリストの取得に失敗しました',
+      details: error.message
     });
   }
 });
@@ -663,10 +746,21 @@ app.post('/api/send-chatwork', requireAuth, async (req, res) => {
     res.json({ success: true, message: 'チャットワークに送信しました' });
     
   } catch (error) {
-    console.error('チャットワーク送信エラー:', error);
+    console.error('チャットワーク送信詳細エラー:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: error.config ? {
+        url: error.config.url,
+        method: error.config.method,
+        headers: error.config.headers
+      } : null
+    });
+    
     res.status(500).json({ 
       error: 'チャットワーク送信に失敗しました',
-      details: error.message 
+      details: error.message,
+      troubleshooting: 'APIトークンとルームIDを確認してください'
     });
   }
 });
@@ -1352,19 +1446,19 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
         // 認証されていない外部リクエストはログインページにリダイレクト
         return res.redirect('/login');
     }
-    const { type, date, period } = req.query;
+    const { type, date, period, campaignId } = req.query;
     console.log('=== ダッシュボード Meta広告データAPI ===');
-    console.log('リクエストパラメータ:', { type, date, period });
+    console.log('リクエストパラメータ:', { type, date, period, campaignId });
     
     try {
         let result;
         
         if (type === 'daily' && date) {
             console.log(`${date}の実際のMeta広告データを取得中...`);
-            result = await fetchMetaDataWithStoredConfig(date);
+            result = await fetchMetaDataWithStoredConfig(date, campaignId);
         } else if (type === 'period' && period) {
             console.log(`過去${period}日間のMeta広告データを取得中...`);
-            result = await fetchMetaPeriodDataWithStoredConfig(period);
+            result = await fetchMetaPeriodDataWithStoredConfig(period, campaignId);
         } else {
             throw new Error('無効なリクエストパラメータです');
         }
@@ -1383,7 +1477,7 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
 });
 
 // 設定済みデータを使用した実際のMeta API呼び出し
-async function fetchMetaDataWithStoredConfig(selectedDate) {
+async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null) {
     console.log(`=== Meta API呼び出し: ${selectedDate} ===`);
     
     try {
@@ -1423,8 +1517,16 @@ async function fetchMetaDataWithStoredConfig(selectedDate) {
                 since: selectedDate,
                 until: selectedDate
             }),
-            level: 'account'
+            level: campaignId ? 'campaign' : 'account'
         };
+
+        if (campaignId) {
+            params.filtering = JSON.stringify([{
+                field: 'campaign.id',
+                operator: 'IN',
+                value: [campaignId]
+            }]);
+        }
         
         const queryString = new URLSearchParams(params).toString();
         const apiUrl = `${endpoint}?${queryString}`;
@@ -1435,7 +1537,13 @@ async function fetchMetaDataWithStoredConfig(selectedDate) {
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Meta API HTTPエラー:', response.status, errorText);
+            console.error('Meta API HTTPエラー詳細:', {
+                status: response.status,
+                statusText: response.statusText,
+                url: apiUrl.replace(config.accessToken, 'ACCESS_TOKEN_HIDDEN'),
+                errorText: errorText,
+                headers: Object.fromEntries(response.headers.entries())
+            });
             throw new Error(`Meta API HTTPエラー: ${response.status} - ${errorText}`);
         }
         
@@ -1684,7 +1792,18 @@ function aggregateRealPeriodData(dailyData) {
     
     return {
         spend: Math.round(totalSpend),
-        budgetRate: ((totalSpend / (dailyData.length * 20000)) * 100).toFixed(2),
+        budgetRate: (() => {
+            try {
+                const config = getMetaApiConfigFromSetup();
+                const dailyBudget = config?.goal?.target_dailyBudget || '15000';
+                const budget = parseFloat(dailyBudget);
+                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * budget)) * 100) : 0;
+                return isNaN(rate) ? '0.00' : rate.toFixed(2);
+            } catch {
+                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * 15000)) * 100) : 0;
+                return isNaN(rate) ? '0.00' : rate.toFixed(2);
+            }
+        })(),
         ctr: avgCTR.toFixed(2),
         cpm: Math.round(avgCPM),
         conversions: totalConversions,
@@ -1722,7 +1841,7 @@ function formatDateLabel(dateString) {
 }
 
 // 期間データの実際のAPI取得（修正版）
-async function fetchMetaPeriodDataWithStoredConfig(period) {
+async function fetchMetaPeriodDataWithStoredConfig(period, campaignId = null) {
     console.log(`=== Meta API期間データ取得: ${period}日間 ===`);
     try {
         const config = getMetaApiConfigFromSetup();
@@ -1751,10 +1870,18 @@ async function fetchMetaPeriodDataWithStoredConfig(period) {
             access_token: accessToken,
             fields: 'spend,impressions,clicks,ctr,cpm,frequency,reach,actions,date_start',
             time_range: JSON.stringify({ since, until }),
-            level: 'account',
+            level: campaignId ? 'campaign' : 'account',
             time_increment: 1,
             limit: 1000
         };
+
+        if (campaignId) {
+            params.filtering = JSON.stringify([{
+                field: 'campaign.id',
+                operator: 'IN',
+                value: [campaignId]
+            }]);
+        }
         const queryString = new URLSearchParams(params).toString();
         const response = await fetch(`${endpoint}?${queryString}`);
         const data = await response.json();
@@ -1829,7 +1956,18 @@ function generatePeriodDummyData(period) {
     
     return {
         spend: Math.floor(totalSpend),
-        budgetRate: ((totalSpend / (days * 15000)) * 100).toFixed(2), // 1日15,000円予算想定
+        budgetRate: (() => {
+            try {
+                const config = getMetaApiConfigFromSetup();
+                const dailyBudget = config?.goal?.target_dailyBudget || '15000';
+                const budget = parseFloat(dailyBudget);
+                const rate = days > 0 ? ((totalSpend / (days * budget)) * 100) : 0;
+                return isNaN(rate) ? '0.00' : rate.toFixed(2);
+            } catch {
+                const rate = days > 0 ? ((totalSpend / (days * 15000)) * 100) : 0;
+                return isNaN(rate) ? '0.00' : rate.toFixed(2);
+            }
+        })(),
         ctr: avgCTR.toFixed(2),
         cpm: Math.floor(avgCPM),
         conversions: totalConversions,

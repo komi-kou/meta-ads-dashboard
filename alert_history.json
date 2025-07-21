@@ -1,5 +1,29 @@
 [
   {
+    "id": "cpa_rate_today_test",
+    "metric": "cpa_rate",
+    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "level": "high",
+    "timestamp": "2025-07-21T00:00:01.973Z",
+    "status": "active"
+  },
+  {
+    "id": "cpm_increase_today_test",
+    "metric": "cpm_increase",
+    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "level": "medium",
+    "timestamp": "2025-07-21T00:00:01.972Z",
+    "status": "active"
+  },
+  {
+    "id": "conversions_today_test",
+    "metric": "CV",
+    "message": "conversionsが3日連続で0です",
+    "level": "high",
+    "timestamp": "2025-07-21T00:00:01.554Z",
+    "status": "active"
+  },
+  {
     "id": "cpa_rate_1752451201973",
     "metric": "cpa_rate",
     "message": "CPAが目標の120%を超えた状態が2日間続いています",
