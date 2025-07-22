@@ -21,8 +21,8 @@ const {
     getUserManager
 } = require('./middleware/testAuth');
 
-// マルチユーザー機能を一時的に無効化
-// const setupRouter = require('./routes/setup');
+// マルチユーザー機能を有効化
+const setupRouter = require('./routes/setup');
 // const adminRouter = require('./routes/admin');
 
 // 環境変数確認ログ
@@ -122,7 +122,7 @@ app.use(addUserToRequest);
 app.use(csrfProtection);
 
 // マルチユーザー機能を一時的に無効化
-// app.use('/', setupRouter);
+app.use('/', setupRouter);
 // app.use('/', adminRouter);
 
 // ========================
@@ -146,46 +146,7 @@ app.get('/login', (req, res) => {
     });
 });
 
-// シンプルなログイン処理（元のバージョンに復帰）
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  
-  console.log('ログイン試行:', username);
-  
-  // 既存のsettings.jsonから認証情報を読み取り
-  let settings = {};
-  try {
-    if (fs.existsSync('./settings.json')) {
-      settings = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
-    }
-  } catch (error) {
-    console.error('settings.json読み込みエラー:', error);
-  }
-  
-  // デフォルトの認証情報
-  const validUsername = settings.username || 'komiya';
-  const validPassword = settings.password || 'komiya';
-  
-  if (username === validUsername && password === validPassword) {
-    req.session.user = { username: username };
-    console.log('✅ ログイン成功');
-    
-    // 設定が完了しているかチェック
-    const isSetupComplete = settings.metaAccessToken && 
-                          settings.metaAccountId && 
-                          settings.chatworkApiToken && 
-                          settings.chatworkRoomId;
-    
-    if (isSetupComplete) {
-      res.redirect('/dashboard');
-    } else {
-      res.redirect('/setup');
-    }
-  } else {
-    console.log('❌ ログイン失敗');
-    res.redirect('/login?error=認証に失敗しました');
-  }
-});
+// 旧式ログイン処理削除（マルチユーザー対応への統一）
 
 // シンプルログアウト処理
 app.post('/logout', (req, res) => {
@@ -217,14 +178,7 @@ app.post('/api/user-settings', requireAuth, validateUserSettings, auditLog('sett
 // 既存ルートのマルチユーザー対応
 // ========================
 
-// ルートページ（認証チェック追加）
-app.get('/', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.redirect('/login');
-    }
-});
+// ルートページ削除（重複のため）
 
 // 安全な依存関係読み込み（無効化）
 /*
@@ -336,16 +290,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ルートアクセス（設定完了状態に応じて遷移）
-app.get('/', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
-  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
-    return res.redirect('/setup');
-  }
-  res.redirect('/dashboard');
-});
+// ルートアクセス削除（重複のため）
 
 // ログインページ
 app.get('/auth/login', (req, res) => {
@@ -365,10 +310,12 @@ app.post('/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     console.log('=== マルチユーザー ログイン処理開始 ===');
-    console.log('ユーザー名:', username);
+    console.log('受信データ:', { username, password: password ? '***' : 'なし' });
+    console.log('リクエストボディ:', req.body);
     
     // マルチユーザー認証を使用
     const userId = await userManager.authenticateUser(username, password);
+    console.log('認証結果:', userId ? 'SUCCESS' : 'FAILED');
     
     if (userId) {
       // セッションに認証情報を保存
@@ -383,23 +330,33 @@ app.post('/auth/login', async (req, res) => {
       }
       
       console.log('✅ マルチユーザー認証成功:', userId);
+      console.log('セッション保存中...');
       
-      // ユーザーの設定状況をチェック
-      const userSettings = userManager.getUserSettings(userId);
-      if (userSettings && userSettings.meta_access_token && userSettings.chatwork_token) {
-        console.log('セッション: 設定完了済み → ダッシュボードにリダイレクト');
-        req.session.setupCompleted = true;
-        res.redirect('/dashboard');
-      } else {
-        console.log('セッション: 設定未完了 → 設定画面にリダイレクト');
-        res.redirect('/setup');
-      }
+      // セッションを明示的に保存
+      req.session.save((err) => {
+        if (err) {
+          console.error('セッション保存エラー:', err);
+          return res.redirect('/auth/login?error=session');
+        }
+        
+        // ユーザーの設定状況をチェック
+        const userSettings = userManager.getUserSettings(userId);
+        if (userSettings && userSettings.meta_access_token && userSettings.chatwork_token) {
+          console.log('セッション: 設定完了済み → ダッシュボードにリダイレクト');
+          req.session.setupCompleted = true;
+          res.redirect('/dashboard');
+        } else {
+          console.log('セッション: 設定未完了 → 設定画面にリダイレクト');
+          res.redirect('/setup');
+        }
+      });
     } else {
       console.log('❌ マルチユーザー認証失敗');
       res.redirect('/auth/login?error=invalid');
     }
   } catch (error) {
     console.error('ログイン処理エラー:', error);
+    console.error('エラー詳細:', error.stack);
     res.redirect('/auth/login?error=system');
   }
 });
@@ -555,8 +512,7 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
     console.error('❌ キャンペーンリスト取得失敗:', error.message);
     res.status(500).json({
       success: false,
-      error: 'キャンペーンリストの取得に失敗しました',
-      details: error.message
+      error: 'キャンペーンリストの取得に失敗しました'
     });
   }
 });
@@ -809,7 +765,6 @@ app.post('/api/send-chatwork', requireAuth, async (req, res) => {
     
     res.status(500).json({ 
       error: 'チャットワーク送信に失敗しました',
-      details: error.message,
       troubleshooting: 'APIトークンとルームIDを確認してください'
     });
   }
@@ -1520,7 +1475,6 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
         console.error('❌ ダッシュボードデータ取得失敗:', error.message);
         res.status(500).json({
             error: 'Meta広告データの取得に失敗しました',
-            details: error.message,
             timestamp: new Date().toISOString()
         });
     }
@@ -2053,9 +2007,7 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('チャットワークテスト送信エラー:', error);
         res.status(500).json({ 
-            error: 'テスト送信に失敗しました',
-            details: error.message,
-            stack: error.stack
+            error: 'テスト送信に失敗しました'
         });
     }
 });
@@ -2109,8 +2061,7 @@ app.get('/api/test-meta-connection', requireAuth, async (req, res) => {
         console.error('Meta API接続テストエラー:', error);
         res.json({
             success: false,
-            error: 'Meta API接続テストエラー',
-            details: error.message
+            error: 'Meta API接続テストエラー'
         });
     }
 });
@@ -2384,7 +2335,12 @@ app.get('/health', (req, res) => {
 // 404ハンドリング（必ず最後に配置）
 app.use((req, res) => {
   console.log('404エラー:', req.method, req.url);
-  res.status(404).send('ページが見つかりません');
+  // JSONリクエストかどうかをチェック
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    res.status(404).json({ success: false, error: 'ページが見つかりません' });
+  } else {
+    res.status(404).send('ページが見つかりません');
+  }
 });
 
 const PORT = process.env.PORT || 3000;
