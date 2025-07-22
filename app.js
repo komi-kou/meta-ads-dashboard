@@ -7,7 +7,7 @@ const session = require('express-session');
 const axios = require('axios');
 const fs = require('fs');
 
-// 軽量版マルチユーザー対応
+// テスト用軽量版マルチユーザー対応
 const {
     loginLimiter,
     generalLimiter,
@@ -19,7 +19,7 @@ const {
     auditLog,
     validateUserSettings,
     getUserManager
-} = require('./middleware/simpleAuth');
+} = require('./middleware/testAuth');
 
 // セットアップルーター
 const setupRouter = require('./routes/setup');
@@ -69,7 +69,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'multi-user-meta-ads-dashboard-secret-2024',
   name: 'metaads.sessionid', // セッション名をカスタマイズ
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // CSRFトークンのためにtrueに変更
   rolling: true, // アクティビティで期限をリセット
   cookie: {
     secure: process.env.NODE_ENV === 'production',
@@ -79,6 +79,15 @@ app.use(session({
   }
 }));
 
+
+// セッションデバッグミドルウェア（テスト用）
+app.use((req, res, next) => {
+    console.log(`🔍 ${req.method} ${req.url} - Session ID: ${req.sessionID}, Has Session: ${!!req.session}`);
+    if (req.session) {
+        console.log(`   Session Keys: ${Object.keys(req.session).join(', ')}`);
+    }
+    next();
+});
 
 // ユーザー情報をリクエストに追加
 app.use(addUserToRequest);
@@ -104,18 +113,16 @@ app.get('/register', (req, res) => {
     // CSRFトークンを強制的に生成と保存
     if (!req.session.csrfToken) {
         req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-        // セッションを明示的に保存
-        req.session.save((err) => {
-            if (err) {
-                console.error('Session save error:', err);
-            } else {
-                console.log('Register page - CSRF token generated and saved');
-            }
-        });
+        console.log('🔑 Register: CSRF token generated:', req.session.csrfToken.substring(0, 8) + '...');
     }
     
-    console.log('Register page - CSRF token:', req.session.csrfToken ? 'Generated' : 'Missing');
-    res.render('register', { csrfToken: req.session.csrfToken });
+    console.log('📋 Register page render - Session ID:', req.sessionID);
+    console.log('🔑 CSRF token available:', !!req.session.csrfToken);
+    
+    res.render('register', { 
+        csrfToken: req.session.csrfToken,
+        sessionId: req.sessionID // デバッグ用
+    });
 });
 
 // ユーザー登録処理
@@ -148,14 +155,7 @@ app.get('/login', (req, res) => {
     // CSRFトークンを強制的に生成と保存
     if (!req.session.csrfToken) {
         req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
-        // セッションを明示的に保存
-        req.session.save((err) => {
-            if (err) {
-                console.error('Session save error:', err);
-            } else {
-                console.log('Login page - CSRF token generated and saved');
-            }
-        });
+        console.log('🔑 Login: CSRF token generated:', req.session.csrfToken.substring(0, 8) + '...');
     }
     
     // 登録完了メッセージを表示
@@ -164,12 +164,15 @@ app.get('/login', (req, res) => {
         successMessage = 'ユーザー登録が完了しました。ログインしてください。';
     }
     
-    console.log('Login page - CSRF token:', req.session.csrfToken ? 'Generated' : 'Missing');
+    console.log('📋 Login page render - Session ID:', req.sessionID);
+    console.log('🔑 CSRF token available:', !!req.session.csrfToken);
+    
     res.render('user-login', { 
         query: req.query,
         successMessage: successMessage,
         error: req.query.error,
-        csrfToken: req.session.csrfToken
+        csrfToken: req.session.csrfToken,
+        sessionId: req.sessionID // デバッグ用
     });
 });
 

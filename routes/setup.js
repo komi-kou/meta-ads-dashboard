@@ -1,6 +1,6 @@
 // マルチユーザー対応セットアップ保存処理
 const express = require('express');
-const { requireAuth, validateUserSettings, auditLog, getUserManager } = require('../middleware/simpleAuth');
+const { requireAuth, validateUserSettings, auditLog, getUserManager } = require('../middleware/testAuth');
 
 const router = express.Router();
 const userManager = getUserManager();

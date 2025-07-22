@@ -1,6 +1,6 @@
 // 管理者用ユーザー管理機能
 const express = require('express');
-const { requireAuth, auditLog, getUserManager } = require('../middleware/simpleAuth');
+const { requireAuth, auditLog, getUserManager } = require('../middleware/testAuth');
 
 const router = express.Router();
 const userManager = getUserManager();
