@@ -178,42 +178,89 @@ app.get('/login', (req, res) => {
 
 // ログイン処理
 app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), async (req, res) => {
+    console.log('📝 POST /login リクエスト受信');
+    console.log('Session ID:', req.sessionID);
+    console.log('Request body:', { email: req.body.email, hasPassword: !!req.body.password });
+    
     try {
         const { email, password } = req.body;
         
+        console.log('🔐 ユーザー認証開始:', email);
         const userId = await userManager.authenticateUser(email, password);
+        console.log('🔐 認証結果:', userId ? '成功' : '失敗');
         
         if (userId) {
+            console.log('✅ ログイン成功 - ユーザーID:', userId);
+            
             const user = userManager.getUserById(userId);
+            console.log('📝 ユーザー情報:', { id: userId, email, username: user?.username });
+            
             req.session.userId = userId;
             req.session.userEmail = email;
-            req.session.userName = user.username;
+            req.session.userName = user?.username;
             req.session.lastActivity = Date.now();
             
-            userManager.logAuditEvent(userId, 'login_success', 'User logged in', 
-                req.ip, req.get('User-Agent'));
+            console.log('💾 セッション保存を明示的に実行中...');
             
-            // ユーザー設定をチェックして適切にリダイレクト
-            const userSettings = userManager.getUserSettings(userId);
-            if (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) {
-                res.redirect('/setup');
-            } else {
-                res.redirect('/dashboard');
-            }
+            // セッションを明示的に保存してからリダイレクト
+            req.session.save((err) => {
+                if (err) {
+                    console.error('❌ セッション保存エラー:', err);
+                    return res.status(500).render('user-login', { 
+                        error: 'ログイン処理中にセッション保存エラーが発生しました',
+                        formData: { email: req.body.email },
+                        csrfToken: req.session.csrfToken
+                    });
+                }
+                
+                console.log('✅ セッション保存完了 - リダイレクト準備中');
+                console.log('📋 最終セッション状態:', {
+                    userId: req.session.userId,
+                    userEmail: req.session.userEmail,
+                    userName: req.session.userName,
+                    sessionID: req.sessionID,
+                    lastActivity: req.session.lastActivity
+                });
+                
+                userManager.logAuditEvent(userId, 'login_success', 'User logged in', 
+                    req.ip, req.get('User-Agent'));
+                
+                // ユーザー設定をチェックして適切にリダイレクト
+                const userSettings = userManager.getUserSettings(userId);
+                console.log('⚙️ ユーザー設定状態:', {
+                    hasSettings: !!userSettings,
+                    hasMetaToken: !!(userSettings?.meta_access_token),
+                    hasChatworkToken: !!(userSettings?.chatwork_token)
+                });
+                
+                if (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) {
+                    console.log('🔄 セットアップページにリダイレクト実行 - URL: /setup');
+                    return res.redirect('/setup');
+                } else {
+                    console.log('🔄 ダッシュボードにリダイレクト実行 - URL: /dashboard');
+                    return res.redirect('/dashboard');
+                }
+            });
         } else {
+            console.log('❌ ログイン失敗 - 無効なメール/パスワード:', email);
+            
             userManager.logAuditEvent(null, 'login_failed', `Failed login attempt for ${email}`, 
                 req.ip, req.get('User-Agent'));
             
             res.render('user-login', { 
                 error: 'メールアドレスまたはパスワードが正しくありません',
-                formData: { email }
+                formData: { email },
+                csrfToken: req.session.csrfToken
             });
         }
     } catch (error) {
-        console.error('Login error:', error);
-        res.render('user-login', { 
-            error: error.message,
-            formData: { email: req.body.email }
+        console.error('❌ ログイン処理エラー:', error);
+        console.error('エラースタック:', error.stack);
+        
+        res.status(500).render('user-login', { 
+            error: 'ログイン処理中にエラーが発生しました: ' + error.message,
+            formData: { email: req.body.email },
+            csrfToken: req.session.csrfToken
         });
     }
 });

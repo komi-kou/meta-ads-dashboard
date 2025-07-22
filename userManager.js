@@ -115,10 +115,15 @@ class UserManager {
     // ユーザー認証
     async authenticateUser(email, password) {
         try {
+            console.log('🔍 UserManager.authenticateUser 呼び出し:', email);
             const users = this.readJsonFile(this.usersFile);
+            console.log('📊 ユーザーデータベース読み込み:', users.length + '人');
+            
             const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.is_active);
+            console.log('🔍 ユーザー検索結果:', user ? '見つかりました' : '見つかりません');
 
             if (!user) {
+                console.log('❌ 認証失敗: ユーザーが存在しないまたは非アクティブ');
                 return null;
             }
 
@@ -128,7 +133,9 @@ class UserManager {
             }
 
             // パスワード確認
+            console.log('🔑 パスワード検証開始');
             const isValid = await bcrypt.compare(password, user.password_hash);
+            console.log('🔑 パスワード検証結果:', isValid ? '一致' : '不一致');
             
             if (isValid) {
                 // ログイン成功 - 試行回数リセット
@@ -137,14 +144,16 @@ class UserManager {
                 user.last_login = new Date().toISOString();
                 this.writeJsonFile(this.usersFile, users);
                 
-                console.log(`✅ ログイン成功: ${email}`);
+                console.log(`✅ ログイン成功: ${email} - UserID: ${user.id}`);
                 return user.id;
             } else {
                 // ログイン失敗 - 試行回数増加
+                console.log('❌ パスワード不一致 - 失敗回数増加');
                 user.login_attempts = (user.login_attempts || 0) + 1;
                 
                 if (user.login_attempts >= 5) {
                     user.locked_until = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30分ロック
+                    console.log('⚠️ アカウントロック - 30分間');
                 }
                 
                 this.writeJsonFile(this.usersFile, users);

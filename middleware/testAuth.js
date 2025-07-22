@@ -26,18 +26,30 @@ const userManager = new UserManager();
 
 // 認証ミドルウェア
 function requireAuth(req, res, next) {
+    console.log('🔐 requireAuth チェック:', {
+        url: req.url,
+        method: req.method,
+        sessionId: req.sessionID,
+        hasSession: !!req.session,
+        hasUserId: !!(req.session && req.session.userId),
+        userId: req.session?.userId
+    });
+    
     if (req.session && req.session.userId) {
         // セッションの有効性を確認
         if (req.session.lastActivity && 
             Date.now() - req.session.lastActivity > 24 * 60 * 60 * 1000) { // 24時間
+            console.log('⏰ セッション期限切れでログインページにリダイレクト');
             req.session.destroy();
             return res.redirect('/login?expired=true');
         }
         
         // 最後のアクティビティを更新
         req.session.lastActivity = Date.now();
+        console.log('✅ 認証成功 - 次のミドルウェアに進行');
         return next();
     } else {
+        console.log('❌ 認証失敗 - ログインページにリダイレクト');
         return res.redirect('/login');
     }
 }
