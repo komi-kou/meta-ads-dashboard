@@ -412,7 +412,11 @@ app.post('/auth/login', (req, res) => {
 });
 
 // 初期設定ページ（マルチユーザー対応）
-app.get('/setup', requireAuth, (req, res) => {
+app.get('/setup', (req, res) => {
+  // ログイン済みユーザーのみアクセス可能
+  if (!req.session.authenticated) {
+    return res.redirect('/auth/login');
+  }
   try {
     // CSRFトークンを強制的に生成と保存
     if (!req.session.csrfToken) {
