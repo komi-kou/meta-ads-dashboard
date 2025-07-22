@@ -237,18 +237,7 @@ try {
 }
 */
 
-// 認証ミドルウェア
-function requireAuth(req, res, next) {
-  console.log('🔐 requireAuth チェック中...');
-  console.log('セッション認証状態:', req.session?.authenticated);
-  if (req.session && req.session.authenticated) {
-    console.log('✅ 認証OK');
-    return next();
-  } else {
-    console.log('❌ 認証失敗 - ログインページにリダイレクト');
-    return res.redirect('/auth/login');
-  }
-}
+// 古いrequireAuth関数削除済み - middleware/simpleAuth.jsから使用
 
 // 設定完了判定機能（改善版）
 function checkSetupCompletion() {
