@@ -360,49 +360,42 @@ app.get('/login', (req, res) => {
   res.redirect('/auth/login');
 });
 
-// ログイン処理（設定完了状態に応じて遷移）
-app.post('/auth/login', (req, res) => {
+// ログイン処理（マルチユーザー対応）
+app.post('/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log('=== ログイン処理開始 ===');
+    console.log('=== マルチユーザー ログイン処理開始 ===');
     console.log('ユーザー名:', username);
     
-    if (username === 'komiya' && (password === 'komiya' || password === 'password')) {
+    // マルチユーザー認証を使用
+    const userId = await userManager.authenticateUser(username, password);
+    
+    if (userId) {
+      // セッションに認証情報を保存
       req.session.authenticated = true;
-      req.session.user = username;
-      console.log('認証成功');
+      req.session.userId = userId;
+      req.session.userEmail = username;
       
-      // 既存設定をセッションに読み込み
-      try {
-        const settingsPath = path.join(__dirname, 'settings.json');
-        if (fs.existsSync(settingsPath)) {
-          const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-          if (settings.meta?.accessToken) {
-            req.session.metaAccessToken = settings.meta.accessToken;
-            req.session.metaAccountId = settings.meta.accountId;
-          }
-          if (settings.chatwork?.apiToken) {
-            req.session.chatworkApiToken = settings.chatwork.apiToken;
-            req.session.chatworkRoomId = settings.chatwork.roomId;
-          }
-          console.log('✅ 既存設定をセッションに読み込み完了');
-        }
-      } catch (error) {
-        console.error('⚠️ 設定読み込みエラー:', error);
+      // ユーザー情報を取得
+      const user = userManager.getUserById(userId);
+      if (user) {
+        req.session.userName = user.username;
       }
       
-      console.log('セッション状態:', req.session);
+      console.log('✅ マルチユーザー認証成功:', userId);
       
-      // 設定完了状態をチェック（セッションベース）
-      if (req.session.setupCompleted) {
+      // ユーザーの設定状況をチェック
+      const userSettings = userManager.getUserSettings(userId);
+      if (userSettings && userSettings.meta_access_token && userSettings.chatwork_token) {
         console.log('セッション: 設定完了済み → ダッシュボードにリダイレクト');
+        req.session.setupCompleted = true;
         res.redirect('/dashboard');
       } else {
         console.log('セッション: 設定未完了 → 設定画面にリダイレクト');
         res.redirect('/setup');
       }
     } else {
-      console.log('認証失敗');
+      console.log('❌ マルチユーザー認証失敗');
       res.redirect('/auth/login?error=invalid');
     }
   } catch (error) {
