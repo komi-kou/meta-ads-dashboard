@@ -238,17 +238,66 @@
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // デフォルト送信を防ぐ
+            
             const submitBtn = document.getElementById('submitBtn');
+            const formData = new FormData(this);
             
             // 送信中の表示
             submitBtn.disabled = true;
             submitBtn.textContent = 'ログイン中...';
             
-            // 5秒後に元に戻す（エラー時のため）
-            setTimeout(() => {
+            console.log('🚀 Ajax ログイン送信開始');
+            
+            // Ajax でログイン送信
+            fetch('/login', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin' // Cookieを含める
+            })
+            .then(response => {
+                console.log('📨 Ajax レスポンス受信:', response.status, response.statusText);
+                console.log('📨 レスポンスヘッダー:', response.headers);
+                
+                // リダイレクトの場合
+                if (response.redirected) {
+                    console.log('🔄 リダイレクト検出:', response.url);
+                    window.location.href = response.url;
+                    return;
+                }
+                
+                // JSONレスポンスの場合
+                if (response.headers.get('content-type')?.includes('application/json')) {
+                    return response.json().then(data => {
+                        if (data.redirectUrl) {
+                            console.log('🔄 JSON リダイレクト:', data.redirectUrl);
+                            window.location.href = data.redirectUrl;
+                        } else if (data.error) {
+                            throw new Error(data.error);
+                        }
+                    });
+                }
+                
+                // HTMLレスポンス（エラーページ）の場合
+                return response.text().then(html => {
+                    if (html.includes('error') || html.includes('エラー')) {
+                        document.body.innerHTML = html;
+                    } else {
+                        // 成功だが予期しないレスポンス
+                        console.log('⚠️ 予期しないHTMLレスポンス - ダッシュボードにリダイレクト');
+                        window.location.href = '/dashboard';
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('❌ Ajax ログインエラー:', error);
+                alert('ログインエラーが発生しました: ' + error.message);
+            })
+            .finally(() => {
+                // ボタンを元に戻す
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'ログイン';
-            }, 5000);
+            });
         });
 
         // Enterキーでのフォーム送信を有効化

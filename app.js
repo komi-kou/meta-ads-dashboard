@@ -178,9 +178,44 @@ app.get('/login', (req, res) => {
 
 // ログイン処理
 app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), async (req, res) => {
-    console.log('📝 POST /login リクエスト受信');
+    console.log('==================================================');
+    console.log('📝 POST /login リクエスト受信 - 開始時刻:', new Date().toISOString());
     console.log('Session ID:', req.sessionID);
+    console.log('Request headers:', {
+        'user-agent': req.get('User-Agent'),
+        'content-type': req.get('Content-Type'),
+        'accept': req.get('Accept'),
+        'referer': req.get('Referer')
+    });
     console.log('Request body:', { email: req.body.email, hasPassword: !!req.body.password });
+    
+    // レスポンスの監視
+    const originalRedirect = res.redirect;
+    const originalRender = res.render;
+    const originalSend = res.send;
+    const originalJson = res.json;
+    
+    res.redirect = function(url) {
+        console.log('🔄 REDIRECT 実行:', url);
+        console.log('🔄 Response status before redirect:', res.statusCode);
+        console.log('🔄 Response headers before redirect:', res.getHeaders());
+        return originalRedirect.call(this, url);
+    };
+    
+    res.render = function(view, locals) {
+        console.log('🎨 RENDER 実行:', view, 'with locals:', locals ? Object.keys(locals) : 'none');
+        return originalRender.call(this, view, locals);
+    };
+    
+    res.send = function(body) {
+        console.log('📤 SEND 実行:', typeof body, body ? body.toString().substring(0, 100) + '...' : 'empty');
+        return originalSend.call(this, body);
+    };
+    
+    res.json = function(obj) {
+        console.log('📤 JSON 実行:', obj);
+        return originalJson.call(this, obj);
+    };
     
     try {
         const { email, password } = req.body;
@@ -233,12 +268,41 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
                     hasChatworkToken: !!(userSettings?.chatwork_token)
                 });
                 
-                if (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) {
-                    console.log('🔄 セットアップページにリダイレクト実行 - URL: /setup');
-                    return res.redirect('/setup');
+                const redirectUrl = (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) 
+                    ? '/setup' 
+                    : '/dashboard';
+                
+                console.log('🔄 リダイレクトURL決定:', redirectUrl);
+                
+                // リクエストヘッダーをチェックしてAjaxかどうか判定
+                const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
+                               req.get('Accept')?.includes('application/json') ||
+                               req.get('Content-Type')?.includes('application/json');
+                
+                console.log('📋 リクエスト形式判定:', { 
+                    isAjax, 
+                    accept: req.get('Accept'),
+                    contentType: req.get('Content-Type')
+                });
+                
+                if (isAjax) {
+                    // Ajax リクエストの場合はJSONでレスポンス
+                    console.log('📤 Ajax用JSONレスポンス送信');
+                    return res.json({
+                        success: true,
+                        message: 'ログイン成功',
+                        redirectUrl: redirectUrl,
+                        userInfo: {
+                            userId: userId,
+                            email: user.email,
+                            username: user.username
+                        }
+                    });
                 } else {
-                    console.log('🔄 ダッシュボードにリダイレクト実行 - URL: /dashboard');
-                    return res.redirect('/dashboard');
+                    // 通常のフォーム送信の場合はリダイレクト
+                    console.log('🔄 通常リダイレクト実行');
+                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                    return res.redirect(redirectUrl);
                 }
             });
         } else {
@@ -247,22 +311,50 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
             userManager.logAuditEvent(null, 'login_failed', `Failed login attempt for ${email}`, 
                 req.ip, req.get('User-Agent'));
             
-            res.render('user-login', { 
-                error: 'メールアドレスまたはパスワードが正しくありません',
-                formData: { email },
-                csrfToken: req.session.csrfToken
-            });
+            // Ajax リクエストかどうか判定
+            const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
+                           req.get('Accept')?.includes('application/json') ||
+                           req.get('Content-Type')?.includes('application/json');
+            
+            if (isAjax) {
+                return res.status(401).json({
+                    success: false,
+                    error: 'メールアドレスまたはパスワードが正しくありません'
+                });
+            } else {
+                return res.render('user-login', { 
+                    error: 'メールアドレスまたはパスワードが正しくありません',
+                    formData: { email },
+                    csrfToken: req.session.csrfToken
+                });
+            }
         }
     } catch (error) {
         console.error('❌ ログイン処理エラー:', error);
         console.error('エラースタック:', error.stack);
+        console.error('エラー発生時刻:', new Date().toISOString());
         
-        res.status(500).render('user-login', { 
-            error: 'ログイン処理中にエラーが発生しました: ' + error.message,
-            formData: { email: req.body.email },
-            csrfToken: req.session.csrfToken
-        });
+        // Ajax リクエストかどうか判定
+        const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
+                       req.get('Accept')?.includes('application/json') ||
+                       req.get('Content-Type')?.includes('application/json');
+        
+        if (isAjax) {
+            return res.status(500).json({
+                success: false,
+                error: 'ログイン処理中にエラーが発生しました: ' + error.message
+            });
+        } else {
+            return res.status(500).render('user-login', { 
+                error: 'ログイン処理中にエラーが発生しました: ' + error.message,
+                formData: { email: req.body.email || '' },
+                csrfToken: req.session.csrfToken
+            });
+        }
     }
+    
+    console.log('==================================================');
+    console.log('📝 POST /login リクエスト完了 - 終了時刻:', new Date().toISOString());
 });
 
 // ログアウト処理
