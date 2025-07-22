@@ -21,9 +21,9 @@ const {
     getUserManager
 } = require('./middleware/testAuth');
 
-// マルチユーザー機能を有効化
+// セットアップルーター
 const setupRouter = require('./routes/setup');
-// const adminRouter = require('./routes/admin');
+const adminRouter = require('./routes/admin');
 
 // 環境変数確認ログ
 console.log('=== 環境変数確認 ===');
@@ -121,43 +121,225 @@ app.use(addUserToRequest);
 // CSRF保護
 app.use(csrfProtection);
 
-// マルチユーザー機能を一時的に無効化
+// セットアップルーターを使用
 app.use('/', setupRouter);
-// app.use('/', adminRouter);
+// 管理者ルーターを使用
+app.use('/', adminRouter);
 
 // ========================
 // 認証ルート（マルチユーザー対応）
 // ========================
 
 // ユーザー登録ページ
-// ユーザー登録機能は無効化
-
-// ユーザー登録機能は無効化
-
-// シンプルログインページ
-app.get('/login', (req, res) => {
-    if (req.session.user) {
+app.get('/register', (req, res) => {
+    if (req.session.userId) {
         return res.redirect('/dashboard');
     }
     
-    res.render('login', { 
-        title: 'ログイン - Meta広告ダッシュボード',
-        error: req.query.error || null
+    // CSRFトークンを強制的に生成と保存
+    if (!req.session.csrfToken) {
+        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+        console.log('🔑 Register: CSRF token generated:', req.session.csrfToken.substring(0, 8) + '...');
+    }
+    
+    console.log('📋 Register page render - Session ID:', req.sessionID);
+    console.log('🔑 CSRF token available:', !!req.session.csrfToken);
+    
+    res.render('register', { 
+        csrfToken: req.session.csrfToken,
+        sessionId: req.sessionID // デバッグ用
     });
 });
 
-// 緊急復旧：ログインルート追加
-app.get('/login', (req, res) => {
-  res.redirect('/auth/login');
+// ユーザー登録処理
+app.post('/register', loginLimiter, validateUserInput, auditLog('user_register'), async (req, res) => {
+    try {
+        const { email, password, username } = req.body;
+        
+        const userId = await userManager.createUser(email, password, username);
+        
+        userManager.logAuditEvent(userId, 'user_registered', 'New user registration', 
+            req.ip, req.get('User-Agent'));
+        
+        // ユーザー登録後はログインページにリダイレクト
+        res.redirect('/login?registered=true');
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.render('register', { 
+            error: error.message,
+            formData: { email: req.body.email, username: req.body.username }
+        });
+    }
 });
 
-// シンプルログアウト処理
-app.post('/logout', (req, res) => {
+// ログインページ
+app.get('/login', (req, res) => {
+    if (req.session.userId) {
+        return res.redirect('/dashboard');
+    }
+    
+    // CSRFトークンを強制的に生成と保存
+    if (!req.session.csrfToken) {
+        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+        console.log('🔑 Login: CSRF token generated:', req.session.csrfToken.substring(0, 8) + '...');
+    }
+    
+    // 登録完了メッセージを表示
+    let successMessage = null;
+    if (req.query.registered === 'true') {
+        successMessage = 'ユーザー登録が完了しました。ログインしてください。';
+    }
+    
+    console.log('📋 Login page render - Session ID:', req.sessionID);
+    console.log('🔑 CSRF token available:', !!req.session.csrfToken);
+    
+    res.render('user-login', { 
+        query: req.query,
+        successMessage: successMessage,
+        error: req.query.error,
+        csrfToken: req.session.csrfToken,
+        sessionId: req.sessionID // デバッグ用
+    });
+});
+
+// ログイン処理
+app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), async (req, res) => {
+    console.log('==================================================');
+    console.log('📝 POST /login リクエスト受信 - 開始時刻:', new Date().toISOString());
+    console.log('Session ID:', req.sessionID);
+    console.log('Request headers:', {
+        'user-agent': req.get('User-Agent'),
+        'content-type': req.get('Content-Type'),
+        'accept': req.get('Accept'),
+        'referer': req.get('Referer')
+    });
+    console.log('Request body:', { email: req.body.email, hasPassword: !!req.body.password });
+    
+    
+    try {
+        console.log('📋 req.body詳細:', req.body);
+        console.log('📋 req.body type:', typeof req.body);
+        console.log('📋 req.body keys:', req.body ? Object.keys(req.body) : 'req.body is null/undefined');
+        
+        const { email, password } = req.body || {};
+        
+        console.log('📧 抽出されたemail:', email, 'type:', typeof email);
+        console.log('🔑 抽出されたpassword:', password ? '存在します' : '存在しません', 'type:', typeof password);
+        
+        // バリデーション強化
+        if (!email || typeof email !== 'string' || email.trim() === '') {
+            console.log('❌ email バリデーション失敗:', { email, type: typeof email });
+            throw new Error('メールアドレスが正しく入力されていません');
+        }
+        
+        if (!password || typeof password !== 'string' || password.trim() === '') {
+            console.log('❌ password バリデーション失敗:', { hasPassword: !!password, type: typeof password });
+            throw new Error('パスワードが正しく入力されていません');
+        }
+        
+        const trimmedEmail = email.trim();
+        const trimmedPassword = password.trim();
+        
+        console.log('🔐 ユーザー認証開始:', trimmedEmail);
+        const userId = await userManager.authenticateUser(trimmedEmail, trimmedPassword);
+        console.log('🔐 認証結果:', userId ? '成功' : '失敗');
+        
+        if (userId) {
+            console.log('✅ ログイン成功 - ユーザーID:', userId);
+            
+            const user = userManager.getUserById(userId);
+            console.log('📝 ユーザー情報:', { id: userId, email: trimmedEmail, username: user?.username });
+            
+            req.session.userId = userId;
+            req.session.userEmail = trimmedEmail;
+            req.session.userName = user?.username;
+            req.session.lastActivity = Date.now();
+            
+            console.log('💾 セッション保存を明示的に実行中...');
+            
+            // セッションを明示的に保存してからリダイレクト
+            req.session.save((err) => {
+                if (err) {
+                    console.error('❌ セッション保存エラー:', err);
+                    return res.status(500).render('user-login', { 
+                        error: 'ログイン処理中にセッション保存エラーが発生しました',
+                        formData: { email: req.body.email },
+                        csrfToken: req.session.csrfToken
+                    });
+                }
+                
+                console.log('✅ セッション保存完了 - リダイレクト準備中');
+                console.log('📋 最終セッション状態:', {
+                    userId: req.session.userId,
+                    userEmail: req.session.userEmail,
+                    userName: req.session.userName,
+                    sessionID: req.sessionID,
+                    lastActivity: req.session.lastActivity
+                });
+                
+                userManager.logAuditEvent(userId, 'login_success', 'User logged in', 
+                    req.ip, req.get('User-Agent'));
+                
+                // ユーザー設定をチェックして適切にリダイレクト
+                const userSettings = userManager.getUserSettings(userId);
+                console.log('⚙️ ユーザー設定状態:', {
+                    hasSettings: !!userSettings,
+                    hasMetaToken: !!(userSettings?.meta_access_token),
+                    hasChatworkToken: !!(userSettings?.chatwork_token)
+                });
+                
+                const redirectUrl = (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) 
+                    ? '/setup' 
+                    : '/dashboard';
+                
+                console.log('🔄 リダイレクトURL決定:', redirectUrl);
+                
+                // 標準リダイレクト実行
+                console.log('🔄 リダイレクト実行:', redirectUrl);
+                res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                return res.redirect(redirectUrl);
+            });
+        } else {
+            console.log('❌ ログイン失敗 - 無効なメール/パスワード:', email);
+            
+            userManager.logAuditEvent(null, 'login_failed', `Failed login attempt for ${trimmedEmail}`, 
+                req.ip, req.get('User-Agent'));
+            
+            return res.render('user-login', { 
+                error: 'メールアドレスまたはパスワードが正しくありません',
+                formData: { email: trimmedEmail },
+                csrfToken: req.session.csrfToken
+            });
+        }
+    } catch (error) {
+        console.error('❌ ログイン処理エラー:', error);
+        console.error('エラースタック:', error.stack);
+        console.error('エラー発生時刻:', new Date().toISOString());
+        
+        return res.status(500).render('user-login', { 
+            error: 'ログイン処理中にエラーが発生しました: ' + error.message,
+            formData: { email: req.body?.email || '' },
+            csrfToken: req.session.csrfToken
+        });
+    }
+    
+    console.log('==================================================');
+    console.log('📝 POST /login リクエスト完了 - 終了時刻:', new Date().toISOString());
+});
+
+// ログアウト処理
+app.post('/logout', requireAuth, auditLog('user_logout'), async (req, res) => {
+    const userId = req.session.userId;
+    
+    if (userId) {
+        userManager.logAuditEvent(userId, 'logout', 'User logged out', 
+            req.ip, req.get('User-Agent'));
+    }
+    
     req.session.destroy((err) => {
         if (err) {
             console.error('Session destroy error:', err);
         }
-        console.log('✅ ログアウト完了');
         res.redirect('/login');
     });
 });
@@ -181,12 +363,12 @@ app.post('/api/user-settings', requireAuth, validateUserSettings, auditLog('sett
 // 既存ルートのマルチユーザー対応
 // ========================
 
-// ルートページ（マルチユーザー対応版）
+// ルートページ（認証チェック追加）
 app.get('/', (req, res) => {
     if (req.session.userId) {
         res.redirect('/dashboard');
     } else {
-        res.redirect('/auth/login');
+        res.redirect('/login');
     }
 });
 
@@ -300,7 +482,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// ルートアクセス削除（重複のため）
+// ルートアクセス（設定完了状態に応じて遷移）
+app.get('/', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
+    return res.redirect('/setup');
+  }
+  res.redirect('/dashboard');
+});
 
 // ログインページ
 app.get('/auth/login', (req, res) => {
@@ -315,68 +506,59 @@ app.get('/login', (req, res) => {
   res.redirect('/auth/login');
 });
 
-// ログイン処理（マルチユーザー対応）
-app.post('/auth/login', async (req, res) => {
+// ログイン処理（設定完了状態に応じて遷移）
+app.post('/auth/login', (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log('=== マルチユーザー ログイン処理開始 ===');
-    console.log('受信データ:', { username, password: password ? '***' : 'なし' });
-    console.log('リクエストボディ:', req.body);
+    console.log('=== ログイン処理開始 ===');
+    console.log('ユーザー名:', username);
     
-    // マルチユーザー認証を使用
-    const userId = await userManager.authenticateUser(username, password);
-    console.log('認証結果:', userId ? 'SUCCESS' : 'FAILED');
-    
-    if (userId) {
-      // セッションに認証情報を保存
+    if (username === 'komiya' && (password === 'komiya' || password === 'password')) {
       req.session.authenticated = true;
-      req.session.userId = userId;
-      req.session.userEmail = username;
+      req.session.user = username;
+      console.log('認証成功');
       
-      // ユーザー情報を取得
-      const user = userManager.getUserById(userId);
-      if (user) {
-        req.session.userName = user.username;
+      // 既存設定をセッションに読み込み
+      try {
+        const settingsPath = path.join(__dirname, 'settings.json');
+        if (fs.existsSync(settingsPath)) {
+          const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+          if (settings.meta?.accessToken) {
+            req.session.metaAccessToken = settings.meta.accessToken;
+            req.session.metaAccountId = settings.meta.accountId;
+          }
+          if (settings.chatwork?.apiToken) {
+            req.session.chatworkApiToken = settings.chatwork.apiToken;
+            req.session.chatworkRoomId = settings.chatwork.roomId;
+          }
+          console.log('✅ 既存設定をセッションに読み込み完了');
+        }
+      } catch (error) {
+        console.error('⚠️ 設定読み込みエラー:', error);
       }
       
-      console.log('✅ マルチユーザー認証成功:', userId);
-      console.log('セッション保存中...');
+      console.log('セッション状態:', req.session);
       
-      // セッションを明示的に保存
-      req.session.save((err) => {
-        if (err) {
-          console.error('セッション保存エラー:', err);
-          return res.redirect('/auth/login?error=session');
-        }
-        
-        // ユーザーの設定状況をチェック
-        const userSettings = userManager.getUserSettings(userId);
-        if (userSettings && userSettings.meta_access_token && userSettings.chatwork_token) {
-          console.log('セッション: 設定完了済み → ダッシュボードにリダイレクト');
-          req.session.setupCompleted = true;
-          res.redirect('/dashboard');
-        } else {
-          console.log('セッション: 設定未完了 → 設定画面にリダイレクト');
-          res.redirect('/setup');
-        }
-      });
+      // 設定完了状態をチェック（セッションベース）
+      if (req.session.setupCompleted) {
+        console.log('セッション: 設定完了済み → ダッシュボードにリダイレクト');
+        res.redirect('/dashboard');
+      } else {
+        console.log('セッション: 設定未完了 → 設定画面にリダイレクト');
+        res.redirect('/setup');
+      }
     } else {
-      console.log('❌ マルチユーザー認証失敗');
+      console.log('認証失敗');
       res.redirect('/auth/login?error=invalid');
     }
   } catch (error) {
     console.error('ログイン処理エラー:', error);
-    console.error('エラー詳細:', error.stack);
     res.redirect('/auth/login?error=system');
   }
 });
 
 // 初期設定ページ（マルチユーザー対応）
-app.get('/setup', (req, res) => {
-  // ログイン済みユーザーのみアクセス可能
-  if (!req.session.authenticated) {
-    return res.redirect('/auth/login');
-  }
+app.get('/setup', requireAuth, (req, res) => {
   try {
     // CSRFトークンを強制的に生成と保存
     if (!req.session.csrfToken) {
@@ -522,7 +704,8 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
     console.error('❌ キャンペーンリスト取得失敗:', error.message);
     res.status(500).json({
       success: false,
-      error: 'キャンペーンリストの取得に失敗しました'
+      error: 'キャンペーンリストの取得に失敗しました',
+      details: error.message
     });
   }
 });
@@ -775,6 +958,7 @@ app.post('/api/send-chatwork', requireAuth, async (req, res) => {
     
     res.status(500).json({ 
       error: 'チャットワーク送信に失敗しました',
+      details: error.message,
       troubleshooting: 'APIトークンとルームIDを確認してください'
     });
   }
@@ -802,7 +986,14 @@ app.get('/settings', requireAuth, (req, res) => {
   }
 });
 
-// メインルート削除（重複のため上記を使用）
+// ルート
+app.get('/', (req, res) => {
+  if (req.session && req.session.authenticated) {
+    res.redirect('/dashboard');
+  } else {
+    res.redirect('/auth/login');
+  }
+});
 
 // ログアウト
 app.get('/auth/logout', (req, res) => {
@@ -1478,6 +1669,7 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
         console.error('❌ ダッシュボードデータ取得失敗:', error.message);
         res.status(500).json({
             error: 'Meta広告データの取得に失敗しました',
+            details: error.message,
             timestamp: new Date().toISOString()
         });
     }
@@ -2010,7 +2202,9 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('チャットワークテスト送信エラー:', error);
         res.status(500).json({ 
-            error: 'テスト送信に失敗しました'
+            error: 'テスト送信に失敗しました',
+            details: error.message,
+            stack: error.stack
         });
     }
 });
@@ -2064,7 +2258,8 @@ app.get('/api/test-meta-connection', requireAuth, async (req, res) => {
         console.error('Meta API接続テストエラー:', error);
         res.json({
             success: false,
-            error: 'Meta API接続テストエラー'
+            error: 'Meta API接続テストエラー',
+            details: error.message
         });
     }
 });
@@ -2338,12 +2533,7 @@ app.get('/health', (req, res) => {
 // 404ハンドリング（必ず最後に配置）
 app.use((req, res) => {
   console.log('404エラー:', req.method, req.url);
-  // JSONリクエストかどうかをチェック
-  if (req.headers.accept && req.headers.accept.includes('application/json')) {
-    res.status(404).json({ success: false, error: 'ページが見つかりません' });
-  } else {
-    res.status(404).send('ページが見つかりません');
-  }
+  res.status(404).send('ページが見つかりません');
 });
 
 const PORT = process.env.PORT || 3000;
