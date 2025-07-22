@@ -4,13 +4,10 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
-const helmet = require('helmet');
 const axios = require('axios');
 const fs = require('fs');
 
-// セキュリティとマルチユーザー対応
-const Database = require('./database');
+// 軽量版マルチユーザー対応
 const {
     loginLimiter,
     generalLimiter,
@@ -20,8 +17,9 @@ const {
     csrfProtection,
     setSecurityHeaders,
     auditLog,
-    validateUserSettings
-} = require('./middleware/auth');
+    validateUserSettings,
+    getUserManager
+} = require('./middleware/simpleAuth');
 
 // 環境変数確認ログ
 console.log('=== 環境変数確認 ===');
@@ -31,8 +29,8 @@ console.log('META_APP_ID:', process.env.META_APP_ID ? '設定済み' : '未設�
 
 const app = express();
 
-// データベース初期化
-const db = new Database();
+// ユーザーマネージャー初期化
+const userManager = getUserManager();
 
 // ファイルサイズチェック機能
 function checkFileSize(filePath, minSize = 100) {
@@ -49,17 +47,8 @@ function checkFileSize(filePath, minSize = 100) {
   }
 }
 
-// セキュリティミドルウェア
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:"],
-        },
-    },
-}));
+// セキュリティヘッダー（軽量版）
+app.use(setSecurityHeaders);
 
 // レート制限
 app.use(generalLimiter);
@@ -71,12 +60,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// セッション設定（SQLite使用）
+// セッション設定（軽量版）
 app.use(session({
-  store: new SQLiteStore({
-    db: 'sessions.db',
-    concurrentDB: true
-  }),
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
@@ -88,8 +73,6 @@ app.use(session({
   }
 }));
 
-// セキュリティヘッダー
-app.use(setSecurityHeaders);
 
 // ユーザー情報をリクエストに追加
 app.use(addUserToRequest);
@@ -114,7 +97,7 @@ app.post('/register', loginLimiter, validateUserInput, auditLog('user_register')
     try {
         const { email, password, username } = req.body;
         
-        const userId = await db.createUser(email, password, username);
+        const userId = await userManager.createUser(email, password, username);
         
         // 自動ログイン
         req.session.userId = userId;
@@ -122,7 +105,7 @@ app.post('/register', loginLimiter, validateUserInput, auditLog('user_register')
         req.session.userName = username;
         req.session.lastActivity = Date.now();
         
-        await db.logAuditEvent(userId, 'user_registered', 'New user registration', 
+        userManager.logAuditEvent(userId, 'user_registered', 'New user registration', 
             req.ip, req.get('User-Agent'));
         
         res.redirect('/setup');
@@ -148,19 +131,19 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
     try {
         const { email, password } = req.body;
         
-        const userId = await db.authenticateUser(email, password);
+        const userId = await userManager.authenticateUser(email, password);
         
         if (userId) {
             req.session.userId = userId;
             req.session.userEmail = email;
             req.session.lastActivity = Date.now();
             
-            await db.logAuditEvent(userId, 'login_success', 'User logged in', 
+            userManager.logAuditEvent(userId, 'login_success', 'User logged in', 
                 req.ip, req.get('User-Agent'));
             
             res.redirect('/dashboard');
         } else {
-            await db.logAuditEvent(null, 'login_failed', `Failed login attempt for ${email}`, 
+            userManager.logAuditEvent(null, 'login_failed', `Failed login attempt for ${email}`, 
                 req.ip, req.get('User-Agent'));
             
             res.render('user-login', { 
@@ -182,7 +165,7 @@ app.post('/logout', requireAuth, auditLog('user_logout'), async (req, res) => {
     const userId = req.session.userId;
     
     if (userId) {
-        await db.logAuditEvent(userId, 'logout', 'User logged out', 
+        userManager.logAuditEvent(userId, 'logout', 'User logged out', 
             req.ip, req.get('User-Agent'));
     }
     
@@ -200,7 +183,7 @@ app.post('/api/user-settings', requireAuth, validateUserSettings, auditLog('sett
         const userId = req.session.userId;
         const settings = req.body;
         
-        await db.saveUserSettings(userId, settings);
+        userManager.saveUserSettings(userId, settings);
         
         res.json({ success: true, message: '設定を保存しました' });
     } catch (error) {
@@ -439,7 +422,7 @@ app.get('/dashboard', requireAuth, async (req, res) => {
     console.log('Dashboard route accessed for user:', req.session.userId);
     
     // ユーザー設定を取得
-    const userSettings = await db.getUserSettings(req.session.userId);
+    const userSettings = userManager.getUserSettings(req.session.userId);
     
     if (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) {
       console.log('Missing user settings, redirecting to setup');
@@ -447,7 +430,7 @@ app.get('/dashboard', requireAuth, async (req, res) => {
     }
     
     // ユーザーの広告データを取得
-    const userAdData = await db.getUserAdData(req.session.userId, 30); // 最新30件
+    const userAdData = userManager.getUserAdData(req.session.userId, 30); // 最新30件
     
     console.log('Rendering dashboard for user:', req.session.userEmail);
     res.render('dashboard', {

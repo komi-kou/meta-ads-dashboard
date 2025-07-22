@@ -1,32 +1,16 @@
-const Database = require('../database');
+const UserManager = require('../userManager');
 const { sendChatworkMessage } = require('../chatworkApi');
 const { fetchMetaAdDailyStats } = require('../metaApi');
 
 class MultiUserChatworkSender {
     constructor() {
-        this.db = new Database();
+        this.userManager = new UserManager();
         this.sentHistory = new Map(); // メモリ内送信履歴
     }
 
     // 全ユーザーの設定を取得
-    async getAllActiveUsers() {
-        return new Promise((resolve, reject) => {
-            const query = `
-                SELECT u.id, u.email, u.username, s.* 
-                FROM users u
-                JOIN user_settings s ON u.id = s.user_id
-                WHERE u.is_active = 1 
-                AND s.notifications_enabled = 1
-                AND s.chatwork_token IS NOT NULL 
-                AND s.chatwork_room_id IS NOT NULL
-                AND s.meta_access_token IS NOT NULL
-            `;
-            
-            this.db.db.all(query, [], (err, rows) => {
-                if (err) return reject(err);
-                resolve(rows);
-            });
-        });
+    getAllActiveUsers() {
+        return this.userManager.getAllActiveUsers();
     }
 
     // 送信履歴チェック（ユーザー別）
@@ -77,7 +61,7 @@ class MultiUserChatworkSender {
                 .toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
 
             // ユーザー別データベースに保存
-            await this.db.saveUserAdData(userSettings.user_id, data);
+            this.userManager.saveUserAdData(userSettings.user_id, data);
 
             // チャットワークメッセージを生成
             const message = `Meta広告 日次レポート (${yesterdayStr})
@@ -158,7 +142,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             console.log(`🚨 ユーザー${userSettings.user_id}のアラート通知チェック開始`);
 
             // ユーザーの最新データを取得してアラートチェック
-            const userAdData = await this.db.getUserAdData(userSettings.user_id, 3);
+            const userAdData = this.userManager.getUserAdData(userSettings.user_id, 3);
             
             if (userAdData.length === 0) {
                 console.log(`ユーザー${userSettings.user_id}: アラートチェック用データなし`);
@@ -210,7 +194,7 @@ ${alerts.map((alert, index) => `${index + 1}. ${alert}`).join('\n')}
     // 全ユーザーに日次レポート送信
     async sendDailyReportToAllUsers() {
         try {
-            const activeUsers = await this.getAllActiveUsers();
+            const activeUsers = this.getAllActiveUsers();
             console.log(`📅 ${activeUsers.length}人のユーザーに日次レポート送信開始`);
 
             for (const user of activeUsers) {
@@ -228,7 +212,7 @@ ${alerts.map((alert, index) => `${index + 1}. ${alert}`).join('\n')}
     // 全ユーザーに定期更新通知送信
     async sendUpdateNotificationToAllUsers() {
         try {
-            const activeUsers = await this.getAllActiveUsers();
+            const activeUsers = this.getAllActiveUsers();
             console.log(`🔄 ${activeUsers.length}人のユーザーに定期更新通知送信開始`);
 
             for (const user of activeUsers) {
@@ -245,7 +229,7 @@ ${alerts.map((alert, index) => `${index + 1}. ${alert}`).join('\n')}
     // 全ユーザーにアラート通知送信
     async sendAlertNotificationToAllUsers() {
         try {
-            const activeUsers = await this.getAllActiveUsers();
+            const activeUsers = this.getAllActiveUsers();
             console.log(`🚨 ${activeUsers.length}人のユーザーにアラート通知送信開始`);
 
             for (const user of activeUsers) {
@@ -259,10 +243,6 @@ ${alerts.map((alert, index) => `${index + 1}. ${alert}`).join('\n')}
         }
     }
 
-    // データベース接続終了
-    close() {
-        this.db.close();
-    }
 }
 
 module.exports = MultiUserChatworkSender;

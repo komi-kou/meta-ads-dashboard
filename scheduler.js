@@ -7,9 +7,13 @@ const { fetchMetaAdDailyStats, fetchMetaTokenExpiry } = require('./metaApi');
 const { sendChatworkMessage } = require('./chatworkApi');
 const { checkAllAlerts } = require('./alertSystem');
 const tokenManager = require('./utils/tokenManager');
+const MultiUserChatworkSender = require('./utils/multiUserChatworkSender');
 
 const DATA_FILE = path.join(__dirname, 'data.json');
 const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+
+// マルチユーザーチャットワーク送信インスタンス
+const multiUserSender = new MultiUserChatworkSender();
 
 // ログファイルのパス
 const LOG_FILE = path.join(__dirname, 'scheduler.log');
@@ -1000,19 +1004,31 @@ async function sendScheduledChatworkNotification(type, data = {}) {
     }
 }
 
-// データ取得・保存のみのスケジュール（チャットワーク送信は chatworkAutoSender.js で統一管理）
-// 朝9時のデータ取得
+// データ取得・保存のみのスケジュール（マルチユーザー対応）
+// 朝9時のデータ取得とレポート送信
 cron.schedule('0 9 * * *', async () => {
-  writeLog('朝9時のデータ取得スケジュール実行開始');
-  await runBatch(true); // データ取得のみ
+  writeLog('朝9時のデータ取得とレポート送信開始');
+  await runBatch(true); // データ取得
+  // マルチユーザー日次レポート送信
+  try {
+    await multiUserSender.sendDailyReportToAllUsers();
+  } catch (error) {
+    writeLog('マルチユーザー日次レポート送信エラー: ' + error.message);
+  }
 }, {
   timezone: "Asia/Tokyo"
 });
 
-// その他の時間帯のデータ取得（12時、15時、17時、19時）
+// その他の時間帯のデータ取得と更新通知（12時、15時、17時、19時）
 cron.schedule('0 12,15,17,19 * * *', async () => {
-  writeLog('定期データ取得スケジュール実行開始');
-  await runBatch(false); // データ取得のみ
+  writeLog('定期データ取得と更新通知開始');
+  await runBatch(false); // データ取得
+  // マルチユーザー更新通知送信
+  try {
+    await multiUserSender.sendUpdateNotificationToAllUsers();
+  } catch (error) {
+    writeLog('マルチユーザー更新通知送信エラー: ' + error.message);
+  }
 }, {
   timezone: "Asia/Tokyo"
 });
