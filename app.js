@@ -100,7 +100,22 @@ app.get('/register', (req, res) => {
     if (req.session.userId) {
         return res.redirect('/dashboard');
     }
-    res.render('register');
+    
+    // CSRFトークンを強制的に生成と保存
+    if (!req.session.csrfToken) {
+        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+        // セッションを明示的に保存
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+            } else {
+                console.log('Register page - CSRF token generated and saved');
+            }
+        });
+    }
+    
+    console.log('Register page - CSRF token:', req.session.csrfToken ? 'Generated' : 'Missing');
+    res.render('register', { csrfToken: req.session.csrfToken });
 });
 
 // ユーザー登録処理
@@ -130,16 +145,31 @@ app.get('/login', (req, res) => {
         return res.redirect('/dashboard');
     }
     
+    // CSRFトークンを強制的に生成と保存
+    if (!req.session.csrfToken) {
+        req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+        // セッションを明示的に保存
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+            } else {
+                console.log('Login page - CSRF token generated and saved');
+            }
+        });
+    }
+    
     // 登録完了メッセージを表示
     let successMessage = null;
     if (req.query.registered === 'true') {
         successMessage = 'ユーザー登録が完了しました。ログインしてください。';
     }
     
+    console.log('Login page - CSRF token:', req.session.csrfToken ? 'Generated' : 'Missing');
     res.render('user-login', { 
         query: req.query,
         successMessage: successMessage,
-        error: req.query.error
+        error: req.query.error,
+        csrfToken: req.session.csrfToken
     });
 });
 
@@ -418,8 +448,18 @@ app.post('/auth/login', (req, res) => {
 // 初期設定ページ（マルチユーザー対応）
 app.get('/setup', requireAuth, (req, res) => {
   try {
+    // CSRFトークンを強制的に生成と保存
+    if (!req.session.csrfToken) {
+      req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+      req.session.save((err) => {
+        if (err) console.error('Session save error:', err);
+      });
+    }
+    
     // ユーザーの既存設定を取得
     const userSettings = userManager.getUserSettings(req.session.userId) || {};
+    
+    console.log('Setup page - CSRF token:', req.session.csrfToken ? 'Available' : 'Missing');
     
     res.render('setup', {
       user: {
@@ -436,7 +476,8 @@ app.get('/setup', requireAuth, (req, res) => {
         targetCpa: userSettings.target_cpa || '',
         targetCpm: userSettings.target_cpm || '',
         targetCtr: userSettings.target_ctr || ''
-      }
+      },
+      csrfToken: req.session.csrfToken
     });
   } catch (error) {
     console.error('Setup page error:', error);
@@ -496,150 +537,7 @@ function getGoalName(goalType) {
   return goalNames[goalType] || goalType;
 }
 
-// Phase 2: セットアップ保存（強化版）
-app.post('/save-setup', async (req, res) => {
-  console.log('🚨 POST /save-setup が呼ばれました!');
-  console.log('=== 設定保存処理開始 ===');
-  console.log('受信データ:', req.body);
-  
-  // 認証チェック
-  if (!req.session || !req.session.user) {
-    console.log('❌ 認証失敗 - ログインが必要');
-    return res.status(401).json({ 
-      success: false, 
-      message: '認証が必要です',
-      redirectUrl: '/login' 
-    });
-  }
-  
-  try {
-    // フォームデータの取得（両方の形式に対応）
-    const metaAccessToken = req.body.meta_access_token || req.body.metaAccessToken;
-    const metaAccountId = req.body.meta_account_id || req.body.metaAccountId;
-    const chatworkApiToken = req.body.chatwork_api_token || req.body.chatworkApiToken;
-    const chatworkRoomId = req.body.chatwork_room_id || req.body.chatworkRoomId;
-    const goalType = req.body.goal_type || req.body.goalType || 'toC_newsletter';
-    
-    console.log('抽出したデータ:', {
-      hasMetaToken: !!metaAccessToken,
-      hasMetaAccount: !!metaAccountId,
-      hasChatworkToken: !!chatworkApiToken,
-      hasChatworkRoom: !!chatworkRoomId,
-      goalType
-    });
-    
-    // 必須項目チェック
-    if (!metaAccessToken || !metaAccountId || !chatworkApiToken || !chatworkRoomId) {
-      return res.status(400).json({
-        success: false,
-        message: '必須項目が入力されていません',
-        missing: {
-          metaToken: !metaAccessToken,
-          metaAccount: !metaAccountId,
-          chatworkToken: !chatworkApiToken,
-          chatworkRoom: !chatworkRoomId
-        }
-      });
-    }
-    
-    // セッションに保存
-    req.session.metaAccessToken = metaAccessToken;
-    req.session.metaAccountId = metaAccountId;
-    req.session.chatworkApiToken = chatworkApiToken;
-    req.session.chatworkRoomId = chatworkRoomId;
-    
-    // 設定データ作成
-    const settings = {
-      meta: {
-        accessToken: metaAccessToken,
-        accountId: metaAccountId,
-        appId: req.body.meta_app_id || ''
-      },
-      chatwork: {
-        apiToken: chatworkApiToken,
-        roomId: chatworkRoomId
-      },
-      goal: {
-        type: goalType,
-        name: getGoalName(goalType)
-      },
-      notifications: {
-        daily_report: {
-          enabled: req.body.daily_report_enabled === 'true' || false,
-          time: req.body.daily_report_time || '09:00'
-        },
-        update_notifications: {
-          enabled: req.body.update_notifications_enabled === 'true' || false
-        },
-        alert_notifications: {
-          enabled: req.body.alert_notifications_enabled === 'true' || false
-        }
-      },
-      isConfigured: true,
-      setupCompletedAt: new Date().toISOString()
-    };
-    
-    console.log('保存する設定:', settings);
-    
-    // config/setup.json に保存
-    const configDir = './config';
-    if (!fs.existsSync(configDir)) {
-      fs.mkdirSync(configDir, { recursive: true });
-    }
-    
-    fs.writeFileSync('./config/setup.json', JSON.stringify(settings, null, 2));
-    console.log('✅ config/setup.json 保存完了');
-    
-    // settings.json にも保存（後方互換性）
-    fs.writeFileSync('./settings.json', JSON.stringify(settings, null, 2));
-    console.log('✅ settings.json 保存完了');
-    
-    // config/meta-config.json にも保存（ダッシュボード用）
-    const metaConfig = {
-      meta_access_token: metaAccessToken,
-      meta_account_id: metaAccountId,
-      meta_app_id: req.body.meta_app_id || ''
-    };
-    
-    fs.writeFileSync('./config/meta-config.json', JSON.stringify(metaConfig, null, 2));
-    console.log('✅ config/meta-config.json 保存完了');
-    
-    // セッション保存
-    req.session.save((err) => {
-      if (err) {
-        console.error('❌ セッション保存エラー:', err);
-        return res.status(500).json({ 
-          success: false, 
-          message: 'セッション保存に失敗しました',
-          error: err.message 
-        });
-      }
-      
-      console.log('✅ セッション保存完了');
-      
-      // セッションに設定完了フラグを設定
-      req.session.setupCompleted = true;
-      console.log('✅ セットアップ完了フラグを設定');
-      console.log('🔄 ダッシュボードにリダイレクト');
-      
-      // JSONレスポンスを返す（フロントエンドがリダイレクト処理）
-      res.json({ 
-        success: true, 
-        message: 'セットアップが正常に保存されました',
-        redirectUrl: '/dashboard?setup_completed=true'
-      });
-    });
-    
-  } catch (error) {
-    console.error('❌ 設定保存エラー:', error);
-    res.status(500).json({
-      success: false,
-      message: 'セットアップの保存に失敗しました',
-      error: error.message,
-      stack: error.stack
-    });
-  }
-});
+// 古いセットアップルートを削除済み - routes/setup.jsを使用
 
 // キャンペーンリスト取得API
 app.get('/api/campaigns', requireAuth, async (req, res) => {

@@ -90,10 +90,17 @@ function validateUserInput(req, res, next) {
 
 // CSRF保護ミドルウェア（簡易版）
 function csrfProtection(req, res, next) {
+    // セッションが初期化されていない場合はエラー
+    if (!req.session) {
+        console.error('CSRF: Session not initialized');
+        return res.status(500).json({ error: 'Session initialization failed' });
+    }
+    
     if (req.method === 'GET') {
         // CSRFトークンを生成してセッションに保存
         req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
         res.locals.csrfToken = req.session.csrfToken;
+        console.log('CSRF token generated:', req.session.csrfToken.substring(0, 8) + '...');
         return next();
     }
 
@@ -105,28 +112,41 @@ function csrfProtection(req, res, next) {
     // POST/PUT/DELETEリクエストでトークンを確認
     const token = req.body.csrfToken || req.headers['x-csrf-token'];
     
+    console.log('CSRF validation:', {
+        method: req.method,
+        url: req.url,
+        sessionToken: req.session.csrfToken ? req.session.csrfToken.substring(0, 8) + '...' : 'MISSING',
+        bodyToken: token ? token.substring(0, 8) + '...' : 'MISSING',
+        sessionId: req.sessionID
+    });
+    
     // CSRFトークンがない、またはマッチしない場合
     if (!token || !req.session.csrfToken || token !== req.session.csrfToken) {
-        console.error('CSRF token mismatch:', {
+        console.error('CSRF token mismatch detailed:', {
             sessionToken: req.session.csrfToken,
             bodyToken: req.body.csrfToken,
             headerToken: req.headers['x-csrf-token'],
             url: req.url,
             method: req.method,
             hasSession: !!req.session,
-            sessionId: req.sessionID
+            sessionId: req.sessionID,
+            cookies: req.headers.cookie
         });
         
-        // デバッグ: セッションがない場合はログインにリダイレクト
+        // セッションにCSRFトークンがない場合
         if (!req.session.csrfToken) {
+            console.error('❗ Session missing CSRF token - セッションが破損している可能性');
             return res.status(403).json({ 
                 error: 'CSRF token mismatch',
-                detail: 'Session missing CSRF token',
+                detail: 'Session missing CSRF token - please refresh page',
                 redirectUrl: '/login'
             });
         }
         
-        return res.status(403).json({ error: 'CSRF token mismatch' });
+        return res.status(403).json({ 
+            error: 'CSRF token mismatch',
+            detail: 'Token validation failed'
+        });
     }
 
     next();
