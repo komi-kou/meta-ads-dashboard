@@ -34,17 +34,28 @@ async function sendChatworkMessage({ date, message, token, room_id }) {
 // アラート通知用の関数
 async function sendChatworkNotification(type, data = {}) {
   try {
-    const fs = require('fs');
-    const path = require('path');
+    let config = {};
     
-    const settingsPath = path.join(__dirname, 'settings.json');
-    if (!fs.existsSync(settingsPath)) {
-      console.log('設定ファイルなし - アラート通知スキップ');
-      return;
-    }
+    // 本番環境では環境変数から取得
+    if (process.env.NODE_ENV === 'production') {
+      config = {
+        apiToken: process.env.CHATWORK_TOKEN,
+        roomId: process.env.CHATWORK_ROOM_ID
+      };
+    } else {
+      // ローカル環境では設定ファイルから取得
+      const fs = require('fs');
+      const path = require('path');
+      
+      const settingsPath = path.join(__dirname, 'settings.json');
+      if (!fs.existsSync(settingsPath)) {
+        console.log('設定ファイルなし - アラート通知スキップ');
+        return;
+      }
 
-    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-    const config = settings.chatwork;
+      const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+      config = settings.chatwork;
+    }
     
     if (!config.apiToken || !config.roomId) {
       console.log('チャットワーク設定なし - アラート通知スキップ');

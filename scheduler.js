@@ -91,12 +91,6 @@ function getSettings() {
 
 // 広告データを取得する関数
 function getAdData() {
-  // 本番環境では空のデータ配列を返す（ファイルがないため）
-  if (process.env.NODE_ENV === 'production') {
-    writeLog('広告データ読み込みスキップ（本番環境）');
-    return [];
-  }
-  
   if (fs.existsSync(DATA_FILE)) {
     try {
       const data = JSON.parse(fs.readFileSync(DATA_FILE));
@@ -107,22 +101,20 @@ function getAdData() {
       writeLog(`広告データ読み込みエラー: ${e.message}`);
     }
   }
+  
+  // ファイルが存在しない場合は空配列を返す
+  writeLog('広告データファイルが見つかりません - 空配列を返します');
   return [];
 }
 
 // 広告データを保存する関数
 function saveAdData(data) {
-  // 本番環境ではファイル保存をスキップ（読み取り専用のため）
-  if (process.env.NODE_ENV === 'production') {
-    writeLog(`広告データ保存スキップ（本番環境）: ${data.length}件`);
-    return;
-  }
-  
   try {
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
     writeLog(`広告データ保存完了: ${data.length}件`);
   } catch (e) {
-    writeLog(`広告データ保存エラー: ${e.message}`);
+    // 本番環境では書き込み権限がない場合があるためエラーログのみ
+    writeLog(`広告データ保存エラー（権限不足の可能性）: ${e.message}`);
   }
 }
 

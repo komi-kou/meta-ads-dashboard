@@ -14,12 +14,29 @@ class ChatworkAutoSender {
     // 設定ファイルを読み込み
     loadSettings() {
         try {
-            const settingsPath = path.join(__dirname, '..', 'settings.json');
-            if (fs.existsSync(settingsPath)) {
-                this.settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-                console.log('✅ チャットワーク自動送信設定を読み込みました');
+            // 本番環境では環境変数から設定を取得
+            if (process.env.NODE_ENV === 'production') {
+                this.settings = {
+                    chatwork: {
+                        apiToken: process.env.CHATWORK_TOKEN,
+                        roomId: process.env.CHATWORK_ROOM_ID
+                    },
+                    notifications: {
+                        daily_report: { enabled: process.env.DAILY_REPORT_ENABLED === 'true' || true },
+                        update_notifications: { enabled: process.env.UPDATE_NOTIFICATIONS_ENABLED === 'true' || true },
+                        alert_notifications: { enabled: process.env.ALERT_NOTIFICATIONS_ENABLED === 'true' || true }
+                    }
+                };
+                console.log('✅ チャットワーク自動送信設定を環境変数から読み込みました');
             } else {
-                console.log('⚠️ 設定ファイルが見つかりません');
+                // ローカル環境では設定ファイルから取得
+                const settingsPath = path.join(__dirname, '..', 'settings.json');
+                if (fs.existsSync(settingsPath)) {
+                    this.settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+                    console.log('✅ チャットワーク自動送信設定を読み込みました');
+                } else {
+                    console.log('⚠️ 設定ファイルが見つかりません');
+                }
             }
         } catch (error) {
             console.error('❌ 設定ファイル読み込みエラー:', error.message);
