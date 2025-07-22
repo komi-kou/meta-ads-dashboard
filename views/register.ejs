@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザー登録 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .password-requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .security-note {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+
+        .security-note strong {
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>ユーザー登録</h1>
+                <p>Meta広告ダッシュボードへようこそ</p>
+            </div>
+
+            <div class="security-note">
+                <strong>🔒 セキュリティについて</strong><br>
+                お客様の情報は暗号化して安全に保存されます。パスワードは不可逆的にハッシュ化され、当社でも確認できません。
+            </div>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <% if (typeof success !== 'undefined' && success) { %>
+                <div class="alert alert-success">
+                    <%= success %>
+                </div>
+            <% } %>
+
+            <form id="registerForm" method="POST" action="/register">
+                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+                
+                <div class="form-group">
+                    <label for="username">ユーザー名</label>
+                    <input type="text" id="username" name="username" class="form-control" 
+                           required minlength="2" maxlength="50"
+                           placeholder="例: 田中太郎">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           required placeholder="例: tanaka@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" name="password" class="form-control" 
+                           required minlength="8" placeholder="8文字以上の安全なパスワード">
+                    <div class="password-requirements">
+                        ※ 8文字以上、大文字・小文字・数字を含む必要があります
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">パスワード確認</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" 
+                           required placeholder="パスワードを再入力してください">
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    アカウントを作成
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>既にアカウントをお持ちですか？ <a href="/login">ログイン</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // パスワード複雑性チェック
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            if (!passwordRegex.test(password)) {
+                e.preventDefault();
+                alert('パスワードは8文字以上で、大文字、小文字、数字を含む必要があります。');
+                return;
+            }
+            
+            // パスワード確認チェック
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('パスワードが一致しません。');
+                return;
+            }
+            
+            // 送信中の表示
+            submitBtn.disabled = true;
+            submitBtn.textContent = '登録中...';
+        });
+
+        // リアルタイムパスワード検証
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const requirements = document.querySelector('.password-requirements');
+            
+            if (password.length >= 8 && /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+                requirements.style.color = '#2f855a';
+                requirements.textContent = '✓ パスワードの要件を満たしています';
+            } else {
+                requirements.style.color = '#e53e3e';
+                requirements.textContent = '※ 8文字以上、大文字・小文字・数字を含む必要があります';
+            }
+        });
+
+        // パスワード確認のリアルタイム検証
+        document.getElementById('confirmPassword').addEventListener('input', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = e.target.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                e.target.style.borderColor = '#e53e3e';
+            } else {
+                e.target.style.borderColor = '#e1e5e9';
+            }
+        });
+    </script>
+</body>
+</html>

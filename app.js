@@ -4,8 +4,24 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
+const helmet = require('helmet');
 const axios = require('axios');
 const fs = require('fs');
+
+// セキュリティとマルチユーザー対応
+const Database = require('./database');
+const {
+    loginLimiter,
+    generalLimiter,
+    requireAuth,
+    addUserToRequest,
+    validateUserInput,
+    csrfProtection,
+    setSecurityHeaders,
+    auditLog,
+    validateUserSettings
+} = require('./middleware/auth');
 
 // 環境変数確認ログ
 console.log('=== 環境変数確認 ===');
@@ -14,6 +30,9 @@ console.log('META_ACCOUNT_ID:', process.env.META_ACCOUNT_ID ? '設定済み' : '
 console.log('META_APP_ID:', process.env.META_APP_ID ? '設定済み' : '未設定');
 
 const app = express();
+
+// データベース初期化
+const db = new Database();
 
 // ファイルサイズチェック機能
 function checkFileSize(filePath, minSize = 100) {
@@ -30,6 +49,21 @@ function checkFileSize(filePath, minSize = 100) {
   }
 }
 
+// セキュリティミドルウェア
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:"],
+        },
+    },
+}));
+
+// レート制限
+app.use(generalLimiter);
+
 // 基本設定
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -37,18 +71,156 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// セッション設定
+// セッション設定（SQLite使用）
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  store: new SQLiteStore({
+    db: 'sessions.db',
+    concurrentDB: true
+  }),
+  secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // 本番はtrue
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000, // 24時間
     httpOnly: true,
     sameSite: 'lax'
   }
 }));
+
+// セキュリティヘッダー
+app.use(setSecurityHeaders);
+
+// ユーザー情報をリクエストに追加
+app.use(addUserToRequest);
+
+// CSRF保護
+app.use(csrfProtection);
+
+// ========================
+// 認証ルート（マルチユーザー対応）
+// ========================
+
+// ユーザー登録ページ
+app.get('/register', (req, res) => {
+    if (req.session.userId) {
+        return res.redirect('/dashboard');
+    }
+    res.render('register');
+});
+
+// ユーザー登録処理
+app.post('/register', loginLimiter, validateUserInput, auditLog('user_register'), async (req, res) => {
+    try {
+        const { email, password, username } = req.body;
+        
+        const userId = await db.createUser(email, password, username);
+        
+        // 自動ログイン
+        req.session.userId = userId;
+        req.session.userEmail = email;
+        req.session.userName = username;
+        req.session.lastActivity = Date.now();
+        
+        await db.logAuditEvent(userId, 'user_registered', 'New user registration', 
+            req.ip, req.get('User-Agent'));
+        
+        res.redirect('/setup');
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.render('register', { 
+            error: error.message,
+            formData: { email: req.body.email, username: req.body.username }
+        });
+    }
+});
+
+// ログインページ
+app.get('/login', (req, res) => {
+    if (req.session.userId) {
+        return res.redirect('/dashboard');
+    }
+    res.render('user-login', { query: req.query });
+});
+
+// ログイン処理
+app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        const userId = await db.authenticateUser(email, password);
+        
+        if (userId) {
+            req.session.userId = userId;
+            req.session.userEmail = email;
+            req.session.lastActivity = Date.now();
+            
+            await db.logAuditEvent(userId, 'login_success', 'User logged in', 
+                req.ip, req.get('User-Agent'));
+            
+            res.redirect('/dashboard');
+        } else {
+            await db.logAuditEvent(null, 'login_failed', `Failed login attempt for ${email}`, 
+                req.ip, req.get('User-Agent'));
+            
+            res.render('user-login', { 
+                error: 'メールアドレスまたはパスワードが正しくありません',
+                formData: { email }
+            });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.render('user-login', { 
+            error: error.message,
+            formData: { email: req.body.email }
+        });
+    }
+});
+
+// ログアウト処理
+app.post('/logout', requireAuth, auditLog('user_logout'), async (req, res) => {
+    const userId = req.session.userId;
+    
+    if (userId) {
+        await db.logAuditEvent(userId, 'logout', 'User logged out', 
+            req.ip, req.get('User-Agent'));
+    }
+    
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Session destroy error:', err);
+        }
+        res.redirect('/login');
+    });
+});
+
+// ユーザー設定保存
+app.post('/api/user-settings', requireAuth, validateUserSettings, auditLog('settings_update'), async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const settings = req.body;
+        
+        await db.saveUserSettings(userId, settings);
+        
+        res.json({ success: true, message: '設定を保存しました' });
+    } catch (error) {
+        console.error('Settings save error:', error);
+        res.status(500).json({ error: '設定の保存に失敗しました' });
+    }
+});
+
+// ========================
+// 既存ルートのマルチユーザー対応
+// ========================
+
+// ルートページ（認証チェック追加）
+app.get('/', (req, res) => {
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.redirect('/login');
+    }
+});
 
 // 安全な依存関係読み込み（無効化）
 /*
@@ -261,30 +433,36 @@ app.get('/setup', (req, res) => {
   });
 });
 
-// ダッシュボード（設定完了チェック付き）
-app.get('/dashboard', (req, res) => {
-  console.log('Dashboard route accessed');
-  console.log('Session user:', req.session.user);
-  console.log('Session tokens:', {
-    meta: !!req.session.metaAccessToken,
-    chatwork: !!req.session.chatworkApiToken
-  });
-  if (!req.session.user) {
-    console.log('No user, redirecting to login');
-    return res.redirect('/login');
+// ダッシュボード（マルチユーザー対応）
+app.get('/dashboard', requireAuth, async (req, res) => {
+  try {
+    console.log('Dashboard route accessed for user:', req.session.userId);
+    
+    // ユーザー設定を取得
+    const userSettings = await db.getUserSettings(req.session.userId);
+    
+    if (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) {
+      console.log('Missing user settings, redirecting to setup');
+      return res.redirect('/setup');
+    }
+    
+    // ユーザーの広告データを取得
+    const userAdData = await db.getUserAdData(req.session.userId, 30); // 最新30件
+    
+    console.log('Rendering dashboard for user:', req.session.userEmail);
+    res.render('dashboard', {
+      user: {
+        id: req.session.userId,
+        email: req.session.userEmail,
+        name: req.session.userName
+      },
+      userSettings: userSettings,
+      adData: userAdData
+    });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).render('error', { error: 'ダッシュボード読み込みエラー' });
   }
-  if (!req.session.metaAccessToken || !req.session.chatworkApiToken) {
-    console.log('Missing API tokens, redirecting to setup');
-    return res.redirect('/setup');
-  }
-  console.log('Rendering dashboard');
-  res.render('dashboard', {
-    userTokens: {
-      meta: req.session.metaAccessToken,
-      chatwork: req.session.chatworkApiToken
-    },
-    user: req.session.user
-  });
 });
 
 // アラートページ表示
@@ -2261,12 +2439,38 @@ try {
     console.error('❌ スケジューラー読み込み失敗:', error.message);
 }
 
-// チャットワーク自動送信機能を初期化
+// マルチユーザー対応チャットワーク自動送信機能を初期化
 try {
-    const ChatworkAutoSender = require('./utils/chatworkAutoSender');
-    const chatworkSender = new ChatworkAutoSender();
-    chatworkSender.startScheduler();
-    console.log('✅ チャットワーク自動送信機能を開始しました');
+    const MultiUserChatworkSender = require('./utils/multiUserChatworkSender');
+    const multiUserSender = new MultiUserChatworkSender();
+    
+    const cron = require('node-cron');
+    
+    // 日次レポート: 毎朝9時
+    cron.schedule('0 9 * * *', async () => {
+        console.log('📅 日次レポート送信スケジュール実行（全ユーザー）');
+        await multiUserSender.sendDailyReportToAllUsers();
+    }, {
+        timezone: 'Asia/Tokyo'
+    });
+    
+    // 定期更新通知: 12時、15時、17時、19時
+    cron.schedule('0 12,15,17,19 * * *', async () => {
+        console.log('🔄 定期更新通知送信スケジュール実行（全ユーザー）');
+        await multiUserSender.sendUpdateNotificationToAllUsers();
+    }, {
+        timezone: 'Asia/Tokyo'
+    });
+    
+    // アラート通知: 9時、12時、15時、17時、19時
+    cron.schedule('0 9,12,15,17,19 * * *', async () => {
+        console.log('🚨 アラート通知送信スケジュール実行（全ユーザー）');
+        await multiUserSender.sendAlertNotificationToAllUsers();
+    }, {
+        timezone: 'Asia/Tokyo'
+    });
+    
+    console.log('✅ マルチユーザー対応チャットワーク自動送信機能を開始しました');
 } catch (error) {
     console.error('❌ チャットワーク自動送信機能の開始に失敗:', error.message);
 }
