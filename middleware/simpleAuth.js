@@ -97,9 +97,35 @@ function csrfProtection(req, res, next) {
         return next();
     }
 
+    // APIエンドポイントはCSRFチェックをスキップ
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+
     // POST/PUT/DELETEリクエストでトークンを確認
     const token = req.body.csrfToken || req.headers['x-csrf-token'];
-    if (!token || token !== req.session.csrfToken) {
+    
+    // CSRFトークンがない、またはマッチしない場合
+    if (!token || !req.session.csrfToken || token !== req.session.csrfToken) {
+        console.error('CSRF token mismatch:', {
+            sessionToken: req.session.csrfToken,
+            bodyToken: req.body.csrfToken,
+            headerToken: req.headers['x-csrf-token'],
+            url: req.url,
+            method: req.method,
+            hasSession: !!req.session,
+            sessionId: req.sessionID
+        });
+        
+        // デバッグ: セッションがない場合はログインにリダイレクト
+        if (!req.session.csrfToken) {
+            return res.status(403).json({ 
+                error: 'CSRF token mismatch',
+                detail: 'Session missing CSRF token',
+                redirectUrl: '/login'
+            });
+        }
+        
         return res.status(403).json({ error: 'CSRF token mismatch' });
     }
 

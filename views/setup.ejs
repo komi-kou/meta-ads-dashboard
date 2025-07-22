@@ -404,6 +404,7 @@
             </div>
         </div>
         <form method="POST" action="/save-setup" id="setupForm" class="setup-content">
+            <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
             <!-- API連携セクション -->
             <div class="api-section">
                 <!-- Meta広告API -->
@@ -1061,6 +1062,7 @@ Meta広告レポートツールの設定が完了しました。
             // フォームデータを収集
             const formData = new FormData(e.target);
             const setupData = {
+                csrfToken: formData.get('csrfToken'),
                 metaAccessToken: formData.get('metaAccessToken'),
                 metaAccountId: formData.get('metaAccountId'),
                 chatworkApiToken: formData.get('chatworkApiToken'),
@@ -1081,6 +1083,7 @@ Meta広告レポートツールの設定が完了しました。
             
             try {
                 console.log('fetchリクエスト送信中...');
+                console.log('CSRF Token:', setupData.csrfToken);
                 const response = await fetch('/save-setup', {
                     method: 'POST',
                     headers: {
