@@ -249,11 +249,19 @@
             
             console.log('🚀 Ajax ログイン送信開始');
             
+            // FormDataの内容をデバッグ
+            for (let [key, value] of formData.entries()) {
+                console.log('📋 FormData:', key, '=', value);
+            }
+            
             // Ajax でログイン送信
             fetch('/login', {
                 method: 'POST',
                 body: formData,
-                credentials: 'same-origin' // Cookieを含める
+                credentials: 'same-origin', // Cookieを含める
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Ajax判定用
+                }
             })
             .then(response => {
                 console.log('📨 Ajax レスポンス受信:', response.status, response.statusText);

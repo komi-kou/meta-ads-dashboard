@@ -218,20 +218,41 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
     };
     
     try {
-        const { email, password } = req.body;
+        console.log('📋 req.body詳細:', req.body);
+        console.log('📋 req.body type:', typeof req.body);
+        console.log('📋 req.body keys:', req.body ? Object.keys(req.body) : 'req.body is null/undefined');
         
-        console.log('🔐 ユーザー認証開始:', email);
-        const userId = await userManager.authenticateUser(email, password);
+        const { email, password } = req.body || {};
+        
+        console.log('📧 抽出されたemail:', email, 'type:', typeof email);
+        console.log('🔑 抽出されたpassword:', password ? '存在します' : '存在しません', 'type:', typeof password);
+        
+        // バリデーション強化
+        if (!email || typeof email !== 'string' || email.trim() === '') {
+            console.log('❌ email バリデーション失敗:', { email, type: typeof email });
+            throw new Error('メールアドレスが正しく入力されていません');
+        }
+        
+        if (!password || typeof password !== 'string' || password.trim() === '') {
+            console.log('❌ password バリデーション失敗:', { hasPassword: !!password, type: typeof password });
+            throw new Error('パスワードが正しく入力されていません');
+        }
+        
+        const trimmedEmail = email.trim();
+        const trimmedPassword = password.trim();
+        
+        console.log('🔐 ユーザー認証開始:', trimmedEmail);
+        const userId = await userManager.authenticateUser(trimmedEmail, trimmedPassword);
         console.log('🔐 認証結果:', userId ? '成功' : '失敗');
         
         if (userId) {
             console.log('✅ ログイン成功 - ユーザーID:', userId);
             
             const user = userManager.getUserById(userId);
-            console.log('📝 ユーザー情報:', { id: userId, email, username: user?.username });
+            console.log('📝 ユーザー情報:', { id: userId, email: trimmedEmail, username: user?.username });
             
             req.session.userId = userId;
-            req.session.userEmail = email;
+            req.session.userEmail = trimmedEmail;
             req.session.userName = user?.username;
             req.session.lastActivity = Date.now();
             

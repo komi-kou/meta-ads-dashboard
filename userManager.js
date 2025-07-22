@@ -72,6 +72,21 @@ class UserManager {
     // ユーザー作成
     async createUser(email, password, username) {
         try {
+            console.log('👤 createUser 呼び出し:', { email, username, hasPassword: !!password });
+            
+            // パラメータバリデーション
+            if (!email || typeof email !== 'string' || email.trim() === '') {
+                throw new Error('有効なメールアドレスが必要です');
+            }
+            
+            if (!password || typeof password !== 'string') {
+                throw new Error('有効なパスワードが必要です');
+            }
+            
+            if (!username || typeof username !== 'string' || username.trim() === '') {
+                throw new Error('有効なユーザー名が必要です');
+            }
+            
             // パスワードの複雑性チェック
             if (password.length < 8) {
                 throw new Error('パスワードは8文字以上である必要があります');
@@ -79,8 +94,11 @@ class UserManager {
 
             const users = this.readJsonFile(this.usersFile);
             
+            // 安全にemail比較
+            const normalizedEmail = email.trim().toLowerCase();
+            
             // 重複チェック
-            const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+            const existingUser = users.find(u => u.email && u.email.toLowerCase() === normalizedEmail);
             if (existingUser) {
                 throw new Error('このメールアドレスは既に登録されています');
             }
@@ -91,9 +109,9 @@ class UserManager {
             const userId = uuidv4();
             const newUser = {
                 id: userId,
-                email: email.toLowerCase(),
+                email: normalizedEmail,
                 password_hash: passwordHash,
-                username: username,
+                username: username.trim(),
                 created_at: new Date().toISOString(),
                 last_login: null,
                 is_active: true,
@@ -115,11 +133,28 @@ class UserManager {
     // ユーザー認証
     async authenticateUser(email, password) {
         try {
-            console.log('🔍 UserManager.authenticateUser 呼び出し:', email);
+            console.log('🔍 UserManager.authenticateUser 呼び出し:', email, 'type:', typeof email);
+            console.log('🔍 password type:', typeof password, 'exists:', !!password);
+            
+            // パラメータバリデーション
+            if (!email || typeof email !== 'string') {
+                console.error('❌ email パラメータが無効:', { email, type: typeof email });
+                throw new Error('emailパラメータが無効です');
+            }
+            
+            if (!password || typeof password !== 'string') {
+                console.error('❌ password パラメータが無効:', { password: !!password, type: typeof password });
+                throw new Error('passwordパラメータが無効です');
+            }
+            
             const users = this.readJsonFile(this.usersFile);
             console.log('📊 ユーザーデータベース読み込み:', users.length + '人');
             
-            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.is_active);
+            // 安全にemail.toLowerCase()を実行
+            const normalizedEmail = email.trim().toLowerCase();
+            console.log('📧 正規化されたemail:', normalizedEmail);
+            
+            const user = users.find(u => u.email && u.email.toLowerCase() === normalizedEmail && u.is_active);
             console.log('🔍 ユーザー検索結果:', user ? '見つかりました' : '見つかりません');
 
             if (!user) {
