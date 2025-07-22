@@ -36,6 +36,32 @@ const app = express();
 // ユーザーマネージャー初期化
 const userManager = getUserManager();
 
+// テスト用ユーザー自動作成
+async function createTestUserIfNeeded() {
+    try {
+        const users = userManager.readJsonFile(userManager.usersFile);
+        console.log('📊 既存ユーザー数:', users.length);
+        
+        // テストユーザーが存在しない場合は作成
+        const testEmail = 'test@example.com';
+        const existingTest = users.find(u => u.email && u.email.toLowerCase() === testEmail);
+        
+        if (!existingTest) {
+            console.log('👤 テストユーザーを作成中...');
+            const testUserId = await userManager.createUser(testEmail, 'password123', 'テストユーザー');
+            console.log('✅ テストユーザー作成完了:', testUserId);
+            console.log('📧 ログイン情報: email=test@example.com, password=password123');
+        } else {
+            console.log('👤 テストユーザーは既に存在します');
+        }
+    } catch (error) {
+        console.error('❌ テストユーザー作成エラー:', error);
+    }
+}
+
+// アプリケーション起動時にテストユーザーを作成
+createTestUserIfNeeded();
+
 // ファイルサイズチェック機能
 function checkFileSize(filePath, minSize = 100) {
   try {
@@ -189,33 +215,6 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
     });
     console.log('Request body:', { email: req.body.email, hasPassword: !!req.body.password });
     
-    // レスポンスの監視
-    const originalRedirect = res.redirect;
-    const originalRender = res.render;
-    const originalSend = res.send;
-    const originalJson = res.json;
-    
-    res.redirect = function(url) {
-        console.log('🔄 REDIRECT 実行:', url);
-        console.log('🔄 Response status before redirect:', res.statusCode);
-        console.log('🔄 Response headers before redirect:', res.getHeaders());
-        return originalRedirect.call(this, url);
-    };
-    
-    res.render = function(view, locals) {
-        console.log('🎨 RENDER 実行:', view, 'with locals:', locals ? Object.keys(locals) : 'none');
-        return originalRender.call(this, view, locals);
-    };
-    
-    res.send = function(body) {
-        console.log('📤 SEND 実行:', typeof body, body ? body.toString().substring(0, 100) + '...' : 'empty');
-        return originalSend.call(this, body);
-    };
-    
-    res.json = function(obj) {
-        console.log('📤 JSON 実行:', obj);
-        return originalJson.call(this, obj);
-    };
     
     try {
         console.log('📋 req.body詳細:', req.body);
@@ -295,83 +294,33 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
                 
                 console.log('🔄 リダイレクトURL決定:', redirectUrl);
                 
-                // リクエストヘッダーをチェックしてAjaxかどうか判定
-                const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
-                               req.get('Accept')?.includes('application/json') ||
-                               req.get('Content-Type')?.includes('application/json');
-                
-                console.log('📋 リクエスト形式判定:', { 
-                    isAjax, 
-                    accept: req.get('Accept'),
-                    contentType: req.get('Content-Type')
-                });
-                
-                if (isAjax) {
-                    // Ajax リクエストの場合はJSONでレスポンス
-                    console.log('📤 Ajax用JSONレスポンス送信');
-                    return res.json({
-                        success: true,
-                        message: 'ログイン成功',
-                        redirectUrl: redirectUrl,
-                        userInfo: {
-                            userId: userId,
-                            email: user.email,
-                            username: user.username
-                        }
-                    });
-                } else {
-                    // 通常のフォーム送信の場合はリダイレクト
-                    console.log('🔄 通常リダイレクト実行');
-                    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-                    return res.redirect(redirectUrl);
-                }
+                // 標準リダイレクト実行
+                console.log('🔄 リダイレクト実行:', redirectUrl);
+                res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                return res.redirect(redirectUrl);
             });
         } else {
             console.log('❌ ログイン失敗 - 無効なメール/パスワード:', email);
             
-            userManager.logAuditEvent(null, 'login_failed', `Failed login attempt for ${email}`, 
+            userManager.logAuditEvent(null, 'login_failed', `Failed login attempt for ${trimmedEmail}`, 
                 req.ip, req.get('User-Agent'));
             
-            // Ajax リクエストかどうか判定
-            const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
-                           req.get('Accept')?.includes('application/json') ||
-                           req.get('Content-Type')?.includes('application/json');
-            
-            if (isAjax) {
-                return res.status(401).json({
-                    success: false,
-                    error: 'メールアドレスまたはパスワードが正しくありません'
-                });
-            } else {
-                return res.render('user-login', { 
-                    error: 'メールアドレスまたはパスワードが正しくありません',
-                    formData: { email },
-                    csrfToken: req.session.csrfToken
-                });
-            }
+            return res.render('user-login', { 
+                error: 'メールアドレスまたはパスワードが正しくありません',
+                formData: { email: trimmedEmail },
+                csrfToken: req.session.csrfToken
+            });
         }
     } catch (error) {
         console.error('❌ ログイン処理エラー:', error);
         console.error('エラースタック:', error.stack);
         console.error('エラー発生時刻:', new Date().toISOString());
         
-        // Ajax リクエストかどうか判定
-        const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
-                       req.get('Accept')?.includes('application/json') ||
-                       req.get('Content-Type')?.includes('application/json');
-        
-        if (isAjax) {
-            return res.status(500).json({
-                success: false,
-                error: 'ログイン処理中にエラーが発生しました: ' + error.message
-            });
-        } else {
-            return res.status(500).render('user-login', { 
-                error: 'ログイン処理中にエラーが発生しました: ' + error.message,
-                formData: { email: req.body.email || '' },
-                csrfToken: req.session.csrfToken
-            });
-        }
+        return res.status(500).render('user-login', { 
+            error: 'ログイン処理中にエラーが発生しました: ' + error.message,
+            formData: { email: req.body?.email || '' },
+            csrfToken: req.session.csrfToken
+        });
     }
     
     console.log('==================================================');
