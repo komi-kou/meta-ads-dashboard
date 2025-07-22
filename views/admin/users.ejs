@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .admin-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .users-table th, .users-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .users-table th {
+            background: #007bff;
+            color: white;
+            font-weight: 600;
+        }
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 2px;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .bulk-actions {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea.form-control {
+            height: 100px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><%= title %></h1>
+            <p>管理者: <%= admin.name %> (<%= admin.email %>)</p>
+            <p>登録ユーザー数: <%= users.length %>人 | アクティブ: <%= users.filter(u => u.is_active).length %>人</p>
+        </div>
+
+        <!-- 一括操作 -->
+        <div class="bulk-actions">
+            <h3>一括ユーザー停止</h3>
+            <form id="bulkDeactivateForm">
+                <div class="form-group">
+                    <label for="emailList">停止対象メールアドレス（1行に1つずつ）:</label>
+                    <textarea id="emailList" name="emailList" class="form-control" placeholder="user1@example.com&#10;user2@example.com&#10;user3@example.com"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="reason">停止理由:</label>
+                    <input type="text" id="reason" name="reason" class="form-control" value="サブスク解約" />
+                </div>
+                <button type="submit" class="btn btn-danger">一括停止実行</button>
+            </form>
+        </div>
+
+        <!-- ユーザー一覧テーブル -->
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>メールアドレス</th>
+                    <th>ユーザー名</th>
+                    <th>ステータス</th>
+                    <th>設定完了</th>
+                    <th>登録日</th>
+                    <th>最終ログイン</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.email %></td>
+                    <td><%= user.username %></td>
+                    <td class="<%= user.is_active ? 'status-active' : 'status-inactive' %>">
+                        <%= user.is_active ? 'アクティブ' : '停止中' %>
+                    </td>
+                    <td><%= user.has_settings ? '完了' : '未完了' %></td>
+                    <td><%= new Date(user.created_at).toLocaleDateString('ja-JP') %></td>
+                    <td><%= user.last_login ? new Date(user.last_login).toLocaleDateString('ja-JP') : '未ログイン' %></td>
+                    <td>
+                        <% if (user.is_active) { %>
+                            <button class="btn btn-danger" onclick="deactivateUser('<%= user.id %>', '<%= user.email %>')">
+                                停止
+                            </button>
+                        <% } else { %>
+                            <button class="btn btn-success" onclick="activateUser('<%= user.id %>', '<%= user.email %>')">
+                                復活
+                            </button>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 単体ユーザー停止
+        function deactivateUser(userId, email) {
+            const reason = prompt(`${email} を停止しますか？\n停止理由を入力してください:`, 'サブスク解約');
+            if (reason === null) return;
+            
+            fetch(`/admin/users/${userId}/deactivate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`${data.user.email} を停止しました`);
+                    location.reload();
+                } else {
+                    alert('エラー: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('エラーが発生しました');
+            });
+        }
+        
+        // 単体ユーザー復活
+        function activateUser(userId, email) {
+            if (!confirm(`${email} を復活させますか？`)) return;
+            
+            fetch(`/admin/users/${userId}/activate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`${data.user.email} を復活させました`);
+                    location.reload();
+                } else {
+                    alert('エラー: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('エラーが発生しました');
+            });
+        }
+        
+        // 一括停止
+        document.getElementById('bulkDeactivateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailList = document.getElementById('emailList').value.trim();
+            const reason = document.getElementById('reason').value.trim();
+            
+            if (!emailList) {
+                alert('メールアドレスを入力してください');
+                return;
+            }
+            
+            const emails = emailList.split('\n').map(email => email.trim()).filter(email => email);
+            
+            if (!confirm(`${emails.length}人のユーザーを停止しますか？\n\n対象:\n${emails.join('\n')}`)) {
+                return;
+            }
+            
+            fetch('/admin/users/bulk-deactivate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ emails, reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`${data.deactivatedUsers.length}人のユーザーを停止しました`);
+                    location.reload();
+                } else {
+                    alert('エラー: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('エラーが発生しました');
+            });
+        });
+    </script>
+</body>
+</html>

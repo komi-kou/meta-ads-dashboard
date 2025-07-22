@@ -21,6 +21,10 @@ const {
     getUserManager
 } = require('./middleware/simpleAuth');
 
+// セットアップルーター
+const setupRouter = require('./routes/setup');
+const adminRouter = require('./routes/admin');
+
 // 環境変数確認ログ
 console.log('=== 環境変数確認 ===');
 console.log('META_ACCESS_TOKEN:', process.env.META_ACCESS_TOKEN ? '設定済み' : '未設定');
@@ -60,16 +64,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// セッション設定（軽量版）
+// セッション設定（セキュリティ強化版）
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET || 'multi-user-meta-ads-dashboard-secret-2024',
+  name: 'metaads.sessionid', // セッション名をカスタマイズ
   resave: false,
   saveUninitialized: false,
+  rolling: true, // アクティビティで期限をリセット
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000, // 24時間
-    httpOnly: true,
-    sameSite: 'lax'
+    httpOnly: true, // XSS保護
+    sameSite: 'lax' // CSRF保護
   }
 }));
 
@@ -79,6 +85,11 @@ app.use(addUserToRequest);
 
 // CSRF保護
 app.use(csrfProtection);
+
+// セットアップルーターを使用
+app.use('/', setupRouter);
+// 管理者ルーターを使用
+app.use('/', adminRouter);
 
 // ========================
 // 認証ルート（マルチユーザー対応）
@@ -99,16 +110,11 @@ app.post('/register', loginLimiter, validateUserInput, auditLog('user_register')
         
         const userId = await userManager.createUser(email, password, username);
         
-        // 自動ログイン
-        req.session.userId = userId;
-        req.session.userEmail = email;
-        req.session.userName = username;
-        req.session.lastActivity = Date.now();
-        
         userManager.logAuditEvent(userId, 'user_registered', 'New user registration', 
             req.ip, req.get('User-Agent'));
         
-        res.redirect('/setup');
+        // ユーザー登録後はログインページにリダイレクト
+        res.redirect('/login?registered=true');
     } catch (error) {
         console.error('Registration error:', error);
         res.render('register', { 
@@ -123,7 +129,18 @@ app.get('/login', (req, res) => {
     if (req.session.userId) {
         return res.redirect('/dashboard');
     }
-    res.render('user-login', { query: req.query });
+    
+    // 登録完了メッセージを表示
+    let successMessage = null;
+    if (req.query.registered === 'true') {
+        successMessage = 'ユーザー登録が完了しました。ログインしてください。';
+    }
+    
+    res.render('user-login', { 
+        query: req.query,
+        successMessage: successMessage,
+        error: req.query.error
+    });
 });
 
 // ログイン処理
@@ -134,14 +151,22 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
         const userId = await userManager.authenticateUser(email, password);
         
         if (userId) {
+            const user = userManager.getUserById(userId);
             req.session.userId = userId;
             req.session.userEmail = email;
+            req.session.userName = user.username;
             req.session.lastActivity = Date.now();
             
             userManager.logAuditEvent(userId, 'login_success', 'User logged in', 
                 req.ip, req.get('User-Agent'));
             
-            res.redirect('/dashboard');
+            // ユーザー設定をチェックして適切にリダイレクト
+            const userSettings = userManager.getUserSettings(userId);
+            if (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) {
+                res.redirect('/setup');
+            } else {
+                res.redirect('/dashboard');
+            }
         } else {
             userManager.logAuditEvent(null, 'login_failed', `Failed login attempt for ${email}`, 
                 req.ip, req.get('User-Agent'));
@@ -390,19 +415,33 @@ app.post('/auth/login', (req, res) => {
   }
 });
 
-// 初期設定ページ
-app.get('/setup', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login');
+// 初期設定ページ（マルチユーザー対応）
+app.get('/setup', requireAuth, (req, res) => {
+  try {
+    // ユーザーの既存設定を取得
+    const userSettings = userManager.getUserSettings(req.session.userId) || {};
+    
+    res.render('setup', {
+      user: {
+        id: req.session.userId,
+        email: req.session.userEmail,
+        name: req.session.userName
+      },
+      currentConfig: {
+        metaAccessToken: userSettings.meta_access_token || '',
+        metaAccountId: userSettings.meta_account_id || '',
+        chatworkApiToken: userSettings.chatwork_token || '',
+        chatworkRoomId: userSettings.chatwork_room_id || '',
+        serviceGoal: userSettings.service_goal || '',
+        targetCpa: userSettings.target_cpa || '',
+        targetCpm: userSettings.target_cpm || '',
+        targetCtr: userSettings.target_ctr || ''
+      }
+    });
+  } catch (error) {
+    console.error('Setup page error:', error);
+    res.status(500).render('error', { error: '設定ページエラー' });
   }
-  res.render('setup', {
-    currentConfig: {
-      metaAccessToken: req.session.metaAccessToken || '',
-      metaAccountId: req.session.metaAccountId || '',
-      chatworkApiToken: req.session.chatworkApiToken || '',
-      chatworkRoomId: req.session.chatworkRoomId || ''
-    }
-  });
 });
 
 // ダッシュボード（マルチユーザー対応）
