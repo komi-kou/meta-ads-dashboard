@@ -146,7 +146,10 @@ app.get('/login', (req, res) => {
     });
 });
 
-// 旧式ログイン処理削除（マルチユーザー対応への統一）
+// 緊急復旧：ログインルート追加
+app.get('/login', (req, res) => {
+  res.redirect('/auth/login');
+});
 
 // シンプルログアウト処理
 app.post('/logout', (req, res) => {
@@ -178,7 +181,14 @@ app.post('/api/user-settings', requireAuth, validateUserSettings, auditLog('sett
 // 既存ルートのマルチユーザー対応
 // ========================
 
-// ルートページ削除（重複のため）
+// ルートページ（マルチユーザー対応版）
+app.get('/', (req, res) => {
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.redirect('/auth/login');
+    }
+});
 
 // 安全な依存関係読み込み（無効化）
 /*
@@ -792,14 +802,7 @@ app.get('/settings', requireAuth, (req, res) => {
   }
 });
 
-// ルート
-app.get('/', (req, res) => {
-  if (req.session && req.session.authenticated) {
-    res.redirect('/dashboard');
-  } else {
-    res.redirect('/auth/login');
-  }
-});
+// メインルート削除（重複のため上記を使用）
 
 // ログアウト
 app.get('/auth/logout', (req, res) => {
