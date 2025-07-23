@@ -1295,6 +1295,15 @@ function getMetaApiConfigFromSetup(userId = null) {
             const userManager = getUserManager();
             const userSettings = userManager.getUserSettings(userId);
             
+            console.log('🔍 ユーザー別設定確認:', {
+                userId: userId,
+                userSettingsFound: !!userSettings,
+                hasAccessToken: !!(userSettings?.meta_access_token),
+                hasAccountId: !!(userSettings?.meta_account_id),
+                accessTokenLength: userSettings?.meta_access_token?.length || 0,
+                accountId: userSettings?.meta_account_id
+            });
+            
             if (userSettings && userSettings.meta_access_token && userSettings.meta_account_id) {
                 console.log('✅ ユーザー別Meta API設定取得成功');
                 return {
@@ -1781,10 +1790,12 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
             throw new Error('Meta API認証情報が不完全です。アクセストークンまたはアカウントIDが設定されていません。');
         }
         
-        console.log('使用する認証情報:', {
+        console.log('🔍 Meta API使用する認証情報:', {
             accountId: config.accountId,
             accessTokenLength: config.accessToken.length,
-            accessTokenPrefix: config.accessToken.substring(0, 10) + '...'
+            accessTokenPrefix: config.accessToken.substring(0, 10) + '...',
+            fromUserSettings: !!userId,
+            userId: userId
         });
         
         const baseUrl = 'https://graph.facebook.com/v18.0';
