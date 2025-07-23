@@ -390,6 +390,7 @@
                         <option value="7">過去7日間</option>
                         <option value="14">過去14日間</option>
                         <option value="30">過去30日間</option>
+                        <option value="all">全期間</option>
                     </select>
                 </div>
                 
@@ -652,7 +653,8 @@
             if (periodRange) {
                 periodRange.addEventListener('change', function() {
                     const periodValue = this.value;
-                    console.log('選択期間変更:', periodValue + '日間');
+                    const periodLabel = periodValue === 'all' ? '全期間' : periodValue + '日間';
+                    console.log('選択期間変更:', periodLabel);
                     updateDashboardData();
                 });
             }
