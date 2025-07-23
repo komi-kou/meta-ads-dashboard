@@ -258,9 +258,16 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
             console.log('💾 セッション保存を明示的に実行中...');
             
             // セッションを明示的に保存してからリダイレクト
+            console.log('💾 セッション保存開始:', {
+                sessionID: req.sessionID,
+                userId: req.session.userId,
+                beforeSave: true
+            });
+            
             req.session.save((err) => {
                 if (err) {
                     console.error('❌ セッション保存エラー:', err);
+                    console.error('❌ エラー詳細:', err.stack);
                     return res.status(500).render('user-login', { 
                         error: 'ログイン処理中にセッション保存エラーが発生しました',
                         formData: { email: req.body.email },
@@ -299,31 +306,15 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
                     reason: needsSetup ? 'セットアップが必要' : 'セットアップ完了済み'
                 });
                 
-                // 標準リダイレクト実行
+                // 標準リダイレクト実行（セッション保存完了後）
                 console.log('🔄 リダイレクト実行:', redirectUrl);
                 res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
                 res.setHeader('Pragma', 'no-cache');
                 res.setHeader('Expires', '0');
                 
-                // HTMLレスポンスでJavaScriptリダイレクトを実行（確実な遷移のため）
-                if (!res.headersSent) {
-                    return res.send(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="UTF-8">
-                            <title>ログイン成功</title>
-                        </head>
-                        <body>
-                            <script>
-                                console.log('🔄 JavaScript リダイレクト実行:', '${redirectUrl}');
-                                window.location.href = '${redirectUrl}';
-                            </script>
-                            <p>リダイレクト中...</p>
-                        </body>
-                        </html>
-                    `);
-                }
+                // 確実なサーバーサイドリダイレクト
+                console.log('🔄 セッション保存完了後のリダイレクト実行:', redirectUrl);
+                return res.redirect(redirectUrl);
             });
         } else {
             console.log('❌ ログイン失敗 - 無効なメール/パスワード:', email);

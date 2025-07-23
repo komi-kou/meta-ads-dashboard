@@ -32,7 +32,10 @@ function requireAuth(req, res, next) {
         sessionId: req.sessionID,
         hasSession: !!req.session,
         hasUserId: !!(req.session && req.session.userId),
-        userId: req.session?.userId
+        userId: req.session?.userId,
+        userEmail: req.session?.userEmail,
+        lastActivity: req.session?.lastActivity,
+        sessionKeys: req.session ? Object.keys(req.session) : null
     });
     
     if (req.session && req.session.userId) {
@@ -46,10 +49,17 @@ function requireAuth(req, res, next) {
         
         // 最後のアクティビティを更新
         req.session.lastActivity = Date.now();
-        console.log('✅ 認証成功 - 次のミドルウェアに進行');
+        console.log('✅ 認証成功 - 次のミドルウェアに進行:', {
+            userId: req.session.userId,
+            userName: req.session.userName
+        });
         return next();
     } else {
-        console.log('❌ 認証失敗 - ログインページにリダイレクト');
+        console.log('❌ 認証失敗 - ログインページにリダイレクト:', {
+            hasSession: !!req.session,
+            sessionContent: req.session,
+            reason: !req.session ? 'セッションなし' : 'userIdなし'
+        });
         return res.redirect('/login');
     }
 }
