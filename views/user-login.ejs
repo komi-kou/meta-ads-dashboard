@@ -185,6 +185,13 @@
                 </div>
             <% } %>
 
+            <% if (typeof query !== 'undefined' && query.registered) { %>
+                <div class="alert alert-success">
+                    <strong>✅ ユーザー登録完了</strong><br>
+                    登録が完了しました。下記の情報でログインしてください。
+                </div>
+            <% } %>
+
             <% if (typeof rateLimited !== 'undefined' && rateLimited) { %>
                 <div class="alert rate-limit-warning">
                     <strong>🔒 セキュリティ保護</strong><br>
@@ -206,7 +213,7 @@
                     <label for="email">メールアドレス</label>
                     <input type="email" id="email" name="email" class="form-control" 
                            required placeholder="登録済みのメールアドレス"
-                           value="<%= typeof formData !== 'undefined' ? formData.email || '' : '' %>">
+                           value="<%= typeof formData !== 'undefined' ? formData.email || '' : (typeof query !== 'undefined' && query.email ? query.email : '') %>">
                 </div>
 
                 <div class="form-group">

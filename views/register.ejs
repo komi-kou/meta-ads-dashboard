@@ -173,7 +173,7 @@
             <% } %>
 
             <form id="registerForm" method="POST" action="/register">
-                <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
+                <input type="hidden" name="csrfToken" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                 
                 <div class="form-group">
                     <label for="username">ユーザー名</label>

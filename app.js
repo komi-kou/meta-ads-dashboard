@@ -161,8 +161,8 @@ app.post('/register', loginLimiter, validateUserInput, auditLog('user_register')
         userManager.logAuditEvent(userId, 'user_registered', 'New user registration', 
             req.ip, req.get('User-Agent'));
         
-        // ユーザー登録後はログインページにリダイレクト
-        res.redirect('/login?registered=true');
+        // ユーザー登録後はログインページにリダイレクト（メールアドレスを記憶）
+        res.redirect(`/login?registered=true&email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error('Registration error:', error);
         res.render('register', { 
@@ -302,7 +302,28 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
                 // 標準リダイレクト実行
                 console.log('🔄 リダイレクト実行:', redirectUrl);
                 res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-                return res.redirect(redirectUrl);
+                res.setHeader('Pragma', 'no-cache');
+                res.setHeader('Expires', '0');
+                
+                // HTMLレスポンスでJavaScriptリダイレクトを実行（確実な遷移のため）
+                if (!res.headersSent) {
+                    return res.send(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>ログイン成功</title>
+                        </head>
+                        <body>
+                            <script>
+                                console.log('🔄 JavaScript リダイレクト実行:', '${redirectUrl}');
+                                window.location.href = '${redirectUrl}';
+                            </script>
+                            <p>リダイレクト中...</p>
+                        </body>
+                        </html>
+                    `);
+                }
             });
         } else {
             console.log('❌ ログイン失敗 - 無効なメール/パスワード:', email);
