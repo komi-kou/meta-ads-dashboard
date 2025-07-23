@@ -69,8 +69,8 @@ class MetaApi {
             // データの集計処理
             const insights = data.data || [];
             if (insights.length === 0) {
-                console.log('インサイトデータがありません');
-                return this.getSampleData();
+                console.log('インサイトデータがありません - 0値データを返します');
+                return this.createZeroMetrics();
             }
             
             // 集計データの計算
@@ -86,8 +86,8 @@ class MetaApi {
             
         } catch (error) {
             console.error('Meta API 広告インサイト取得エラー:', error);
-            // エラー時はサンプルデータを返す
-            return this.getSampleData();
+            // エラー時はサンプルデータを返さず、エラーを再スローする
+            throw error;
         }
     }
     
@@ -198,22 +198,28 @@ class MetaApi {
         };
     }
     
-    // サンプルデータ（APIエラー時用）
-    getSampleData() {
+    // 0値データ（データなし時用）
+    createZeroMetrics() {
         return {
-            spend: 11078,
-            budgetRate: 100.74,
-            ctr: 3.77,
-            cpm: 5449,
-            conversions: 24,
-            cpa: 503,
-            frequency: 1.12,
-            dates: ['7/3', '7/4', '7/5', '7/6', '7/7', '7/8', '7/9'],
-            spendHistory: [1200, 1400, 1100, 1600, 1300, 1500, 1400],
-            conversionsHistory: [3, 4, 2, 5, 3, 4, 3],
-            ctrHistory: [3.2, 3.8, 3.1, 4.1, 3.5, 3.9, 3.7],
-            dateRange: '2025-07-03, 2025-07-04, 2025-07-05, 2025-07-06, 2025-07-07, 2025-07-08, 2025-07-09'
+            spend: 0,
+            budgetRate: 0.00,
+            ctr: 0.00,
+            cpm: 0,
+            conversions: 0,
+            cpa: 0,
+            frequency: 0.00,
+            dates: [],
+            spendHistory: [],
+            conversionsHistory: [],
+            ctrHistory: [],
+            dateRange: 'データなし'
         };
+    }
+    
+    // サンプルデータ（削除予定 - 使用禁止）
+    getSampleData() {
+        console.warn('⚠️ getSampleData()は使用禁止です。実際のAPIデータまたは0値データを使用してください。');
+        return this.createZeroMetrics();
     }
 }
 

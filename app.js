@@ -1744,9 +1744,16 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
     }
     
     const { type, date, period, campaignId } = req.query;
-    const userId = req.session?.userId || req.session?.user?.id;
+    const userId = req.session?.userId;
     
     console.log('=== ダッシュボード Meta広告データAPI ===');
+    console.log('🔍 セッション情報:', {
+        hasSession: !!req.session,
+        sessionUserId: req.session?.userId,
+        sessionUser: req.session?.user,
+        sessionUserID: req.session?.user?.id,
+        finalUserId: userId
+    });
     console.log('リクエストパラメータ:', { type, date, period, campaignId, userId });
     
     try {
@@ -1767,9 +1774,20 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
         
     } catch (error) {
         console.error('❌ ダッシュボードデータ取得失敗:', error.message);
+        console.error('🚨 エラー詳細:', {
+            errorName: error.name,
+            errorMessage: error.message,
+            errorStack: error.stack,
+            userId: userId,
+            requestParams: { type, date, period, campaignId }
+        });
+        
+        // エラー時でも空データではなく、エラー情報を含むレスポンスを返す
         res.status(500).json({
             error: 'Meta広告データの取得に失敗しました',
             details: error.message,
+            userId: userId,
+            hasUserSettings: userId ? 'checked' : 'not_checked',
             timestamp: new Date().toISOString()
         });
     }
@@ -2294,7 +2312,7 @@ function generatePeriodDummyData(period) {
 app.post('/api/chatwork-test', requireAuth, async (req, res) => {
     try {
         const { type } = req.body;
-        const userId = req.session?.userId || req.session?.user?.id;
+        const userId = req.session?.userId;
         
         console.log(`🧪 チャットワークテスト送信開始: ${type}`, { userId });
         
