@@ -1286,16 +1286,37 @@ app.get('/api/check-saved-meta-data', (req, res) => {
 });
 
 // 保存されたMeta API設定データを確実に取得
-function getMetaApiConfigFromSetup() {
-    console.log('=== 設定済みMeta API情報取得開始 ===');
+function getMetaApiConfigFromSetup(userId = null) {
+    console.log('=== 設定済みMeta API情報取得開始 ===', { userId });
     
-    // パターン1: グローバル変数から取得
+    // パターン1: ユーザー別設定から取得（優先）
+    if (userId) {
+        try {
+            const userManager = getUserManager();
+            const userSettings = userManager.getUserSettings(userId);
+            
+            if (userSettings && userSettings.meta_access_token && userSettings.meta_account_id) {
+                console.log('✅ ユーザー別Meta API設定取得成功');
+                return {
+                    accessToken: userSettings.meta_access_token,
+                    accountId: userSettings.meta_account_id,
+                    appId: userSettings.meta_app_id || ''
+                };
+            } else {
+                console.log('❌ ユーザー別Meta API設定が不完全または未設定');
+            }
+        } catch (error) {
+            console.error('ユーザー別設定取得エラー:', error);
+        }
+    }
+    
+    // パターン2: グローバル変数から取得
     if (global.metaApiConfig) {
         console.log('グローバル変数からMeta API設定取得');
         return global.metaApiConfig;
     }
     
-    // パターン2: ファイルシステムから取得
+    // パターン3: ファイルシステムから取得（後方互換性）
     const possiblePaths = [
         path.join(__dirname, 'data', 'user-config.json'),
         path.join(__dirname, 'config', 'meta-config.json'),
@@ -1342,7 +1363,7 @@ function getMetaApiConfigFromSetup() {
         }
     }
     
-    // パターン3: 環境変数から取得
+    // パターン4: 環境変数から取得
     if (process.env.META_ACCESS_TOKEN && process.env.META_ACCOUNT_ID) {
         console.log('環境変数からMeta API設定取得');
         return {
@@ -1712,19 +1733,22 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
         // 認証されていない外部リクエストはログインページにリダイレクト
         return res.redirect('/login');
     }
+    
     const { type, date, period, campaignId } = req.query;
+    const userId = req.session?.userId || req.session?.user?.id;
+    
     console.log('=== ダッシュボード Meta広告データAPI ===');
-    console.log('リクエストパラメータ:', { type, date, period, campaignId });
+    console.log('リクエストパラメータ:', { type, date, period, campaignId, userId });
     
     try {
         let result;
         
         if (type === 'daily' && date) {
             console.log(`${date}の実際のMeta広告データを取得中...`);
-            result = await fetchMetaDataWithStoredConfig(date, campaignId);
+            result = await fetchMetaDataWithStoredConfig(date, campaignId, userId);
         } else if (type === 'period' && period) {
             console.log(`過去${period}日間のMeta広告データを取得中...`);
-            result = await fetchMetaPeriodDataWithStoredConfig(period, campaignId);
+            result = await fetchMetaPeriodDataWithStoredConfig(period, campaignId, userId);
         } else {
             throw new Error('無効なリクエストパラメータです');
         }
@@ -1743,11 +1767,11 @@ app.get('/api/meta-ads-data', async (req, res, next) => {
 });
 
 // 設定済みデータを使用した実際のMeta API呼び出し
-async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null) {
-    console.log(`=== Meta API呼び出し: ${selectedDate} ===`);
+async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, userId = null) {
+    console.log(`=== Meta API呼び出し: ${selectedDate} ===`, { userId });
     
     try {
-        const config = getMetaApiConfigFromSetup();
+        const config = getMetaApiConfigFromSetup(userId);
         
         if (!config) {
             throw new Error('Meta API設定が見つかりません。設定画面で再度設定してください。');
@@ -2107,10 +2131,10 @@ function formatDateLabel(dateString) {
 }
 
 // 期間データの実際のAPI取得（修正版）
-async function fetchMetaPeriodDataWithStoredConfig(period, campaignId = null) {
-    console.log(`=== Meta API期間データ取得: ${period}日間 ===`);
+async function fetchMetaPeriodDataWithStoredConfig(period, campaignId = null, userId = null) {
+    console.log(`=== Meta API期間データ取得: ${period}日間 ===`, { userId });
     try {
-        const config = getMetaApiConfigFromSetup();
+        const config = getMetaApiConfigFromSetup(userId);
         
         if (!config || !config.accessToken || !config.accountId) {
             throw new Error('Meta API設定が見つかりません。設定画面でMeta API情報を設定してください。');
@@ -2259,12 +2283,14 @@ function generatePeriodDummyData(period) {
 app.post('/api/chatwork-test', requireAuth, async (req, res) => {
     try {
         const { type } = req.body;
-        console.log(`🧪 チャットワークテスト送信開始: ${type}`);
+        const userId = req.session?.userId || req.session?.user?.id;
+        
+        console.log(`🧪 チャットワークテスト送信開始: ${type}`, { userId });
         
         const ChatworkAutoSender = require('./utils/chatworkAutoSender');
         const sender = new ChatworkAutoSender();
         
-        await sender.sendTestMessage(type);
+        await sender.sendTestMessage(type, userId);
         res.json({ success: true, message: `${type}テスト送信を実行しました` });
     } catch (error) {
         console.error('チャットワークテスト送信エラー:', error);
