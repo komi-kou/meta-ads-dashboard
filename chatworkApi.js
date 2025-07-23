@@ -32,29 +32,51 @@ async function sendChatworkMessage({ date, message, token, room_id }) {
 }
 
 // アラート通知用の関数
-async function sendChatworkNotification(type, data = {}) {
+async function sendChatworkNotification(type, data = {}, userId = null) {
   try {
     let config = {};
     
-    // 本番環境では環境変数から取得
-    if (process.env.NODE_ENV === 'production') {
+    // パターン1: ユーザー別設定から取得（優先）
+    if (userId) {
+      try {
+        const { getUserManager } = require('./middleware/testAuth');
+        const userManager = getUserManager();
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (userSettings && userSettings.chatwork_token && userSettings.chatwork_room_id) {
+          console.log('✅ ユーザー別チャットワーク設定取得成功');
+          config = {
+            apiToken: userSettings.chatwork_token,
+            roomId: userSettings.chatwork_room_id
+          };
+        } else {
+          console.log('❌ ユーザー別チャットワーク設定が不完全または未設定');
+        }
+      } catch (error) {
+        console.error('ユーザー別チャットワーク設定取得エラー:', error);
+      }
+    }
+    
+    // パターン2: 環境変数から取得（本番環境）
+    if (!config.apiToken && process.env.NODE_ENV === 'production') {
       config = {
         apiToken: process.env.CHATWORK_TOKEN,
         roomId: process.env.CHATWORK_ROOM_ID
       };
-    } else {
-      // ローカル環境では設定ファイルから取得
+    }
+    
+    // パターン3: 設定ファイルから取得（後方互換性）
+    if (!config.apiToken) {
       const fs = require('fs');
       const path = require('path');
       
       const settingsPath = path.join(__dirname, 'settings.json');
-      if (!fs.existsSync(settingsPath)) {
-        console.log('設定ファイルなし - アラート通知スキップ');
-        return;
+      if (fs.existsSync(settingsPath)) {
+        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        if (settings.chatwork) {
+          config = settings.chatwork;
+        }
       }
-
-      const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-      config = settings.chatwork;
     }
     
     if (!config.apiToken || !config.roomId) {
