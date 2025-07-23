@@ -80,7 +80,7 @@ class ChatworkAutoSender {
     // ダッシュボードデータを取得（修正版）
     async getDashboardData() {
         try {
-            const response = await axios.get('http://localhost:3000/api/meta-ads-data?type=period&period=30');
+            const response = await axios.get('https://meta-ads-dashboard.onrender.com/api/meta-ads-data?type=period&period=30');
             return response.data;
         } catch (error) {
             console.error('❌ ダッシュボードデータ取得エラー:', error.message);
@@ -98,7 +98,7 @@ class ChatworkAutoSender {
             console.log(`📅 前日データ取得開始: ${yesterdayStr}`);
             
             // User-Agentを付与して内部リクエスト扱いにする
-            const response = await axios.get(`http://localhost:3000/api/meta-ads-data?type=daily&date=${yesterdayStr}`,
+            const response = await axios.get(`https://meta-ads-dashboard.onrender.com/api/meta-ads-data?type=daily&date=${yesterdayStr}`,
                 { headers: { 'User-Agent': 'Internal-Server-Request' } });
             const dailyData = response.data;
             
@@ -116,7 +116,7 @@ class ChatworkAutoSender {
             // フォールバック: 期間データから前日を抽出
             try {
                 console.log('🔄 フォールバック: 期間データから前日を抽出');
-                const periodResponse = await axios.get('http://localhost:3000/api/meta-ads-data?type=period&period=30',
+                const periodResponse = await axios.get('https://meta-ads-dashboard.onrender.com/api/meta-ads-data?type=period&period=30',
                     { headers: { 'User-Agent': 'Internal-Server-Request' } });
                 const periodData = periodResponse.data;
                 
@@ -286,7 +286,7 @@ class ChatworkAutoSender {
 データ取得に失敗しました。ダッシュボードでご確認ください。
 
 確認はこちら
-http://localhost:3000/dashboard`;
+https://meta-ads-dashboard.onrender.com/dashboard`;
             await this.sendMessage(fallbackMessage);
             return;
         }
@@ -355,8 +355,8 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
         });
 
         message += `
-確認事項：https://meta-ads-dashboard.onrender.com/improvement-taskss
-改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategiess
+確認事項：https://meta-ads-dashboard.onrender.com/improvement-tasks
+改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies
 ダッシュボード：https://meta-ads-dashboard.onrender.com/dashboard`;
 
         await this.sendMessage(message);

@@ -5,8 +5,8 @@
     "appId": ""
   },
   "chatwork": {
-    "apiToken": "dummy",
-    "roomId": "dummy"
+    "apiToken": "c4e37b2b9ad8fbf5b86c5b42e27d5d1a",
+    "roomId": "12345678"
   },
   "goal": {
     "type": "toC_newsletter",
@@ -14,14 +14,14 @@
   },
   "notifications": {
     "daily_report": {
-      "enabled": false,
+      "enabled": true,
       "time": "09:00"
     },
     "update_notifications": {
-      "enabled": false
+      "enabled": true
     },
     "alert_notifications": {
-      "enabled": false
+      "enabled": true
     }
   },
   "isConfigured": true,
