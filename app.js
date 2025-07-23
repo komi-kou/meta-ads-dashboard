@@ -90,27 +90,77 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// セッション設定（セキュリティ強化版）
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'multi-user-meta-ads-dashboard-secret-2024',
-  name: 'metaads.sessionid', // セッション名をカスタマイズ
-  resave: false,
-  saveUninitialized: true, // CSRFトークンのためにtrueに変更
-  rolling: true, // アクティビティで期限をリセット
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000, // 24時間
-    httpOnly: true, // XSS保護
-    sameSite: 'lax' // CSRF保護
-  }
-}));
+// プロダクション環境でのプロキシ信頼設定（重要）
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1); // 1番目のプロキシを信頼
+    console.log('✅ Trust proxy enabled for production');
+} else {
+    console.log('ℹ️ Trust proxy disabled for development');
+}
+
+// セッション設定（Render.com対応版 + ファイルストア）
+const sessionConfig = {
+    secret: process.env.SESSION_SECRET || 'multi-user-meta-ads-dashboard-secret-2024',
+    name: 'metaads.sessionid',
+    resave: false,
+    saveUninitialized: true,
+    rolling: true,
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 24時間
+        httpOnly: true,
+        sameSite: 'lax'
+    }
+};
+
+// ファイルベースのセッションストア（永続化のため）
+try {
+    const FileStore = require('session-file-store')(session);
+    sessionConfig.store = new FileStore({
+        path: './data/sessions',
+        ttl: 24 * 60 * 60, // 24時間（秒）
+        reapInterval: 60 * 60, // 1時間ごとにクリーンアップ
+        logFn: function() {} // ログを無効化
+    });
+    console.log('✅ File-based session store initialized');
+} catch (error) {
+    console.log('⚠️ File store not available, using memory store:', error.message);
+    // メモリストアを使用（デフォルト）
+}
+
+// プロダクション環境でのCookie設定
+if (process.env.NODE_ENV === 'production') {
+    sessionConfig.cookie.secure = true; // HTTPS必須
+    console.log('✅ Secure cookies enabled for production');
+} else {
+    sessionConfig.cookie.secure = false; // 開発環境ではHTTP許可
+    console.log('ℹ️ Secure cookies disabled for development');
+}
+
+console.log('📋 Session config:', {
+    secure: sessionConfig.cookie.secure,
+    sameSite: sessionConfig.cookie.sameSite,
+    maxAge: sessionConfig.cookie.maxAge,
+    trustProxy: process.env.NODE_ENV === 'production'
+});
+
+app.use(session(sessionConfig));
 
 
-// セッションデバッグミドルウェア（テスト用）
+// セッションデバッグミドルウェア（強化版）
 app.use((req, res, next) => {
-    console.log(`🔍 ${req.method} ${req.url} - Session ID: ${req.sessionID}, Has Session: ${!!req.session}`);
-    if (req.session) {
-        console.log(`   Session Keys: ${Object.keys(req.session).join(', ')}`);
+    if (req.url.includes('/login') || req.url.includes('/setup') || req.url.includes('/register')) {
+        console.log('🔍 Session Debug:', {
+            url: req.url,
+            method: req.method,
+            sessionID: req.sessionID,
+            hasSession: !!req.session,
+            sessionKeys: req.session ? Object.keys(req.session) : null,
+            userId: req.session?.userId,
+            cookies: req.headers.cookie ? 'present' : 'missing',
+            protocol: req.protocol,
+            secure: req.secure,
+            trustProxy: app.get('trust proxy')
+        });
     }
     next();
 });
