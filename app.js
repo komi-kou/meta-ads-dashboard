@@ -1735,13 +1735,11 @@ app.post('/api/test-all-connections', requireAuth, async (req, res) => {
 });
 
 // ダッシュボードメインAPIエンドポイント
-app.get('/api/meta-ads-data', async (req, res, next) => {
+app.get('/api/meta-ads-data', requireAuth, async (req, res, next) => {
     // 内部リクエスト判定
     const isInternalRequest = req.headers['user-agent'] === 'Internal-Server-Request';
-    if (!isInternalRequest && !(req.session && req.session.user)) {
-        // 認証されていない外部リクエストはログインページにリダイレクト
-        return res.redirect('/login');
-    }
+    
+    // requireAuth middlewareで既に認証チェック済み
     
     const { type, date, period, campaignId } = req.query;
     const userId = req.session?.userId;
@@ -1894,12 +1892,12 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
 function createZeroMetrics(selectedDate) {
     return {
         spend: 0,
-        budgetRate: '0.00',
-        ctr: '0.00',
+        budgetRate: 0.00,
+        ctr: 0.00,
         cpm: 0,
         conversions: 0,
         cpa: 0,
-        frequency: '0.00',
+        frequency: 0.00,
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [0],
@@ -1924,12 +1922,12 @@ function convertInsightsToMetrics(insights, selectedDate) {
     
     return {
         spend: Math.round(spend),
-        budgetRate: Math.min(budgetRate, 999.99).toFixed(2),
-        ctr: parseFloat(insights.ctr || 0).toFixed(2),
+        budgetRate: parseFloat(Math.min(budgetRate, 999.99).toFixed(2)),
+        ctr: parseFloat(insights.ctr || 0),
         cpm: Math.round(parseFloat(insights.cpm || 0)),
         conversions: conversions,
         cpa: Math.round(cpa),
-        frequency: parseFloat(insights.frequency || 0).toFixed(2),
+        frequency: parseFloat(insights.frequency || 0),
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [Math.round(spend)],
@@ -2117,17 +2115,17 @@ function aggregateRealPeriodData(dailyData) {
                 const dailyBudget = config?.goal?.target_dailyBudget || '15000';
                 const budget = parseFloat(dailyBudget);
                 const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * budget)) * 100) : 0;
-                return isNaN(rate) ? '0.00' : rate.toFixed(2);
+                return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
             } catch {
                 const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * 15000)) * 100) : 0;
-                return isNaN(rate) ? '0.00' : rate.toFixed(2);
+                return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
             }
         })(),
-        ctr: avgCTR.toFixed(2),
+        ctr: parseFloat(avgCTR.toFixed(2)),
         cpm: Math.round(avgCPM),
         conversions: totalConversions,
         cpa: Math.round(avgCPA),
-        frequency: avgFrequency.toFixed(2),
+        frequency: parseFloat(avgFrequency.toFixed(2)),
         chartData: {
             labels: chartLabels,
             spend: chartSpend,
