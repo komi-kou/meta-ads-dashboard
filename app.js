@@ -283,16 +283,21 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
                 // ユーザー設定をチェックして適切にリダイレクト
                 const userSettings = userManager.getUserSettings(userId);
                 console.log('⚙️ ユーザー設定状態:', {
+                    userId: userId,
                     hasSettings: !!userSettings,
+                    settingsContent: userSettings,
                     hasMetaToken: !!(userSettings?.meta_access_token),
                     hasChatworkToken: !!(userSettings?.chatwork_token)
                 });
                 
-                const redirectUrl = (!userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token) 
-                    ? '/setup' 
-                    : '/dashboard';
+                const needsSetup = !userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token;
+                const redirectUrl = needsSetup ? '/setup' : '/dashboard';
                 
-                console.log('🔄 リダイレクトURL決定:', redirectUrl);
+                console.log('🔄 リダイレクト判定:', {
+                    needsSetup: needsSetup,
+                    redirectUrl: redirectUrl,
+                    reason: needsSetup ? 'セットアップが必要' : 'セットアップ完了済み'
+                });
                 
                 // 標準リダイレクト実行
                 console.log('🔄 リダイレクト実行:', redirectUrl);

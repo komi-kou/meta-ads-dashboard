@@ -273,20 +273,28 @@
             });
         });
 
-        // ブルートフォース攻撃対策の警告表示
-        let loginAttempts = parseInt(localStorage.getItem('loginAttempts') || '0');
+        // ログイン成功時はlocalStorageをクリア
+        <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+            localStorage.removeItem('loginAttempts');
+        <% } %>
         
-        if (loginAttempts >= 3) {
-            const warningDiv = document.createElement('div');
-            warningDiv.className = 'alert alert-warning';
-            warningDiv.innerHTML = '<strong>⚠️ 注意</strong><br>複数回のログイン失敗が検出されています。';
-            document.querySelector('.auth-card').insertBefore(warningDiv, document.querySelector('form'));
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', function() {
-            loginAttempts++;
-            localStorage.setItem('loginAttempts', loginAttempts.toString());
-        });
+        // ブルートフォース攻撃対策の警告表示（エラーがある場合のみ）
+        <% if (typeof error !== 'undefined' && error) { %>
+            let loginAttempts = parseInt(localStorage.getItem('loginAttempts') || '0');
+            
+            if (loginAttempts >= 2) {
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'alert alert-warning';
+                warningDiv.innerHTML = '<strong>⚠️ 注意</strong><br>複数回のログイン失敗が検出されています。';
+                document.querySelector('.auth-card').insertBefore(warningDiv, document.querySelector('form'));
+            }
+            
+            // エラー表示時のみログイン試行回数を増加
+            document.getElementById('loginForm').addEventListener('submit', function() {
+                let attempts = parseInt(localStorage.getItem('loginAttempts') || '0');
+                localStorage.setItem('loginAttempts', (attempts + 1).toString());
+            });
+        <% } %>
     </script>
 </body>
 </html>
