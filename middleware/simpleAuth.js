@@ -31,6 +31,14 @@ function requireAuth(req, res, next) {
         if (req.session.lastActivity && 
             Date.now() - req.session.lastActivity > 24 * 60 * 60 * 1000) { // 24時間
             req.session.destroy();
+            
+            // APIリクエストの場合はJSONレスポンス
+            if (req.path.startsWith('/api/')) {
+                return res.status(401).json({
+                    error: 'セッションが期限切れです',
+                    needLogin: true
+                });
+            }
             return res.redirect('/login?expired=true');
         }
         
@@ -38,6 +46,14 @@ function requireAuth(req, res, next) {
         req.session.lastActivity = Date.now();
         return next();
     } else {
+        // APIリクエストの場合はJSONレスポンス
+        if (req.path.startsWith('/api/')) {
+            return res.status(401).json({
+                error: '認証が必要です',
+                message: 'ログインしてください',
+                needLogin: true
+            });
+        }
         return res.redirect('/login');
     }
 }

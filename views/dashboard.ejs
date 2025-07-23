@@ -695,7 +695,15 @@
                 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.details || 'データ取得に失敗しました');
+                    
+                    // 認証エラーの場合はログインページへリダイレクト
+                    if (response.status === 401 && errorData.needLogin) {
+                        console.log('認証エラー: ログインページへリダイレクト');
+                        window.location.href = '/login';
+                        return;
+                    }
+                    
+                    throw new Error(errorData.details || errorData.message || 'データ取得に失敗しました');
                 }
                 
                 const data = await response.json();
