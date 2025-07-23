@@ -5,23 +5,23 @@
     "appId": ""
   },
   "chatwork": {
-    "apiToken": "dummy",
-    "roomId": "dummy"
+    "apiToken": "10e7538af625f74890e0f0bc4747c976",
+    "roomId": "404474083"
   },
   "goal": {
-    "type": "toC_newsletter",
-    "name": "toC（メルマガ登録）"
+    "type": "toB_newsletter",
+    "name": "toB（メルマガ登録）"
   },
   "notifications": {
     "daily_report": {
-      "enabled": false,
+      "enabled": true,
       "time": "09:00"
     },
     "update_notifications": {
-      "enabled": false
+      "enabled": true
     },
     "alert_notifications": {
-      "enabled": false
+      "enabled": true
     }
   },
   "isConfigured": true,
