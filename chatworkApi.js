@@ -43,6 +43,15 @@ async function sendChatworkNotification(type, data = {}, userId = null) {
         const userManager = getUserManager();
         const userSettings = userManager.getUserSettings(userId);
         
+        console.log('🔍 ユーザー別チャットワーク設定確認:', {
+          userId: userId,
+          userSettingsFound: !!userSettings,
+          hasToken: !!(userSettings?.chatwork_token),
+          hasRoomId: !!(userSettings?.chatwork_room_id),
+          tokenLength: userSettings?.chatwork_token?.length || 0,
+          roomId: userSettings?.chatwork_room_id
+        });
+        
         if (userSettings && userSettings.chatwork_token && userSettings.chatwork_room_id) {
           console.log('✅ ユーザー別チャットワーク設定取得成功');
           config = {
