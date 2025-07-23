@@ -413,7 +413,7 @@
                         <div class="metric-icon">💰</div>
                         <div class="metric-title">消化金額（合計）</div>
                         <div class="metric-value">
-                            <span data-metric="spend">11,078</span><span class="metric-unit">円</span>
+                            <span data-metric="spend">読み込み中...</span><span class="metric-unit">円</span>
                         </div>
                     </div>
                     
@@ -421,7 +421,7 @@
                         <div class="metric-icon">📊</div>
                         <div class="metric-title">予算消化率（平均）</div>
                         <div class="metric-value">
-                            <span data-metric="budget-rate">100.74</span><span class="metric-unit">%</span>
+                            <span data-metric="budget-rate">読み込み中...</span><span class="metric-unit">%</span>
                         </div>
                     </div>
                     
@@ -429,7 +429,7 @@
                         <div class="metric-icon">👆</div>
                         <div class="metric-title">CTR（平均）</div>
                         <div class="metric-value">
-                            <span data-metric="ctr">3.77</span><span class="metric-unit">%</span>
+                            <span data-metric="ctr">読み込み中...</span><span class="metric-unit">%</span>
                         </div>
                     </div>
                     
@@ -437,7 +437,7 @@
                         <div class="metric-icon">📈</div>
                         <div class="metric-title">CPM（平均）</div>
                         <div class="metric-value">
-                            <span data-metric="cpm">5,449</span><span class="metric-unit">円</span>
+                            <span data-metric="cpm">読み込み中...</span><span class="metric-unit">円</span>
                         </div>
                     </div>
                 </div>
@@ -448,7 +448,7 @@
                         <div class="metric-icon">🎯</div>
                         <div class="metric-title">CV（合計）</div>
                         <div class="metric-value">
-                            <span data-metric="conversions">24</span>
+                            <span data-metric="conversions">読み込み中...</span>
                         </div>
                     </div>
                     
@@ -456,7 +456,7 @@
                         <div class="metric-icon">💸</div>
                         <div class="metric-title">CPA（平均）</div>
                         <div class="metric-value">
-                            <span data-metric="cpa">503</span><span class="metric-unit">円</span>
+                            <span data-metric="cpa">読み込み中...</span><span class="metric-unit">円</span>
                         </div>
                     </div>
                     
@@ -464,7 +464,7 @@
                         <div class="metric-icon">🔄</div>
                         <div class="metric-title">フリークエンシー（平均）</div>
                         <div class="metric-value">
-                            <span data-metric="frequency">1.12</span><span class="metric-unit">%</span>
+                            <span data-metric="frequency">読み込み中...</span><span class="metric-unit">%</span>
                         </div>
                     </div>
                 </div>
@@ -740,13 +740,13 @@
             console.log('=== メトリクス更新開始 ===');
             
             const updates = [
-                { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}円` },
-                { selector: '[data-metric="budget-rate"]', value: `${data.budgetRate}%` },
-                { selector: '[data-metric="ctr"]', value: `${data.ctr}%` },
-                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}円` },
+                { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
+                { selector: '[data-metric="budget-rate"]', value: `${data.budgetRate}` },
+                { selector: '[data-metric="ctr"]', value: `${data.ctr}` },
+                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },
                 { selector: '[data-metric="conversions"]', value: data.conversions },
-                { selector: '[data-metric="cpa"]', value: `${data.cpa.toLocaleString()}円` },
-                { selector: '[data-metric="frequency"]', value: `${data.frequency}%` }
+                { selector: '[data-metric="cpa"]', value: `${data.cpa.toLocaleString()}` },
+                { selector: '[data-metric="frequency"]', value: `${data.frequency}` }
             ];
             
             updates.forEach(update => {
