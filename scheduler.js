@@ -131,7 +131,7 @@ async function runBatch(isMorningReport = false) {
   const latestDailyBudget = settings.daily_budget ? Number(settings.daily_budget) : undefined;
   writeLog(`使用する日予算: ${latestDailyBudget}`);
   
-  if (!settings.meta_token || !settings.meta_account_id || !settings.meta_app_id) {
+  if (!settings.meta_token || !settings.meta_account_id) {
     writeLog('API連携情報が未設定のためスキップ');
     return;
   }
