@@ -255,41 +255,78 @@
             updateLastCheckTime();
         });
 
-        // 確認事項を生成
-        function generateChecklist() {
+        // 確認事項を生成（実際のゴール設定に基づく）
+        async function generateChecklist() {
             console.log('確認事項を生成開始');
             
-            // テストアラートを作成
-            const testAlerts = [
-                {
-                    id: 1,
-                    metric: '予算消化率',
-                    message: '予算消化率が80%以下の65%が3日間続いています',
-                    level: 'medium',
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    metric: 'CTR',
-                    message: 'CTRが2%以下の1.5%が3日間続いています',
-                    level: 'medium',
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    metric: 'CV',
-                    message: 'CV数が1件以下の0件が続いています',
-                    level: 'high',
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 4,
-                    metric: 'CPA',
-                    message: 'CPAが10,000円以上の12,000円が続いています',
-                    level: 'high',
-                    timestamp: new Date().toISOString()
+            try {
+                // setup.json から設定を読み込む
+                const response = await fetch('/api/check-saved-meta-data');
+                const setupData = await response.json();
+                
+                let goalType = '';
+                let goals = {};
+                
+                if (setupData.success && setupData.hasConfig) {
+                    goalType = setupData.data.goal?.type || '';
+                    
+                    // セットアップページと同じ goalTargets を使用
+                    const goalTargets = {
+                        toC_newsletter: { '予算消化率': 80, 'CTR': 2.5, 'CV': 1, 'CPA': 2000, '日予算': 1000, 'CPM': 1000 },
+                        toC_line: { '予算消化率': 80, 'CTR': 2.5, 'CV': 1, 'CPA': 1000, '日予算': 1000, 'CPM': 800 },
+                        toC_phone: { '予算消化率': 80, 'CTR': 2.0, 'CV': 1, 'CPA': 3000, '日予算': 1500, 'CPM': 1200 },
+                        toC_purchase: { '予算消化率': 80, 'CTR': 1.8, 'CV': 1, 'CPA': 5000, '日予算': 2000, 'CPM': 1500 },
+                        toB_newsletter: { '予算消化率': 80, 'CTR': 1.5, 'CV': 1, 'CPA': 15000, '日予算': 3000, 'CPM': 2000 },
+                        toB_line: { '予算消化率': 80, 'CTR': 1.5, 'CV': 1, 'CPA': 12000, '日予算': 2500, 'CPM': 1800 },
+                        toB_phone: { '予算消化率': 80, 'CTR': 1.2, 'CV': 1, 'CPA': 20000, '日予算': 4000, 'CPM': 2500 },
+                        toB_purchase: { '予算消化率': 80, 'CTR': 1.0, 'CV': 1, 'CPA': 30000, '日予算': 5000, 'CPM': 3000 }
+                    };
+                    
+                    goals = goalTargets[goalType] || {};
                 }
-            ];
+                
+                // 実際のゴール設定に基づいてアラートを生成
+                const testAlerts = [
+                    {
+                        id: 1,
+                        metric: '予算消化率',
+                        message: `予算消化率が${goals['予算消化率'] || 80}%以下の65%が3日間続いています`,
+                        level: 'medium',
+                        timestamp: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        metric: 'CTR',
+                        message: `CTRが${goals['CTR'] || 2.0}%以下の1.5%が3日間続いています`,
+                        level: 'medium',
+                        timestamp: new Date().toISOString()
+                    },
+                    {
+                        id: 3,
+                        metric: 'CV',
+                        message: `CV数が${goals['CV'] || 1}件以下の0件が続いています`,
+                        level: 'high',
+                        timestamp: new Date().toISOString()
+                    },
+                    {
+                        id: 4,
+                        metric: 'CPA',
+                        message: `CPAが${(goals['CPA'] || 10000).toLocaleString()}円以上の12,000円が続いています`,
+                        level: 'high',
+                        timestamp: new Date().toISOString()
+                    }
+                ];
+                
+            } catch (error) {
+                console.error('設定読み込みエラー:', error);
+                // エラーの場合はデフォルト値を使用
+                const testAlerts = [
+                    { id: 1, metric: '予算消化率', message: '予算消化率が80%以下の65%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
+                    { id: 2, metric: 'CTR', message: 'CTRが2%以下の1.5%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
+                    { id: 3, metric: 'CV', message: 'CV数が1件以下の0件が続いています', level: 'high', timestamp: new Date().toISOString() },
+                    { id: 4, metric: 'CPA', message: 'CPAが10,000円以上の12,000円が続いています', level: 'high', timestamp: new Date().toISOString() }
+                ];
+            }
 
             // 確認事項を生成
             const generatedChecklist = [];

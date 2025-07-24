@@ -552,10 +552,101 @@
             }
         }
 
-        // ゴール設定読み込み
+        // ゴール設定読み込み（setup.jsonから取得）
         async function loadGoals() {
             try {
+                // まず setup.json から設定を読み込む
+                const response = await fetch('/api/check-saved-meta-data');
+                const setupData = await response.json();
+                
+                let currentGoals = {};
+                let goalType = '';
+                
+                if (setupData.success && setupData.hasConfig) {
+                    // setup.json からゴールタイプと目標値を取得
+                    goalType = setupData.data.goal?.type || '';
+                    
+                    // セットアップページと同じ goalTargets を使用
+                    const goalTargets = {
+                        toC_newsletter: {
+                            '予算消化率': 80,
+                            'CTR': 2.5,
+                            'CV': 1,
+                            'CPA': 2000,
+                            '日予算': 1000,
+                            'CPM': 1000
+                        },
+                        toC_line: {
+                            '予算消化率': 80,
+                            'CTR': 2.5,
+                            'CV': 1,
+                            'CPA': 1000,
+                            '日予算': 1000,
+                            'CPM': 800
+                        },
+                        toC_phone: {
+                            '予算消化率': 80,
+                            'CTR': 2.0,
+                            'CV': 1,
+                            'CPA': 3000,
+                            '日予算': 1500,
+                            'CPM': 1200
+                        },
+                        toC_purchase: {
+                            '予算消化率': 80,
+                            'CTR': 1.8,
+                            'CV': 1,
+                            'CPA': 5000,
+                            '日予算': 2000,
+                            'CPM': 1500
+                        },
+                        toB_newsletter: {
+                            '予算消化率': 80,
+                            'CTR': 1.5,
+                            'CV': 1,
+                            'CPA': 15000,
+                            '日予算': 3000,
+                            'CPM': 2000
+                        },
+                        toB_line: {
+                            '予算消化率': 80,
+                            'CTR': 1.5,
+                            'CV': 1,
+                            'CPA': 12000,
+                            '日予算': 2500,
+                            'CPM': 1800
+                        },
+                        toB_phone: {
+                            '予算消化率': 80,
+                            'CTR': 1.2,
+                            'CV': 1,
+                            'CPA': 20000,
+                            '日予算': 4000,
+                            'CPM': 2500
+                        },
+                        toB_purchase: {
+                            '予算消化率': 80,
+                            'CTR': 1.0,
+                            'CV': 1,
+                            'CPA': 30000,
+                            '日予算': 5000,
+                            'CPM': 3000
+                        }
+                    };
+                    
+                    if (goalTargets[goalType]) {
+                        currentGoals = goalTargets[goalType];
+                    }
+                }
+                
+                // localStorage の設定で上書き（ユーザーがカスタマイズした場合）
                 const storedGoals = localStorage.getItem('alert_goals');
+                if (storedGoals) {
+                    const customGoals = JSON.parse(storedGoals);
+                    currentGoals = { ...currentGoals, ...customGoals };
+                }
+                
+                // デフォルト値（フォールバック）
                 const defaultGoals = {
                     '予算消化率': 80,
                     'CTR': 2.0,
@@ -565,12 +656,25 @@
                     'CPM': 1000
                 };
                 
-                const currentGoals = storedGoals ? JSON.parse(storedGoals) : defaultGoals;
-                updateCurrentGoalDisplay(currentGoals);
+                if (Object.keys(currentGoals).length === 0) {
+                    currentGoals = defaultGoals;
+                }
+                
+                // 現在のゴールタイプも表示に反映
+                updateCurrentGoalDisplay(currentGoals, goalType);
                 return currentGoals;
             } catch (error) {
                 console.error('ゴール読み込みエラー:', error);
-                return {};
+                const defaultGoals = {
+                    '予算消化率': 80,
+                    'CTR': 2.0,
+                    'CV': 1,
+                    'CPA': 10000,
+                    '日予算': 50000,
+                    'CPM': 1000
+                };
+                updateCurrentGoalDisplay(defaultGoals);
+                return defaultGoals;
             }
         }
 
@@ -860,7 +964,21 @@
             }
         }
 
-        function updateCurrentGoalDisplay(goals) {
+        function updateCurrentGoalDisplay(goals, goalType = '') {
+            // ゴールタイプの表示名を取得
+            const goalTypeNames = {
+                'toC_newsletter': 'toC（メルマガ登録）',
+                'toC_line': 'toC（LINE登録）',
+                'toC_phone': 'toC（電話ボタン）',
+                'toC_purchase': 'toC（購入）',
+                'toB_newsletter': 'toB（メルマガ登録）',
+                'toB_line': 'toB（LINE登録）',
+                'toB_phone': 'toB（電話ボタン）',
+                'toB_purchase': 'toB（購入）'
+            };
+            
+            const goalTypeName = goalTypeNames[goalType] || goalType || '未設定';
+            
             const goalText = Object.entries(goals)
                 .map(([metric, value]) => {
                     const unit = metric.includes('率') || metric === 'CTR' ? '%' : 
@@ -871,29 +989,14 @@
             
             const currentGoalElement = document.getElementById('current-goal');
             if (currentGoalElement) {
-                currentGoalElement.textContent = goalText;
+                currentGoalElement.innerHTML = `
+                    <strong>ゴールタイプ:</strong> ${goalTypeName}<br>
+                    <strong>目標値:</strong> ${goalText}
+                `;
             }
         }
 
-        // 初期化時にゴール設定を読み込み
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                const stored = localStorage.getItem('alert_goals');
-                const defaultGoals = {
-                    '予算消化率': 80,
-                    'CTR': 2.0,
-                    'CV': 1,
-                    'CPA': 10000,
-                    '日予算': 50000,
-                    'CPM': 1000
-                };
-                
-                const goals = stored ? JSON.parse(stored) : defaultGoals;
-                updateCurrentGoalDisplay(goals);
-            } catch (error) {
-                console.error('初期ゴール読み込みエラー:', error);
-            }
-        });
+        // 初期化時にゴール設定を読み込み（重複削除：上記で既に初期化されているため不要）
     </script>
 </body>
 </html> 
