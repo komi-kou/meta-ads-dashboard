@@ -702,6 +702,11 @@ app.get('/alerts', requireAuth, (req, res) => {
         const userId = req.session.userId;
         const userSettings = userManager.getUserSettings(userId);
         
+        console.log('=== アラートページ - ユーザー設定確認 ===');
+        console.log('ユーザーID:', userId);
+        console.log('ユーザー設定:', userSettings);
+        console.log('ゴールタイプ:', userSettings?.goal_type);
+        
         res.render('alerts', {
             title: 'アラート内容 - Meta広告ダッシュボード',
             userSettings: userSettings,
@@ -828,10 +833,20 @@ const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSy
 
 
 // アラート履歴ページ
-app.get('/alert-history', (req, res) => {
-    res.render('alert-history', {
-        title: 'アラート履歴 - Meta広告ダッシュボード'
-    });
+app.get('/alert-history', requireAuth, (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        res.render('alert-history', {
+            title: 'アラート履歴 - Meta広告ダッシュボード',
+            userSettings: userSettings,
+            goalType: userSettings?.goal_type || null
+        });
+    } catch (error) {
+        console.error('Alert history page error:', error);
+        res.status(500).render('error', { error: 'アラート履歴ページ読み込みエラー' });
+    }
 });
 
 // 確認事項ページ

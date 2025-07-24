@@ -469,14 +469,37 @@
                             </div>
                         </div>
                         <div class="alert-card">
-                            <div class="alert-type">監視項目</div>
+                            <div class="alert-type">🚨 アラート基準</div>
                             <div class="alert-message">
-                                • 予算消化率: 80%以下が3日間継続<br>
-                                • CTR: 基準値以下が3日間継続<br>
-                                • CV: 0件継続で発生<br>
-                                • CPA: 目標値120%超過が2日間継続<br>
-                                • 日予算: 設定値以下で発生<br>
-                                • CPM: ベースラインから+500円が3日間継続
+                                <% if (typeof goalType !== 'undefined' && goalType) { %>
+                                    <% if (goalType.startsWith('toC')) { %>
+                                        <strong>▶ toC（メルマガ / LINE / 電話 / 購入）</strong><br>
+                                        • 予算消化率: 80％以下×3日続く<br>
+                                        • CTR: 2.5％以下×3日続く<br>
+                                        • CV数: 0件×2日続く<br>
+                                        • CPA: ゴール設定したCPAより+500円以上が3日間続く<br>
+                                        • CPM: CPA好調時CPM ±1,000円以上が3日続く
+                                    <% } else if (goalType.startsWith('toB')) { %>
+                                        <strong>▶ toB（メルマガ / LINE / 電話 / 購入）</strong><br>
+                                        • 予算消化率: 80％以下×3日続く<br>
+                                        <% if (goalType.includes('newsletter')) { %>
+                                            • CTR: 1.5％以下×3日続く<br>
+                                        <% } else { %>
+                                            • CTR: 2.5％以下×3日続く<br>
+                                        <% } %>
+                                        • CV数: 0件×2日続く<br>
+                                        • CPA: ゴール設定したCPAより+500円以上が3日間続く<br>
+                                        • CPM: CPA好調時CPM ±1,000円以上が3日続く
+                                    <% } else { %>
+                                        • 予算消化率: 80％以下×3日続く<br>
+                                        • CTR: 基準値以下×3日続く<br>
+                                        • CV数: 0件×2日続く<br>
+                                        • CPA: ゴール設定したCPAより+500円以上が3日間続く<br>
+                                        • CPM: CPA好調時CPM ±1,000円以上が3日続く
+                                    <% } %>
+                                <% } else { %>
+                                    <span style="color: #f44336;">ゴール設定後にアラート基準が表示されます</span>
+                                <% } %>
                             </div>
                         </div>
                     </div>
