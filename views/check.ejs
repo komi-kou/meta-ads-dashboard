@@ -352,30 +352,6 @@
       </button>
     </div>
     
-    <!-- 現在のゴール表示 -->
-    <div class="test-section">
-      <div class="test-result">🎯 現在のゴールタイプ</div>
-      <div class="test-data">
-        <% if (typeof goalType !== 'undefined' && goalType) { %>
-          <% 
-            const goalNames = {
-              'toC_newsletter': 'toC（メルマガ登録）',
-              'toC_line': 'toC（LINE登録）',
-              'toC_phone': 'toC（電話ボタン）',
-              'toC_purchase': 'toC（購入）',
-              'toB_newsletter': 'toB（メルマガ登録）',
-              'toB_line': 'toB（LINE登録）',
-              'toB_phone': 'toB（電話ボタン）',
-              'toB_purchase': 'toB（購入）'
-            };
-          %>
-          <strong><%= goalNames[goalType] || goalType %></strong>
-        <% } else { %>
-          <span style="color: #f44336;">ゴールが設定されていません</span>
-        <% } %>
-      </div>
-    </div>
-    
     <div id="checklistContainer">
       <div class="no-checklist" id="noChecklist">
         <p>現在、確認が必要な項目はありません。</p>
@@ -396,104 +372,89 @@
   </div>
   
   <script>
-    // 現在のゴールタイプ
-    const currentGoalType = '<%= goalType || "" %>';
-    
-    // 定義された確認事項ルールを生成
-    function getGoalSpecificRules() {
-      const baseRules = {
-        '予算消化率': [
-          {
-            priority: 1,
-            title: '配信状況（アクティブ確認）',
-            description: '広告がアクティブになっているか確認する'
-          },
-          {
-            priority: 2,
-            title: 'クリエイティブ劣化・CVゼロ・CPA高止まり',
-            description: 'クリエイティブの劣化やCV数ゼロ、CPA高止まりの確認'
-          },
-          {
-            priority: 3,
-            title: 'ターゲットが狭すぎないか',
-            description: 'ターゲット設定が狭すぎて配信が制限されていないか確認'
-          }
-        ],
-        'CTR': [
-          {
-            priority: 1,
-            title: 'クリエイティブ劣化',
-            description: 'クリエイティブが劣化して反応が悪くなっていないか確認'
-          },
-          {
-            priority: 2,
-            title: 'フリークエンシー高止まり',
-            description: '同じユーザーに何度も表示されて飽きられていないか確認'
-          },
-          {
-            priority: 3,
-            title: 'ターゲット不一致',
-            description: 'ターゲット設定がサービスの見込み顧客と一致しているか確認'
-          }
-        ],
-        'CPM': [
-          {
-            priority: 1,
-            title: 'CPA好調時比 ±1,000円以上3日',
-            description: 'CPA好調時のCPMと比較して±1,000円以上の差が3日間続いているか確認'
-          },
-          {
-            priority: 2,
-            title: 'クリエイティブ劣化・ターゲティングミス',
-            description: 'クリエイティブの劣化やターゲティングのミスがないか確認'
-          }
-        ],
-        'CV': [
-          {
-            priority: 1,
-            title: 'クリエイティブ劣化',
-            description: 'クリエイティブが劣化してCVが取れなくなっていないか確認'
-          },
-          {
-            priority: 2,
-            title: 'ターゲティングズレ',
-            description: 'ターゲット設定がCVに繋がりやすいユーザー層からズレていないか確認'
-          },
-          {
-            priority: 3,
-            title: 'LP離脱率高',
-            description: 'ランディングページで離脱率が高くなっていないか確認'
-          }
-        ],
-        'CPA': [
-          {
-            priority: 1,
-            title: 'クリエイティブ劣化',
-            description: 'クリエイティブが劣化してCPAが悪化していないか確認'
-          },
-          {
-            priority: 2,
-            title: 'ターゲティングズレ',
-            description: 'ターゲット設定がCVに繋がりやすいユーザー層からズレていないか確認'
-          },
-          {
-            priority: 3,
-            title: '学習データ誤認（ピクセル）',
-            description: 'ピクセルの学習データが誤った方向に進んでいないか確認'
-          },
-          {
-            priority: 4,
-            title: 'LP離脱率高',
-            description: 'ランディングページで離脱率が高くなっていないか確認'
-          }
-        ]
-      ];
-      
-      return baseRules;
-    }
-    
     // 確認事項ルール
-    const checklistRules = getGoalSpecificRules();
+    const checklistRules = {
+      '予算消化率': [
+        {
+          priority: 1,
+          title: '配信されているか確認',
+          description: '広告がアクティブになっているか'
+        },
+        {
+          priority: 2,
+          title: '配信するクリエイティブが枯れている',
+          description: 'CV数が0もしくは目標CPAの到達しておらず予算も消化されていない'
+        },
+        {
+          priority: 3,
+          title: '配信するユーザー層が悪いのか',
+          description: '配信するユーザー層が悪いと表示されないケースがある'
+        }
+      ],
+      'CTR': [
+        {
+          priority: 1,
+          title: '配信しているクリエイティブが刺さっていないor枯れている',
+          description: 'ありきたりのクリエイティブでユーザーに見られていない\n7日間ベースでずっと配信していて、飽きられている'
+        },
+        {
+          priority: 2,
+          title: 'フルークエンシーが2.5%以上ある',
+          description: '同じユーザーばかりに配信されていて、見飽きられている'
+        },
+        {
+          priority: 3,
+          title: '配信するユーザー層が見込み顧客ではない',
+          description: 'サービスに合ったユーザー層に配信されていないので、スルーされている'
+        }
+      ],
+      'CPM': [
+        {
+          priority: 1,
+          title: '最適なCPM値で配信できていない',
+          description: 'クリエイティブが刺さっていないため入力したCPMから乖離している\n配信するユーザー層が悪いため入力したCPMから乖離している'
+        }
+      ],
+      'CV': [
+        {
+          priority: 1,
+          title: 'クリエイティブが刺さっていないorクリエイティブが枯れている',
+          description: '入口のクリエイティブで魅力的に魅せれていないor飽きられてしまっている'
+        },
+        {
+          priority: 2,
+          title: '配信するユーザー層がズレている',
+          description: '購入見込みの低いユーザーに配信されている'
+        },
+        {
+          priority: 3,
+          title: 'LPで離脱されている',
+          description: 'LPの内容がユーザーに刺さっていない'
+        }
+      ],
+      'CPA': [
+        {
+          priority: 1,
+          title: 'クリエイティブが刺さっていないorクリエイティブが枯れている',
+          description: ''
+        },
+        {
+          priority: 2,
+          title: '配信するユーザー層がズレている',
+          description: '購入見込みの低いユーザーに配信されている'
+        },
+        {
+          priority: 3,
+          title: '学習データが適切ではない',
+          description: 'ピクセルで学習しているデータが誤った方向に進んでいる'
+        },
+        {
+          priority: 4,
+          title: 'LPで離脱されている',
+          description: 'LPの内容がユーザーに刺さっていない'
+        }
+      ]
+    };
 
     let activeAlerts = [];
     let generatedChecklist = [];
