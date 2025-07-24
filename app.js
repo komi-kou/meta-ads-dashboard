@@ -1249,28 +1249,49 @@ app.get('/api/check-saved-meta-data', (req, res) => {
     console.log('=== 保存済みMeta API設定確認 ===');
     
     try {
-        const configPath = path.join(__dirname, 'config', 'meta-config.json');
+        const setupPath = path.join(__dirname, 'config', 'setup.json');
+        const metaConfigPath = path.join(__dirname, 'config', 'meta-config.json');
         
-        if (fs.existsSync(configPath)) {
-            const configData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-            console.log('保存済み設定データ:', {
-                hasAccessToken: !!configData.meta_access_token,
-                hasAccountId: !!configData.meta_account_id,
-                accessTokenLength: configData.meta_access_token ? configData.meta_access_token.length : 0,
-                accountId: configData.meta_account_id ? configData.meta_account_id.substring(0, 10) + '...' : 'なし'
+        // setup.json を優先的に読み込み
+        if (fs.existsSync(setupPath)) {
+            const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+            console.log('setup.json 読み込み成功:', {
+                hasGoal: !!setupData.goal,
+                goalType: setupData.goal?.type,
+                isConfigured: setupData.isConfigured
             });
             
             res.json({
                 success: true,
                 hasConfig: true,
-                config: {
-                    hasAccessToken: !!configData.meta_access_token,
-                    hasAccountId: !!configData.meta_account_id,
-                    accessTokenLength: configData.meta_access_token ? configData.meta_access_token.length : 0
+                data: setupData // setup.json の全データを返す
+            });
+        } 
+        // フォールバック: meta-config.json を確認
+        else if (fs.existsSync(metaConfigPath)) {
+            const configData = JSON.parse(fs.readFileSync(metaConfigPath, 'utf8'));
+            console.log('meta-config.json フォールバック:', {
+                hasAccessToken: !!configData.meta_access_token,
+                hasAccountId: !!configData.meta_account_id
+            });
+            
+            res.json({
+                success: true,
+                hasConfig: true,
+                data: {
+                    meta: {
+                        accessToken: configData.meta_access_token,
+                        accountId: configData.meta_account_id,
+                        appId: configData.meta_app_id
+                    },
+                    goal: {
+                        type: '', // デフォルト値
+                        name: '未設定'
+                    }
                 }
             });
         } else {
-            console.log('設定ファイルが見つかりません:', configPath);
+            console.log('設定ファイルが見つかりません');
             res.json({
                 success: false,
                 hasConfig: false,

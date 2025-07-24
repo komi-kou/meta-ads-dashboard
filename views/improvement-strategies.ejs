@@ -333,9 +333,9 @@
         };
 
         // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('=== 改善施策ページ: 初期化開始 ===');
-            generateStrategies();
+            await generateStrategies();
             updateLastUpdateTime();
         });
 

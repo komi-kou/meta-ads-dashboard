@@ -249,9 +249,9 @@
         };
 
         // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('=== 確認事項ページ: 初期化開始 ===');
-            generateChecklist();
+            await generateChecklist();
             updateLastCheckTime();
         });
 
