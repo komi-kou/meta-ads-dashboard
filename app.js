@@ -722,8 +722,9 @@ function getGoalName(goalType) {
 app.get('/api/campaigns', requireAuth, async (req, res) => {
   try {
     console.log('=== キャンペーンリスト取得開始 ===');
+    console.log('🔍 ユーザーID:', req.session.userId);
     
-    const config = getMetaApiConfigFromSetup();
+    const config = getMetaApiConfigFromSetup(req.session.userId);
     if (!config || !config.accessToken || !config.accountId) {
       return res.status(400).json({
         success: false,
