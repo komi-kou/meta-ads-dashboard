@@ -448,7 +448,25 @@
                     <div id="alert-settings">
                         <div class="alert-card">
                             <div class="alert-type">現在のゴールタイプ</div>
-                            <div class="alert-message" id="current-goal">設定を読み込み中...</div>
+                            <div class="alert-message" id="current-goal">
+                                <% if (typeof goalType !== 'undefined' && goalType) { %>
+                                    <% 
+                                        const goalNames = {
+                                            'toC_newsletter': 'toC（メルマガ登録）',
+                                            'toC_line': 'toC（LINE登録）',
+                                            'toC_phone': 'toC（電話ボタン）',
+                                            'toC_purchase': 'toC（購入）',
+                                            'toB_newsletter': 'toB（メルマガ登録）',
+                                            'toB_line': 'toB（LINE登録）',
+                                            'toB_phone': 'toB（電話ボタン）',
+                                            'toB_purchase': 'toB（購入）'
+                                        };
+                                    %>
+                                    <%= goalNames[goalType] || goalType %>
+                                <% } else { %>
+                                    ゴールが設定されていません
+                                <% } %>
+                            </div>
                         </div>
                         <div class="alert-card">
                             <div class="alert-type">監視項目</div>

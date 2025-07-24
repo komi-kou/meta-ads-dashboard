@@ -698,7 +698,19 @@ app.get('/dashboard', requireAuth, async (req, res) => {
 
 // アラートページ表示
 app.get('/alerts', requireAuth, (req, res) => {
-    res.render('alerts');
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        res.render('alerts', {
+            title: 'アラート内容 - Meta広告ダッシュボード',
+            userSettings: userSettings,
+            goalType: userSettings?.goal_type || null
+        });
+    } catch (error) {
+        console.error('Alerts page error:', error);
+        res.status(500).render('error', { error: 'アラートページ読み込みエラー' });
+    }
 });
 
 // ゴール名取得ヘルパー関数
@@ -814,13 +826,6 @@ const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSy
 
 // アラート関連のルートを app.js に追加
 
-// アラート内容ページ
-app.get('/alerts', (req, res) => {
-    console.log('アラートページにアクセス');
-    res.render('alerts', {
-        title: 'アラート内容 - Meta広告ダッシュボード'
-    });
-});
 
 // アラート履歴ページ
 app.get('/alert-history', (req, res) => {
@@ -943,8 +948,13 @@ app.get('/history', requireAuth, (req, res) => {
 
 app.get('/check', requireAuth, (req, res) => {
   try {
+    const userId = req.session.userId;
+    const userSettings = userManager.getUserSettings(userId);
+    
     res.render('check', { 
-      title: '確認事項'
+      title: '確認事項',
+      userSettings: userSettings,
+      goalType: userSettings?.goal_type || null
     });
   } catch (error) {
     res.status(500).send('確認事項ページエラー: ' + error.message);
@@ -1034,8 +1044,13 @@ app.post('/api/send-chatwork', requireAuth, async (req, res) => {
 
 app.get('/improve', requireAuth, (req, res) => {
   try {
+    const userId = req.session.userId;
+    const userSettings = userManager.getUserSettings(userId);
+    
     res.render('improve', { 
       title: '改善施策',
+      userSettings: userSettings,
+      goalType: userSettings?.goal_type || null,
       improvements: {
         budgetRate: ['クリエイティブの改善', 'ターゲティングの見直し'],
         ctr: ['新しいクリエイティブの作成', 'ターゲティングの精度向上']

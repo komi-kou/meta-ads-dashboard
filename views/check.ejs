@@ -352,6 +352,30 @@
       </button>
     </div>
     
+    <!-- 現在のゴール表示 -->
+    <div class="test-section">
+      <div class="test-result">🎯 現在のゴールタイプ</div>
+      <div class="test-data">
+        <% if (typeof goalType !== 'undefined' && goalType) { %>
+          <% 
+            const goalNames = {
+              'toC_newsletter': 'toC（メルマガ登録）',
+              'toC_line': 'toC（LINE登録）',
+              'toC_phone': 'toC（電話ボタン）',
+              'toC_purchase': 'toC（購入）',
+              'toB_newsletter': 'toB（メルマガ登録）',
+              'toB_line': 'toB（LINE登録）',
+              'toB_phone': 'toB（電話ボタン）',
+              'toB_purchase': 'toB（購入）'
+            };
+          %>
+          <strong><%= goalNames[goalType] || goalType %></strong>
+        <% } else { %>
+          <span style="color: #f44336;">ゴールが設定されていません</span>
+        <% } %>
+      </div>
+    </div>
+    
     <div id="checklistContainer">
       <div class="no-checklist" id="noChecklist">
         <p>現在、確認が必要な項目はありません。</p>

@@ -29,7 +29,80 @@
     
     <div class="main-content">
         <h1>💡 改善施策</h1>
-        <p>改善施策機能は準備中です。近日公開予定！</p>
+        
+        <!-- 現在のゴール表示 -->
+        <div style="background: #f8fafc; border-left: 4px solid #667eea; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+            <h3>🎯 現在のゴールタイプ</h3>
+            <% if (typeof goalType !== 'undefined' && goalType) { %>
+                <% 
+                    const goalNames = {
+                        'toC_newsletter': 'toC（メルマガ登録）',
+                        'toC_line': 'toC（LINE登録）',
+                        'toC_phone': 'toC（電話ボタン）',
+                        'toC_purchase': 'toC（購入）',
+                        'toB_newsletter': 'toB（メルマガ登録）',
+                        'toB_line': 'toB（LINE登録）',
+                        'toB_phone': 'toB（電話ボタン）',
+                        'toB_purchase': 'toB（購入）'
+                    };
+                %>
+                <strong style="color: #667eea;"><%= goalNames[goalType] || goalType %></strong>
+            <% } else { %>
+                <span style="color: #f44336;">ゴールが設定されていません</span>
+            <% } %>
+        </div>
+        
+        <!-- 改善施策リスト -->
+        <div style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3>📊 予算消化率改善施策</h3>
+            <ul style="line-height: 1.8;">
+                <li>・ クリエイティブの改善（新しい画像・動画の追加）</li>
+                <li>・ ターゲティングの見直し（年齢・性別・興味関心の調整）</li>
+                <li>・ 配信時間帯の最適化</li>
+                <li>・ 広告予算の配分見直し</li>
+            </ul>
+        </div>
+        
+        <div style="background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3>👆 CTR改善施策</h3>
+            <ul style="line-height: 1.8;">
+                <li>・ 新しいクリエイティブの作成</li>
+                <li>・ ターゲティングの精度向上</li>
+                <li>・ 広告文の A/B テスト実施</li>
+                <li>・ コール・トゥ・アクションの見直し</li>
+            </ul>
+        </div>
+        
+        <% if (typeof goalType !== 'undefined' && goalType) { %>
+        <div style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3>🎯 ゴール別改善施策</h3>
+            <% if (goalType.includes('newsletter')) { %>
+            <ul style="line-height: 1.8;">
+                <li>・ メルマガ登録フォームの最適化</li>
+                <li>・ 登録特典の見直し</li>
+                <li>・ ランディングページの改善</li>
+            </ul>
+            <% } else if (goalType.includes('line')) { %>
+            <ul style="line-height: 1.8;">
+                <li>・ LINE友だち追加のインセンティブ強化</li>
+                <li>・ QRコード配置の最適化</li>
+                <li>・ LINE Bot の応答内容改善</li>
+            </ul>
+            <% } else if (goalType.includes('phone')) { %>
+            <ul style="line-height: 1.8;">
+                <li>・ 電話ボタンの配置最適化</li>
+                <li>・ 営業時間の明記</li>
+                <li>・ 電話対応品質の向上</li>
+            </ul>
+            <% } else if (goalType.includes('purchase')) { %>
+            <ul style="line-height: 1.8;">
+                <li>・ 商品ページの改善</li>
+                <li>・ 決済フローの簡略化</li>
+                <li>・ カート放棄対策の実施</li>
+            </ul>
+            <% } %>
+        </div>
+        <% } %>
     </div>
 </body>
 </html> 
