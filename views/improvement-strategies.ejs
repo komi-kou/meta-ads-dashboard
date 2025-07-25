@@ -304,31 +304,31 @@
             }
         };
 
-        // 確認事項リスト
+        // 確認事項リスト（checklistRules.jsと同期）
         const checklistItems = {
             '予算消化率': [
-                { priority: 1, title: '配信されているか確認' },
-                { priority: 2, title: '配信するクリエイティブが枯れている' },
-                { priority: 3, title: '配信するユーザー層が悪いのか' }
+                { priority: 1, title: '配信されているか確認', description: '広告がアクティブになっているか' },
+                { priority: 2, title: '配信するクリエイティブが枯れている', description: 'CV数が0もしくは目標CPAの到達しておらず予算も消化されていない' },
+                { priority: 3, title: '配信するユーザー層が悪いのか', description: '配信するユーザー層が悪いと表示されないケースがある' }
             ],
             'CTR': [
-                { priority: 1, title: '配信しているクリエイティブが刺さっていないor枯れている' },
-                { priority: 2, title: 'フリークエンシーが2.5%以上ある' },
-                { priority: 3, title: '配信するユーザー層が見込み顧客ではない' }
+                { priority: 1, title: '配信しているクリエイティブが刺さっていないor枯れている', description: 'ありきたりのクリエイティブでユーザーに見られていない\n7日間ベースでずっと配信していて、飽きられている' },
+                { priority: 2, title: 'フリークエンシーが2.5%以上ある', description: '同じユーザーばかりに配信されていて、見飽きられている' },
+                { priority: 3, title: '配信するユーザー層が見込み顧客ではない', description: 'サービスに合ったユーザー層に配信されていないので、スルーされている' }
             ],
             'CPM': [
-                { priority: 1, title: '最適なCPM値で配信できていない' }
+                { priority: 1, title: '最適なCPM値で配信できていない', description: 'クリエイティブが刺さっていないため入力したCPMから乖離している\n配信するユーザー層が悪いため入力したCPMから乖離している' }
             ],
             'CV': [
-                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている' },
-                { priority: 2, title: '配信するユーザー層がズレている' },
-                { priority: 3, title: 'LPで離脱されている' }
+                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている', description: '入口のクリエイティブで魅力的に魅せれていないor飽きられてしまっている' },
+                { priority: 2, title: '配信するユーザー層がズレている', description: '購入見込みの低いユーザーに配信されている' },
+                { priority: 3, title: 'LPで離脱されている', description: 'LPの内容がユーザーに刺さっていない' }
             ],
             'CPA': [
-                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている' },
-                { priority: 2, title: '配信するユーザー層がズレている' },
-                { priority: 3, title: '学習データが適切ではない' },
-                { priority: 4, title: 'LPで離脱されている' }
+                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている', description: '' },
+                { priority: 2, title: '配信するユーザー層がズレている', description: '購入見込みの低いユーザーに配信されている' },
+                { priority: 3, title: '学習データが適切ではない', description: 'ピクセルで学習しているデータが誤った方向に進んでいる' },
+                { priority: 4, title: 'LPで離脱されている', description: 'LPの内容がユーザーに刺さっていない' }
             ]
         };
 
@@ -338,6 +338,24 @@
             await generateStrategies();
             updateLastUpdateTime();
         });
+
+        // CPAアラートメッセージを生成
+        async function generateCPAAlertMessage(targetCPA) {
+            try {
+                const dashboardResponse = await fetch('/api/dashboard-data');
+                const dashboardData = await dashboardResponse.json();
+                
+                let currentCPA = targetCPA + 2000; // デフォルト値
+                if (dashboardData.success && dashboardData.data && dashboardData.data.cpa) {
+                    currentCPA = dashboardData.data.cpa;
+                }
+                
+                return `CPAが${targetCPA.toLocaleString()}円以上の${Math.round(currentCPA).toLocaleString()}円が続いています`;
+            } catch (error) {
+                console.error('CPA alert message generation error:', error);
+                return `CPAが${targetCPA.toLocaleString()}円以上が続いています`;
+            }
+        }
 
         // 改善施策を生成（実際のゴール設定に基づく）
         async function generateStrategies() {
@@ -350,8 +368,19 @@
                 const response = await fetch('/api/check-saved-meta-data');
                 const setupData = await response.json();
                 
+                // 実際のダッシュボードデータを取得
+                const dashboardResponse = await fetch('/api/dashboard-data');
+                const dashboardData = await dashboardResponse.json();
+                
                 let goalType = '';
                 let goals = {};
+                let currentMetrics = {
+                    budgetRate: 65,
+                    ctr: 1.5,
+                    conversions: 0,
+                    cpa: 12000,
+                    cpm: 1500
+                };
                 
                 if (setupData.success && setupData.hasConfig) {
                     goalType = setupData.data.goal?.type || '';
@@ -371,33 +400,44 @@
                     goals = goalTargets[goalType] || {};
                 }
                 
-                // 実際のゴール設定に基づいてアラートを生成
+                // 実際のAPIデータを取得
+                if (dashboardData.success && dashboardData.data) {
+                    currentMetrics = {
+                        budgetRate: dashboardData.data.budgetRate || currentMetrics.budgetRate,
+                        ctr: dashboardData.data.ctr || currentMetrics.ctr,
+                        conversions: dashboardData.data.conversions || currentMetrics.conversions,
+                        cpa: dashboardData.data.cpa || currentMetrics.cpa,
+                        cpm: dashboardData.data.cpm || currentMetrics.cpm
+                    };
+                }
+                
+                // 実際のデータに基づいてアラートを生成
                 testAlerts = [
                     {
                         id: 1,
                         metric: '予算消化率',
-                        message: `予算消化率が${goals['予算消化率'] || 80}%以下の65%が3日間続いています`,
+                        message: `予算消化率が${goals['予算消化率'] || 80}%以下の${Math.round(currentMetrics.budgetRate)}%が3日間続いています`,
                         level: 'medium',
                         timestamp: new Date().toISOString()
                     },
                     {
                         id: 2,
                         metric: 'CTR',
-                        message: `CTRが${goals['CTR'] || 2.0}%以下の1.5%が3日間続いています`,
+                        message: `CTRが${goals['CTR'] || 2.0}%以下の${currentMetrics.ctr.toFixed(1)}%が3日間続いています`,
                         level: 'medium',
                         timestamp: new Date().toISOString()
                     },
                     {
                         id: 3,
                         metric: 'CV',
-                        message: `CV数が${goals['CV'] || 1}件以下の0件が続いています`,
+                        message: `CV数が${goals['CV'] || 1}件以下の${currentMetrics.conversions}件が続いています`,
                         level: 'high',
                         timestamp: new Date().toISOString()
                     },
                     {
                         id: 4,
                         metric: 'CPA',
-                        message: `CPAが${(goals['CPA'] || 10000).toLocaleString()}円以上の12,000円が続いています`,
+                        message: `CPAが目標の120%（${Math.round((goals['CPA'] || 10000) * 1.2).toLocaleString()}円）以上の${Math.round(currentMetrics.cpa).toLocaleString()}円が2日間続いています`,
                         level: 'high',
                         timestamp: new Date().toISOString()
                     }
@@ -405,12 +445,28 @@
                 
             } catch (error) {
                 console.error('設定読み込みエラー:', error);
-                // エラーの場合はデフォルト値を使用
+                // エラー時も実際のAPIデータを取得を試行
+                let fallbackMetrics = { budgetRate: 65, ctr: 1.5, conversions: 0, cpa: 12000 };
+                try {
+                    const dashboardResponse = await fetch('/api/dashboard-data');
+                    const dashboardData = await dashboardResponse.json();
+                    if (dashboardData.success && dashboardData.data) {
+                        fallbackMetrics = {
+                            budgetRate: dashboardData.data.budgetRate || fallbackMetrics.budgetRate,
+                            ctr: dashboardData.data.ctr || fallbackMetrics.ctr,
+                            conversions: dashboardData.data.conversions || fallbackMetrics.conversions,
+                            cpa: dashboardData.data.cpa || fallbackMetrics.cpa
+                        };
+                    }
+                } catch (fetchError) {
+                    console.error('Dashboard data fetch error in fallback:', fetchError);
+                }
+                
                 testAlerts = [
-                    { id: 1, metric: '予算消化率', message: '予算消化率が80%以下の65%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
-                    { id: 2, metric: 'CTR', message: 'CTRが2%以下の1.5%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
-                    { id: 3, metric: 'CV', message: 'CV数が1件以下の0件が続いています', level: 'high', timestamp: new Date().toISOString() },
-                    { id: 4, metric: 'CPA', message: 'CPAが10,000円以上の12,000円が続いています', level: 'high', timestamp: new Date().toISOString() }
+                    { id: 1, metric: '予算消化率', message: `予算消化率が80%以下の${Math.round(fallbackMetrics.budgetRate)}%が3日間続いています`, level: 'medium', timestamp: new Date().toISOString() },
+                    { id: 2, metric: 'CTR', message: `CTRが2%以下の${fallbackMetrics.ctr.toFixed(1)}%が3日間続いています`, level: 'medium', timestamp: new Date().toISOString() },
+                    { id: 3, metric: 'CV', message: `CV数が1件以下の${fallbackMetrics.conversions}件が続いています`, level: 'high', timestamp: new Date().toISOString() },
+                    { id: 4, metric: 'CPA', message: `CPAが目標の120%（12,000円）以上の${Math.round(fallbackMetrics.cpa).toLocaleString()}円が2日間続いています`, level: 'high', timestamp: new Date().toISOString() }
                 ];
             }
 

@@ -57,7 +57,7 @@ if (isImprovementTasks) {
         {
             id: 4,
             metric: 'CPA',
-            message: 'CPAが10,000円以上の12,000円が続いています',
+            message: 'CPAが目標の120%以上が2日間続いています',
             level: 'high',
             timestamp: new Date().toISOString()
         }
@@ -125,7 +125,7 @@ if (isImprovementTasks) {
         {
             id: 4,
             metric: 'CPA',
-            message: 'CPAが10,000円以上の12,000円が続いています',
+            message: 'CPAが目標の120%以上が2日間続いています',
             level: 'high',
             timestamp: new Date().toISOString()
         }
