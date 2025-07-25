@@ -264,48 +264,84 @@
                 const alertResponse = await fetch('/api/alert-history');
                 const alertData = await alertResponse.json();
                 
+                console.log('アラートAPIレスポンス:', alertData);
+                
                 let currentAlerts = [];
                 
-                if (alertData.success && alertData.history && alertData.history.length > 0) {
-                    // アクティブなアラートのみフィルタ
-                    currentAlerts = alertData.history
+                if (alertData.success && alertData.alerts && alertData.alerts.length > 0) {
+                    // レスポンス構造に合わせて修正
+                    currentAlerts = alertData.alerts
                         .filter(alert => alert.status === 'active')
                         .slice(0, 10); // 最新10件
                         
                     console.log('実際のアラート取得:', currentAlerts.length + '件');
+                } else if (alertData.history && alertData.history.length > 0) {
+                    // 代替のhistoryプロパティも確認
+                    currentAlerts = alertData.history
+                        .filter(alert => alert.status === 'active')
+                        .slice(0, 10);
+                        
+                    console.log('履歴からアラート取得:', currentAlerts.length + '件');
                 } else {
-                    console.log('アクティブアラートなし、デモデータを使用');
-                    // デモ用のアラートデータ
-                    currentAlerts = [
-                        {
-                            id: 1,
-                            metric: '予算消化率',
-                            message: '予算消化率が80%以下の65%が3日間続いています',
-                            level: 'medium',
-                            timestamp: new Date().toISOString()
-                        },
-                        {
-                            id: 2,
-                            metric: 'CTR',
-                            message: 'CTRが2.5%以下の1.5%が3日間続いています',
-                            level: 'medium',
-                            timestamp: new Date().toISOString()
-                        },
-                        {
-                            id: 3,
-                            metric: 'CV',
-                            message: 'CV数が0件が2日連続で続いています',
-                            level: 'high',
-                            timestamp: new Date().toISOString()
-                        },
-                        {
-                            id: 4,
-                            metric: 'CPA',
-                            message: 'CPAが目標の120%を超えた状態が2日間続いています',
-                            level: 'high',
-                            timestamp: new Date().toISOString()
+                    console.log('アクティブアラートなし、実際のアラートシステムを呼び出し');
+                    
+                    // 実際のアラートチェックを実行
+                    try {
+                        const alertCheckResponse = await fetch('/api/check-alerts', { method: 'POST' });
+                        const alertCheckData = await alertCheckResponse.json();
+                        
+                        if (alertCheckData.success && alertCheckData.alerts && alertCheckData.alerts.length > 0) {
+                            currentAlerts = alertCheckData.alerts.map(alert => ({
+                                id: alert.id,
+                                metric: alert.metric,
+                                message: alert.message,
+                                level: alert.severity,
+                                timestamp: alert.triggeredAt
+                            }));
+                            console.log('新しいアラートをチェック:', currentAlerts.length + '件');
+                        } else {
+                            // どうしてもアラートがない場合はデモデータ
+                            currentAlerts = [
+                                {
+                                    id: 1,
+                                    metric: '予算消化率',
+                                    message: '予算消化率が80%以下の65%が3日間続いています',
+                                    level: 'medium',
+                                    timestamp: new Date().toISOString()
+                                },
+                                {
+                                    id: 2,
+                                    metric: 'CTR',
+                                    message: 'CTRが2.5%以下の1.5%が3日間続いています',
+                                    level: 'medium',
+                                    timestamp: new Date().toISOString()
+                                },
+                                {
+                                    id: 3,
+                                    metric: 'CV',
+                                    message: 'CV数が0件が2日連続で続いています',
+                                    level: 'high',
+                                    timestamp: new Date().toISOString()
+                                },
+                                {
+                                    id: 4,
+                                    metric: 'CPA',
+                                    message: 'CPAが目標の120%を超えた状態が2日間続いています',
+                                    level: 'high',
+                                    timestamp: new Date().toISOString()
+                                }
+                            ];
                         }
-                    ];
+                    } catch (alertCheckError) {
+                        console.error('アラートチェックエラー:', alertCheckError);
+                        // デモデータを使用
+                        currentAlerts = [
+                            { id: 1, metric: '予算消化率', message: '予算消化率が80%以下の65%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
+                            { id: 2, metric: 'CTR', message: 'CTRが2.5%以下の1.5%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
+                            { id: 3, metric: 'CV', message: 'CV数が0件が2日連続で続いています', level: 'high', timestamp: new Date().toISOString() },
+                            { id: 4, metric: 'CPA', message: 'CPAが目標の120%を超えた状態が2日間続いています', level: 'high', timestamp: new Date().toISOString() }
+                        ];
+                    }
                 }
                 
             } catch (error) {

@@ -416,8 +416,9 @@
 
             const generatedStrategies = [];
             
-            // 重複を防ぐためのメトリック別処理
+            // 重複を防ぐための処理
             const processedMetrics = new Set();
+            const processedActions = new Set(); // アクション重複防止
             
             testAlerts.forEach(alert => {
                 const metric = alert.metric;
@@ -434,15 +435,27 @@
                 items.forEach(item => {
                     const actions = improvements[item.title] || [];
                     if (actions.length > 0) {
-                        generatedStrategies.push({
-                            metric: metric,
-                            alertMessage: alert.message,
-                            alertLevel: alert.level,
-                            timestamp: alert.timestamp,
-                            checklistTitle: item.title,
-                            priority: item.priority,
-                            actions: actions
+                        // 重複しないアクションのみを抽出
+                        const uniqueActions = actions.filter(action => {
+                            const actionKey = `${metric}_${item.title}_${action}`;
+                            if (processedActions.has(actionKey)) {
+                                return false;
+                            }
+                            processedActions.add(actionKey);
+                            return true;
                         });
+                        
+                        if (uniqueActions.length > 0) {
+                            generatedStrategies.push({
+                                metric: metric,
+                                alertMessage: alert.message,
+                                alertLevel: alert.level,
+                                timestamp: alert.timestamp,
+                                checklistTitle: item.title,
+                                priority: item.priority,
+                                actions: uniqueActions
+                            });
+                        }
                     }
                 });
             });
