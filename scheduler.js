@@ -1009,6 +1009,16 @@ async function sendScheduledChatworkNotification(type, data = {}) {
 cron.schedule('0 9 * * *', async () => {
   writeLog('朝9時のデータ取得とレポート送信開始');
   await runBatch(true); // データ取得
+  
+  // アラートチェック実行
+  try {
+    writeLog('アラートチェック開始');
+    const alerts = await checkAllAlerts();
+    writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
+  } catch (error) {
+    writeLog('アラートチェックエラー: ' + error.message);
+  }
+  
   // マルチユーザー日次レポート送信
   try {
     await multiUserSender.sendDailyReportToAllUsers();
@@ -1023,6 +1033,16 @@ cron.schedule('0 9 * * *', async () => {
 cron.schedule('0 12,15,17,19 * * *', async () => {
   writeLog('定期データ取得と更新通知開始');
   await runBatch(false); // データ取得
+  
+  // アラートチェック実行
+  try {
+    writeLog('アラートチェック開始');
+    const alerts = await checkAllAlerts();
+    writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
+  } catch (error) {
+    writeLog('アラートチェックエラー: ' + error.message);
+  }
+  
   // マルチユーザー更新通知送信
   try {
     await multiUserSender.sendUpdateNotificationToAllUsers();
@@ -1043,7 +1063,16 @@ console.log('💬 チャットワーク送信: chatworkAutoSender.js で管理')
 // node scheduler.js で即時実行できるように
 if (require.main === module) {
   writeLog('手動実行開始');
-  runBatch();
+  runBatch().then(async () => {
+    // 手動実行時にもアラートチェックを実行
+    try {
+      writeLog('手動アラートチェック開始');
+      const alerts = await checkAllAlerts();
+      writeLog(`手動アラートチェック完了: ${alerts.length}件のアラート`);
+    } catch (error) {
+      writeLog('手動アラートチェックエラー: ' + error.message);
+    }
+  });
 }
 
 module.exports = { sendTestMessage, runBatch };

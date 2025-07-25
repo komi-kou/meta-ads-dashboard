@@ -205,17 +205,29 @@
         // アラート履歴を取得して表示
         async function loadAlertHistory() {
             try {
-                // まずローカルストレージから読み込み
-                const stored = localStorage.getItem('alert_history');
-                let history = stored ? JSON.parse(stored) : [];
+                // サーバーのAPIから実際のアラート履歴を取得
+                const response = await fetch('/api/alert-history');
+                const apiData = await response.json();
                 
-                // 過去30日分のデータをフィルター
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                let filteredHistory = [];
                 
-                const filteredHistory = history.filter(item => 
-                    new Date(item.timestamp) > thirtyDaysAgo
-                );
+                if (apiData.success && apiData.history) {
+                    filteredHistory = apiData.history;
+                } else if (Array.isArray(apiData)) {
+                    filteredHistory = apiData;
+                } else {
+                    // フォールバック: ローカルストレージから読み込み
+                    const stored = localStorage.getItem('alert_history');
+                    let history = stored ? JSON.parse(stored) : [];
+                    
+                    // 過去30日分のデータをフィルター
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    
+                    filteredHistory = history.filter(item => 
+                        new Date(item.timestamp) > thirtyDaysAgo
+                    );
+                }
                 
                 const historyContent = document.getElementById('history-content');
                 
