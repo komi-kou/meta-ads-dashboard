@@ -872,7 +872,10 @@ app.get('/api/alerts-data', async (req, res) => {
 // アラートデータ取得API（既存）
 app.get('/api/alerts', async (req, res) => {
     try {
+        console.log('Attempting to run checkAllAlerts...');
         const alerts = await checkAllAlerts();
+        console.log('checkAllAlerts succeeded, alerts count:', alerts.length);
+        
         const alertHistory = await getAlertHistory();
         const alertSettings = getAlertSettings();
         
@@ -885,10 +888,32 @@ app.get('/api/alerts', async (req, res) => {
         });
     } catch (error) {
         console.error('アラートデータ取得エラー:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        
+        // フォールバック: エラー時でも基本的な構造を返す
+        try {
+            const alertHistory = await getAlertHistory();
+            const alertSettings = getAlertSettings();
+            
+            res.json({
+                success: false,
+                alerts: [],
+                history: alertHistory,
+                settings: alertSettings,
+                lastCheck: new Date().toISOString(),
+                error: error.message,
+                fallback: true
+            });
+        } catch (fallbackError) {
+            console.error('フォールバック処理も失敗:', fallbackError);
+            res.status(500).json({
+                success: false,
+                alerts: [],
+                history: [],
+                settings: {},
+                error: error.message,
+                fallbackError: fallbackError.message
+            });
+        }
     }
 });
 
