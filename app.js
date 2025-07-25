@@ -2430,16 +2430,27 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
                 metric: alert.metric,
                 message: alert.message,
                 severity: alert.level,
-                timestamp: alert.timestamp
+                timestamp: alert.timestamp,
+                checkItems: alert.checkItems || [],
+                improvements: alert.improvements || {}
             }));
             
-            res.json(formattedHistory);
+            res.json({
+                success: true,
+                history: formattedHistory
+            });
         } else {
-            res.json([]);
+            res.json({
+                success: true,
+                history: []
+            });
         }
     } catch (error) {
         console.error('アラート履歴取得エラー:', error);
-        res.json([]);
+        res.json({
+            success: false,
+            history: []
+        });
     }
 });
 

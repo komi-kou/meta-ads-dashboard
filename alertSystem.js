@@ -173,7 +173,8 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
             case 'below':
                 alertTriggered = checkBelowThreshold(metric, rule, historicalData);
                 if (alertTriggered) {
-                    alertMessage = `${metric}が${rule.threshold}${metric.includes('rate') ? '%' : metric.includes('ctr') ? '%' : ''}以下の状態が${rule.days}日間続いています`;
+                    const currentValue = getMetricValue(historicalData[0], metric);
+                    alertMessage = `${getMetricDisplayName(metric)}が${rule.threshold}${metric.includes('rate') ? '%' : metric.includes('ctr') ? '%' : ''}以下の${currentValue}${metric.includes('rate') ? '%' : metric.includes('ctr') ? '%' : ''}が${rule.days}日間続いています`;
                     severity = 'critical';
                 }
                 break;
@@ -181,7 +182,8 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
             case 'equal':
                 alertTriggered = checkEqualThreshold(metric, rule, historicalData);
                 if (alertTriggered) {
-                    alertMessage = `${metric}が${rule.days}日連続で0です`;
+                    const currentValue = getMetricValue(historicalData[0], metric);
+                    alertMessage = `${getMetricDisplayName(metric)}が${rule.days}日連続で${currentValue}です`;
                     severity = 'critical';
                 }
                 break;
@@ -190,7 +192,8 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
                 alertTriggered = checkAboveThreshold(metric, rule, historicalData);
                 if (alertTriggered) {
                     const metricName = getMetricDisplayName(metric);
-                    alertMessage = `${metricName}が${rule.threshold}${metric.includes('cpm') ? '円' : '円'}以上の状態が${rule.days}日間続いています`;
+                    const currentValue = getMetricValue(historicalData[0], metric);
+                    alertMessage = `${metricName}が${rule.threshold}${metric.includes('cpm') ? '円' : '円'}以上の${currentValue.toLocaleString()}${metric.includes('cpm') ? '円' : '円'}が${rule.days}日間続いています`;
                     severity = 'warning';
                 }
                 break;
@@ -198,7 +201,9 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
             case 'above_baseline':
                 alertTriggered = await checkCPMBaseline(rule, historicalData);
                 if (alertTriggered) {
-                    alertMessage = `CPMがベースラインから+${rule.threshold}円上がった状態が${rule.days}日間続いています`;
+                    const currentCPM = getMetricValue(historicalData[0], 'cpm');
+                    const targetCPM = await getTargetCPM();
+                    alertMessage = `CPMがベースライン（${targetCPM.toLocaleString()}円）から+${rule.threshold}円上がった${currentCPM.toLocaleString()}円が${rule.days}日間続いています`;
                     severity = 'warning';
                 }
                 break;
@@ -206,13 +211,24 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
             case 'above_target':
                 alertTriggered = await checkCPATarget(rule, historicalData);
                 if (alertTriggered) {
-                    alertMessage = `CPAが目標の${rule.threshold}%を超えた状態が${rule.days}日間続いています`;
+                    const currentCPA = getMetricValue(historicalData[0], 'cpa');
+                    const targetCPA = await getTargetCPA();
+                    const thresholdCPA = targetCPA * (rule.threshold / 100);
+                    alertMessage = `CPAが目標の${rule.threshold}%（${thresholdCPA.toLocaleString()}円）を超えた${currentCPA.toLocaleString()}円が${rule.days}日間続いています`;
                     severity = 'critical';
                 }
                 break;
         }
         
         if (alertTriggered) {
+            // 確認事項と改善施策を取得
+            const { checklistRules } = require('./utils/checklistRules');
+            const { improvementStrategiesRules } = require('./utils/improvementStrategiesRules');
+            
+            const metricDisplayName = getMetricDisplayName(metric);
+            const checkItems = checklistRules[metricDisplayName]?.items || [];
+            const improvementStrategies = improvementStrategiesRules[metricDisplayName] || {};
+            
             return {
                 id: `${metric}_${Date.now()}`,
                 metric: metric,
@@ -222,7 +238,9 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
                 threshold: rule.threshold,
                 days: rule.days,
                 triggeredAt: new Date().toISOString(),
-                data: historicalData.slice(0, rule.days)
+                data: historicalData.slice(0, rule.days),
+                checkItems: checkItems,
+                improvements: improvementStrategies
             };
         }
         
@@ -492,7 +510,9 @@ async function saveAlertHistory(alerts) {
                 message: alert.message,
                 level: alert.severity === 'critical' ? 'high' : 'medium',
                 timestamp: alert.triggeredAt,
-                status: 'active'
+                status: 'active',
+                checkItems: alert.checkItems || [],
+                improvements: alert.improvements || {}
             };
             
             history.unshift(historyEntry);

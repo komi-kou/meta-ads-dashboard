@@ -323,8 +323,12 @@
             const generatedChecklist = [];
             
             currentAlerts.forEach(alert => {
-                const items = checklistRules[alert.metric];
-                if (items) {
+                // APIから取得した確認事項を優先使用、なければフォールバック
+                const items = alert.checkItems && alert.checkItems.length > 0 
+                    ? alert.checkItems 
+                    : checklistRules[alert.metric];
+                
+                if (items && items.length > 0) {
                     generatedChecklist.push({
                         metric: alert.metric,
                         alertMessage: alert.message,
