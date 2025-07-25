@@ -198,9 +198,7 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
             case 'above_baseline':
                 alertTriggered = await checkCPMBaseline(rule, historicalData);
                 if (alertTriggered) {
-                    const targetCPM = await getTargetCPM();
-                    const thresholdCPM = targetCPM + rule.threshold;
-                    alertMessage = `CPMが目標${targetCPM.toLocaleString()}円から+${rule.threshold}円上昇し${thresholdCPM.toLocaleString()}円以上の状態が${rule.days}日間続いています`;
+                    alertMessage = `CPMがベースラインから+${rule.threshold}円上がった状態が${rule.days}日間続いています`;
                     severity = 'warning';
                 }
                 break;
@@ -208,9 +206,7 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
             case 'above_target':
                 alertTriggered = await checkCPATarget(rule, historicalData);
                 if (alertTriggered) {
-                    const targetCPA = await getTargetCPA();
-                    const thresholdCPA = Math.round(targetCPA * (rule.threshold / 100));
-                    alertMessage = `CPAが目標${targetCPA.toLocaleString()}円の${rule.threshold}%（${thresholdCPA.toLocaleString()}円）を超えた状態が${rule.days}日間続いています`;
+                    alertMessage = `CPAが目標の${rule.threshold}%を超えた状態が${rule.days}日間続いています`;
                     severity = 'critical';
                 }
                 break;
