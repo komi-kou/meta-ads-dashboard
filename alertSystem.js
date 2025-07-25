@@ -267,15 +267,13 @@ function checkAboveThreshold(metric, rule, historicalData) {
 // CPMベースラインチェック
 async function checkCPMBaseline(rule, historicalData) {
     try {
-        // 過去30日の平均CPMをベースラインとして計算
-        const baselineData = await getHistoricalData(30);
-        const baselineCPM = calculateAverageCPM(baselineData.slice(rule.days));
-        
+        // 設定からの目標CPMを取得
+        const targetCPM = await getTargetCPM();
         const recentData = historicalData.slice(0, rule.days);
         
         return recentData.every(dayData => {
             const currentCPM = getMetricValue(dayData, 'cpm');
-            return currentCPM > (baselineCPM + rule.threshold);
+            return currentCPM > (targetCPM + rule.threshold);
         });
     } catch (error) {
         console.error('CPMベースラインチェックエラー:', error);
@@ -355,15 +353,61 @@ function calculateAverageCPM(data) {
 // 目標CPA取得（設定から）
 async function getTargetCPA() {
     try {
+        // setup.jsonから現在のゴール設定を取得
+        const setupPath = path.join(__dirname, 'config/setup.json');
+        if (fs.existsSync(setupPath)) {
+            const setup = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+            const goalType = setup.goal?.type || 'toC_newsletter';
+            
+            // alertRules.jsからそのゴールタイプのCPA閾値を取得
+            const alertRules = require('./alertRules');
+            const goalRule = alertRules.goals[goalType];
+            
+            if (goalRule && goalRule.rules && goalRule.rules.cpa) {
+                return goalRule.rules.cpa.threshold;
+            }
+        }
+        
+        // フォールバック: settings.jsonから取得
         const settingsPath = path.join(__dirname, 'settings.json');
         if (fs.existsSync(settingsPath)) {
             const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-            return settings.targetCPA || 1000; // デフォルト値
+            return settings.targetCPA || 1000;
         }
     } catch (error) {
         console.error('目標CPA取得エラー:', error);
     }
     return 1000; // デフォルト値
+}
+
+// 目標CPM取得（設定から）
+async function getTargetCPM() {
+    try {
+        // setup.jsonから現在のゴール設定を取得
+        const setupPath = path.join(__dirname, 'config/setup.json');
+        if (fs.existsSync(setupPath)) {
+            const setup = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+            const goalType = setup.goal?.type || 'toC_newsletter';
+            
+            // alertRules.jsからそのゴールタイプのCPM閾値を取得
+            const alertRules = require('./alertRules');
+            const goalRule = alertRules.goals[goalType];
+            
+            if (goalRule && goalRule.rules && goalRule.rules.cpm) {
+                return goalRule.rules.cpm.threshold;
+            }
+        }
+        
+        // フォールバック: settings.jsonから取得
+        const settingsPath = path.join(__dirname, 'settings.json');
+        if (fs.existsSync(settingsPath)) {
+            const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+            return settings.targetCPM || 3000;
+        }
+    } catch (error) {
+        console.error('目標CPM取得エラー:', error);
+    }
+    return 3000; // デフォルト値
 }
 
 // 技術用語を日本語に変換する関数

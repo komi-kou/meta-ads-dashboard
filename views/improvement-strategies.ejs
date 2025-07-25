@@ -416,8 +416,18 @@
 
             const generatedStrategies = [];
             
+            // 重複を防ぐためのメトリック別処理
+            const processedMetrics = new Set();
+            
             testAlerts.forEach(alert => {
                 const metric = alert.metric;
+                
+                // 既に処理済みのメトリックはスキップ
+                if (processedMetrics.has(metric)) {
+                    return;
+                }
+                processedMetrics.add(metric);
+                
                 const items = checklistItems[metric] || [];
                 const improvements = improvementRules[metric] || {};
                 
