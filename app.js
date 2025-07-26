@@ -907,11 +907,24 @@ app.get('/alert-history', requireAuth, async (req, res) => {
 // 確認事項ページ
 app.get('/improvement-tasks', requireAuth, async (req, res) => {
     try {
-        const userId = req.session.userId;
-        const { checkUserAlerts } = require('./alertSystem');
+        console.log('=== 確認事項ページへのアクセス ===');
+        console.log('ユーザーID:', req.session.userId);
         
-        // ユーザーの現在のアラートを取得
-        const alerts = await checkUserAlerts(userId);
+        const userId = req.session.userId;
+        
+        // アラートシステムを安全に読み込み
+        let alerts = [];
+        try {
+            const { checkUserAlerts } = require('./alertSystem');
+            console.log('alertSystem.js を読み込み成功');
+            
+            // ユーザーの現在のアラートを取得
+            alerts = await checkUserAlerts(userId);
+            console.log('取得したアラート数:', alerts.length);
+        } catch (alertError) {
+            console.error('アラートシステム読み込みエラー:', alertError);
+            alerts = [];
+        }
         
         // アラートから確認事項を抽出
         const checkItems = [];
@@ -929,6 +942,9 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
             }
         });
         
+        console.log('確認事項の数:', checkItems.length);
+        console.log('=== 確認事項ページレンダリング開始 ===');
+        
         res.render('improvement-tasks', {
             title: '確認事項 - Meta広告ダッシュボード',
             checkItems: checkItems,
@@ -938,9 +954,28 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
                 name: req.session.userName
             }
         });
+        
+        console.log('=== 確認事項ページレンダリング完了 ===');
     } catch (error) {
         console.error('確認事項ページエラー:', error);
-        res.status(500).send('確認事項の取得に失敗しました');
+        console.error('エラースタック:', error.stack);
+        
+        // フォールバック - 最低限のページを表示
+        try {
+            res.render('improvement-tasks', {
+                title: '確認事項 - Meta広告ダッシュボード',
+                checkItems: [],
+                user: {
+                    id: req.session.userId,
+                    email: req.session.userEmail,
+                    name: req.session.userName
+                },
+                error: 'データの取得中にエラーが発生しました'
+            });
+        } catch (renderError) {
+            console.error('フォールバックレンダリングエラー:', renderError);
+            res.status(500).send('確認事項の取得に失敗しました: ' + error.message);
+        }
     }
 });
 
