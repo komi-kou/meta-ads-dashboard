@@ -2391,31 +2391,36 @@ function getConversionsFromActions(actions) {
     return total;
 }
 
-// ゴール設定から日予算を取得
-function getDailyBudgetFromGoals(userId = null) {
+// ハイブリッド方式で日予算を取得（API優先、ユーザー設定フォールバック）
+function getDailyBudgetFromGoals(userId = null, actualDailyBudget = null) {
     try {
-        console.log('=== getDailyBudgetFromGoals デバッグ ===');
+        console.log('=== ハイブリッド日予算取得 ===');
         console.log('入力userId:', userId);
+        console.log('API取得日予算:', actualDailyBudget);
         
-        // まず実際のユーザー設定を確認
+        // 第1優先: Meta APIから取得した実際の日予算
+        if (actualDailyBudget && actualDailyBudget > 0) {
+            console.log('✅ API取得の日予算を使用:', actualDailyBudget, '円');
+            return actualDailyBudget;
+        }
+        
+        // 第2優先: ユーザー設定の日予算
         if (userId) {
             const userManager = getUserManager();
             const userSettings = userManager.getUserSettings(userId);
             console.log('取得したuserSettings:', userSettings);
             console.log('target_dailyBudgetの値:', userSettings?.target_dailyBudget);
-            console.log('target_dailyBudgetの型:', typeof userSettings?.target_dailyBudget);
             
-            // ユーザー設定の日予算を確実に取得
             if (userSettings && userSettings.target_dailyBudget) {
                 const budget = parseFloat(userSettings.target_dailyBudget);
                 if (!isNaN(budget) && budget > 0) {
-                    console.log('✅ ユーザー設定の日予算を返す:', budget, '円');
+                    console.log('✅ ユーザー設定の日予算を使用:', budget, '円');
                     return budget;
                 }
             }
-        } else {
-            console.log('❌ userIdが未提供');
         }
+        
+        console.log('⚠️ フォールバック処理に移行');
         
         const setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
         const goalType = setupData.goal?.type || '';
@@ -2569,7 +2574,7 @@ function getPurchaseValueFromActions(actions) {
 }
 
 // 実際の期間データ集計
-function aggregateRealPeriodData(dailyData, userId = null) {
+function aggregateRealPeriodData(dailyData, userId = null, actualDailyBudget = null) {
     let totalSpend = 0;
     let totalImpressions = 0;
     let totalClicks = 0;
@@ -2616,11 +2621,23 @@ function aggregateRealPeriodData(dailyData, userId = null) {
         spend: Math.round(totalSpend),
         budgetRate: (() => {
             try {
-                const dailyBudget = getDailyBudgetFromGoals(userId);
-                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * dailyBudget)) * 100) : 0;
+                const dailyBudget = getDailyBudgetFromGoals(userId, actualDailyBudget);
+                const periodBudget = dailyData.length * dailyBudget;
+                const rate = periodBudget > 0 ? ((totalSpend / periodBudget) * 100) : 0;
+                
+                console.log('=== 期間予算消化率計算（ハイブリッド方式） ===');
+                console.log('期間:', dailyData.length, '日');
+                console.log('API取得日予算:', actualDailyBudget, '円');
+                console.log('使用日予算:', dailyBudget, '円');
+                console.log('期間予算:', periodBudget, '円');
+                console.log('合計消費:', totalSpend, '円');
+                console.log('計算式:', totalSpend, '÷', periodBudget, '× 100 =', rate.toFixed(2) + '%');
+                
                 return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
-            } catch {
-                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * 1000)) * 100) : 0;
+            } catch (error) {
+                console.error('期間予算消化率計算エラー:', error);
+                const fallbackBudget = getDailyBudgetFromGoals(userId);
+                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * fallbackBudget)) * 100) : 0;
                 return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
             }
         })(),
@@ -2706,7 +2723,37 @@ async function fetchMetaPeriodDataWithStoredConfig(period, campaignId = null, us
         const data = await response.json();
         if (data.error) throw new Error(`Meta API Error: ${data.error.message}`);
         console.log(`期間データ取得完了: ${data.data.length}日分`);
-        return aggregateRealPeriodData(data.data, userId);
+        
+        // キャンペーン日予算も取得
+        let actualDailyBudget = 0;
+        try {
+            const campaignsUrl = `${baseUrl}/${accountId}/campaigns`;
+            const campaignsParams = new URLSearchParams({
+                access_token: accessToken,
+                fields: 'id,name,status,daily_budget,lifetime_budget',
+                effective_status: ['ACTIVE', 'PAUSED'].join(',')
+            });
+            
+            const campaignsResponse = await fetch(`${campaignsUrl}?${campaignsParams}`);
+            if (campaignsResponse.ok) {
+                const campaignsData = await campaignsResponse.json();
+                
+                if (campaignsData.data && campaignsData.data.length > 0) {
+                    campaignsData.data.forEach(campaign => {
+                        if (campaign.daily_budget) {
+                            actualDailyBudget += parseFloat(campaign.daily_budget) / 100;
+                        } else if (campaign.lifetime_budget) {
+                            actualDailyBudget += (parseFloat(campaign.lifetime_budget) / 100) / 30;
+                        }
+                    });
+                    console.log('期間データ用 実際の日予算合計:', actualDailyBudget + '円');
+                }
+            }
+        } catch (budgetError) {
+            console.error('期間データ用 日予算取得エラー:', budgetError);
+        }
+        
+        return aggregateRealPeriodData(data.data, userId, actualDailyBudget);
     } catch (error) {
         console.error('Meta API期間データエラー:', error);
         throw error;
@@ -2930,20 +2977,40 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
         const formattedHistory = alertHistory.map(alert => {
             let dynamicMessage = alert.message;
             
-            // 予算消化率のメッセージを動的に生成
+            // 予算消化率のメッセージを動的に生成（ハイブリッド方式）
             if (alert.metric === 'budget_rate' && dashboardData) {
                 const budgetRate = dashboardData.budgetRate || 0;
                 const spend = dashboardData.spend || 0;
-                const dailyBudget = userTargets?.dailyBudget ? parseFloat(userTargets.dailyBudget) : 10000;
                 
-                // 実際の日予算があれば、それを使った正確な消化率を計算
-                let actualBudgetRate = budgetRate;
-                let budgetInfo = `日予算: ${dailyBudget.toLocaleString()}円`;
+                // ハイブリッド方式で日予算を決定
+                const apiDailyBudget = dashboardData.actualDailyBudget;
+                const userDailyBudget = userTargets?.dailyBudget ? parseFloat(userTargets.dailyBudget) : null;
                 
-                if (dashboardData.actualDailyBudget && dashboardData.actualDailyBudget > 0) {
-                    actualBudgetRate = (spend / dashboardData.actualDailyBudget * 100).toFixed(2);
-                    budgetInfo = `実際の日予算: ${dashboardData.actualDailyBudget.toLocaleString()}円`;
+                let finalDailyBudget;
+                let budgetSource;
+                
+                if (apiDailyBudget && apiDailyBudget > 0) {
+                    finalDailyBudget = apiDailyBudget;
+                    budgetSource = 'API取得';
+                } else if (userDailyBudget && userDailyBudget > 0) {
+                    finalDailyBudget = userDailyBudget;
+                    budgetSource = 'ユーザー設定';
+                } else {
+                    finalDailyBudget = 10000; // 最終フォールバック
+                    budgetSource = 'デフォルト';
                 }
+                
+                const actualBudgetRate = (spend / finalDailyBudget * 100).toFixed(2);
+                const budgetInfo = `${budgetSource}日予算: ${finalDailyBudget.toLocaleString()}円`;
+                
+                console.log('アラート予算消化率計算:', {
+                    spend,
+                    apiDailyBudget,
+                    userDailyBudget,
+                    finalDailyBudget,
+                    budgetSource,
+                    actualBudgetRate
+                });
                 
                 dynamicMessage = `予算消化率が80%以下の${actualBudgetRate}%が3日間続いています（${budgetInfo}、実際の消化: ${spend.toLocaleString()}円）`;
                 console.log('動的予算消化率メッセージ生成:', dynamicMessage);

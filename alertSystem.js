@@ -236,9 +236,15 @@ async function checkMetricAlert(metric, rule, historicalData, goalType, userId =
                         alertMessage = `CTRが${targetCTR}%以下の${currentValue.toFixed(1)}%が${rule.days}日間続いています`;
                     } else if (metric === 'budget_rate' && userId) {
                         const userSettings = userManager.getUserSettings(userId);
-                        const dailyBudget = userSettings?.target_dailyBudget ? parseInt(userSettings.target_dailyBudget) : null;
-                        if (dailyBudget) {
-                            alertMessage = `予算消化率が80%以下の${currentValue}%が${rule.days}日間続いています（日予算: ${dailyBudget.toLocaleString()}円）`;
+                        const userDailyBudget = userSettings?.target_dailyBudget ? parseInt(userSettings.target_dailyBudget) : null;
+                        
+                        // ハイブリッド方式: 実際のAPI取得日予算があればそれを優先、なければユーザー設定を使用
+                        let finalDailyBudget = userDailyBudget;
+                        let budgetSource = 'ユーザー設定';
+                        
+                        // 注意: ここではAPI取得日予算は利用できないため、ユーザー設定を優先使用
+                        if (finalDailyBudget && finalDailyBudget > 0) {
+                            alertMessage = `予算消化率が80%以下の${currentValue}%が${rule.days}日間続いています（${budgetSource}日予算: ${finalDailyBudget.toLocaleString()}円）`;
                         } else {
                             alertMessage = `予算消化率が80%以下の${currentValue}%が${rule.days}日間続いています`;
                         }
