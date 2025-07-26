@@ -352,7 +352,6 @@
             currentAlerts.forEach((alert, index) => {
                 console.log(`--- アラート ${index + 1} ---`);
                 console.log('メトリック:', alert.metric);
-                console.log('元のID:', alert.id);
                 console.log('alert全体:', alert);
                 console.log('checkItems:', alert.checkItems);
                 console.log('checkItems type:', typeof alert.checkItems);
@@ -360,7 +359,6 @@
                 console.log('checklistRules[metric]:', checklistRules[alert.metric]);
                 console.log('checkItems配列確認:', Array.isArray(alert.checkItems));
                 console.log('checkItems内容詳細:', alert.checkItems);
-                console.log('利用可能なchecklistRulesキー:', Object.keys(checklistRules));
                 
                 // APIから取得した確認事項を優先使用、なければフォールバック
                 let items = [];
@@ -373,22 +371,6 @@
                     // フォールバック: ローカルルールを使用
                     items = checklistRules[alert.metric] || [];
                     console.log(`⚠️ ${alert.metric}: ローカルルールを使用 (${items.length}件)`);
-                    
-                    // さらにフォールバック: alert.checkItemsが空の場合、強制的にローカルルールを使用
-                    if (items.length === 0) {
-                        console.log(`🔄 ${alert.metric}: ローカルルールも空、全てのchecklistRulesを確認`);
-                        console.log('利用可能なchecklistRulesキー:', Object.keys(checklistRules));
-                        console.log('現在のメトリック:', alert.metric);
-                        
-                        // 部分一致で検索
-                        const matchingKey = Object.keys(checklistRules).find(key => 
-                            key.includes(alert.metric) || alert.metric.includes(key)
-                        );
-                        if (matchingKey) {
-                            items = checklistRules[matchingKey] || [];
-                            console.log(`🎯 ${alert.metric}: 部分一致でルール発見 "${matchingKey}" (${items.length}件)`);
-                        }
-                    }
                 }
                 
                 console.log(`${alert.metric} - 使用する確認事項:`, items);
@@ -419,26 +401,7 @@
                         items: checklistItem.items.map(item => item.title || item)
                     });
                 } else {
-                    console.log(`❌ ${alert.metric} の確認事項が見つからない`);
-                    console.log('最終的なitems:', items);
-                    console.log('alert.checkItems:', alert.checkItems);
-                    console.log('checklistRules[alert.metric]:', checklistRules[alert.metric]);
-                    
-                    // 強制的に最低限の確認事項を作成
-                    const fallbackItem = {
-                        metric: alert.metric,
-                        alertMessage: alert.message,
-                        alertLevel: alert.level || alert.severity,
-                        timestamp: alert.timestamp,
-                        items: [{
-                            priority: 1,
-                            title: `${alert.metric}の状況を確認`,
-                            description: `${alert.metric}に関する詳細な確認が必要です`
-                        }]
-                    };
-                    
-                    generatedChecklist.push(fallbackItem);
-                    console.log(`🔧 ${alert.metric}: フォールバック確認事項を追加`);
+                    console.log(`❌ ${alert.metric} の確認事項が見つからない - items:`, items);
                 }
             });
             
