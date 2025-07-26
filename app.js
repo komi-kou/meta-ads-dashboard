@@ -2004,12 +2004,21 @@ function getConversionsFromActions(actions) {
 }
 
 // ゴール設定から日予算を取得
-function getDailyBudgetFromGoals() {
+function getDailyBudgetFromGoals(userId = null) {
     try {
+        // まず実際のユーザー設定を確認
+        if (userId) {
+            const userManager = getUserManager();
+            const userSettings = userManager.getUserSettings(userId);
+            if (userSettings && userSettings.target_dailyBudget) {
+                return parseFloat(userSettings.target_dailyBudget);
+            }
+        }
+        
         const setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
         const goalType = setupData.goal?.type || '';
         
-        // ゴールタイプ別の目標値設定
+        // ゴールタイプ別の目標値設定（フォールバック）
         const goalTargets = {
             toC_newsletter: { '予算消化率': 80, 'CTR': 2.5, 'CV': 1, 'CPA': 2000, '日予算': 1000, 'CPM': 1000 },
             toC_line: { '予算消化率': 80, 'CTR': 2.5, 'CV': 1, 'CPA': 1000, '日予算': 1000, 'CPM': 800 },
@@ -2026,6 +2035,27 @@ function getDailyBudgetFromGoals() {
     } catch (error) {
         console.error('ゴール設定読み込みエラー:', error);
         return 15000; // エラー時はデフォルト値
+    }
+}
+
+// ユーザーの実際の設定値を取得
+function getUserActualTargets(userId) {
+    try {
+        const userManager = getUserManager();
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (userSettings) {
+            return {
+                cpa: parseFloat(userSettings.target_cpa) || null,
+                cpm: parseFloat(userSettings.target_cpm) || null,
+                ctr: parseFloat(userSettings.target_ctr) || null,
+                dailyBudget: parseFloat(userSettings.target_dailyBudget) || null
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('ユーザー設定取得エラー:', error);
+        return null;
     }
 }
 
