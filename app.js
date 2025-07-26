@@ -696,10 +696,7 @@ app.get('/dashboard', requireAuth, async (req, res) => {
   }
 });
 
-// アラートページ表示
-app.get('/alerts', requireAuth, (req, res) => {
-    res.render('alerts');
-});
+// 古い重複エンドポイントを削除済み
 
 // ゴール名取得ヘルパー関数
 function getGoalName(goalType) {
@@ -714,6 +711,27 @@ function getGoalName(goalType) {
     'toB_purchase': 'toB（購入）'
   };
   return goalNames[goalType] || goalType;
+}
+
+// メトリクス表示名取得ヘルパー関数
+function getMetricDisplayName(metric) {
+    switch (metric) {
+        case 'budget_rate':
+            return '予算消化率';
+        case 'daily_budget':
+            return '日予算';
+        case 'ctr':
+            return 'CTR';
+        case 'conversions':
+            return 'CV';
+        case 'cpm':
+            return 'CPM';
+        case 'cpa':
+        case 'cpa_rate':
+            return 'CPA';
+        default:
+            return metric;
+    }
 }
 
 // 古いセットアップルートを削除済み - routes/setup.jsを使用
@@ -815,18 +833,74 @@ const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSy
 // アラート関連のルートを app.js に追加
 
 // アラート内容ページ
-app.get('/alerts', (req, res) => {
-    console.log('アラートページにアクセス');
-    res.render('alerts', {
-        title: 'アラート内容 - Meta広告ダッシュボード'
-    });
+app.get('/alerts', requireAuth, async (req, res) => {
+    try {
+        console.log('アラートページにアクセス - ユーザー:', req.session.userId);
+        
+        const userId = req.session.userId;
+        const { checkUserAlerts } = require('./alertSystem');
+        
+        // ユーザーの現在のアラートを取得
+        const alerts = await checkUserAlerts(userId);
+        console.log('取得したアラート数:', alerts.length);
+        
+        res.render('alerts', {
+            title: 'アラート内容 - Meta広告ダッシュボード',
+            alerts: alerts,
+            user: {
+                id: req.session.userId,
+                email: req.session.userEmail,
+                name: req.session.userName
+            }
+        });
+    } catch (error) {
+        console.error('アラートページエラー:', error);
+        res.render('alerts', {
+            title: 'アラート内容 - Meta広告ダッシュボード',
+            alerts: [],
+            error: 'アラートの取得に失敗しました'
+        });
+    }
 });
 
 // アラート履歴ページ
-app.get('/alert-history', (req, res) => {
-    res.render('alert-history', {
-        title: 'アラート履歴 - Meta広告ダッシュボード'
-    });
+app.get('/alert-history', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { checkUserAlerts } = require('./alertSystem');
+        
+        // ユーザーの現在のアラートを取得（動的生成）
+        const alerts = await checkUserAlerts(userId);
+        
+        // アラート履歴形式に変換
+        const alertHistory = alerts.map(alert => ({
+            id: alert.id,
+            metric: getMetricDisplayName(alert.metric),
+            message: alert.message,
+            level: alert.severity === 'critical' ? 'high' : 'medium',
+            timestamp: alert.triggeredAt || new Date().toISOString(),
+            status: 'active',
+            checkItems: alert.checkItems || [],
+            improvements: alert.improvements || {}
+        }));
+        
+        res.render('alert-history', {
+            title: 'アラート履歴 - Meta広告ダッシュボード',
+            alerts: alertHistory,
+            user: {
+                id: req.session.userId,
+                email: req.session.userEmail,
+                name: req.session.userName
+            }
+        });
+    } catch (error) {
+        console.error('アラート履歴ページエラー:', error);
+        res.render('alert-history', {
+            title: 'アラート履歴 - Meta広告ダッシュボード',
+            alerts: [],
+            error: 'アラート履歴の取得に失敗しました'
+        });
+    }
 });
 
 // 確認事項ページ
@@ -913,6 +987,75 @@ app.get('/improvement-strategies', requireAuth, async (req, res) => {
 // チャットワークテストページ
 app.get('/chatwork-test', requireAuth, (req, res) => {
     res.render('chatwork-test');
+});
+
+// デバッグ用エンドポイント
+app.get('/debug/user-settings/:userId?', requireAuth, (req, res) => {
+    try {
+        const userId = req.params.userId || req.session.userId;
+        console.log('Debug - ユーザーID:', userId);
+        
+        const userSettings = userManager.getUserSettings(userId);
+        
+        res.json({
+            success: true,
+            userId: userId,
+            userSettings: userSettings,
+            sessionUserId: req.session.userId,
+            hasSettings: !!userSettings
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            stack: error.stack
+        });
+    }
+});
+
+app.get('/debug/alert-test/:userId?', requireAuth, async (req, res) => {
+    try {
+        const userId = req.params.userId || req.session.userId;
+        console.log('Debug Alert Test - ユーザーID:', userId);
+        
+        const { checkUserAlerts, getTargetCPA, getTargetCPM } = require('./alertSystem');
+        
+        // 目標値取得テスト
+        const targetCPA = await getTargetCPA(userId);
+        const targetCPM = await getTargetCPM(userId);
+        
+        // アラート生成テスト
+        let alerts = [];
+        let alertError = null;
+        
+        try {
+            alerts = await checkUserAlerts(userId);
+        } catch (error) {
+            alertError = {
+                message: error.message,
+                stack: error.stack
+            };
+        }
+        
+        res.json({
+            success: true,
+            userId: userId,
+            targets: {
+                cpa: targetCPA,
+                cpm: targetCPM
+            },
+            alerts: alerts,
+            alertError: alertError,
+            alertCount: alerts.length
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            stack: error.stack
+        });
+    }
 });
 
 // アラートデータAPI
@@ -1167,33 +1310,44 @@ app.get('/auth/logout', (req, res) => {
 // ダッシュボードデータ取得API
 app.get('/api/dashboard-data', requireAuth, async (req, res) => {
   try {
-    console.log('=== ダッシュボードデータ取得開始 ===');
+    console.log('=== ダッシュボードデータ取得開始（マルチユーザー対応） ===');
     
-    // セットアップデータを読み込み
-    let setupData = null;
-    if (fs.existsSync('./config/setup.json')) {
-      setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
-    }
+    const userId = req.session.userId;
+    console.log('ユーザーID:', userId);
     
-    if (!setupData || !setupData.meta?.accessToken) {
+    // ユーザー設定を取得
+    const userSettings = userManager.getUserSettings(userId);
+    if (!userSettings || !userSettings.meta_access_token || !userSettings.meta_account_id) {
       return res.status(400).json({
         success: false,
-        message: 'Meta広告の設定が完了していません',
+        message: 'Meta広告の設定が完了していません。設定画面で再度設定してください。',
         error: 'SETUP_INCOMPLETE'
       });
     }
     
-    // Meta広告データを取得
-    const metaData = await fetchMetaAdsData(setupData.meta.accessToken, setupData.meta.accountId);
+    console.log('ユーザー設定確認完了:', {
+      hasToken: !!userSettings.meta_access_token,
+      hasAccountId: !!userSettings.meta_account_id,
+      hasCPA: !!userSettings.target_cpa,
+      hasCPM: !!userSettings.target_cpm,
+      hasDailyBudget: !!userSettings.target_dailyBudget
+    });
+    
+    // 今日の日付でMeta広告データを取得
+    const today = new Date().toISOString().split('T')[0];
+    const metaData = await fetchMetaDataWithStoredConfig(today, null, userId);
     
     res.json({
       success: true,
-      data: {
-        campaigns: metaData.campaigns,
-        performance: metaData.performance,
-        insights: metaData.insights,
-        lastUpdate: new Date().toISOString()
-      }
+      data: metaData,
+      user: {
+        targets: {
+          cpa: userSettings.target_cpa,
+          cpm: userSettings.target_cpm,
+          dailyBudget: userSettings.target_dailyBudget
+        }
+      },
+      lastUpdate: new Date().toISOString()
     });
     
   } catch (error) {
@@ -2554,47 +2708,40 @@ app.get('/api/test-meta-connection', requireAuth, async (req, res) => {
 // アラート履歴取得API（ローカルストレージ同期用）
 app.get('/api/alert-history', requireAuth, async (req, res) => {
     try {
-        const fs = require('fs');
-        const path = require('path');
-        const historyPath = path.join(__dirname, 'alert_history.json');
+        const userId = req.session.userId;
+        const { checkUserAlerts } = require('./alertSystem');
         
-        if (fs.existsSync(historyPath)) {
-            const history = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
-            
-            // 過去24時間以内のアラートのみを返す
-            const twentyFourHoursAgo = new Date();
-            twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-            
-            const recentAlerts = history.filter(alert => {
-                const alertTime = new Date(alert.timestamp);
-                return alertTime > twentyFourHoursAgo && alert.status === 'active';
-            });
-            
-            // フロントエンドが期待する形式に変換
-            const formattedHistory = recentAlerts.map(alert => ({
-                metric: alert.metric,
-                message: alert.message,
-                severity: alert.level,
-                timestamp: alert.timestamp,
-                checkItems: alert.checkItems || [],
-                improvements: alert.improvements || {}
-            }));
-            
-            res.json({
-                success: true,
-                history: formattedHistory
-            });
-        } else {
-            res.json({
-                success: true,
-                history: []
-            });
-        }
+        console.log('動的アラート履歴API - ユーザーID:', userId);
+        
+        // ユーザーの現在のアラートを動的生成
+        const alerts = await checkUserAlerts(userId);
+        
+        // API形式に変換
+        const formattedHistory = alerts.map(alert => ({
+            id: alert.id,
+            metric: getMetricDisplayName(alert.metric),
+            message: alert.message,
+            severity: alert.severity === 'critical' ? 'high' : 'medium',
+            timestamp: alert.triggeredAt || new Date().toISOString(),
+            checkItems: alert.checkItems || [],
+            improvements: alert.improvements || {}
+        }));
+        
+        console.log('生成されたアラート数:', formattedHistory.length);
+        
+        res.json({
+            success: true,
+            history: formattedHistory,
+            generatedAt: new Date().toISOString(),
+            source: 'dynamic'
+        });
+        
     } catch (error) {
-        console.error('アラート履歴取得エラー:', error);
+        console.error('動的アラート履歴取得エラー:', error);
         res.json({
             success: false,
-            history: []
+            history: [],
+            error: error.message
         });
     }
 });

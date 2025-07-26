@@ -3,6 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const { metaApi } = require('./metaApi');
 const { sendChatworkNotification } = require('./chatworkApi');
+const UserManager = require('./userManager');
+
+// UserManagerのインスタンスを作成
+const userManager = new UserManager();
 
 // アラートルール定義
 const ALERT_RULES = {
@@ -137,7 +141,7 @@ async function checkAllAlerts() {
         
         // 各ルールをチェック
         for (const [metric, rule] of Object.entries(rules)) {
-            const alertResult = await checkMetricAlert(metric, rule, historicalData, currentGoal);
+            const alertResult = await checkMetricAlert(metric, rule, historicalData, currentGoal, null);
             if (alertResult) {
                 alerts.push(alertResult);
             }
@@ -160,30 +164,102 @@ async function checkAllAlerts() {
     }
 }
 
+// ユーザー固有のアラートチェック実行
+async function checkUserAlerts(userId) {
+    console.log(`=== ユーザー${userId}のアラートチェック開始 ===`);
+    
+    try {
+        const userSettings = userManager.getUserSettings(userId);
+        if (!userSettings) {
+            console.log('ユーザー設定が見つかりません:', userId);
+            return [];
+        }
+        
+        // デフォルトのルール（toC_newsletter）を使用
+        const rules = ALERT_RULES['toC_newsletter'] || ALERT_RULES['toC_メルマガ登録'];
+        
+        if (!rules) {
+            console.log('アラートルールが見つかりません');
+            return [];
+        }
+        
+        const alerts = [];
+        
+        // 過去のデータを取得（必要な日数分）
+        const maxDays = Math.max(...Object.values(rules).map(rule => rule.days));
+        const historicalData = await getHistoricalData(maxDays);
+        
+        // 各ルールをチェック（ユーザーIDを渡す）
+        for (const [metric, rule] of Object.entries(rules)) {
+            const alertResult = await checkMetricAlert(metric, rule, historicalData, 'toC_newsletter', userId);
+            if (alertResult) {
+                alerts.push({
+                    ...alertResult,
+                    userId: userId
+                });
+            }
+        }
+        
+        console.log(`ユーザー${userId}のアラートチェック完了: ${alerts.length}件のアラート`);
+        return alerts;
+        
+    } catch (error) {
+        console.error(`ユーザー${userId}のアラートチェックエラー:`, error);
+        return [];
+    }
+}
+
 // 個別メトリックのアラートチェック
-async function checkMetricAlert(metric, rule, historicalData, goalType) {
+async function checkMetricAlert(metric, rule, historicalData, goalType, userId = null) {
     console.log(`${metric}のアラートチェック中...`);
     
     try {
+        // 履歴データが不十分な場合はスキップ
+        if (!historicalData || historicalData.length < rule.days) {
+            console.log(`${metric}: 履歴データが不十分です (必要: ${rule.days}日, 実際: ${historicalData ? historicalData.length : 0}日)`);
+            return null;
+        }
+        
         let alertTriggered = false;
         let alertMessage = '';
         let severity = 'warning';
         
         switch (rule.operator) {
             case 'below':
-                alertTriggered = checkBelowThreshold(metric, rule, historicalData);
+                alertTriggered = await checkBelowThresholdDynamic(metric, rule, historicalData, userId);
                 if (alertTriggered) {
                     const currentValue = getMetricValue(historicalData[0], metric);
-                    alertMessage = `${getMetricDisplayName(metric)}が${rule.threshold}${metric.includes('rate') ? '%' : metric.includes('ctr') ? '%' : ''}以下の${currentValue}${metric.includes('rate') ? '%' : metric.includes('ctr') ? '%' : ''}が${rule.days}日間続いています`;
+                    
+                    if (metric === 'ctr' && userId) {
+                        const userSettings = userManager.getUserSettings(userId);
+                        const targetCTR = userSettings?.target_ctr ? parseFloat(userSettings.target_ctr) : rule.threshold;
+                        alertMessage = `CTRが${targetCTR}%以下の${currentValue.toFixed(1)}%が${rule.days}日間続いています`;
+                    } else if (metric === 'budget_rate' && userId) {
+                        const userSettings = userManager.getUserSettings(userId);
+                        const dailyBudget = userSettings?.target_dailyBudget ? parseInt(userSettings.target_dailyBudget) : null;
+                        if (dailyBudget) {
+                            alertMessage = `予算消化率が80%以下の${currentValue}%が${rule.days}日間続いています（日予算: ${dailyBudget.toLocaleString()}円）`;
+                        } else {
+                            alertMessage = `予算消化率が80%以下の${currentValue}%が${rule.days}日間続いています`;
+                        }
+                    } else {
+                        const dynamicThreshold = rule.threshold;
+                        alertMessage = `${getMetricDisplayName(metric)}が${dynamicThreshold}${metric.includes('rate') ? '%' : metric.includes('ctr') ? '%' : ''}以下の${currentValue}${metric.includes('rate') ? '%' : metric.includes('ctr') ? '%' : ''}が${rule.days}日間続いています`;
+                    }
                     severity = 'critical';
                 }
                 break;
                 
             case 'equal':
+                // CV=0の場合、API値を使用（閾値は0で固定）
                 alertTriggered = checkEqualThreshold(metric, rule, historicalData);
                 if (alertTriggered) {
                     const currentValue = getMetricValue(historicalData[0], metric);
-                    alertMessage = `${getMetricDisplayName(metric)}が${rule.days}日連続で${currentValue}です`;
+                    if (metric === 'conversions') {
+                        alertMessage = `CV数が${rule.threshold}件以下の${currentValue}件が${rule.days}日間続いています`;
+                    } else {
+                        alertMessage = `${getMetricDisplayName(metric)}が${rule.days}日連続で${currentValue}です`;
+                    }
                     severity = 'critical';
                 }
                 break;
@@ -226,12 +302,30 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
         
         if (alertTriggered) {
             // 確認事項と改善施策を取得
-            const { checklistRules } = require('./utils/checklistRules');
-            const { improvementStrategiesRules } = require('./utils/improvementStrategiesRules');
+            let checkItems = [];
+            let improvementStrategies = {};
             
-            const metricDisplayName = getMetricDisplayName(metric);
-            const checkItems = checklistRules[metricDisplayName]?.items || [];
-            const improvementStrategies = improvementStrategiesRules[metricDisplayName] || {};
+            try {
+                const { checklistRules } = require('./utils/checklistRules');
+                const { improvementStrategiesRules } = require('./utils/improvementStrategiesRules');
+                
+                const metricDisplayName = getMetricDisplayName(metric);
+                checkItems = checklistRules[metricDisplayName]?.items || [];
+                improvementStrategies = improvementStrategiesRules[metricDisplayName] || {};
+            } catch (error) {
+                console.error('確認事項・改善施策の読み込みエラー:', error);
+                // デフォルトのダミーデータを使用
+                checkItems = [
+                    {
+                        priority: 1,
+                        title: 'メトリクス確認',
+                        description: '指標の詳細分析が必要です'
+                    }
+                ];
+                improvementStrategies = {
+                    'メトリクス確認': ['データを詳しく分析してください']
+                };
+            }
             
             return {
                 id: `${metric}_${Date.now()}`,
@@ -264,6 +358,30 @@ function checkBelowThreshold(metric, rule, historicalData) {
         const value = getMetricValue(dayData, metric);
         return value < rule.threshold;
     });
+}
+
+// 動的閾値での閾値以下チェック
+async function checkBelowThresholdDynamic(metric, rule, historicalData, userId) {
+    try {
+        const relevantData = historicalData.slice(0, rule.days);
+        let threshold = rule.threshold;
+        
+        // CTRの場合、ユーザー設定の目標値を使用
+        if (metric === 'ctr' && userId) {
+            const userSettings = userManager.getUserSettings(userId);
+            if (userSettings && userSettings.target_ctr) {
+                threshold = parseFloat(userSettings.target_ctr);
+            }
+        }
+        
+        return relevantData.every(dayData => {
+            const value = getMetricValue(dayData, metric);
+            return value < threshold;
+        });
+    } catch (error) {
+        console.error(`動的閾値チェックエラー(${metric}):`, error);
+        return checkBelowThreshold(metric, rule, historicalData);
+    }
 }
 
 // 等しいかチェック（CV=0用）
@@ -328,6 +446,11 @@ async function checkCPATarget(rule, historicalData, userId) {
 
 // メトリクス値取得
 function getMetricValue(dayData, metric) {
+    // dayDataがundefinedまたはnullの場合の安全な処理
+    if (!dayData) {
+        return 0;
+    }
+    
     switch (metric) {
         case 'budget_rate':
             return parseFloat(dayData.budgetRate || 0);
@@ -560,6 +683,7 @@ function getAlertSettings() {
 
 module.exports = {
     checkAllAlerts,
+    checkUserAlerts,
     getAlertHistory,
     getAlertSettings,
     getCurrentGoalType
