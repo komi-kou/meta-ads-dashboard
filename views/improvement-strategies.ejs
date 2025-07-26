@@ -520,12 +520,24 @@
                 processedMetrics.add(metric);
                 
                 // APIから取得した確認事項と改善施策を優先使用
-                const items = (alert.checkItems && alert.checkItems.length > 0) 
-                    ? alert.checkItems 
-                    : (checklistItems[metric] || []);
-                const improvements = (alert.improvements && Object.keys(alert.improvements).length > 0)
-                    ? alert.improvements
-                    : (improvementRules[metric] || {});
+                let items = [];
+                let improvements = {};
+                
+                if (alert.checkItems && Array.isArray(alert.checkItems) && alert.checkItems.length > 0) {
+                    items = alert.checkItems;
+                    console.log(`✅ ${metric}: APIのcheckItemsを使用 (${items.length}件)`);
+                } else {
+                    items = checklistItems[metric] || [];
+                    console.log(`⚠️ ${metric}: ローカルchecklistItemsを使用 (${items.length}件)`);
+                }
+                
+                if (alert.improvements && typeof alert.improvements === 'object' && Object.keys(alert.improvements).length > 0) {
+                    improvements = alert.improvements;
+                    console.log(`✅ ${metric}: APIのimprovementsを使用 (${Object.keys(improvements).length}件)`);
+                } else {
+                    improvements = improvementRules[metric] || {};
+                    console.log(`⚠️ ${metric}: ローカルimprovementRulesを使用 (${Object.keys(improvements).length}件)`);
+                }
                 
                 console.log(`${metric} - 確認事項:`, items);
                 console.log(`${metric} - 改善施策:`, improvements);

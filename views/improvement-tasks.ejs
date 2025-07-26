@@ -361,9 +361,17 @@
                 console.log('checkItems内容詳細:', alert.checkItems);
                 
                 // APIから取得した確認事項を優先使用、なければフォールバック
-                const items = (alert.checkItems && alert.checkItems.length > 0) 
-                    ? alert.checkItems 
-                    : (checklistRules[alert.metric] || []);
+                let items = [];
+                
+                // まずAPIから取得したcheckItemsを確認
+                if (alert.checkItems && Array.isArray(alert.checkItems) && alert.checkItems.length > 0) {
+                    items = alert.checkItems;
+                    console.log(`✅ ${alert.metric}: APIのcheckItemsを使用 (${items.length}件)`);
+                } else {
+                    // フォールバック: ローカルルールを使用
+                    items = checklistRules[alert.metric] || [];
+                    console.log(`⚠️ ${alert.metric}: ローカルルールを使用 (${items.length}件)`);
+                }
                 
                 console.log(`${alert.metric} - 使用する確認事項:`, items);
                 console.log(`${alert.metric} - 確認事項数:`, items.length);
@@ -372,22 +380,28 @@
                     checkItemsLength: alert.checkItems ? alert.checkItems.length : 0,
                     checkItemsGreaterThanZero: alert.checkItems && alert.checkItems.length > 0,
                     fallbackRuleExists: !!checklistRules[alert.metric],
-                    fallbackRuleLength: checklistRules[alert.metric] ? checklistRules[alert.metric].length : 0
+                    fallbackRuleLength: checklistRules[alert.metric] ? checklistRules[alert.metric].length : 0,
+                    finalItemsLength: items.length
                 });
                 
+                // アイテムが存在する場合、確認事項を生成
                 if (items && items.length > 0) {
                     const checklistItem = {
                         metric: alert.metric,
                         alertMessage: alert.message,
-                        alertLevel: alert.level,
+                        alertLevel: alert.level || alert.severity,
                         timestamp: alert.timestamp,
                         items: items
                     };
                     
                     generatedChecklist.push(checklistItem);
-                    console.log(`✅ ${alert.metric} の確認事項を追加:`, checklistItem);
+                    console.log(`✅ ${alert.metric} の確認事項を追加:`, {
+                        metric: checklistItem.metric,
+                        itemsCount: checklistItem.items.length,
+                        items: checklistItem.items.map(item => item.title || item)
+                    });
                 } else {
-                    console.log(`❌ ${alert.metric} の確認事項が見つからない`);
+                    console.log(`❌ ${alert.metric} の確認事項が見つからない - items:`, items);
                 }
             });
             

@@ -2724,14 +2724,44 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
             console.log('アラート履歴ファイルが存在しません');
         }
         
-        // 実際のダッシュボードデータを取得
+        // ダッシュボードAPIから正確なデータを取得
         let dashboardData = null;
+        let userTargets = null;
         try {
-            const today = new Date().toISOString().split('T')[0];
-            dashboardData = await fetchMetaDataWithStoredConfig(today, null, userId);
-            console.log('ダッシュボードデータ取得成功:', dashboardData);
+            // ダッシュボードAPIエンドポイントを直接呼び出し
+            const dashboardApiUrl = `http://localhost:${process.env.PORT || 3000}/api/dashboard-data`;
+            const dashboardResponse = await fetch(dashboardApiUrl, {
+                headers: {
+                    'Cookie': `connect.sid=${req.sessionID}`
+                }
+            });
+            
+            if (dashboardResponse.ok) {
+                const dashboardApiData = await dashboardResponse.json();
+                if (dashboardApiData.success) {
+                    dashboardData = dashboardApiData.data;
+                    userTargets = dashboardApiData.user?.targets;
+                    console.log('ダッシュボードAPI取得成功:', {
+                        budgetRate: dashboardData.budgetRate,
+                        spend: dashboardData.spend,
+                        dailyBudget: userTargets?.dailyBudget
+                    });
+                }
+            }
         } catch (error) {
-            console.log('ダッシュボードデータ取得失敗:', error.message);
+            console.log('ダッシュボードAPIから取得失敗、フォールバック:', error.message);
+            // フォールバック: 直接fetchMetaDataWithStoredConfigを呼び出し
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                dashboardData = await fetchMetaDataWithStoredConfig(today, null, userId);
+                const userSettings = userManager.getUserSettings(userId);
+                userTargets = {
+                    dailyBudget: userSettings?.target_dailyBudget
+                };
+                console.log('フォールバックでダッシュボードデータ取得成功:', dashboardData);
+            } catch (fallbackError) {
+                console.log('フォールバックも失敗:', fallbackError.message);
+            }
         }
 
         // API応答形式に変換（checkItemsとimprovementsを保持、動的メッセージ生成）
@@ -2742,11 +2772,16 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
             if (alert.metric === 'budget_rate' && dashboardData) {
                 const budgetRate = dashboardData.budgetRate || 0;
                 const spend = dashboardData.spend || 0;
-                const userSettings = userManager.getUserSettings(userId);
-                const dailyBudget = userSettings?.target_dailyBudget ? parseFloat(userSettings.target_dailyBudget) : 10000;
+                const dailyBudget = userTargets?.dailyBudget ? parseFloat(userTargets.dailyBudget) : 10000;
                 
                 dynamicMessage = `予算消化率が80%以下の${budgetRate}%が3日間続いています（日予算: ${dailyBudget.toLocaleString()}円、実際の消化: ${spend.toLocaleString()}円）`;
                 console.log('動的予算消化率メッセージ生成:', dynamicMessage);
+                console.log('予算消化率計算詳細:', {
+                    budgetRate: budgetRate,
+                    spend: spend,
+                    dailyBudget: dailyBudget,
+                    calculation: `${spend} / ${dailyBudget} * 100 = ${(spend / dailyBudget * 100).toFixed(2)}%`
+                });
             }
             
             return {
