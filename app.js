@@ -2724,17 +2724,42 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
             console.log('アラート履歴ファイルが存在しません');
         }
         
-        // API応答形式に変換（checkItemsとimprovementsを保持）
-        const formattedHistory = alertHistory.map(alert => ({
-            id: alert.id,
-            metric: getMetricDisplayName(alert.metric),
-            message: alert.message,
-            level: alert.severity === 'critical' ? 'high' : 'medium',
-            timestamp: alert.triggeredAt || new Date().toISOString(),
-            status: 'active',
-            checkItems: alert.checkItems || [],
-            improvements: alert.improvements || {}
-        }));
+        // 実際のダッシュボードデータを取得
+        let dashboardData = null;
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            dashboardData = await fetchMetaDataWithStoredConfig(today, null, userId);
+            console.log('ダッシュボードデータ取得成功:', dashboardData);
+        } catch (error) {
+            console.log('ダッシュボードデータ取得失敗:', error.message);
+        }
+
+        // API応答形式に変換（checkItemsとimprovementsを保持、動的メッセージ生成）
+        const formattedHistory = alertHistory.map(alert => {
+            let dynamicMessage = alert.message;
+            
+            // 予算消化率のメッセージを動的に生成
+            if (alert.metric === 'budget_rate' && dashboardData) {
+                const budgetRate = dashboardData.budgetRate || 0;
+                const spend = dashboardData.spend || 0;
+                const userSettings = userManager.getUserSettings(userId);
+                const dailyBudget = userSettings?.target_dailyBudget ? parseFloat(userSettings.target_dailyBudget) : 10000;
+                
+                dynamicMessage = `予算消化率が80%以下の${budgetRate}%が3日間続いています（日予算: ${dailyBudget.toLocaleString()}円、実際の消化: ${spend.toLocaleString()}円）`;
+                console.log('動的予算消化率メッセージ生成:', dynamicMessage);
+            }
+            
+            return {
+                id: alert.id,
+                metric: getMetricDisplayName(alert.metric),
+                message: dynamicMessage,
+                level: alert.severity === 'critical' ? 'high' : 'medium',
+                timestamp: alert.triggeredAt || new Date().toISOString(),
+                status: 'active',
+                checkItems: alert.checkItems || [],
+                improvements: alert.improvements || {}
+            };
+        });
         
         console.log('フォーマット後のアラート数:', formattedHistory.length);
         

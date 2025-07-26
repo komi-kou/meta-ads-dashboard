@@ -168,13 +168,13 @@
     "id": "budget_rate_alert_1753498682287",
     "metric": "budget_rate",
     "type": "toC_newsletter",
-    "message": "予算消化率が80%以下の65%が3日間続いています（日予算: 5,000円）",
+    "message": "予算消化率が80%以下が3日間続いています",
     "severity": "warning",
     "threshold": 80,
     "days": 3,
     "triggeredAt": "2025-07-26T02:58:02.349Z",
     "userId": "test-user-id-123",
-    "userTargetValue": 5000,
+    "userTargetValue": null,
     "checkItems": [
       {
         "priority": 1,
