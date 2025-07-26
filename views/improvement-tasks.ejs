@@ -260,9 +260,17 @@
             console.log('確認事項を生成開始');
             
             try {
+                console.log('=== 確認事項ページ: APIからデータ取得 ===');
+                
                 // 実際のアラート履歴を取得
                 const alertResponse = await fetch('/api/alert-history');
+                console.log('APIレスポンスステータス:', alertResponse.status);
+                
                 const alertData = await alertResponse.json();
+                console.log('APIレスポンス全体:', alertData);
+                console.log('success:', alertData.success);
+                console.log('history存在:', !!alertData.history);
+                console.log('history長さ:', alertData.history ? alertData.history.length : 'undefined');
                 
                 let currentAlerts = [];
                 
@@ -270,13 +278,21 @@
                     // アクティブなアラートのみフィルタ（フィルタリングを削除して全て表示）
                     currentAlerts = alertData.history.slice(0, 10); // 最新10件
                         
-                    console.log('実際のアラート取得:', currentAlerts.length + '件');
+                    console.log('✅ 実際のアラート取得:', currentAlerts.length + '件');
                     console.log('アラートデータ詳細:', currentAlerts.map(a => ({ 
                         metric: a.metric, 
                         checkItems: a.checkItems ? a.checkItems.length : 0,
-                        status: a.status 
+                        status: a.status,
+                        id: a.id
                     })));
-                    console.log('取得したアラート履歴の生データ:', alertData.history);
+                    
+                    // 各アラートのcheckItemsを詳細出力
+                    currentAlerts.forEach((alert, index) => {
+                        console.log(`アラート${index + 1} (${alert.metric}):`, {
+                            checkItems: alert.checkItems,
+                            improvements: alert.improvements
+                        });
+                    });
                 } else {
                     console.log('アクティブアラートなし、デモデータを使用');
                     // デモ用のアラートデータ
