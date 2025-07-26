@@ -2184,13 +2184,11 @@ function aggregateRealPeriodData(dailyData) {
         spend: Math.round(totalSpend),
         budgetRate: (() => {
             try {
-                const config = getMetaApiConfigFromSetup();
-                const dailyBudget = config?.goal?.target_dailyBudget || '15000';
-                const budget = parseFloat(dailyBudget);
-                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * budget)) * 100) : 0;
+                const dailyBudget = getDailyBudgetFromGoals();
+                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * dailyBudget)) * 100) : 0;
                 return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
             } catch {
-                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * 15000)) * 100) : 0;
+                const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * 1000)) * 100) : 0;
                 return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
             }
         })(),
@@ -2213,13 +2211,12 @@ function aggregateRealPeriodData(dailyData) {
 
 // 予算消化率計算
 function calculateBudgetRate(spend, selectedDate) {
-    // 実際の日予算を設定（例：20,000円）
-    const dailyBudget = 20000;
+    const dailyBudget = getDailyBudgetFromGoals();
     return ((parseFloat(spend) / dailyBudget) * 100).toFixed(2);
 }
 
 function calculateBudgetRateForPeriod(totalSpend, days) {
-    const dailyBudget = 20000;
+    const dailyBudget = getDailyBudgetFromGoals();
     const periodBudget = dailyBudget * days;
     return ((totalSpend / periodBudget) * 100).toFixed(2);
 }

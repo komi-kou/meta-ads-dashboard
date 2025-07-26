@@ -2,9 +2,9 @@
   {
     "id": "cpa_rate_today_test",
     "metric": "CPA",
-    "message": "CPAが目標の120%（2,400円）を超えた2,800円が2日間続いています",
+    "message": "CPAが目標の120%（2,400円）を超えた12,000円が2日間続いています",
     "level": "high",
-    "timestamp": "2025-07-25T00:00:01.973Z",
+    "timestamp": "2025-07-26T12:00:01.973Z",
     "status": "active",
     "checkItems": [
       {
@@ -56,7 +56,7 @@
     "metric": "予算消化率",
     "message": "予算消化率が80%以下の65%が3日間続いています",
     "level": "medium",
-    "timestamp": "2025-07-25T00:00:01.972Z",
+    "timestamp": "2025-07-26T11:00:01.972Z",
     "status": "active",
     "checkItems": [
       {
@@ -95,7 +95,7 @@
     "metric": "CTR",
     "message": "CTRが2.5%以下の1.8%が3日間続いています",
     "level": "medium",
-    "timestamp": "2025-07-25T00:00:01.971Z",
+    "timestamp": "2025-07-26T10:00:01.971Z",
     "status": "active",
     "checkItems": [
       {
@@ -134,7 +134,7 @@
     "metric": "CV",
     "message": "CV数が1件以下の0件が続いています",
     "level": "high",
-    "timestamp": "2025-07-25T00:00:01.970Z",
+    "timestamp": "2025-07-26T09:00:01.970Z",
     "status": "active",
     "checkItems": [
       {
