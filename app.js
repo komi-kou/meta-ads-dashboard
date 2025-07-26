@@ -2351,8 +2351,8 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
     const conversions = getConversionsFromActions(insights.actions);
     const cpa = conversions > 0 ? spend / conversions : 0;
     
-    // 実際の日予算を優先使用、0の場合はフォールバック
-    const dailyBudget = actualDailyBudget > 0 ? actualDailyBudget : getDailyBudgetFromGoals(userId);
+    // ハイブリッド方式で日予算を取得（API優先、ユーザー設定フォールバック）
+    const dailyBudget = getDailyBudgetFromGoals(userId, actualDailyBudget);
     const budgetRate = dailyBudget > 0 ? (spend / dailyBudget) * 100 : 0;
     
     console.log('=== 予算消化率計算（実際の日予算使用） ===');

@@ -683,19 +683,29 @@
             try {
                 console.log('アラートデータ読み込み開始');
                 
-                // 実際のアラート履歴APIから取得
-                try {
-                    const alertResponse = await fetch('/api/alert-history');
-                    const alertData = await alertResponse.json();
+                // サーバーから統一されたアラートを取得（alertSystem.js使用）
+                console.log('統一アラートシステムからアラート取得...');
+                const serverAlerts = <%- JSON.stringify(alerts || []) %>;
+                console.log('サーバーアラート数:', serverAlerts.length);
+                
+                if (serverAlerts && serverAlerts.length > 0) {
+                    console.log('✅ alertSystem.jsから生成されたアラートを使用');
+                    // alertSystem.jsのアラート形式を標準形式に変換
+                    const standardizedAlerts = serverAlerts.map(alert => ({
+                        id: alert.id,
+                        metric: alert.metric,
+                        message: alert.message,
+                        level: alert.severity === 'critical' ? 'high' : 'medium',
+                        timestamp: alert.triggeredAt || new Date().toISOString(),
+                        checkItems: alert.checkItems || [],
+                        improvements: alert.improvements || {}
+                    }));
                     
-                    if (alertData.success && alertData.history && alertData.history.length > 0) {
-                        console.log('アラート履歴APIから取得成功:', alertData.history.length + '件');
-                        updateAlertDisplay(alertData.history.slice(0, 10)); // 最新10件表示
-                        updateStatus(alertData.history, alertData.generatedAt);
-                        return;
-                    }
-                } catch (apiError) {
-                    console.warn('アラート履歴APIからの取得失敗、フォールバック処理実行:', apiError);
+                    updateAlertDisplay(standardizedAlerts);
+                    updateStatus(standardizedAlerts, new Date());
+                    return;
+                } else {
+                    console.log('⚠️ サーバーアラートが空 - アラートなし状態を表示');
                 }
                 
                 // フォールバック: クライアントサイドでアラート生成
