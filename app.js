@@ -2823,25 +2823,28 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
             if (alert.metric === 'budget_rate' && dashboardData) {
                 const budgetRate = dashboardData.budgetRate || 0;
                 const spend = dashboardData.spend || 0;
-                const dailyBudget = userTargets?.dailyBudget ? parseFloat(userTargets.dailyBudget) : 10000;
                 
-                // 実際の日予算があれば、それを使った正確な消化率を計算
-                let actualBudgetRate = budgetRate;
-                let budgetInfo = `日予算: ${dailyBudget.toLocaleString()}円`;
-                
-                if (dashboardData.actualDailyBudget && dashboardData.actualDailyBudget > 0) {
-                    actualBudgetRate = (spend / dashboardData.actualDailyBudget * 100).toFixed(2);
-                    budgetInfo = `実際の日予算: ${dashboardData.actualDailyBudget.toLocaleString()}円`;
+                // Meta APIから取得した実際の日予算を取得
+                // 現在のconvertInsightsToMetricsWithActualBudget関数内で実際の日予算が計算されているので、
+                // その結果から逆算して実際の日予算を求める
+                let actualDailyBudget = 0;
+                if (budgetRate > 0 && spend > 0) {
+                    actualDailyBudget = Math.round(spend / (budgetRate / 100));
                 }
                 
-                dynamicMessage = `予算消化率が80%以下の${actualBudgetRate}%が3日間続いています（${budgetInfo}、実際の消化: ${spend.toLocaleString()}円）`;
+                if (actualDailyBudget > 0) {
+                    dynamicMessage = `予算消化率が80%以下の${budgetRate.toFixed(1)}%が3日間続いています（日予算: ${actualDailyBudget.toLocaleString()}円、実際の消化: ${spend.toLocaleString()}円）`;
+                } else {
+                    // フォールバック: 日予算が取得できない場合
+                    dynamicMessage = `予算消化率が80%以下の${budgetRate.toFixed(1)}%が3日間続いています（実際の消化: ${spend.toLocaleString()}円）`;
+                }
+                
                 console.log('動的予算消化率メッセージ生成:', dynamicMessage);
                 console.log('予算消化率計算詳細:', {
-                    originalBudgetRate: budgetRate,
-                    actualBudgetRate: actualBudgetRate,
+                    budgetRate: budgetRate,
                     spend: spend,
-                    dailyBudget: dailyBudget,
-                    actualDailyBudget: dashboardData.actualDailyBudget
+                    calculatedDailyBudget: actualDailyBudget,
+                    message: dynamicMessage
                 });
             }
             
@@ -2857,11 +2860,21 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
             };
             
             // デバッグ: 確認事項データの確認
+            console.log(`🔍 ${formattedAlert.metric} (ID: ${alert.id}):`, {
+                originalMetric: alert.metric,
+                formattedMetric: formattedAlert.metric,
+                checkItemsExist: !!alert.checkItems,
+                checkItemsLength: alert.checkItems ? alert.checkItems.length : 0,
+                checkItemsType: typeof alert.checkItems,
+                checkItemsArray: Array.isArray(alert.checkItems)
+            });
+            
             if (alert.checkItems && alert.checkItems.length > 0) {
                 console.log(`✅ ${formattedAlert.metric}: checkItems存在 (${alert.checkItems.length}件)`);
                 console.log('checkItems詳細:', alert.checkItems.map(item => item.title || item));
             } else {
                 console.log(`❌ ${formattedAlert.metric}: checkItemsが空またはundefined`);
+                console.log('実際のcheckItems:', alert.checkItems);
             }
             
             return formattedAlert;

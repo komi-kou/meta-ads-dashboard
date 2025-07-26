@@ -751,7 +751,19 @@
             
             const updates = [
                 { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
-                { selector: '[data-metric="budget-rate"]', value: `${parseFloat(data.budgetRate).toFixed(1)}` },
+                { selector: '[data-metric="budget-rate"]', value: () => {
+                    // 実際の日予算があれば再計算、なければAPIの値を使用
+                    if (data.actualDailyBudget && data.actualDailyBudget > 0 && data.spend) {
+                        const actualRate = (data.spend / data.actualDailyBudget * 100);
+                        console.log('ダッシュボード予算消化率再計算:', {
+                            spend: data.spend,
+                            actualDailyBudget: data.actualDailyBudget,
+                            calculatedRate: actualRate.toFixed(1)
+                        });
+                        return actualRate.toFixed(1);
+                    }
+                    return parseFloat(data.budgetRate).toFixed(1);
+                }() },
                 { selector: '[data-metric="ctr"]', value: `${parseFloat(data.ctr).toFixed(1)}` },
                 { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },
                 { selector: '[data-metric="conversions"]', value: data.conversions },
