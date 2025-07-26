@@ -2246,15 +2246,17 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
         const insights = data.data[0];
         console.log('✅ Meta広告データ取得成功:', insights);
         
-        // まず、アクティブなキャンペーンから実際の日予算を取得
+        // アクティブなキャンペーンと広告セットから実際の日予算を取得
         let actualDailyBudget = 0;
         try {
-            console.log('🔍 実際の日予算を取得中...');
+            console.log('🔍 実際の日予算を取得中（キャンペーン＋広告セット）...');
+            
+            // 1. キャンペーンレベルの日予算を取得
             const campaignsUrl = `${baseUrl}/${config.accountId}/campaigns`;
             const campaignsParams = new URLSearchParams({
                 access_token: config.accessToken,
                 fields: 'id,name,status,daily_budget,lifetime_budget',
-                effective_status: ['ACTIVE', 'PAUSED'].join(',')
+                effective_status: JSON.stringify(['ACTIVE', 'PAUSED'])
             });
             
             const campaignsResponse = await fetch(`${campaignsUrl}?${campaignsParams}`);
@@ -2265,16 +2267,44 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
                 if (campaignsData.data && campaignsData.data.length > 0) {
                     campaignsData.data.forEach(campaign => {
                         if (campaign.daily_budget) {
-                            // Meta APIは cents で返すので円に変換
                             actualDailyBudget += parseFloat(campaign.daily_budget) / 100;
                         } else if (campaign.lifetime_budget) {
-                            // ライフタイム予算の場合は簡易的に30日で割る
                             actualDailyBudget += (parseFloat(campaign.lifetime_budget) / 100) / 30;
                         }
                     });
-                    console.log('✅ 実際の日予算合計:', actualDailyBudget + '円');
                 }
             }
+            
+            // 2. 広告セットレベルの日予算を取得
+            const adsetsUrl = `${baseUrl}/${config.accountId}/adsets`;
+            const adsetsParams = new URLSearchParams({
+                access_token: config.accessToken,
+                fields: 'id,name,status,daily_budget,lifetime_budget',
+                effective_status: JSON.stringify(['ACTIVE', 'PAUSED'])
+            });
+            
+            const adsetsResponse = await fetch(`${adsetsUrl}?${adsetsParams}`);
+            if (adsetsResponse.ok) {
+                const adsetsData = await adsetsResponse.json();
+                console.log('広告セットデータ取得:', adsetsData);
+                
+                if (adsetsData.data && adsetsData.data.length > 0) {
+                    adsetsData.data.forEach(adset => {
+                        if (adset.daily_budget) {
+                            // Meta APIはcentsで返すので円に変換（日本の場合は1:1）
+                            const dailyBudgetYen = parseFloat(adset.daily_budget);
+                            actualDailyBudget += dailyBudgetYen;
+                            console.log(`広告セット "${adset.name}": ${dailyBudgetYen}円/日`);
+                        } else if (adset.lifetime_budget) {
+                            const lifetimeBudgetYen = parseFloat(adset.lifetime_budget) / 30;
+                            actualDailyBudget += lifetimeBudgetYen;
+                            console.log(`広告セット "${adset.name}": ${lifetimeBudgetYen}円/日（ライフタイム予算）`);
+                        }
+                    });
+                }
+            }
+            
+            console.log('✅ 実際の日予算合計（キャンペーン＋広告セット）:', actualDailyBudget + '円');
         } catch (budgetError) {
             console.error('日予算取得エラー:', budgetError);
         }
