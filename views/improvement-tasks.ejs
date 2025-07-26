@@ -255,92 +255,90 @@
             updateLastCheckTime();
         });
 
-        // 確認事項を生成（実際のアラートデータに基づく）
+        // 確認事項を生成（サーバーサイドのcheckItemsを優先使用）
         async function generateChecklist() {
-            console.log('確認事項を生成開始');
+            console.log('=== 確認事項生成開始 ===');
             
-            try {
-                console.log('=== 確認事項ページ: APIからデータ取得 ===');
+            // サーバーサイドで生成されたcheckItemsを使用
+            const serverCheckItems = <%- JSON.stringify(checkItems || []) %>;
+            console.log('サーバーサイドのcheckItems:', serverCheckItems);
+            
+            let currentAlerts = [];
+            
+            // サーバーサイドのcheckItemsが存在する場合は使用
+            if (serverCheckItems && serverCheckItems.length > 0) {
+                console.log('✅ サーバーサイドのcheckItemsを使用:', serverCheckItems.length + '件');
                 
-                // 実際のアラート履歴を取得
-                const alertResponse = await fetch('/api/alert-history');
-                console.log('APIレスポンスステータス:', alertResponse.status);
+                // checkItemsからアラート情報をグループ化
+                const alertGroups = {};
+                serverCheckItems.forEach(item => {
+                    if (!alertGroups[item.metric]) {
+                        alertGroups[item.metric] = {
+                            id: Date.now() + Math.random(),
+                            metric: item.metric,
+                            message: item.message,
+                            level: 'medium',
+                            timestamp: new Date().toISOString(),
+                            checkItems: []
+                        };
+                    }
+                    alertGroups[item.metric].checkItems.push(item);
+                });
                 
-                const alertData = await alertResponse.json();
-                console.log('APIレスポンス全体:', alertData);
-                console.log('success:', alertData.success);
-                console.log('history存在:', !!alertData.history);
-                console.log('history長さ:', alertData.history ? alertData.history.length : 'undefined');
+                currentAlerts = Object.values(alertGroups);
                 
-                let currentAlerts = [];
+            } else {
+                console.log('⚠️ サーバーサイドのcheckItemsがない、APIから取得');
                 
-                if (alertData.success && alertData.history && alertData.history.length > 0) {
-                    // アクティブなアラートのみフィルタ（フィルタリングを削除して全て表示）
-                    currentAlerts = alertData.history.slice(0, 10); // 最新10件
-                        
-                    console.log('✅ 実際のアラート取得:', currentAlerts.length + '件');
-                    console.log('アラートデータ詳細:', currentAlerts.map(a => ({ 
-                        metric: a.metric, 
-                        checkItems: a.checkItems ? a.checkItems.length : 0,
-                        status: a.status,
-                        id: a.id
-                    })));
+                try {
+                    // APIからアラート履歴を取得
+                    const alertResponse = await fetch('/api/alert-history');
+                    const alertData = await alertResponse.json();
                     
-                    // 各アラートのcheckItemsを詳細出力
-                    currentAlerts.forEach((alert, index) => {
-                        console.log(`アラート${index + 1} (${alert.metric}):`, {
-                            checkItems: alert.checkItems,
-                            improvements: alert.improvements
-                        });
-                    });
-                } else {
-                    console.log('アクティブアラートなし、デモデータを使用');
-                    // デモ用のアラートデータ
-                    currentAlerts = [
-                        {
-                            id: 1,
-                            metric: '予算消化率',
-                            message: '予算消化率が80%以下の65%が3日間続いています',
-                            level: 'medium',
-                            timestamp: new Date().toISOString(),
-                            checkItems: []
-                        },
-                        {
-                            id: 2,
-                            metric: 'CTR',
-                            message: 'CTRが2.5%以下の1.5%が3日間続いています',
-                            level: 'medium',
-                            timestamp: new Date().toISOString(),
-                            checkItems: []
-                        },
-                        {
-                            id: 3,
-                            metric: 'CV',
-                            message: 'CV数が0件が2日連続で続いています',
-                            level: 'high',
-                            timestamp: new Date().toISOString(),
-                            checkItems: []
-                        },
-                        {
-                            id: 4,
-                            metric: 'CPA',
-                            message: 'CPAが目標の120%を超えた状態が2日間続いています',
-                            level: 'high',
-                            timestamp: new Date().toISOString(),
-                            checkItems: []
-                        }
-                    ];
+                    if (alertData.success && alertData.history && alertData.history.length > 0) {
+                        currentAlerts = alertData.history.slice(0, 10);
+                        console.log('✅ APIからアラート取得:', currentAlerts.length + '件');
+                    } else {
+                        console.log('❌ APIからのアラート取得失敗、デモデータを使用');
+                        currentAlerts = [
+                            {
+                                id: 1,
+                                metric: '予算消化率',
+                                message: '予算消化率が80%以下の65%が3日間続いています',
+                                level: 'medium',
+                                timestamp: new Date().toISOString(),
+                                checkItems: []
+                            },
+                            {
+                                id: 2,
+                                metric: 'CTR',
+                                message: 'CTRが2.5%以下の1.5%が3日間続いています',
+                                level: 'medium',
+                                timestamp: new Date().toISOString(),
+                                checkItems: []
+                            },
+                            {
+                                id: 3,
+                                metric: 'CV',
+                                message: 'CV数が0件が2日連続で続いています',
+                                level: 'high',
+                                timestamp: new Date().toISOString(),
+                                checkItems: []
+                            },
+                            {
+                                id: 4,
+                                metric: 'CPA',
+                                message: 'CPAが目標の120%を超えた状態が2日間続いています',
+                                level: 'high',
+                                timestamp: new Date().toISOString(),
+                                checkItems: []
+                            }
+                        ];
+                    }
+                } catch (error) {
+                    console.error('アラート取得エラー:', error);
+                    currentAlerts = [];
                 }
-                
-            } catch (error) {
-                console.error('アラート取得エラー:', error);
-                // エラーの場合はデモデータを使用
-                currentAlerts = [
-                    { id: 1, metric: '予算消化率', message: '予算消化率が80%以下の65%が3日間続いています', level: 'medium', timestamp: new Date().toISOString(), checkItems: [] },
-                    { id: 2, metric: 'CTR', message: 'CTRが2.5%以下の1.5%が3日間続いています', level: 'medium', timestamp: new Date().toISOString(), checkItems: [] },
-                    { id: 3, metric: 'CV', message: 'CV数が0件が2日連続で続いています', level: 'high', timestamp: new Date().toISOString(), checkItems: [] },
-                    { id: 4, metric: 'CPA', message: 'CPAが目標の120%を超えた状態が2日間続いています', level: 'high', timestamp: new Date().toISOString(), checkItems: [] }
-                ];
             }
 
             // 確認事項を生成

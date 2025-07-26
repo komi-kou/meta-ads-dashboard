@@ -310,8 +310,33 @@ async function checkMetricAlert(metric, rule, historicalData, goalType, userId =
                 const { improvementStrategiesRules } = require('./utils/improvementStrategiesRules');
                 
                 const metricDisplayName = getMetricDisplayName(metric);
-                checkItems = checklistRules[metricDisplayName]?.items || [];
-                improvementStrategies = improvementStrategiesRules[metricDisplayName] || {};
+                console.log(`=== ${metric} のcheckItems生成デバッグ ===`);
+                console.log('原始メトリック名:', metric);
+                console.log('表示メトリック名:', metricDisplayName);
+                console.log('checklistRulesで利用可能なキー:', Object.keys(checklistRules));
+                console.log(`checklistRules["${metricDisplayName}"]の存在:`, !!checklistRules[metricDisplayName]);
+                console.log('checklistRules[metricDisplayName]の内容:', checklistRules[metricDisplayName]);
+                
+                const ruleData = checklistRules[metricDisplayName];
+                if (ruleData && ruleData.items) {
+                    checkItems = ruleData.items;
+                    console.log('✅ checkItemsを正常に取得:', checkItems.length, '件');
+                } else {
+                    console.log('❌ checkItems取得失敗 - フォールバック使用');
+                    checkItems = [];
+                }
+                
+                try {
+                    improvementStrategies = improvementStrategiesRules[metricDisplayName] || {};
+                } catch (improvementError) {
+                    console.error('改善施策読み込みエラー:', improvementError);
+                    improvementStrategies = {};
+                }
+                
+                console.log('最終checkItems数:', checkItems.length);
+                console.log('最終checkItems内容:', checkItems);
+                console.log('=== checkItems生成デバッグ終了 ===');
+                
             } catch (error) {
                 console.error('確認事項・改善施策の読み込みエラー:', error);
                 // デフォルトのダミーデータを使用
@@ -325,6 +350,7 @@ async function checkMetricAlert(metric, rule, historicalData, goalType, userId =
                 improvementStrategies = {
                     'メトリクス確認': ['データを詳しく分析してください']
                 };
+                console.log('フォールバックcheckItemsを使用:', checkItems.length, '件');
             }
             
             return {

@@ -928,9 +928,21 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
         
         // アラートから確認事項を抽出
         const checkItems = [];
-        alerts.forEach(alert => {
+        console.log('=== 確認事項抽出デバッグ ===');
+        alerts.forEach((alert, index) => {
+            console.log(`アラート${index + 1}:`, {
+                id: alert.id,
+                metric: alert.metric,
+                message: alert.message,
+                hasCheckItems: !!alert.checkItems,
+                checkItemsLength: alert.checkItems ? alert.checkItems.length : 0,
+                checkItems: alert.checkItems
+            });
+            
+            // checkItemsが存在する場合は使用、存在しない場合は直接ルールから取得
             if (alert.checkItems && alert.checkItems.length > 0) {
-                alert.checkItems.forEach(item => {
+                alert.checkItems.forEach((item, itemIndex) => {
+                    console.log(`  - checkItem${itemIndex + 1}:`, item);
                     checkItems.push({
                         metric: alert.metric,
                         message: alert.message,
@@ -939,8 +951,58 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
                         description: item.description
                     });
                 });
+            } else {
+                // checkItemsがない場合、メトリック名から直接確認事項を取得
+                console.log(`  - アラート${index + 1}にcheckItemsがないため、直接ルールから取得`);
+                
+                try {
+                    const { checklistRules } = require('./utils/checklistRules');
+                    const metricDisplayName = getMetricDisplayName(alert.metric);
+                    console.log(`  - メトリック変換: ${alert.metric} -> ${metricDisplayName}`);
+                    
+                    const rules = checklistRules[metricDisplayName];
+                    if (rules && rules.items && rules.items.length > 0) {
+                        console.log(`  - ${metricDisplayName}の確認事項を${rules.items.length}件取得`);
+                        rules.items.forEach((item, itemIndex) => {
+                            checkItems.push({
+                                metric: alert.metric,
+                                message: alert.message,
+                                priority: item.priority || 1,
+                                title: item.title,
+                                description: item.description
+                            });
+                        });
+                    } else {
+                        console.log(`  - ${metricDisplayName}の確認事項ルールが見つからない`);
+                    }
+                } catch (error) {
+                    console.error('  - 確認事項ルール読み込みエラー:', error);
+                }
             }
         });
+        console.log('最終的なcheckItems数:', checkItems.length);
+        console.log('=== 確認事項抽出デバッグ終了 ===');
+
+// getMetricDisplayName関数をここで定義（app.jsで利用できるように）
+function getMetricDisplayName(metric) {
+    switch (metric) {
+        case 'budget_rate':
+            return '予算消化率';
+        case 'daily_budget':
+            return '日予算';
+        case 'ctr':
+            return 'CTR';
+        case 'conversions':
+            return 'CV';
+        case 'cpm':
+            return 'CPM';
+        case 'cpa':
+        case 'cpa_rate':
+            return 'CPA';
+        default:
+            return metric;
+    }
+}
         
         console.log('確認事項の数:', checkItems.length);
         console.log('=== 確認事項ページレンダリング開始 ===');
