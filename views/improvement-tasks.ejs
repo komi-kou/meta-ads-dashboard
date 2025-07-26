@@ -261,7 +261,12 @@
             
             // サーバーサイドで生成されたcheckItemsを使用
             const serverCheckItems = <%- JSON.stringify(checkItems || []) %>;
+            console.log('=== 確認事項ページデバッグ ===');
             console.log('サーバーサイドのcheckItems:', serverCheckItems);
+            console.log('checkItems数:', serverCheckItems ? serverCheckItems.length : 0);
+            
+            // デバッグ用: サーバーから渡されたアラート情報も確認
+            console.log('サーバーから渡されたアラート情報を確認中...');
             
             let currentAlerts = [];
             

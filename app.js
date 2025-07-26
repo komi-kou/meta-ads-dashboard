@@ -843,7 +843,14 @@ app.get('/alerts', requireAuth, async (req, res) => {
         
         // ユーザーの現在のアラートを取得
         const alerts = await checkUserAlerts(userId);
+        console.log('=== /alertsルート詳細ログ ===');
         console.log('取得したアラート数:', alerts.length);
+        console.log('アラート詳細:', alerts.map(alert => ({
+            metric: alert.metric,
+            message: alert.message,
+            checkItemsCount: alert.checkItems ? alert.checkItems.length : 0,
+            improvementsCount: alert.improvements ? Object.keys(alert.improvements).length : 0
+        })));
         
         res.render('alerts', {
             title: 'アラート内容 - Meta広告ダッシュボード',
@@ -920,7 +927,13 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
             
             // ユーザーの現在のアラートを取得
             alerts = await checkUserAlerts(userId);
+            console.log('=== /improvement-tasksルート詳細ログ ===');
             console.log('取得したアラート数:', alerts.length);
+            console.log('アラート詳細:', alerts.map(alert => ({
+                metric: alert.metric,
+                message: alert.message,
+                checkItemsCount: alert.checkItems ? alert.checkItems.length : 0
+            })));
         } catch (alertError) {
             console.error('アラートシステム読み込みエラー:', alertError);
             alerts = [];
@@ -1049,6 +1062,13 @@ app.get('/improvement-strategies', requireAuth, async (req, res) => {
         
         // ユーザーの現在のアラートを取得
         const alerts = await checkUserAlerts(userId);
+        console.log('=== /improvement-strategiesルート詳細ログ ===');
+        console.log('取得したアラート数:', alerts.length);
+        console.log('アラート詳細:', alerts.map(alert => ({
+            metric: alert.metric,
+            message: alert.message,
+            improvementsCount: alert.improvements ? Object.keys(alert.improvements).length : 0
+        })));
         
         // アラートから改善施策を抽出
         const improvements = {};

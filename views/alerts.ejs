@@ -706,23 +706,10 @@
                     return;
                 } else {
                     console.log('⚠️ サーバーアラートが空 - アラートなし状態を表示');
+                    updateAlertDisplay([]);
+                    updateStatus([], new Date());
+                    return; // フォールバック処理を実行しない
                 }
-                
-                // フォールバック: クライアントサイドでアラート生成
-                console.log('クライアントサイドでアラート生成');
-                
-                // まずゴール設定を取得
-                const goals = await loadGoals();
-                
-                // ダッシュボードデータを取得（実際のAPIまたは現在のデータ）
-                const dashboardData = await getDashboardData();
-                
-                // アラートをチェック
-                const currentAlerts = checkForAlerts(dashboardData, goals);
-                
-                // アラート表示を更新
-                updateAlertDisplay(currentAlerts);
-                updateStatus(currentAlerts, new Date());
                 
                 // アラート履歴に追加
                 currentAlerts.forEach(alert => {
