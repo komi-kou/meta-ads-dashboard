@@ -688,26 +688,35 @@
                 const serverAlerts = <%- JSON.stringify(alerts || []) %>;
                 console.log('サーバーアラート数:', serverAlerts.length);
                 
-                if (serverAlerts && serverAlerts.length > 0) {
-                    console.log('✅ alertSystem.jsから生成されたアラートを使用');
-                    // alertSystem.jsのアラート形式を標準形式に変換
-                    const standardizedAlerts = serverAlerts.map(alert => ({
-                        id: alert.id,
-                        metric: alert.metric,
-                        message: alert.message,
-                        level: alert.severity === 'critical' ? 'high' : 'medium',
-                        timestamp: alert.triggeredAt || new Date().toISOString(),
-                        checkItems: alert.checkItems || [],
-                        improvements: alert.improvements || {}
-                    }));
-                    
-                    updateAlertDisplay(standardizedAlerts);
-                    updateStatus(standardizedAlerts, new Date());
-                    return;
+                if (serverAlerts !== null && serverAlerts !== undefined) {
+                    if (serverAlerts.length > 0) {
+                        console.log('✅ alertSystem.jsから生成されたアラートを使用');
+                        // alertSystem.jsのアラート形式を標準形式に変換
+                        const standardizedAlerts = serverAlerts.map(alert => ({
+                            id: alert.id,
+                            metric: alert.metric,
+                            message: alert.message,
+                            level: alert.severity === 'critical' ? 'high' : 'medium',
+                            timestamp: alert.triggeredAt || new Date().toISOString(),
+                            checkItems: alert.checkItems || [],
+                            improvements: alert.improvements || {}
+                        }));
+                        
+                        updateAlertDisplay(standardizedAlerts);
+                        updateStatus(standardizedAlerts, new Date());
+                        return;
+                    } else {
+                        console.log('✅ サーバーから空のアラート - アラートなし状態表示');
+                        // alertSystem.jsの厳密な判定に従い、アラートなし状態を表示
+                        updateAlertDisplay([]);
+                        updateStatus([], new Date());
+                        return;
+                    }
                 } else {
-                    console.log('⚠️ サーバーアラートが空 - 注意アラートを生成');
-                    // フォールバック処理: 実際のデータに基づいて注意アラートを生成
-                    await generateFallbackAlerts();
+                    console.log('⚠️ サーバーアラートが未定義 - アラートなし状態表示');
+                    // alertSystem.jsの厳密な判定に従い、アラートなし状態を表示
+                    updateAlertDisplay([]);
+                    updateStatus([], new Date());
                     return;
                 }
                 

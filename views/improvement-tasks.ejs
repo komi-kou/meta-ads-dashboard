@@ -270,27 +270,32 @@
             
             let currentAlerts = [];
             
-            // サーバーサイドのcheckItemsが存在する場合は使用
-            if (serverCheckItems && serverCheckItems.length > 0) {
+            // サーバーサイドのcheckItemsが定義されている場合（空配列含む）は使用
+            if (serverCheckItems !== null && serverCheckItems !== undefined) {
                 console.log('✅ サーバーサイドのcheckItemsを使用:', serverCheckItems.length + '件');
                 
-                // checkItemsからアラート情報をグループ化
-                const alertGroups = {};
-                serverCheckItems.forEach(item => {
-                    if (!alertGroups[item.metric]) {
-                        alertGroups[item.metric] = {
-                            id: Date.now() + Math.random(),
-                            metric: item.metric,
-                            message: item.message,
-                            level: 'medium',
-                            timestamp: new Date().toISOString(),
-                            checkItems: []
-                        };
-                    }
-                    alertGroups[item.metric].checkItems.push(item);
-                });
-                
-                currentAlerts = Object.values(alertGroups);
+                if (serverCheckItems.length > 0) {
+                    // checkItemsからアラート情報をグループ化
+                    const alertGroups = {};
+                    serverCheckItems.forEach(item => {
+                        if (!alertGroups[item.metric]) {
+                            alertGroups[item.metric] = {
+                                id: Date.now() + Math.random(),
+                                metric: item.metric,
+                                message: item.message,
+                                level: 'medium',
+                                timestamp: new Date().toISOString(),
+                                checkItems: []
+                            };
+                        }
+                        alertGroups[item.metric].checkItems.push(item);
+                    });
+                    
+                    currentAlerts = Object.values(alertGroups);
+                } else {
+                    console.log('✅ サーバーから空のcheckItems - アラートなし状態');
+                    currentAlerts = [];
+                }
                 
             } else {
                 console.log('⚠️ サーバーサイドのcheckItemsがない、APIから取得');
