@@ -199,20 +199,24 @@ async function checkMetricAlert(metric, rule, historicalData, goalType) {
                 break;
                 
             case 'above_baseline':
-                alertTriggered = await checkCPMBaseline(rule, historicalData);
+                alertTriggered = await checkCPMBaseline(rule, historicalData, userId);
                 if (alertTriggered) {
                     const currentCPM = getMetricValue(historicalData[0], 'cpm');
-                    const targetCPM = await getTargetCPM();
-                    alertMessage = `CPMがベースライン（${targetCPM.toLocaleString()}円）から+${rule.threshold}円上がった${currentCPM.toLocaleString()}円が${rule.days}日間続いています`;
+                    const targetCPM = await getTargetCPM(userId);
+                    if (targetCPM === null) return null; // 設定がない場合はスキップ
+                    const upperLimit = targetCPM + rule.threshold;
+                    const lowerLimit = targetCPM - rule.threshold;
+                    alertMessage = `CPMが目標範囲（${lowerLimit.toLocaleString()}～${upperLimit.toLocaleString()}円）を超えた${currentCPM.toLocaleString()}円が${rule.days}日間続いています`;
                     severity = 'warning';
                 }
                 break;
                 
             case 'above_target':
-                alertTriggered = await checkCPATarget(rule, historicalData);
+                alertTriggered = await checkCPATarget(rule, historicalData, userId);
                 if (alertTriggered) {
                     const currentCPA = getMetricValue(historicalData[0], 'cpa');
-                    const targetCPA = await getTargetCPA();
+                    const targetCPA = await getTargetCPA(userId);
+                    if (targetCPA === null) return null; // 設定がない場合はスキップ
                     const thresholdCPA = targetCPA * (rule.threshold / 100);
                     alertMessage = `CPAが目標の${rule.threshold}%（${thresholdCPA.toLocaleString()}円）を超えた${currentCPA.toLocaleString()}円が${rule.days}日間続いています`;
                     severity = 'critical';
@@ -283,15 +287,18 @@ function checkAboveThreshold(metric, rule, historicalData) {
 }
 
 // CPMベースラインチェック
-async function checkCPMBaseline(rule, historicalData) {
+async function checkCPMBaseline(rule, historicalData, userId) {
     try {
-        // 設定からの目標CPMを取得
-        const targetCPM = await getTargetCPM();
+        // ユーザー設定からの目標CPMを取得
+        const targetCPM = await getTargetCPM(userId);
+        if (targetCPM === null) return false; // 設定がない場合はスキップ
+        
         const recentData = historicalData.slice(0, rule.days);
         
         return recentData.every(dayData => {
             const currentCPM = getMetricValue(dayData, 'cpm');
-            return currentCPM > (targetCPM + rule.threshold);
+            // ±500円の範囲外かチェック
+            return currentCPM > (targetCPM + rule.threshold) || currentCPM < (targetCPM - rule.threshold);
         });
     } catch (error) {
         console.error('CPMベースラインチェックエラー:', error);
@@ -300,9 +307,11 @@ async function checkCPMBaseline(rule, historicalData) {
 }
 
 // CPA目標チェック
-async function checkCPATarget(rule, historicalData) {
+async function checkCPATarget(rule, historicalData, userId) {
     try {
-        const targetCPA = await getTargetCPA();
+        const targetCPA = await getTargetCPA(userId);
+        if (targetCPA === null) return false; // 設定がない場合はスキップ
+        
         const thresholdCPA = targetCPA * (rule.threshold / 100);
         
         const recentData = historicalData.slice(0, rule.days);
@@ -368,82 +377,42 @@ function calculateAverageCPM(data) {
     return totalCPM / data.length;
 }
 
-// 目標CPA取得（設定から）
-async function getTargetCPA() {
+// 目標CPA取得（ユーザー設定から）
+async function getTargetCPA(userId) {
     try {
-        // setup.jsonから現在のゴール設定を取得
-        const setupPath = path.join(__dirname, 'config/setup.json');
-        if (fs.existsSync(setupPath)) {
-            const setup = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
-            const goalType = setup.goal?.type || 'toC_newsletter';
-            
-            // ゴールタイプ別の目標値設定（実際のゴール設定値）
-            const goalTargets = {
-                toC_newsletter: { 'CPA': 2000 },
-                toC_line: { 'CPA': 1000 },
-                toC_phone: { 'CPA': 3000 },
-                toC_purchase: { 'CPA': 5000 },
-                toB_newsletter: { 'CPA': 15000 },
-                toB_line: { 'CPA': 12000 },
-                toB_phone: { 'CPA': 20000 },
-                toB_purchase: { 'CPA': 30000 }
-            };
-            
-            const goals = goalTargets[goalType];
-            if (goals && goals['CPA']) {
-                return goals['CPA'];
+        if (userId) {
+            // ユーザー固有の設定から取得（実際の入力値のみ）
+            const userSettings = userManager.getUserSettings(userId);
+            if (userSettings && userSettings.target_cpa) {
+                return parseFloat(userSettings.target_cpa);
             }
         }
         
-        // フォールバック: settings.jsonから取得
-        const settingsPath = path.join(__dirname, 'settings.json');
-        if (fs.existsSync(settingsPath)) {
-            const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-            return settings.targetCPA || 1000;
-        }
+        console.log('警告: ユーザーのCPA設定が見つかりません:', userId);
+        return null; // 設定がない場合はアラートをスキップ
     } catch (error) {
         console.error('目標CPA取得エラー:', error);
+        return null;
     }
-    return 1000; // デフォルト値
 }
 
-// 目標CPM取得（設定から）
-async function getTargetCPM() {
+// 目標CPM取得（ユーザー設定から）
+async function getTargetCPM(userId) {
     try {
-        // setup.jsonから現在のゴール設定を取得
-        const setupPath = path.join(__dirname, 'config/setup.json');
-        if (fs.existsSync(setupPath)) {
-            const setup = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
-            const goalType = setup.goal?.type || 'toC_newsletter';
-            
-            // ゴールタイプ別の目標値設定（実際のゴール設定値）
-            const goalTargets = {
-                toC_newsletter: { 'CPM': 1000 },
-                toC_line: { 'CPM': 800 },
-                toC_phone: { 'CPM': 1200 },
-                toC_purchase: { 'CPM': 1500 },
-                toB_newsletter: { 'CPM': 2000 },
-                toB_line: { 'CPM': 1800 },
-                toB_phone: { 'CPM': 2500 },
-                toB_purchase: { 'CPM': 3000 }
-            };
-            
-            const goals = goalTargets[goalType];
-            if (goals && goals['CPM']) {
-                return goals['CPM'];
+        if (userId) {
+            // ユーザー固有の設定から取得（実際の入力値のみ）
+            const userSettings = userManager.getUserSettings(userId);
+            if (userSettings && userSettings.target_cpm) {
+                return parseFloat(userSettings.target_cpm);
             }
         }
         
-        // フォールバック: settings.jsonから取得
-        const settingsPath = path.join(__dirname, 'settings.json');
-        if (fs.existsSync(settingsPath)) {
-            const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-            return settings.targetCPM || 3000;
-        }
+        console.log('警告: ユーザーのCPM設定が見つかりません:', userId);
+        return null; // 設定がない場合はアラートをスキップ
     } catch (error) {
         console.error('目標CPM取得エラー:', error);
+        return null;
     }
-    return 3000; // デフォルト値
 }
 
 // 技術用語を日本語に変換する関数

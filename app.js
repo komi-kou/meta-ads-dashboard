@@ -830,17 +830,84 @@ app.get('/alert-history', (req, res) => {
 });
 
 // 確認事項ページ
-app.get('/improvement-tasks', (req, res) => {
-    res.render('improvement-tasks', {
-        title: '確認事項 - Meta広告ダッシュボード'
-    });
+app.get('/improvement-tasks', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { checkUserAlerts } = require('./alertSystem');
+        
+        // ユーザーの現在のアラートを取得
+        const alerts = await checkUserAlerts(userId);
+        
+        // アラートから確認事項を抽出
+        const checkItems = [];
+        alerts.forEach(alert => {
+            if (alert.checkItems && alert.checkItems.length > 0) {
+                alert.checkItems.forEach(item => {
+                    checkItems.push({
+                        metric: alert.metric,
+                        message: alert.message,
+                        priority: item.priority || 1,
+                        title: item.title,
+                        description: item.description
+                    });
+                });
+            }
+        });
+        
+        res.render('improvement-tasks', {
+            title: '確認事項 - Meta広告ダッシュボード',
+            checkItems: checkItems,
+            user: {
+                id: req.session.userId,
+                email: req.session.userEmail,
+                name: req.session.userName
+            }
+        });
+    } catch (error) {
+        console.error('確認事項ページエラー:', error);
+        res.status(500).send('確認事項の取得に失敗しました');
+    }
 });
 
 // 改善施策ページ
-app.get('/improvement-strategies', (req, res) => {
-    res.render('improvement-strategies', {
-        title: '改善施策 - Meta広告ダッシュボード'
-    });
+app.get('/improvement-strategies', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { checkUserAlerts } = require('./alertSystem');
+        
+        // ユーザーの現在のアラートを取得
+        const alerts = await checkUserAlerts(userId);
+        
+        // アラートから改善施策を抽出
+        const improvements = {};
+        alerts.forEach(alert => {
+            if (alert.improvements && Object.keys(alert.improvements).length > 0) {
+                Object.keys(alert.improvements).forEach(key => {
+                    if (!improvements[key]) {
+                        improvements[key] = [];
+                    }
+                    alert.improvements[key].forEach(strategy => {
+                        if (!improvements[key].includes(strategy)) {
+                            improvements[key].push(strategy);
+                        }
+                    });
+                });
+            }
+        });
+        
+        res.render('improvement-strategies', {
+            title: '改善施策 - Meta広告ダッシュボード',
+            improvements: improvements,
+            user: {
+                id: req.session.userId,
+                email: req.session.userEmail,
+                name: req.session.userName
+            }
+        });
+    } catch (error) {
+        console.error('改善施策ページエラー:', error);
+        res.status(500).send('改善施策の取得に失敗しました');
+    }
 });
 
 // チャットワークテストページ
@@ -1927,7 +1994,7 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
         const insights = data.data[0];
         console.log('✅ Meta広告データ取得成功:', insights);
         
-        return convertInsightsToMetrics(insights, selectedDate);
+        return convertInsightsToMetrics(insights, selectedDate, userId);
         
     } catch (error) {
         console.error('Meta API呼び出し失敗:', error.message);
@@ -1958,13 +2025,13 @@ function createZeroMetrics(selectedDate) {
 }
 
 // インサイトデータをメトリクスに変換
-function convertInsightsToMetrics(insights, selectedDate) {
+function convertInsightsToMetrics(insights, selectedDate, userId = null) {
     const spend = parseFloat(insights.spend || 0);
     const conversions = getConversionsFromActions(insights.actions);
     const cpa = conversions > 0 ? spend / conversions : 0;
     
-    // ゴール設定から日予算を取得
-    const dailyBudget = getDailyBudgetFromGoals();
+    // ユーザー設定から日予算を取得
+    const dailyBudget = getDailyBudgetFromGoals(userId);
     const budgetRate = (spend / dailyBudget) * 100;
     
     return {
@@ -2167,7 +2234,7 @@ function getPurchaseValueFromActions(actions) {
 }
 
 // 実際の期間データ集計
-function aggregateRealPeriodData(dailyData) {
+function aggregateRealPeriodData(dailyData, userId = null) {
     let totalSpend = 0;
     let totalImpressions = 0;
     let totalClicks = 0;
@@ -2214,7 +2281,7 @@ function aggregateRealPeriodData(dailyData) {
         spend: Math.round(totalSpend),
         budgetRate: (() => {
             try {
-                const dailyBudget = getDailyBudgetFromGoals();
+                const dailyBudget = getDailyBudgetFromGoals(userId);
                 const rate = dailyData.length > 0 ? ((totalSpend / (dailyData.length * dailyBudget)) * 100) : 0;
                 return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
             } catch {
@@ -2240,13 +2307,13 @@ function aggregateRealPeriodData(dailyData) {
 }
 
 // 予算消化率計算
-function calculateBudgetRate(spend, selectedDate) {
-    const dailyBudget = getDailyBudgetFromGoals();
+function calculateBudgetRate(spend, selectedDate, userId = null) {
+    const dailyBudget = getDailyBudgetFromGoals(userId);
     return ((parseFloat(spend) / dailyBudget) * 100).toFixed(2);
 }
 
-function calculateBudgetRateForPeriod(totalSpend, days) {
-    const dailyBudget = getDailyBudgetFromGoals();
+function calculateBudgetRateForPeriod(totalSpend, days, userId = null) {
+    const dailyBudget = getDailyBudgetFromGoals(userId);
     const periodBudget = dailyBudget * days;
     return ((totalSpend / periodBudget) * 100).toFixed(2);
 }
@@ -2304,7 +2371,7 @@ async function fetchMetaPeriodDataWithStoredConfig(period, campaignId = null, us
         const data = await response.json();
         if (data.error) throw new Error(`Meta API Error: ${data.error.message}`);
         console.log(`期間データ取得完了: ${data.data.length}日分`);
-        return aggregateRealPeriodData(data.data);
+        return aggregateRealPeriodData(data.data, userId);
     } catch (error) {
         console.error('Meta API期間データエラー:', error);
         throw error;
