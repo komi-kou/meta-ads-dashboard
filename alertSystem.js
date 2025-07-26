@@ -513,8 +513,10 @@ function getMetricDisplayName(metric) {
         case 'conversions':
             return 'CV';
         case 'cpm':
+        case 'cpm_increase':
             return 'CPM';
         case 'cpa':
+        case 'cpa_rate':
             return 'CPA';
         default:
             return metric;

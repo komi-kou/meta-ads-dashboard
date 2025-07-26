@@ -2279,9 +2279,19 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
             const adsetsUrl = `${baseUrl}/${config.accountId}/adsets`;
             const adsetsParams = new URLSearchParams({
                 access_token: config.accessToken,
-                fields: 'id,name,status,daily_budget,lifetime_budget',
+                fields: 'id,name,status,daily_budget,lifetime_budget,campaign_id',
                 effective_status: JSON.stringify(['ACTIVE', 'PAUSED'])
             });
+            
+            // キャンペーン別の場合、そのキャンペーンの広告セットのみをフィルタリング
+            if (campaignId) {
+                adsetsParams.append('filtering', JSON.stringify([{
+                    field: 'campaign_id',
+                    operator: 'IN',
+                    value: [campaignId]
+                }]));
+                console.log(`🎯 キャンペーン${campaignId}の広告セットのみ取得`);
+            }
             
             const adsetsResponse = await fetch(`${adsetsUrl}?${adsetsParams}`);
             if (adsetsResponse.ok) {
