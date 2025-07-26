@@ -1963,8 +1963,8 @@ function convertInsightsToMetrics(insights, selectedDate) {
     const conversions = getConversionsFromActions(insights.actions);
     const cpa = conversions > 0 ? spend / conversions : 0;
     
-    // 目標予算（デフォルト15,000円/日）
-    const dailyBudget = 15000;
+    // ゴール設定から日予算を取得
+    const dailyBudget = getDailyBudgetFromGoals();
     const budgetRate = (spend / dailyBudget) * 100;
     
     return {
@@ -2001,6 +2001,32 @@ function getConversionsFromActions(actions) {
     });
     
     return total;
+}
+
+// ゴール設定から日予算を取得
+function getDailyBudgetFromGoals() {
+    try {
+        const setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
+        const goalType = setupData.goal?.type || '';
+        
+        // ゴールタイプ別の目標値設定
+        const goalTargets = {
+            toC_newsletter: { '予算消化率': 80, 'CTR': 2.5, 'CV': 1, 'CPA': 2000, '日予算': 1000, 'CPM': 1000 },
+            toC_line: { '予算消化率': 80, 'CTR': 2.5, 'CV': 1, 'CPA': 1000, '日予算': 1000, 'CPM': 800 },
+            toC_phone: { '予算消化率': 80, 'CTR': 2.0, 'CV': 1, 'CPA': 3000, '日予算': 1500, 'CPM': 1200 },
+            toC_purchase: { '予算消化率': 80, 'CTR': 1.8, 'CV': 1, 'CPA': 5000, '日予算': 2000, 'CPM': 1500 },
+            toB_newsletter: { '予算消化率': 80, 'CTR': 1.5, 'CV': 1, 'CPA': 15000, '日予算': 3000, 'CPM': 2000 },
+            toB_line: { '予算消化率': 80, 'CTR': 1.5, 'CV': 1, 'CPA': 12000, '日予算': 2500, 'CPM': 1800 },
+            toB_phone: { '予算消化率': 80, 'CTR': 1.2, 'CV': 1, 'CPA': 20000, '日予算': 4000, 'CPM': 2500 },
+            toB_purchase: { '予算消化率': 80, 'CTR': 1.0, 'CV': 1, 'CPA': 30000, '日予算': 5000, 'CPM': 3000 }
+        };
+        
+        const goals = goalTargets[goalType];
+        return goals ? goals['日予算'] : 15000; // デフォルト値
+    } catch (error) {
+        console.error('ゴール設定読み込みエラー:', error);
+        return 15000; // エラー時はデフォルト値
+    }
 }
 
 // 実際のMeta広告APIからデータ取得（修正版）- 後方互換性

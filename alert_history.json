@@ -1,418 +1,176 @@
 [
   {
     "id": "cpa_rate_today_test",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
+    "metric": "CPA",
+    "message": "CPAが目標の120%（2,400円）を超えた2,800円が2日間続いています",
     "level": "high",
-    "timestamp": "2025-07-21T00:00:01.973Z",
-    "status": "active"
+    "timestamp": "2025-07-25T00:00:01.973Z",
+    "status": "active",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "クリエイティブが刺さっていないorクリエイティブが枯れている",
+        "description": ""
+      },
+      {
+        "priority": 2,
+        "title": "配信するユーザー層がズレている",
+        "description": "購入見込みの低いユーザーに配信されている"
+      },
+      {
+        "priority": 3,
+        "title": "学習データが適切ではない",
+        "description": "ピクセルで学習しているデータが誤った方向に進んでいる"
+      },
+      {
+        "priority": 4,
+        "title": "LPで離脱されている",
+        "description": "LPの内容がユーザーに刺さっていない"
+      }
+    ],
+    "improvements": {
+      "クリエイティブが刺さっていないorクリエイティブが枯れている": [
+        "過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える",
+        "過去7日間ベースでCVがついておらず配信が寄っていない（予算消化ができていない）クリエイティブを差し替える",
+        "訴求軸が違うクリエイティブを配信する",
+        "動画広告を配信する"
+      ],
+      "配信するユーザー層がズレている": [
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
+        "類似オーディエンスを活用して、見込み層の高いユーザーに配信する",
+        "キャンペーンを複製して配信するユーザー層を変える",
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）"
+      ],
+      "学習データが適切ではない": [
+        "ピクセルを作成し直してデータを再度学習し直す"
+      ],
+      "LPで離脱されている": [
+        "ヒートマップを導入して離脱箇所が多いところを改善する（clarityがおすすめ）",
+        "CTAの文言・デザイン・アクションを変更する",
+        "FVを改善する"
+      ]
+    }
   },
   {
-    "id": "cpm_increase_today_test",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-21T00:00:01.972Z",
-    "status": "active"
-  },
-  {
-    "id": "conversions_today_test",
-    "metric": "CV",
-    "message": "conversionsが3日連続で0です",
-    "level": "high",
-    "timestamp": "2025-07-21T00:00:01.554Z",
-    "status": "active"
-  },
-  {
-    "id": "cpa_rate_1752451201973",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-14T00:00:01.973Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_increase_1752451201972",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-14T00:00:01.972Z",
-    "status": "active"
-  },
-  {
-    "id": "conversions_1752451201554",
-    "metric": "CV",
-    "message": "conversionsが3日連続で0です",
-    "level": "high",
-    "timestamp": "2025-07-14T00:00:01.554Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_1752451201554",
-    "metric": "CPM",
-    "message": "CPMが6000円以上の状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-14T00:00:01.554Z",
-    "status": "active"
-  },
-  {
-    "id": "ctr_1752451201553",
-    "metric": "CTR",
-    "message": "ctrが1.5%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-14T00:00:01.553Z",
-    "status": "active"
-  },
-  {
-    "id": "daily_budget_1752451201553",
-    "metric": "日予算",
-    "message": "日予算が1000円以上の状態が1日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-14T00:00:01.553Z",
-    "status": "active"
-  },
-  {
-    "id": "budget_rate_1752451201553",
+    "id": "budget_rate_today_test",
     "metric": "予算消化率",
-    "message": "budget_rateが80%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-14T00:00:01.553Z",
-    "status": "active"
-  },
-  {
-    "id": "cpa_rate_1752422401761",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T16:00:01.761Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_increase_1752422401761",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
+    "message": "予算消化率が80%以下の65%が3日間続いています",
     "level": "medium",
-    "timestamp": "2025-07-13T16:00:01.761Z",
-    "status": "active"
+    "timestamp": "2025-07-25T00:00:01.972Z",
+    "status": "active",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "配信されているか確認",
+        "description": "広告がアクティブになっているか"
+      },
+      {
+        "priority": 2,
+        "title": "配信するクリエイティブが枯れている",
+        "description": "CV数が0もしくは目標CPAの到達しておらず予算も消化されていない"
+      },
+      {
+        "priority": 3,
+        "title": "配信するユーザー層が悪いのか",
+        "description": "配信するユーザー層が悪いと表示されないケースがある"
+      }
+    ],
+    "improvements": {
+      "配信されているか確認": [
+        "管理画面の上の運用しているキャンペーンが緑でアクティブになっているか、キャンペーンを確認する",
+        "決済ができておらず配信エラーになっていないか、請求と支払いを確認する",
+        "クリエイティブが審査落ちしていて配信エラーになっていないか、広告を確認する"
+      ],
+      "配信するクリエイティブが枯れている": [
+        "過去7日間ベースでCV数が0もしくは目標CPAに達していないクリエイティブを差し替える"
+      ],
+      "配信するユーザー層が悪いのか": [
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）",
+        "キャンペーンを複製して配信するユーザー層を変える（設定は変えずに）"
+      ]
+    }
   },
   {
-    "id": "conversions_1752422401292",
-    "metric": "CV",
-    "message": "conversionsが3日連続で0です",
-    "level": "high",
-    "timestamp": "2025-07-13T16:00:01.292Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_1752422401292",
-    "metric": "CPM",
-    "message": "CPMが6000円以上の状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T16:00:01.292Z",
-    "status": "active"
-  },
-  {
-    "id": "ctr_1752422401292",
+    "id": "ctr_today_test",
     "metric": "CTR",
-    "message": "ctrが1.5%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T16:00:01.292Z",
-    "status": "active"
-  },
-  {
-    "id": "daily_budget_1752422401292",
-    "metric": "日予算",
-    "message": "日予算が1000円以上の状態が1日間続いています",
+    "message": "CTRが2.5%以下の1.8%が3日間続いています",
     "level": "medium",
-    "timestamp": "2025-07-13T16:00:01.292Z",
-    "status": "active"
+    "timestamp": "2025-07-25T00:00:01.971Z",
+    "status": "active",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "配信しているクリエイティブが刺さっていないor枯れている",
+        "description": "ありきたりのクリエイティブでユーザーに見られていない\n7日間ベースでずっと配信していて、飽きられている"
+      },
+      {
+        "priority": 2,
+        "title": "フリークエンシーが2.5%以上ある",
+        "description": "同じユーザーばかりに配信されていて、見飽きられている"
+      },
+      {
+        "priority": 3,
+        "title": "配信するユーザー層が見込み顧客ではない",
+        "description": "サービスに合ったユーザー層に配信されていないので、スルーされている"
+      }
+    ],
+    "improvements": {
+      "配信しているクリエイティブが刺さっていないor枯れている": [
+        "過去7日間ベースで予算が寄っておらずCVも取れていないクリエイティブを差し替える",
+        "過去7日間ベースで予算は寄っているけど目標CPAに達しておらずクリック率も目標以下のクリエイティブは差し替える"
+      ],
+      "フリークエンシーが2.5%以上ある": [
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）",
+        "キャンペーンを複製して配信するユーザー層を変える（設定は変えずに）"
+      ],
+      "配信するユーザー層が見込み顧客ではない": [
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
+        "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
+      ]
+    }
   },
   {
-    "id": "budget_rate_1752422401291",
-    "metric": "予算消化率",
-    "message": "budget_rateが80%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T16:00:01.292Z",
-    "status": "active"
-  },
-  {
-    "id": "cpa_rate_1752418801435",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T15:00:01.435Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_increase_1752418801435",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T15:00:01.435Z",
-    "status": "active"
-  },
-  {
-    "id": "conversions_1752418800950",
+    "id": "cv_today_test",
     "metric": "CV",
-    "message": "conversionsが3日連続で0です",
+    "message": "CV数が1件以下の0件が続いています",
     "level": "high",
-    "timestamp": "2025-07-13T15:00:00.950Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_1752418800950",
-    "metric": "CPM",
-    "message": "CPMが6000円以上の状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T15:00:00.950Z",
-    "status": "active"
-  },
-  {
-    "id": "ctr_1752418800950",
-    "metric": "CTR",
-    "message": "ctrが1.5%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T15:00:00.950Z",
-    "status": "active"
-  },
-  {
-    "id": "daily_budget_1752418800949",
-    "metric": "日予算",
-    "message": "日予算が1000円以上の状態が1日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T15:00:00.949Z",
-    "status": "active"
-  },
-  {
-    "id": "budget_rate_1752418800949",
-    "metric": "予算消化率",
-    "message": "budget_rateが80%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T15:00:00.949Z",
-    "status": "active"
-  },
-  {
-    "id": "cpa_rate_1752415203946",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T14:00:03.946Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_increase_1752415203945",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T14:00:03.945Z",
-    "status": "active"
-  },
-  {
-    "id": "conversions_1752415201259",
-    "metric": "CV",
-    "message": "conversionsが3日連続で0です",
-    "level": "high",
-    "timestamp": "2025-07-13T14:00:01.259Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_1752415201259",
-    "metric": "CPM",
-    "message": "CPMが6000円以上の状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T14:00:01.259Z",
-    "status": "active"
-  },
-  {
-    "id": "ctr_1752415201259",
-    "metric": "CTR",
-    "message": "ctrが1.5%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T14:00:01.259Z",
-    "status": "active"
-  },
-  {
-    "id": "daily_budget_1752415201259",
-    "metric": "日予算",
-    "message": "日予算が1000円以上の状態が1日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T14:00:01.259Z",
-    "status": "active"
-  },
-  {
-    "id": "budget_rate_1752415201258",
-    "metric": "予算消化率",
-    "message": "budget_rateが80%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T14:00:01.259Z",
-    "status": "active"
-  },
-  {
-    "id": "cpa_rate_1752411601492",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T13:00:01.492Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_increase_1752411601492",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T13:00:01.492Z",
-    "status": "active"
-  },
-  {
-    "id": "conversions_1752411601005",
-    "metric": "CV",
-    "message": "conversionsが3日連続で0です",
-    "level": "high",
-    "timestamp": "2025-07-13T13:00:01.005Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_1752411601005",
-    "metric": "CPM",
-    "message": "CPMが6000円以上の状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T13:00:01.005Z",
-    "status": "active"
-  },
-  {
-    "id": "ctr_1752411601005",
-    "metric": "CTR",
-    "message": "ctrが1.5%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T13:00:01.005Z",
-    "status": "active"
-  },
-  {
-    "id": "daily_budget_1752411601005",
-    "metric": "日予算",
-    "message": "日予算が1000円以上の状態が1日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T13:00:01.005Z",
-    "status": "active"
-  },
-  {
-    "id": "budget_rate_1752411601005",
-    "metric": "予算消化率",
-    "message": "budget_rateが80%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T13:00:01.005Z",
-    "status": "active"
-  },
-  {
-    "id": "cpa_rate_1752408002180",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T12:00:02.180Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_increase_1752408002180",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T12:00:02.180Z",
-    "status": "active"
-  },
-  {
-    "id": "conversions_1752408001639",
-    "metric": "CV",
-    "message": "conversionsが3日連続で0です",
-    "level": "high",
-    "timestamp": "2025-07-13T12:00:01.639Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_1752408001639",
-    "metric": "CPM",
-    "message": "CPMが6000円以上の状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T12:00:01.639Z",
-    "status": "active"
-  },
-  {
-    "id": "ctr_1752408001638",
-    "metric": "CTR",
-    "message": "ctrが1.5%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T12:00:01.638Z",
-    "status": "active"
-  },
-  {
-    "id": "daily_budget_1752408001638",
-    "metric": "日予算",
-    "message": "日予算が1000円以上の状態が1日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T12:00:01.638Z",
-    "status": "active"
-  },
-  {
-    "id": "budget_rate_1752408001638",
-    "metric": "予算消化率",
-    "message": "budget_rateが80%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T12:00:01.638Z",
-    "status": "active"
-  },
-  {
-    "id": "cpa_rate_1752404402196",
-    "metric": "cpa_rate",
-    "message": "CPAが目標の120%を超えた状態が2日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T11:00:02.196Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_increase_1752404402196",
-    "metric": "cpm_increase",
-    "message": "CPMがベースラインから+500円上がった状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T11:00:02.196Z",
-    "status": "active"
-  },
-  {
-    "id": "conversions_1752404401687",
-    "metric": "CV",
-    "message": "conversionsが3日連続で0です",
-    "level": "high",
-    "timestamp": "2025-07-13T11:00:01.687Z",
-    "status": "active"
-  },
-  {
-    "id": "cpm_1752404401687",
-    "metric": "CPM",
-    "message": "CPMが6000円以上の状態が3日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T11:00:01.687Z",
-    "status": "active"
-  },
-  {
-    "id": "ctr_1752404401687",
-    "metric": "CTR",
-    "message": "ctrが1.5%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T11:00:01.687Z",
-    "status": "active"
-  },
-  {
-    "id": "daily_budget_1752404401687",
-    "metric": "日予算",
-    "message": "日予算が1000円以上の状態が1日間続いています",
-    "level": "medium",
-    "timestamp": "2025-07-13T11:00:01.687Z",
-    "status": "active"
-  },
-  {
-    "id": "budget_rate_1752404401687",
-    "metric": "予算消化率",
-    "message": "budget_rateが80%以下の状態が3日間続いています",
-    "level": "high",
-    "timestamp": "2025-07-13T11:00:01.687Z",
-    "status": "active"
+    "timestamp": "2025-07-25T00:00:01.970Z",
+    "status": "active",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "クリエイティブが刺さっていないorクリエイティブが枯れている",
+        "description": "入口のクリエイティブで魅力的に魅せれていないor飽きられてしまっている"
+      },
+      {
+        "priority": 2,
+        "title": "配信するユーザー層がズレている",
+        "description": "購入見込みの低いユーザーに配信されている"
+      },
+      {
+        "priority": 3,
+        "title": "LPで離脱されている",
+        "description": "LPの内容がユーザーに刺さっていない"
+      }
+    ],
+    "improvements": {
+      "クリエイティブが刺さっていないorクリエイティブが枯れている": [
+        "過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える",
+        "過去7日間ベースでCVがついておらず配信が寄っていない（予算消化ができていない）クリエイティブを差し替える",
+        "訴求軸が違うクリエイティブを配信する",
+        "動画広告を配信する"
+      ],
+      "配信するユーザー層がズレている": [
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
+        "類似オーディエンスを活用して、見込み層の高いユーザーに配信する",
+        "キャンペーンを複製して配信するユーザー層を変える",
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）"
+      ],
+      "LPで離脱されている": [
+        "ヒートマップを導入して離脱箇所が多いところを改善する（clarityがおすすめ）",
+        "CTAの文言・デザイン・アクションを変更する",
+        "FVを改善する"
+      ]
+    }
   }
 ]

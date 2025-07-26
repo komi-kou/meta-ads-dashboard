@@ -377,12 +377,21 @@ async function getTargetCPA() {
             const setup = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
             const goalType = setup.goal?.type || 'toC_newsletter';
             
-            // alertRules.jsからそのゴールタイプのCPA閾値を取得
-            const alertRules = require('./alertRules');
-            const goalRule = alertRules.goals[goalType];
+            // ゴールタイプ別の目標値設定（実際のゴール設定値）
+            const goalTargets = {
+                toC_newsletter: { 'CPA': 2000 },
+                toC_line: { 'CPA': 1000 },
+                toC_phone: { 'CPA': 3000 },
+                toC_purchase: { 'CPA': 5000 },
+                toB_newsletter: { 'CPA': 15000 },
+                toB_line: { 'CPA': 12000 },
+                toB_phone: { 'CPA': 20000 },
+                toB_purchase: { 'CPA': 30000 }
+            };
             
-            if (goalRule && goalRule.rules && goalRule.rules.cpa) {
-                return goalRule.rules.cpa.threshold;
+            const goals = goalTargets[goalType];
+            if (goals && goals['CPA']) {
+                return goals['CPA'];
             }
         }
         
@@ -407,12 +416,21 @@ async function getTargetCPM() {
             const setup = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
             const goalType = setup.goal?.type || 'toC_newsletter';
             
-            // alertRules.jsからそのゴールタイプのCPM閾値を取得
-            const alertRules = require('./alertRules');
-            const goalRule = alertRules.goals[goalType];
+            // ゴールタイプ別の目標値設定（実際のゴール設定値）
+            const goalTargets = {
+                toC_newsletter: { 'CPM': 1000 },
+                toC_line: { 'CPM': 800 },
+                toC_phone: { 'CPM': 1200 },
+                toC_purchase: { 'CPM': 1500 },
+                toB_newsletter: { 'CPM': 2000 },
+                toB_line: { 'CPM': 1800 },
+                toB_phone: { 'CPM': 2500 },
+                toB_purchase: { 'CPM': 3000 }
+            };
             
-            if (goalRule && goalRule.rules && goalRule.rules.cpm) {
-                return goalRule.rules.cpm.threshold;
+            const goals = goalTargets[goalType];
+            if (goals && goals['CPM']) {
+                return goals['CPM'];
             }
         }
         
