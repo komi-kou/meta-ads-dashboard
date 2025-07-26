@@ -375,8 +375,10 @@
                     console.log('アラートデータ詳細:', testAlerts.map(a => ({ 
                         metric: a.metric, 
                         checkItems: a.checkItems ? a.checkItems.length : 0,
-                        improvements: a.improvements ? Object.keys(a.improvements).length : 0
+                        improvements: a.improvements ? Object.keys(a.improvements).length : 0,
+                        status: a.status
                     })));
+                    console.log('取得したアラート履歴の生データ:', alertData.history);
                 } else {
                     console.log('アクティブアラートなし、APIデータを基にデモアラートを生成');
                     

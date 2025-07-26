@@ -267,16 +267,16 @@
                 let currentAlerts = [];
                 
                 if (alertData.success && alertData.history && alertData.history.length > 0) {
-                    // アクティブなアラートのみフィルタ
-                    currentAlerts = alertData.history
-                        .filter(alert => alert.status === 'active')
-                        .slice(0, 10); // 最新10件
+                    // アクティブなアラートのみフィルタ（フィルタリングを削除して全て表示）
+                    currentAlerts = alertData.history.slice(0, 10); // 最新10件
                         
                     console.log('実際のアラート取得:', currentAlerts.length + '件');
                     console.log('アラートデータ詳細:', currentAlerts.map(a => ({ 
                         metric: a.metric, 
-                        checkItems: a.checkItems ? a.checkItems.length : 0 
+                        checkItems: a.checkItems ? a.checkItems.length : 0,
+                        status: a.status 
                     })));
+                    console.log('取得したアラート履歴の生データ:', alertData.history);
                 } else {
                     console.log('アクティブアラートなし、デモデータを使用');
                     // デモ用のアラートデータ
@@ -330,22 +330,36 @@
             // 確認事項を生成
             const generatedChecklist = [];
             
-            currentAlerts.forEach(alert => {
+            console.log('=== 確認事項生成デバッグ ===');
+            console.log('処理対象アラート数:', currentAlerts.length);
+            
+            currentAlerts.forEach((alert, index) => {
+                console.log(`--- アラート ${index + 1} ---`);
+                console.log('メトリック:', alert.metric);
+                console.log('checkItems:', alert.checkItems);
+                console.log('checklistRules[metric]:', checklistRules[alert.metric]);
+                
                 // APIから取得した確認事項を優先使用、なければフォールバック
                 const items = (alert.checkItems && alert.checkItems.length > 0) 
                     ? alert.checkItems 
                     : (checklistRules[alert.metric] || []);
                 
-                console.log(`アラート ${alert.metric} の確認事項:`, items);
+                console.log(`${alert.metric} - 使用する確認事項:`, items);
+                console.log(`${alert.metric} - 確認事項数:`, items.length);
                 
                 if (items && items.length > 0) {
-                    generatedChecklist.push({
+                    const checklistItem = {
                         metric: alert.metric,
                         alertMessage: alert.message,
                         alertLevel: alert.level,
                         timestamp: alert.timestamp,
                         items: items
-                    });
+                    };
+                    
+                    generatedChecklist.push(checklistItem);
+                    console.log(`✅ ${alert.metric} の確認事項を追加:`, checklistItem);
+                } else {
+                    console.log(`❌ ${alert.metric} の確認事項が見つからない`);
                 }
             });
             
