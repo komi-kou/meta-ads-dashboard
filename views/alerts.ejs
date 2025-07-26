@@ -773,10 +773,23 @@
                 // 予算消化率チェック
                 if (data.budgetConsumption && goals['予算消化率'] && 
                     data.budgetConsumption < goals['予算消化率']) {
+                    // ハイブリッド方式: API取得日予算があればそれを優先、なければユーザー設定を使用
+                    let budgetInfo = '';
+                    if (data.actualDailyBudget && data.actualDailyBudget > 0) {
+                        budgetInfo = `API取得日予算: ${data.actualDailyBudget.toLocaleString()}円`;
+                    } else if (goals['日予算'] && goals['日予算'] > 0) {
+                        budgetInfo = `ユーザー設定日予算: ${goals['日予算'].toLocaleString()}円`;
+                    }
+                    
+                    let message = `予算消化率が${goals['予算消化率']}%以下の${data.budgetConsumption}%が3日間続いています`;
+                    if (budgetInfo) {
+                        message += `（${budgetInfo}）`;
+                    }
+                    
                     alerts.push({
                         id: `budget-${Date.now()}`,
                         metric: '予算消化率',
-                        message: `予算消化率が${goals['予算消化率']}%以下の${data.budgetConsumption}%が3日間続いています`,
+                        message: message,
                         level: 'medium',
                         timestamp: currentTime,
                     });

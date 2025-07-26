@@ -2309,15 +2309,21 @@ function createZeroMetrics(selectedDate) {
     };
 }
 
-// インサイトデータをメトリクスに変換
-function convertInsightsToMetrics(insights, selectedDate, userId = null) {
+// インサイトデータをメトリクスに変換（ハイブリッド方式）
+function convertInsightsToMetrics(insights, selectedDate, userId = null, actualDailyBudget = null) {
     const spend = parseFloat(insights.spend || 0);
     const conversions = getConversionsFromActions(insights.actions);
     const cpa = conversions > 0 ? spend / conversions : 0;
     
-    // ユーザー設定から日予算を取得
-    const dailyBudget = getDailyBudgetFromGoals(userId);
+    // ハイブリッド方式で日予算を取得
+    const dailyBudget = getDailyBudgetFromGoals(userId, actualDailyBudget);
     const budgetRate = (spend / dailyBudget) * 100;
+    
+    console.log('=== 単日予算消化率計算（ハイブリッド方式） ===');
+    console.log('消費金額:', spend + '円');
+    console.log('API取得日予算:', actualDailyBudget + '円');
+    console.log('使用日予算:', dailyBudget + '円');
+    console.log('予算消化率:', budgetRate.toFixed(2) + '%');
     
     return {
         spend: Math.round(spend),
