@@ -17,21 +17,21 @@ const ALERT_RULES = {
         cpm_increase: { threshold: 500, days: 3, operator: 'above_baseline' },
         cpa_rate: { threshold: 120, days: 2, operator: 'above_target' }
     },
-    'toC_LINE登録': {
+    'toC_line': {
         budget_rate: { threshold: 80, days: 3, operator: 'below' },
         ctr: { threshold: 2.5, days: 3, operator: 'below' },
         conversions: { threshold: 0, days: 2, operator: 'equal' },
         cpm_increase: { threshold: 500, days: 3, operator: 'above_baseline' },
         cpa_rate: { threshold: 120, days: 2, operator: 'above_target' }
     },
-    'toC_電話ボタン': {
+    'toC_phone': {
         budget_rate: { threshold: 80, days: 3, operator: 'below' },
         ctr: { threshold: 2.5, days: 3, operator: 'below' },
         conversions: { threshold: 0, days: 2, operator: 'equal' },
         cpm_increase: { threshold: 500, days: 3, operator: 'above_baseline' },
         cpa_rate: { threshold: 120, days: 2, operator: 'above_target' }
     },
-    'toC_購入': {
+    'toC_purchase': {
         budget_rate: { threshold: 80, days: 3, operator: 'below' },
         ctr: { threshold: 2.5, days: 3, operator: 'below' },
         conversions: { threshold: 0, days: 2, operator: 'equal' },
@@ -47,21 +47,21 @@ const ALERT_RULES = {
         cpm_increase: { threshold: 500, days: 3, operator: 'above_baseline' },
         cpa_rate: { threshold: 120, days: 2, operator: 'above_target' }
     },
-    'toB_LINE登録': {
+    'toB_line': {
         budget_rate: { threshold: 80, days: 3, operator: 'below' },
         ctr: { threshold: 2.5, days: 3, operator: 'below' },
         conversions: { threshold: 0, days: 2, operator: 'equal' },
         cpm_increase: { threshold: 500, days: 3, operator: 'above_baseline' },
         cpa_rate: { threshold: 120, days: 2, operator: 'above_target' }
     },
-    'toB_電話ボタン': {
+    'toB_phone': {
         budget_rate: { threshold: 80, days: 3, operator: 'below' },
         ctr: { threshold: 2.5, days: 3, operator: 'below' },
         conversions: { threshold: 0, days: 2, operator: 'equal' },
         cpm_increase: { threshold: 500, days: 3, operator: 'above_baseline' },
         cpa_rate: { threshold: 120, days: 2, operator: 'above_target' }
     },
-    'toB_購入': {
+    'toB_purchase': {
         budget_rate: { threshold: 80, days: 3, operator: 'below' },
         ctr: { threshold: 2.5, days: 3, operator: 'below' },
         conversions: { threshold: 0, days: 2, operator: 'equal' },
@@ -175,8 +175,9 @@ async function checkUserAlerts(userId) {
             return [];
         }
         
-        // デフォルトのルール（toC_newsletter）を使用
-        const rules = ALERT_RULES['toC_newsletter'] || ALERT_RULES['toC_メルマガ登録'];
+        // 現在のゴールタイプを使用
+        const currentGoal = getCurrentGoalType();
+        const rules = ALERT_RULES[currentGoal];
         
         if (!rules) {
             console.log('アラートルールが見つかりません');
@@ -191,7 +192,7 @@ async function checkUserAlerts(userId) {
         
         // 各ルールをチェック（ユーザーIDを渡す）
         for (const [metric, rule] of Object.entries(rules)) {
-            const alertResult = await checkMetricAlert(metric, rule, historicalData, 'toC_newsletter', userId);
+            const alertResult = await checkMetricAlert(metric, rule, historicalData, currentGoal, userId);
             if (alertResult) {
                 alerts.push({
                     ...alertResult,

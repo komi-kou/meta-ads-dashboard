@@ -705,10 +705,10 @@
                     updateStatus(standardizedAlerts, new Date());
                     return;
                 } else {
-                    console.log('⚠️ サーバーアラートが空 - アラートなし状態を表示');
-                    updateAlertDisplay([]);
-                    updateStatus([], new Date());
-                    return; // フォールバック処理を実行しない
+                    console.log('⚠️ サーバーアラートが空 - 注意アラートを生成');
+                    // フォールバック処理: 実際のデータに基づいて注意アラートを生成
+                    await generateFallbackAlerts();
+                    return;
                 }
                 
                 // アラート履歴に追加
@@ -945,6 +945,73 @@
                 });
             } catch (error) {
                 return '-';
+            }
+        }
+
+        // フォールバックアラート生成（実際のデータに基づく注意アラート）
+        async function generateFallbackAlerts() {
+            try {
+                console.log('フォールバックアラート生成開始');
+                const dashboardData = await getDashboardData();
+                
+                if (!dashboardData) {
+                    console.log('ダッシュボードデータなし - アラートなし状態');
+                    updateAlertDisplay([]);
+                    updateStatus([], new Date());
+                    return;
+                }
+                
+                const fallbackAlerts = [];
+                
+                // 実際のデータに基づいて注意アラートを生成
+                if (dashboardData.budgetConsumption < 80) {
+                    fallbackAlerts.push({
+                        id: 'budget_rate_warning',
+                        metric: '予算消化率',
+                        message: `予算消化率が80%以下の${Math.round(dashboardData.budgetConsumption)}%です`,
+                        level: 'medium',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (dashboardData.ctr < 2.0) {
+                    fallbackAlerts.push({
+                        id: 'ctr_warning',
+                        metric: 'CTR',
+                        message: `CTRが2.0%以下の${dashboardData.ctr.toFixed(1)}%です`,
+                        level: 'medium',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (dashboardData.cv === 0) {
+                    fallbackAlerts.push({
+                        id: 'cv_warning',
+                        metric: 'CV',
+                        message: `CV数が0件です`,
+                        level: 'high',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (dashboardData.cpa > 12000) {
+                    fallbackAlerts.push({
+                        id: 'cpa_warning',
+                        metric: 'CPA',
+                        message: `CPAが目標の12,000円を超えて${Math.round(dashboardData.cpa).toLocaleString()}円です`,
+                        level: 'high',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                console.log('生成された注意アラート数:', fallbackAlerts.length);
+                updateAlertDisplay(fallbackAlerts);
+                updateStatus(fallbackAlerts, new Date());
+                
+            } catch (error) {
+                console.error('フォールバックアラート生成エラー:', error);
+                updateAlertDisplay([]);
+                updateStatus([], new Date());
             }
         }
 

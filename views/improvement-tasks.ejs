@@ -304,41 +304,8 @@
                         currentAlerts = alertData.history.slice(0, 10);
                         console.log('✅ APIからアラート取得:', currentAlerts.length + '件');
                     } else {
-                        console.log('❌ APIからのアラート取得失敗、デモデータを使用');
-                        currentAlerts = [
-                            {
-                                id: 1,
-                                metric: '予算消化率',
-                                message: '予算消化率が80%以下の65%が3日間続いています',
-                                level: 'medium',
-                                timestamp: new Date().toISOString(),
-                                checkItems: []
-                            },
-                            {
-                                id: 2,
-                                metric: 'CTR',
-                                message: 'CTRが2.5%以下の1.5%が3日間続いています',
-                                level: 'medium',
-                                timestamp: new Date().toISOString(),
-                                checkItems: []
-                            },
-                            {
-                                id: 3,
-                                metric: 'CV',
-                                message: 'CV数が0件が2日連続で続いています',
-                                level: 'high',
-                                timestamp: new Date().toISOString(),
-                                checkItems: []
-                            },
-                            {
-                                id: 4,
-                                metric: 'CPA',
-                                message: 'CPAが目標の120%を超えた状態が2日間続いています',
-                                level: 'high',
-                                timestamp: new Date().toISOString(),
-                                checkItems: []
-                            }
-                        ];
+                        console.log('❌ APIからのアラート取得失敗、アラートなし状態');
+                        currentAlerts = []; // アラートなし状態
                     }
                 } catch (error) {
                     console.error('アラート取得エラー:', error);
