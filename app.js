@@ -2394,13 +2394,27 @@ function getConversionsFromActions(actions) {
 // ゴール設定から日予算を取得
 function getDailyBudgetFromGoals(userId = null) {
     try {
+        console.log('=== getDailyBudgetFromGoals デバッグ ===');
+        console.log('入力userId:', userId);
+        
         // まず実際のユーザー設定を確認
         if (userId) {
             const userManager = getUserManager();
             const userSettings = userManager.getUserSettings(userId);
+            console.log('取得したuserSettings:', userSettings);
+            console.log('target_dailyBudgetの値:', userSettings?.target_dailyBudget);
+            console.log('target_dailyBudgetの型:', typeof userSettings?.target_dailyBudget);
+            
+            // ユーザー設定の日予算を確実に取得
             if (userSettings && userSettings.target_dailyBudget) {
-                return parseFloat(userSettings.target_dailyBudget);
+                const budget = parseFloat(userSettings.target_dailyBudget);
+                if (!isNaN(budget) && budget > 0) {
+                    console.log('✅ ユーザー設定の日予算を返す:', budget, '円');
+                    return budget;
+                }
             }
+        } else {
+            console.log('❌ userIdが未提供');
         }
         
         const setupData = JSON.parse(fs.readFileSync('./config/setup.json', 'utf8'));
