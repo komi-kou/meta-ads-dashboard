@@ -372,6 +372,11 @@
                     // APIから取得した実際のアラートを使用
                     testAlerts = alertData.history.slice(0, 10); // 最新10件
                     console.log('実際のAPIアラートを使用:', testAlerts.length + '件');
+                    console.log('アラートデータ詳細:', testAlerts.map(a => ({ 
+                        metric: a.metric, 
+                        checkItems: a.checkItems ? a.checkItems.length : 0,
+                        improvements: a.improvements ? Object.keys(a.improvements).length : 0
+                    })));
                 } else {
                     console.log('アクティブアラートなし、APIデータを基にデモアラートを生成');
                     
@@ -504,8 +509,13 @@
                     ? alert.improvements
                     : (improvementRules[metric] || {});
                 
+                console.log(`${metric} - 確認事項:`, items);
+                console.log(`${metric} - 改善施策:`, improvements);
+                
                 items.forEach(item => {
                     const actions = improvements[item.title] || [];
+                    console.log(`"${item.title}" に対するアクション:`, actions);
+                    
                     if (actions.length > 0) {
                         generatedStrategies.push({
                             metric: metric,
@@ -520,6 +530,9 @@
                 });
             });
 
+            // 改善施策数を更新
+            document.getElementById('strategyCount').textContent = generatedStrategies.length;
+            
             console.log('生成された改善施策:', generatedStrategies);
             renderStrategies(generatedStrategies);
         }

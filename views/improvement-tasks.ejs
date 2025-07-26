@@ -273,6 +273,10 @@
                         .slice(0, 10); // 最新10件
                         
                     console.log('実際のアラート取得:', currentAlerts.length + '件');
+                    console.log('アラートデータ詳細:', currentAlerts.map(a => ({ 
+                        metric: a.metric, 
+                        checkItems: a.checkItems ? a.checkItems.length : 0 
+                    })));
                 } else {
                     console.log('アクティブアラートなし、デモデータを使用');
                     // デモ用のアラートデータ
@@ -282,28 +286,32 @@
                             metric: '予算消化率',
                             message: '予算消化率が80%以下の65%が3日間続いています',
                             level: 'medium',
-                            timestamp: new Date().toISOString()
+                            timestamp: new Date().toISOString(),
+                            checkItems: []
                         },
                         {
                             id: 2,
                             metric: 'CTR',
                             message: 'CTRが2.5%以下の1.5%が3日間続いています',
                             level: 'medium',
-                            timestamp: new Date().toISOString()
+                            timestamp: new Date().toISOString(),
+                            checkItems: []
                         },
                         {
                             id: 3,
                             metric: 'CV',
                             message: 'CV数が0件が2日連続で続いています',
                             level: 'high',
-                            timestamp: new Date().toISOString()
+                            timestamp: new Date().toISOString(),
+                            checkItems: []
                         },
                         {
                             id: 4,
                             metric: 'CPA',
                             message: 'CPAが目標の120%を超えた状態が2日間続いています',
                             level: 'high',
-                            timestamp: new Date().toISOString()
+                            timestamp: new Date().toISOString(),
+                            checkItems: []
                         }
                     ];
                 }
@@ -312,10 +320,10 @@
                 console.error('アラート取得エラー:', error);
                 // エラーの場合はデモデータを使用
                 currentAlerts = [
-                    { id: 1, metric: '予算消化率', message: '予算消化率が80%以下の65%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
-                    { id: 2, metric: 'CTR', message: 'CTRが2.5%以下の1.5%が3日間続いています', level: 'medium', timestamp: new Date().toISOString() },
-                    { id: 3, metric: 'CV', message: 'CV数が0件が2日連続で続いています', level: 'high', timestamp: new Date().toISOString() },
-                    { id: 4, metric: 'CPA', message: 'CPAが目標の120%を超えた状態が2日間続いています', level: 'high', timestamp: new Date().toISOString() }
+                    { id: 1, metric: '予算消化率', message: '予算消化率が80%以下の65%が3日間続いています', level: 'medium', timestamp: new Date().toISOString(), checkItems: [] },
+                    { id: 2, metric: 'CTR', message: 'CTRが2.5%以下の1.5%が3日間続いています', level: 'medium', timestamp: new Date().toISOString(), checkItems: [] },
+                    { id: 3, metric: 'CV', message: 'CV数が0件が2日連続で続いています', level: 'high', timestamp: new Date().toISOString(), checkItems: [] },
+                    { id: 4, metric: 'CPA', message: 'CPAが目標の120%を超えた状態が2日間続いています', level: 'high', timestamp: new Date().toISOString(), checkItems: [] }
                 ];
             }
 
@@ -324,9 +332,11 @@
             
             currentAlerts.forEach(alert => {
                 // APIから取得した確認事項を優先使用、なければフォールバック
-                const items = alert.checkItems && alert.checkItems.length > 0 
+                const items = (alert.checkItems && alert.checkItems.length > 0) 
                     ? alert.checkItems 
-                    : checklistRules[alert.metric];
+                    : (checklistRules[alert.metric] || []);
+                
+                console.log(`アラート ${alert.metric} の確認事項:`, items);
                 
                 if (items && items.length > 0) {
                     generatedChecklist.push({

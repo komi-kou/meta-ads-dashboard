@@ -2708,36 +2708,44 @@ app.get('/api/test-meta-connection', requireAuth, async (req, res) => {
 // アラート履歴取得API（ローカルストレージ同期用）
 app.get('/api/alert-history', requireAuth, async (req, res) => {
     try {
-        const userId = req.session.userId;
-        const { checkUserAlerts } = require('./alertSystem');
+        const userId = req.session.userId || 'test-user-id-123'; // フォールバック用
+        console.log('アラート履歴API - ユーザーID:', userId);
         
-        console.log('動的アラート履歴API - ユーザーID:', userId);
+        // 実際のalert_history.jsonファイルを読み込み
+        const historyPath = path.join(__dirname, 'alert_history.json');
+        let alertHistory = [];
         
-        // ユーザーの現在のアラートを動的生成
-        const alerts = await checkUserAlerts(userId);
+        if (fs.existsSync(historyPath)) {
+            const historyData = fs.readFileSync(historyPath, 'utf8');
+            alertHistory = JSON.parse(historyData);
+            console.log('アラート履歴ファイルから読み込み:', alertHistory.length + '件');
+        } else {
+            console.log('アラート履歴ファイルが存在しません');
+        }
         
-        // API形式に変換
-        const formattedHistory = alerts.map(alert => ({
+        // API応答形式に変換（checkItemsとimprovementsを保持）
+        const formattedHistory = alertHistory.map(alert => ({
             id: alert.id,
             metric: getMetricDisplayName(alert.metric),
             message: alert.message,
-            severity: alert.severity === 'critical' ? 'high' : 'medium',
+            level: alert.severity === 'critical' ? 'high' : 'medium',
             timestamp: alert.triggeredAt || new Date().toISOString(),
+            status: 'active',
             checkItems: alert.checkItems || [],
             improvements: alert.improvements || {}
         }));
         
-        console.log('生成されたアラート数:', formattedHistory.length);
+        console.log('フォーマット後のアラート数:', formattedHistory.length);
         
         res.json({
             success: true,
             history: formattedHistory,
             generatedAt: new Date().toISOString(),
-            source: 'dynamic'
+            source: 'file'
         });
         
     } catch (error) {
-        console.error('動的アラート履歴取得エラー:', error);
+        console.error('アラート履歴取得エラー:', error);
         res.json({
             success: false,
             history: [],
