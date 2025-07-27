@@ -105,66 +105,212 @@ class ChatworkAutoSender {
         }
     }
 
-    // 前日のダッシュボードデータを取得（修正版）
+    // 最新のダッシュボードデータを取得（過去7日間から最新データを検索）
     async getYesterdayDashboardData() {
         try {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            console.log('📅 最新データ取得開始（過去7日間を検索）');
             
-            console.log(`📅 前日データ取得開始: ${yesterdayStr}`);
-            
-            // User-Agentを付与して内部リクエスト扱いにする
-            const response = await axios.get(`http://localhost:3000/api/meta-ads-data?type=daily&date=${yesterdayStr}`,
-                { headers: { 'User-Agent': 'Internal-Server-Request' } });
-            const dailyData = response.data;
-            
-            if (!dailyData) {
-                console.log('❌ 前日データが取得できませんでした');
-                return null;
+            // 過去7日間のデータを確認
+            for (let i = 1; i <= 7; i++) {
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() - i);
+                const targetDateStr = targetDate.toISOString().split('T')[0];
+                
+                console.log(`🔍 ${targetDateStr} のデータ確認中...`);
+                
+                const defaultUserId = 'test@example.com';
+                const dailyData = await this.fetchMetaDataDirectly(targetDateStr, null, defaultUserId);
+                
+                if (dailyData && (dailyData.spend > 0 || dailyData.impressions > 0)) {
+                    console.log(`✅ ${targetDateStr} のデータ取得成功:`, dailyData);
+                    return dailyData;
+                }
             }
             
-            console.log('✅ 前日データ取得成功:', dailyData);
-            return dailyData;
+            console.log('❌ 過去7日間にデータが見つかりませんでした');
+            return null;
             
         } catch (error) {
-            console.error('❌ 前日ダッシュボードデータ取得エラー:', error.message);
+            console.error('❌ 最新ダッシュボードデータ取得エラー:', error.message);
+            return null;
+        }
+    }
+
+    // Meta APIから直接データを取得する関数
+    async fetchMetaDataDirectly(selectedDate, campaignId = null, userId = null) {
+        try {
+            console.log(`=== 直接Meta API呼び出し: ${selectedDate} ===`, { userId });
             
-            // フォールバック: 期間データから前日を抽出
-            try {
-                console.log('🔄 フォールバック: 期間データから前日を抽出');
-                const periodResponse = await axios.get('http://localhost:3000/api/meta-ads-data?type=period&period=30',
-                    { headers: { 'User-Agent': 'Internal-Server-Request' } });
-                const periodData = periodResponse.data;
-                
-                if (!periodData || !periodData.chartData) {
-                    console.log('❌ 期間データも取得できませんでした');
-                    return null;
-                }
-                
-                // 最新のデータを前日として扱う
-                const labels = periodData.chartData.labels;
-                const yesterdayIndex = labels.length - 1;
-                
-                if (yesterdayIndex >= 0) {
-                    const yesterdayData = {
-                        spend: periodData.chartData.spend[yesterdayIndex] || 0,
-                        budgetRate: this.calculateBudgetRate(periodData.chartData.spend[yesterdayIndex] || 0),
-                        ctr: periodData.chartData.ctr[yesterdayIndex] || 0,
-                        cpm: periodData.chartData.cpm[yesterdayIndex] || 0,
-                        cpa: periodData.chartData.cpa[yesterdayIndex] || 0,
-                        frequency: periodData.chartData.frequency[yesterdayIndex] || 0,
-                        conversions: periodData.chartData.conversions[yesterdayIndex] || 0
-                    };
-                    
-                    console.log('✅ フォールバック前日データ取得成功:', yesterdayData);
-                    return yesterdayData;
-                }
-            } catch (fallbackError) {
-                console.error('❌ フォールバック処理も失敗:', fallbackError.message);
+            // 設定ファイルから認証情報を取得
+            const config = this.getMetaApiConfigFromSetup(userId);
+            
+            if (!config || !config.accessToken || !config.accountId) {
+                throw new Error('Meta API設定が見つかりません。設定画面で再度設定してください。');
             }
             
+            console.log('🔍 Meta API使用する認証情報:', {
+                accountId: config.accountId,
+                accessTokenLength: config.accessToken.length,
+                accessTokenPrefix: config.accessToken.substring(0, 10) + '...',
+                userId: userId
+            });
+            
+            const baseUrl = 'https://graph.facebook.com/v18.0';
+            const endpoint = `${baseUrl}/${config.accountId}/insights`;
+            
+            const params = {
+                access_token: config.accessToken,
+                fields: [
+                    'spend',
+                    'impressions', 
+                    'clicks',
+                    'ctr',
+                    'cpm',
+                    'frequency',
+                    'reach',
+                    'actions',
+                    'cost_per_action_type'
+                ].join(','),
+                time_range: JSON.stringify({
+                    since: selectedDate,
+                    until: selectedDate
+                }),
+                level: campaignId ? 'campaign' : 'account'
+            };
+            
+            if (campaignId) {
+                params.filtering = JSON.stringify([{
+                    field: 'campaign.id',
+                    operator: 'IN',
+                    value: [campaignId]
+                }]);
+            }
+            
+            console.log('🚀 Meta API リクエスト開始:', endpoint);
+            const response = await axios.get(endpoint, { params });
+            
+            if (!response.data || !response.data.data || response.data.data.length === 0) {
+                console.log('⚠️ Meta APIから該当日のデータが見つかりませんでした');
+                return this.getEmptyDailyData(selectedDate);
+            }
+            
+            const insights = response.data.data[0];
+            console.log('✅ Meta API レスポンス成功:', insights);
+            
+            // データを変換（impressionsも含める）
+            const convertedData = this.convertInsightsToMetrics(insights, selectedDate, userId);
+            convertedData.impressions = parseInt(insights.impressions || 0); // impressionsを追加
+            return convertedData;
+            
+        } catch (error) {
+            console.error('❌ 直接Meta API呼び出しエラー:', error.message);
+            if (error.response?.status === 400) {
+                console.log('⚠️ Meta API エラー詳細:', error.response.data);
+            }
+            return this.getEmptyDailyData(selectedDate);
+        }
+    }
+
+    // 設定からMeta API認証情報を取得
+    getMetaApiConfigFromSetup(userId = null) {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            
+            // settings.jsonから設定を読み込み
+            if (this.settings && this.settings.meta) {
+                return {
+                    accessToken: this.settings.meta.accessToken,
+                    accountId: this.settings.meta.accountId
+                };
+            }
+            
+            // フォールバック: setup.jsonから読み込み
+            const setupPath = path.join(__dirname, '..', 'config', 'setup.json');
+            if (fs.existsSync(setupPath)) {
+                const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+                console.log('📋 Setup.json読み込み成功:', {
+                    hasMetaAccessToken: !!setupData.meta?.accessToken,
+                    hasMetaAccountId: !!setupData.meta?.accountId,
+                    accountId: setupData.meta?.accountId
+                });
+                
+                if (setupData.meta && setupData.meta.accessToken && setupData.meta.accountId) {
+                    return {
+                        accessToken: setupData.meta.accessToken,
+                        accountId: setupData.meta.accountId
+                    };
+                }
+            }
+            
+            console.error('❌ Meta API設定が見つかりません');
             return null;
+            
+        } catch (error) {
+            console.error('❌ Meta API設定読み込みエラー:', error.message);
+            return null;
+        }
+    }
+
+    // 空のデータを返す
+    getEmptyDailyData(selectedDate) {
+        return {
+            spend: 0,
+            budgetRate: '0.00',
+            ctr: 0,
+            cpm: 0,
+            conversions: 0,
+            cpa: 0,
+            frequency: 0
+        };
+    }
+
+    // インサイトデータをメトリクスに変換
+    convertInsightsToMetrics(insights, selectedDate, userId = null) {
+        const spend = parseFloat(insights.spend || 0);
+        const conversions = this.getConversionsFromActions(insights.actions);
+        const cpa = conversions > 0 ? spend / conversions : 0;
+        
+        const dailyBudget = this.getDailyBudgetFromGoals(userId);
+        const budgetRate = (spend / dailyBudget) * 100;
+        
+        return {
+            spend: Math.round(spend),
+            budgetRate: parseFloat(Math.min(budgetRate, 999.99).toFixed(2)),
+            ctr: parseFloat(insights.ctr || 0),
+            cpm: Math.round(parseFloat(insights.cpm || 0)),
+            conversions: conversions,
+            cpa: Math.round(cpa),
+            frequency: parseFloat(insights.frequency || 0)
+        };
+    }
+
+    // アクションからコンバージョン抽出
+    getConversionsFromActions(actions) {
+        if (!actions || !Array.isArray(actions)) return 0;
+        
+        let total = 0;
+        const conversionTypes = ['purchase', 'lead', 'complete_registration', 'add_to_cart'];
+        
+        actions.forEach(action => {
+            if (conversionTypes.includes(action.action_type)) {
+                total += parseInt(action.value || 0);
+            }
+        });
+        
+        return total;
+    }
+
+    // 日予算を取得
+    getDailyBudgetFromGoals(userId = null) {
+        try {
+            if (this.settings?.goal?.target_dailyBudget) {
+                return parseFloat(this.settings.goal.target_dailyBudget);
+            }
+            return 15000; // デフォルト値
+        } catch (error) {
+            console.error('日予算取得エラー:', error);
+            return 15000;
         }
     }
 
@@ -312,10 +458,10 @@ http://localhost:3000/dashboard`;
 
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${dashboardData.ctr || '0.00'}%
+CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
 CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${dashboardData.frequency || '0.00'}%
+フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
 コンバージョン数：${dashboardData.conversions || 0}件  
 
 確認はこちら

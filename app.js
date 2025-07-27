@@ -452,8 +452,35 @@ try {
   console.log('⚠️ AlertManager読み込みエラー:', error.message);
   alertManager = {
     checkAlerts: () => [],
-    getCurrentGoal: () => ({ name: 'toC（メルマガ登録）' }),
-    getAllGoals: () => [{ key: 'toC_newsletter', name: 'toC（メルマガ登録）' }]
+    getCurrentGoal: () => {
+      // 設定ファイルから正しいゴールタイプを読み込み
+      try {
+        const setupPath = path.join(__dirname, 'config', 'setup.json');
+        if (fs.existsSync(setupPath)) {
+          const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+          if (setupData.goal && setupData.goal.type) {
+            return { 
+              key: setupData.goal.type,
+              name: getGoalName(setupData.goal.type)
+            };
+          }
+        }
+      } catch (err) {
+        console.error('設定読み込みエラー:', err.message);
+      }
+      // フォールバック
+      return { key: 'toC_newsletter', name: 'toC（メルマガ登録）' };
+    },
+    getAllGoals: () => [
+      { key: 'toC_newsletter', name: 'toC（メルマガ登録）' },
+      { key: 'toC_line', name: 'toC（LINE登録）' },
+      { key: 'toC_phone', name: 'toC（電話ボタン）' },
+      { key: 'toC_purchase', name: 'toC（購入）' },
+      { key: 'toB_newsletter', name: 'toB（メルマガ登録）' },
+      { key: 'toB_line', name: 'toB（LINE登録）' },
+      { key: 'toB_phone', name: 'toB（電話ボタン）' },
+      { key: 'toB_purchase', name: 'toB（購入）' }
+    ]
   };
 }
 

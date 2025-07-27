@@ -1,10 +1,43 @@
 // alertManager.js - アラート判定とデータ管理
 const alertRules = require('./alertRules');
+const fs = require('fs');
+const path = require('path');
 
 class AlertManager {
   constructor() {
-    this.currentGoal = 'toC_newsletter'; // デフォルトゴール
+    this.currentGoal = this.loadGoalFromConfig(); // 設定ファイルから読み込み
     this.alertHistory = [];
+  }
+
+  // 設定ファイルからゴールタイプを読み込み
+  loadGoalFromConfig() {
+    try {
+      // setup.jsonから読み込み
+      const setupPath = path.join(__dirname, 'config', 'setup.json');
+      if (fs.existsSync(setupPath)) {
+        const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+        if (setupData.goal && setupData.goal.type) {
+          console.log('✅ ゴールタイプ読み込み成功:', setupData.goal.type);
+          return setupData.goal.type;
+        }
+      }
+
+      // フォールバック: settings.jsonから読み込み
+      const settingsPath = path.join(__dirname, 'settings.json');
+      if (fs.existsSync(settingsPath)) {
+        const settingsData = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        if (settingsData.goal && settingsData.goal.type) {
+          console.log('✅ ゴールタイプ読み込み成功 (settings.json):', settingsData.goal.type);
+          return settingsData.goal.type;
+        }
+      }
+
+      console.log('⚠️ ゴールタイプが見つかりません。デフォルト値を使用: toC_newsletter');
+      return 'toC_newsletter'; // デフォルト値
+    } catch (error) {
+      console.error('❌ ゴールタイプ読み込みエラー:', error.message);
+      return 'toC_newsletter'; // エラー時のデフォルト値
+    }
   }
   
   // 現在のゴール設定
