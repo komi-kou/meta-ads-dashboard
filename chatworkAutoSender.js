@@ -14,10 +14,30 @@ class ChatworkAutoSender {
     // 設定ファイルを読み込み
     loadSettings() {
         try {
+            // まずsettings.jsonを確認
             const settingsPath = path.join(__dirname, '..', 'settings.json');
             if (fs.existsSync(settingsPath)) {
                 this.settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
                 console.log('✅ チャットワーク自動送信設定を読み込みました');
+                return;
+            }
+            
+            // フォールバック: setup.jsonから読み込み
+            const setupPath = path.join(__dirname, 'config', 'setup.json');
+            if (fs.existsSync(setupPath)) {
+                const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+                this.settings = {
+                    chatwork: {
+                        apiToken: setupData.chatwork?.apiToken,
+                        roomId: setupData.chatwork?.roomId
+                    },
+                    meta: {
+                        accessToken: setupData.meta?.accessToken,
+                        accountId: setupData.meta?.accountId
+                    },
+                    goal: setupData.goal
+                };
+                console.log('✅ setup.jsonからチャットワーク設定を読み込みました');
             } else {
                 console.log('⚠️ 設定ファイルが見つかりません');
             }
@@ -88,29 +108,33 @@ class ChatworkAutoSender {
         }
     }
 
-    // 前日のダッシュボードデータを取得（直接関数呼び出し版）
+    // 最新のダッシュボードデータを取得（過去7日間から最新データを検索）
     async getYesterdayDashboardData() {
         try {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            console.log('📅 最新データ取得開始（過去7日間を検索）');
             
-            console.log(`📅 前日データ取得開始: ${yesterdayStr}`);
-            
-            // デフォルトユーザーIDを使用してMeta APIから直接データを取得
-            const defaultUserId = 'test@example.com'; // テストユーザーのID
-            const dailyData = await this.fetchMetaDataDirectly(yesterdayStr, null, defaultUserId);
-            
-            if (!dailyData) {
-                console.log('❌ 前日データが取得できませんでした');
-                return null;
+            // 過去7日間のデータを確認
+            for (let i = 1; i <= 7; i++) {
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() - i);
+                const targetDateStr = targetDate.toISOString().split('T')[0];
+                
+                console.log(`🔍 ${targetDateStr} のデータ確認中...`);
+                
+                const defaultUserId = 'test@example.com';
+                const dailyData = await this.fetchMetaDataDirectly(targetDateStr, null, defaultUserId);
+                
+                if (dailyData && (dailyData.spend > 0 || dailyData.impressions > 0)) {
+                    console.log(`✅ ${targetDateStr} のデータ取得成功:`, dailyData);
+                    return dailyData;
+                }
             }
             
-            console.log('✅ 前日データ取得成功:', dailyData);
-            return dailyData;
+            console.log('❌ 過去7日間にデータが見つかりませんでした');
+            return null;
             
         } catch (error) {
-            console.error('❌ 前日ダッシュボードデータ取得エラー:', error.message);
+            console.error('❌ 最新ダッシュボードデータ取得エラー:', error.message);
             return null;
         }
     }
@@ -176,8 +200,9 @@ class ChatworkAutoSender {
             const insights = response.data.data[0];
             console.log('✅ Meta API レスポンス成功:', insights);
             
-            // データを変換
+            // データを変換（impressionsも含める）
             const convertedData = this.convertInsightsToMetrics(insights, selectedDate, userId);
+            convertedData.impressions = parseInt(insights.impressions || 0); // impressionsを追加
             return convertedData;
             
         } catch (error) {
