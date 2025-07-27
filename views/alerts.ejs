@@ -552,22 +552,17 @@
             }
         }
 
-        // ゴール設定読み込み（alertSystem.jsのgetCurrentGoalType()を使用）
+        // ゴール設定読み込み（サーバーから渡されたgoalTypeを使用）
         async function loadGoals() {
             try {
-                // alertSystem.js の getCurrentGoalType() を使用してゴールタイプを取得
-                const response = await fetch('/api/alert-settings');
-                const alertSettings = await response.json();
+                // サーバーから渡されたゴールタイプを使用
+                let goalType = '<%= currentGoalType || "" %>';
+                console.log('サーバーから取得したゴールタイプ:', goalType);
                 
                 let currentGoals = {};
-                let goalType = '';
                 
-                if (alertSettings.success && alertSettings.data) {
-                    // alertSystem.js からゴールタイプを取得
-                    goalType = alertSettings.data.currentGoal || '';
-                    
-                    // セットアップページと同じ goalTargets を使用
-                    const goalTargets = {
+                // セットアップページと同じ goalTargets を使用
+                const goalTargets = {
                         toC_newsletter: {
                             '予算消化率': 80,
                             'CTR': 2.5,
@@ -633,10 +628,9 @@
                             'CPM': 3000
                         }
                     };
-                    
-                    if (goalTargets[goalType]) {
-                        currentGoals = goalTargets[goalType];
-                    }
+                
+                if (goalTargets[goalType]) {
+                    currentGoals = goalTargets[goalType];
                 }
                 
                 // localStorage の設定で上書き（ユーザーがカスタマイズした場合）

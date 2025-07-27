@@ -883,7 +883,11 @@ app.get('/alerts', requireAuth, async (req, res) => {
         console.log('アラートページにアクセス - ユーザー:', req.session.userId);
         
         const userId = req.session.userId;
-        const { checkUserAlerts } = require('./alertSystem');
+        const { checkUserAlerts, getCurrentGoalType } = require('./alertSystem');
+        
+        // 現在のゴールタイプを取得
+        const currentGoalType = getCurrentGoalType();
+        console.log('現在のゴールタイプ:', currentGoalType);
         
         // ユーザーの現在のアラートを取得
         const alerts = await checkUserAlerts(userId);
@@ -899,6 +903,7 @@ app.get('/alerts', requireAuth, async (req, res) => {
         res.render('alerts', {
             title: 'アラート内容 - Meta広告ダッシュボード',
             alerts: alerts,
+            currentGoalType: currentGoalType,
             user: {
                 id: req.session.userId,
                 email: req.session.userEmail,
