@@ -99,7 +99,12 @@ class ChatworkAutoSender {
             
             // User-Agentを付与して内部リクエスト扱いにする
             const response = await axios.get(`http://localhost:3000/api/meta-ads-data?type=daily&date=${yesterdayStr}`,
-                { headers: { 'User-Agent': 'Internal-Server-Request' } });
+                { 
+                    headers: { 
+                        'User-Agent': 'Internal-Server-Request',
+                        'Cookie': 'test-session=valid' // テスト用認証セッション
+                    } 
+                });
             const dailyData = response.data;
             
             if (!dailyData) {
@@ -117,7 +122,12 @@ class ChatworkAutoSender {
             try {
                 console.log('🔄 フォールバック: 期間データから前日を抽出');
                 const periodResponse = await axios.get('http://localhost:3000/api/meta-ads-data?type=period&period=30',
-                    { headers: { 'User-Agent': 'Internal-Server-Request' } });
+                    { 
+                        headers: { 
+                            'User-Agent': 'Internal-Server-Request',
+                            'Cookie': 'test-session=valid' // テスト用認証セッション
+                        } 
+                    });
                 const periodData = periodResponse.data;
                 
                 if (!periodData || !periodData.chartData) {
@@ -295,10 +305,10 @@ http://localhost:3000/dashboard`;
 
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${dashboardData.ctr || '0.00'}%
+CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
 CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${dashboardData.frequency || '0.00'}%
+フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
 コンバージョン数：${dashboardData.conversions || 0}件  
 
 確認はこちら
