@@ -12,17 +12,32 @@ class AlertManager {
   // 設定ファイルからゴールタイプを読み込み
   loadGoalFromConfig() {
     try {
-      // setup.jsonから読み込み
+      // 優先順位1: ユーザー設定ファイルから読み込み
+      const userSettingsPath = path.join(__dirname, 'data', 'user_settings.json');
+      if (fs.existsSync(userSettingsPath)) {
+        const userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+        if (Array.isArray(userSettings) && userSettings.length > 0) {
+          // 最新のユーザー設定を使用
+          const latestUserSetting = userSettings[userSettings.length - 1];
+          if (latestUserSetting.service_goal || latestUserSetting.goal_type) {
+            const goalType = latestUserSetting.service_goal || latestUserSetting.goal_type;
+            console.log('✅ ゴールタイプ読み込み成功 (ユーザー設定):', goalType);
+            return goalType;
+          }
+        }
+      }
+
+      // 優先順位2: setup.jsonから読み込み
       const setupPath = path.join(__dirname, 'config', 'setup.json');
       if (fs.existsSync(setupPath)) {
         const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
         if (setupData.goal && setupData.goal.type) {
-          console.log('✅ ゴールタイプ読み込み成功:', setupData.goal.type);
+          console.log('✅ ゴールタイプ読み込み成功 (setup.json):', setupData.goal.type);
           return setupData.goal.type;
         }
       }
 
-      // フォールバック: settings.jsonから読み込み
+      // 優先順位3: settings.jsonから読み込み
       const settingsPath = path.join(__dirname, 'settings.json');
       if (fs.existsSync(settingsPath)) {
         const settingsData = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));

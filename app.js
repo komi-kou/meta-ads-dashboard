@@ -455,6 +455,23 @@ try {
     getCurrentGoal: () => {
       // 設定ファイルから正しいゴールタイプを読み込み
       try {
+        // 優先順位1: ユーザー設定から読み込み
+        const userSettingsPath = path.join(__dirname, 'data', 'user_settings.json');
+        if (fs.existsSync(userSettingsPath)) {
+          const userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+          if (Array.isArray(userSettings) && userSettings.length > 0) {
+            const latestUserSetting = userSettings[userSettings.length - 1];
+            if (latestUserSetting.service_goal || latestUserSetting.goal_type) {
+              const goalType = latestUserSetting.service_goal || latestUserSetting.goal_type;
+              return { 
+                key: goalType,
+                name: getGoalName(goalType)
+              };
+            }
+          }
+        }
+
+        // 優先順位2: setup.jsonから読み込み
         const setupPath = path.join(__dirname, 'config', 'setup.json');
         if (fs.existsSync(setupPath)) {
           const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));

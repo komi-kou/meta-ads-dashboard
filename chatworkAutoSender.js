@@ -280,11 +280,11 @@ class ChatworkAutoSender {
         return {
             spend: Math.round(spend),
             budgetRate: parseFloat(Math.min(budgetRate, 999.99).toFixed(2)),
-            ctr: parseFloat(insights.ctr || 0),
+            ctr: parseFloat(parseFloat(insights.ctr || 0).toFixed(2)),
             cpm: Math.round(parseFloat(insights.cpm || 0)),
             conversions: conversions,
             cpa: Math.round(cpa),
-            frequency: parseFloat(insights.frequency || 0)
+            frequency: parseFloat(parseFloat(insights.frequency || 0).toFixed(2))
         };
     }
 
