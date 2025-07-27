@@ -552,19 +552,19 @@
             }
         }
 
-        // ゴール設定読み込み（setup.jsonから取得）
+        // ゴール設定読み込み（alertSystem.jsのgetCurrentGoalType()を使用）
         async function loadGoals() {
             try {
-                // まず setup.json から設定を読み込む
-                const response = await fetch('/api/check-saved-meta-data');
-                const setupData = await response.json();
+                // alertSystem.js の getCurrentGoalType() を使用してゴールタイプを取得
+                const response = await fetch('/api/alert-settings');
+                const alertSettings = await response.json();
                 
                 let currentGoals = {};
                 let goalType = '';
                 
-                if (setupData.success && setupData.hasConfig) {
-                    // setup.json からゴールタイプと目標値を取得
-                    goalType = setupData.data.goal?.type || '';
+                if (alertSettings.success && alertSettings.data) {
+                    // alertSystem.js からゴールタイプを取得
+                    goalType = alertSettings.data.currentGoal || '';
                     
                     // セットアップページと同じ goalTargets を使用
                     const goalTargets = {

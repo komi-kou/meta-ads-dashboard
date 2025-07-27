@@ -1522,6 +1522,25 @@ app.get('/api/dashboard-data', requireAuth, async (req, res) => {
   }
 });
 
+// アラート設定API（alertSystem.jsのgetCurrentGoalTypeを使用）
+app.get('/api/alert-settings', requireAuth, async (req, res) => {
+  try {
+    const { getAlertSettings } = require('./alertSystem');
+    const settings = getAlertSettings();
+    
+    res.json({
+      success: true,
+      data: settings
+    });
+  } catch (error) {
+    console.error('アラート設定取得エラー:', error);
+    res.status(500).json({
+      success: false,
+      error: 'アラート設定の取得に失敗しました'
+    });
+  }
+});
+
 // Meta広告データ取得関数
 async function fetchMetaAdsData(accessToken, accountId) {
   try {
