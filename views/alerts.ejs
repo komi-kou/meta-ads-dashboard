@@ -556,7 +556,7 @@
         async function loadGoals() {
             try {
                 // サーバーから渡されたゴールタイプを使用
-                let goalType = '<%= currentGoalType || "" %>';
+                let goalType = '<%= currentGoalType || "toC_newsletter" %>';
                 console.log('サーバーから取得したゴールタイプ:', goalType);
                 
                 let currentGoals = {};
@@ -667,7 +667,7 @@
                     '日予算': 50000,
                     'CPM': 1000
                 };
-                updateCurrentGoalDisplay(defaultGoals);
+                updateCurrentGoalDisplay(defaultGoals, goalType);
                 return defaultGoals;
             }
         }
