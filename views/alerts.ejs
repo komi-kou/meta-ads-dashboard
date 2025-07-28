@@ -1073,7 +1073,8 @@
                 closeGoalSettings();
                 
                 // 現在のゴール表示を更新
-                updateCurrentGoalDisplay(goals);
+                const goalType = '<%= currentGoalType || "toC_newsletter" %>';
+                updateCurrentGoalDisplay(goals, goalType);
                 
                 // アラートを再チェック
                 loadAlertData();
@@ -1086,6 +1087,10 @@
         }
 
         function updateCurrentGoalDisplay(goals, goalType = '') {
+            console.log('=== updateCurrentGoalDisplay デバッグ情報 ===');
+            console.log('受け取ったgoalType:', goalType);
+            console.log('goalTypeの型:', typeof goalType);
+            
             // ゴールタイプの表示名を取得
             const goalTypeNames = {
                 'toC_newsletter': 'toC（メルマガ登録）',
@@ -1099,6 +1104,8 @@
             };
             
             const goalTypeName = goalTypeNames[goalType] || goalType || '未設定';
+            console.log('goalTypeNames[goalType]:', goalTypeNames[goalType]);
+            console.log('最終的なgoalTypeName:', goalTypeName);
             
             const goalText = Object.entries(goals)
                 .map(([metric, value]) => {

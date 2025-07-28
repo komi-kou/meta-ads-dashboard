@@ -912,9 +912,12 @@ app.get('/alerts', requireAuth, async (req, res) => {
         });
     } catch (error) {
         console.error('アラートページエラー:', error);
+        const { getCurrentGoalType } = require('./alertSystem');
+        const currentGoalType = getCurrentGoalType();
         res.render('alerts', {
             title: 'アラート内容 - Meta広告ダッシュボード',
             alerts: [],
+            currentGoalType: currentGoalType,
             error: 'アラートの取得に失敗しました'
         });
     }
