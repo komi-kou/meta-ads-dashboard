@@ -1,0 +1,23 @@
+[
+  {
+    "id": "test-1753497732979-bdy6211ob",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "meta_access_token": "EAAcUd0aSHKMBPNwDG1Tb7vnAyftCNCEZCjefIMUDmte1W91ZCNHlyHNuD6dj7HXbGnHptazneCJdc1XouLH4r3ZAgZBIlwykZBJMED0KsXrirwsYIijBr7ZBLoxh770oFnidMf1jdjUDEEK33JVwDxDxZBEhe0GVMJIwNLZCZC1AhOH6uu6m95eXhTIlEETMLbw292ER1PYqEQa5WQLoT",
+    "meta_account_id": "act_1755467588688735",
+    "meta_app_id": "",
+    "chatwork_token": "10e7538af625f74890e0f0bc4747c976",
+    "chatwork_room_id": "405874412",
+    "service_goal": "toC_line",
+    "goal_type": "toC_line",
+    "target_cpa": "1500",
+    "target_cpm": "800",
+    "target_ctr": "2.5",
+    "target_dailyBudget": "10000",
+    "notifications_enabled": true,
+    "daily_report_enabled": true,
+    "update_notifications_enabled": true,
+    "alert_notifications_enabled": true,
+    "created_at": "2025-07-26T02:42:12.979Z",
+    "updated_at": "2025-07-26T02:42:12.979Z"
+  }
+]

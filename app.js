@@ -899,11 +899,31 @@ app.get('/alerts', requireAuth, async (req, res) => {
             checkItemsCount: alert.checkItems ? alert.checkItems.length : 0,
             improvementsCount: alert.improvements ? Object.keys(alert.improvements).length : 0
         })));
+        console.log('🔍 アラート取得完了 - 次はユーザー設定取得');
+        
+        // ユーザー設定を取得
+        let userSettings = null;
+        try {
+            console.log('🔍 UserManager呼び出し開始 - ユーザーID:', userId);
+            const UserManager = require('./userManager');
+            const userManagerInstance = new UserManager();
+            userSettings = userManagerInstance.getUserSettings(userId);
+            console.log('✅ ユーザー設定取得成功:', userId, userSettings ? 'あり' : 'なし');
+            if (userSettings) {
+                console.log('  - goal_type:', userSettings.goal_type);
+                console.log('  - target_cpa:', userSettings.target_cpa);
+                console.log('  - target_ctr:', userSettings.target_ctr);
+            }
+        } catch (settingsError) {
+            console.error('❌ ユーザー設定取得エラー:', settingsError.message);
+            userSettings = null;
+        }
         
         res.render('alerts', {
             title: 'アラート内容 - Meta広告ダッシュボード',
             alerts: alerts,
             currentGoalType: currentGoalType,
+            userSettings: userSettings,
             user: {
                 id: req.session.userId,
                 email: req.session.userEmail,
@@ -914,11 +934,44 @@ app.get('/alerts', requireAuth, async (req, res) => {
         console.error('アラートページエラー:', error);
         const { getCurrentGoalType } = require('./alertSystem');
         const currentGoalType = getCurrentGoalType();
+        // エラー時でもユーザー設定を取得
+        let userSettings = null;
+        try {
+            const UserManager = require('./userManager');
+            const userManagerInstance = new UserManager();
+            userSettings = userManagerInstance.getUserSettings(req.session.userId);
+        } catch (settingsError) {
+            console.error('エラー時ユーザー設定取得エラー:', settingsError);
+            userSettings = null;
+        }
+        
         res.render('alerts', {
             title: 'アラート内容 - Meta広告ダッシュボード',
             alerts: [],
             currentGoalType: currentGoalType,
+            userSettings: userSettings,
             error: 'アラートの取得に失敗しました'
+        });
+    }
+});
+
+// ユーザー設定API
+app.get('/api/user-settings', requireAuth, (req, res) => {
+    try {
+        const UserManager = require('./userManager');
+        const userManagerInstance = new UserManager();
+        const userSettings = userManagerInstance.getUserSettings(req.session.userId);
+        
+        res.json({
+            success: true,
+            data: userSettings,
+            goalType: userSettings?.goal_type || 'toC_line'
+        });
+    } catch (error) {
+        console.error('ユーザー設定取得エラー:', error);
+        res.json({
+            success: false,
+            error: 'ユーザー設定の取得に失敗しました'
         });
     }
 });

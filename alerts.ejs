@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アラート内容 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* 🔥 修正: 左上のレイアウト崩れを防ぐ */
+        .main-content {
+            padding: 20px;
+            background: #f8fafc; /* 元の薄いグレー背景 */
+        }
+        
+        .page-header-section {
+            margin-bottom: 20px;
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        
+        .alert-header h1 {
+            color: #1f2937; /* 元の黒文字 */
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            /* 🔥 重要: 左上の位置を固定 */
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .alert-status {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #6b7280;
+            /* 🔥 重要: 右側に適切に配置 */
+            flex-shrink: 0;
+            text-align: right;
+        }
+        
+        .alert-section {
+            margin-bottom: 30px;
+        }
+        
+        .alert-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1f2937; /* 元の黒文字 */
+            /* 🔥 重要: セクションヘッダーの位置固定 */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .alert-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #10b981;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .alert-card.critical {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .alert-card.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .alert-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .alert-type {
+            font-size: 16px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .alert-time {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .alert-message {
+            color: #374151;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .no-alerts {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            padding: 40px 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 2px dashed #d1d5db;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        /* メインアラートセクション - 緊急アラート削除後の調整 */
+        .main-alert-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            min-height: 200px; /* 最小高さを確保 */
+        }
+
+        .main-alert-section h2 {
+            margin: 0 0 20px 0;
+            color: #374151;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* アラート設定セクション */
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            color: #374151;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .edit-goals-button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .edit-goals-button:hover {
+            background-color: #2563eb;
+        }
+
+        /* モーダルスタイル */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #374151;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-button:hover {
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .goal-settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .goal-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .goal-label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .goal-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .goal-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-unit {
+            color: #6b7280;
+            font-size: 14px;
+            min-width: 30px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .cancel-button, .save-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .cancel-button {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .cancel-button:hover {
+            background-color: #e5e7eb;
+        }
+
+        .save-button {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .save-button:hover {
+            background-color: #2563eb;
+        }
+
+        /* ローディング状態 */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .loading p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* アラートアイテムのスタイル */
+        .alert-item.attention-alert {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .alert-item.attention-alert .alert-icon {
+            color: #f59e0b;
+        }
+
+        /* 確認事項と改善施策のスタイル */
+        .alert-section-header {
+            font-weight: 600;
+            color: #374151;
+            margin: 16px 0 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .alert-check-items, .alert-improvements {
+            margin-bottom: 16px;
+        }
+
+        .check-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .check-item-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .check-priority {
+            background-color: #3b82f6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .check-title {
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .check-description {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        .improvement-category {
+            margin-bottom: 12px;
+        }
+
+        .improvement-category-title {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .improvement-strategies {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .improvement-strategies li {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        /* ゴール設定の追加項目対応 */
+        .goals-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .goal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            min-height: 50px;
+        }
+
+        /* エラー状態のスタイル */
+        .goal-input.error {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .save-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* 🔥 重要: レスポンシブ対応で左上崩れを防ぐ */
+        @media (max-width: 768px) {
+            .alert-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .alert-status {
+                align-self: flex-end;
+            }
+
+            .settings-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .edit-goals-button {
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー（ダッシュボードと完全統一） -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/alerts" class="nav-item active">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+                <a href="/chatwork-test" class="nav-item">チャットワークテスト</a>
+            </nav>
+        </div>
+
+        <!-- メインコンテンツ（🔥 左上の崩れを修正） -->
+        <main class="main-content">
+            <!-- 🔥 修正: 適切なヘッダーレイアウト -->
+            <div class="page-header-section">
+                <div class="alert-header">
+                    <h1>🚨 アラート内容</h1>
+                    <div class="alert-status">
+                        <span>アクティブアラート: <span id="active-count">-</span>件</span>
+                        <span>最終チェック: <span id="last-check">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 注意アラート - 緊急アラート削除後の美しいレイアウト -->
+                <div class="alert-section main-alert-section">
+                    <h2>⚠️ 注意アラート</h2>
+                    <div id="warning-alerts" class="loading">
+                        データを読み込み中...
+                    </div>
+                </div>
+
+                <!-- アラート設定 -->
+                <div class="alert-section">
+                    <div class="settings-header">
+                        <h2>⚙️ アラート設定</h2>
+                        <button 
+                            class="edit-goals-button"
+                            onclick="openGoalSettings()"
+                        >
+                            ゴール設定を編集
+                        </button>
+                    </div>
+                    <div id="alert-settings">
+                        <div class="alert-card">
+                            <div class="alert-type">現在のゴールタイプ</div>
+                            <div class="alert-message" id="current-goal">設定を読み込み中...</div>
+                        </div>
+                        <div class="alert-card">
+                            <div class="alert-type">監視項目</div>
+                            <div class="alert-message">
+                                • 予算消化率: 80%以下が3日間継続<br>
+                                • CTR: 基準値以下が3日間継続<br>
+                                • CV: 0件継続で発生<br>
+                                • CPA: 目標値120%超過が2日間継続<br>
+                                • 日予算: 設定値以下で発生<br>
+                                • CPM: ベースラインから+500円が3日間継続
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </main>
+    </div>
+
+    <!-- ゴール設定モーダル -->
+    <div id="goalSettingsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ ゴール設定</h3>
+                <button class="close-button" onclick="closeGoalSettings()">×</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="goal-settings-form">
+                    <div class="goal-input-group">
+                        <label class="goal-label">予算消化率</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goal-budget-rate" value="80" min="0" max="100" class="goal-input">
+                            <span class="input-unit">%</span>
+                        </div>
+                    </div>
+                    <div class="goal-input-group">
+                        <label class="goal-label">CTR</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goal-ctr" value="2.0" min="0" step="0.1" class="goal-input">
+                            <span class="input-unit">%</span>
+                        </div>
+                    </div>
+                    <div class="goal-input-group">
+                        <label class="goal-label">CV</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goal-cv" value="1" min="0" class="goal-input">
+                            <span class="input-unit">件</span>
+                        </div>
+                    </div>
+                    <div class="goal-input-group">
+                        <label class="goal-label">CPA</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goal-cpa" value="10000" min="0" class="goal-input">
+                            <span class="input-unit">円</span>
+                        </div>
+                    </div>
+                    <div class="goal-input-group">
+                        <label class="goal-label">日予算</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goal-daily-budget" value="50000" min="0" class="goal-input">
+                            <span class="input-unit">円</span>
+                        </div>
+                    </div>
+                    <div class="goal-input-group">
+                        <label class="goal-label">CPM</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="goal-cpm" value="1000" min="0" class="goal-input">
+                            <span class="input-unit">円</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="cancel-button" onclick="closeGoalSettings()">
+                    キャンセル
+                </button>
+                <button class="save-button" onclick="saveGoalSettings()">
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // アラートページの初期化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('アラートページ初期化');
+            await initializeAlertsPage();
+            
+            // 5分毎にデータ更新
+            setInterval(loadAlertData, 5 * 60 * 1000);
+        });
+
+        // アラートページ初期化
+        async function initializeAlertsPage() {
+            try {
+                await loadGoals();
+                await loadAlertData();
+            } catch (error) {
+                console.error('アラートページ初期化エラー:', error);
+            }
+        }
+
+        // ゴール設定読み込み（サーバーから渡されたuserSettingsを使用）
+        async function loadGoals() {
+            try {
+                // サーバーから渡されたゴールタイプとユーザー設定を使用
+                let goalType = '<%= currentGoalType || "toC_newsletter" %>';
+                const userSettings = <% try { %><%- JSON.stringify(userSettings || {}) %><% } catch(e) { %>null<% } %>;
+                console.log('=== loadGoals 詳細デバッグ開始 ===');
+                console.log('EJSから渡されたgoalType:', goalType);
+                console.log('EJSから渡されたuserSettings:', userSettings);
+                console.log('goalTypeの型:', typeof goalType);
+                console.log('goalTypeの長さ:', goalType.length);
+                
+                let currentGoals = {};
+                
+                // ユーザー設定から実際の目標値を取得
+                if (userSettings && userSettings.target_cpa) {
+                    currentGoals = {
+                        '予算消化率': 80, // 固定値
+                        'CTR': parseFloat(userSettings.target_ctr) || 2.5,
+                        'CV': 1, // 固定値
+                        'CPA': parseInt(userSettings.target_cpa) || 1500,
+                        '日予算': parseInt(userSettings.target_dailyBudget) || 10000,
+                        'CPM': parseInt(userSettings.target_cpm) || 800
+                    };
+                    console.log('✅ ユーザー設定から目標値を取得:', currentGoals);
+                } else {
+                    console.log('⚠️ ユーザー設定がnull - デフォルト値を使用');
+                    // フォールバック: goalTypeに基づくデフォルト値
+                    const goalTargets = {
+                        toC_newsletter: {
+                            '予算消化率': 80,
+                            'CTR': 2.5,
+                            'CV': 1,
+                            'CPA': 2000,
+                            '日予算': 1000,
+                            'CPM': 1000
+                        },
+                        toC_line: {
+                            '予算消化率': 80,
+                            'CTR': 2.5,
+                            'CV': 1,
+                            'CPA': 1000,
+                            '日予算': 1000,
+                            'CPM': 800
+                        },
+                        toC_phone: {
+                            '予算消化率': 80,
+                            'CTR': 2.0,
+                            'CV': 1,
+                            'CPA': 3000,
+                            '日予算': 1500,
+                            'CPM': 1200
+                        },
+                        toC_purchase: {
+                            '予算消化率': 80,
+                            'CTR': 1.8,
+                            'CV': 1,
+                            'CPA': 5000,
+                            '日予算': 2000,
+                            'CPM': 1500
+                        },
+                        toB_newsletter: {
+                            '予算消化率': 80,
+                            'CTR': 1.5,
+                            'CV': 1,
+                            'CPA': 15000,
+                            '日予算': 3000,
+                            'CPM': 2000
+                        },
+                        toB_line: {
+                            '予算消化率': 80,
+                            'CTR': 1.5,
+                            'CV': 1,
+                            'CPA': 12000,
+                            '日予算': 2500,
+                            'CPM': 1800
+                        },
+                        toB_phone: {
+                            '予算消化率': 80,
+                            'CTR': 1.2,
+                            'CV': 1,
+                            'CPA': 20000,
+                            '日予算': 4000,
+                            'CPM': 2500
+                        },
+                        toB_purchase: {
+                            '予算消化率': 80,
+                            'CTR': 1.0,
+                            'CV': 1,
+                            'CPA': 30000,
+                            '日予算': 5000,
+                            'CPM': 3000
+                        }
+                    };
+                
+                    if (goalTargets[goalType]) {
+                        currentGoals = goalTargets[goalType];
+                    }
+                    
+                    // localStorage の設定で上書き（ユーザーがカスタマイズした場合）
+                    const storedGoals = localStorage.getItem('alert_goals');
+                    if (storedGoals) {
+                        const customGoals = JSON.parse(storedGoals);
+                        currentGoals = { ...currentGoals, ...customGoals };
+                    }
+                    
+                    // デフォルト値（フォールバック）
+                    const defaultGoals = {
+                        '予算消化率': 80,
+                        'CTR': 2.0,
+                        'CV': 1,
+                        'CPA': 10000,
+                        '日予算': 50000,
+                        'CPM': 1000
+                    };
+                    
+                    if (Object.keys(currentGoals).length === 0) {
+                        currentGoals = defaultGoals;
+                    }
+                    console.log('⚠️ ユーザー設定なし - デフォルト値を使用:', currentGoals);
+                }
+                
+                // 現在のゴールタイプも表示に反映
+                updateCurrentGoalDisplay(currentGoals, goalType);
+                return currentGoals;
+            } catch (error) {
+                console.error('ゴール読み込みエラー:', error);
+                const defaultGoals = {
+                    '予算消化率': 80,
+                    'CTR': 2.0,
+                    'CV': 1,
+                    'CPA': 10000,
+                    '日予算': 50000,
+                    'CPM': 1000
+                };
+                updateCurrentGoalDisplay(defaultGoals, goalType);
+                return defaultGoals;
+            }
+        }
+
+        // アラートデータ読み込み
+        async function loadAlertData() {
+            try {
+                console.log('アラートデータ読み込み開始');
+                
+                // サーバーから統一されたアラートを取得（alertSystem.js使用）
+                console.log('=== アラートデータ受け取り詳細デバッグ ===');
+                const serverAlerts = <%- JSON.stringify(alerts || []) %>;
+                console.log('サーバーから受け取ったalertsの型:', typeof serverAlerts);
+                console.log('サーバーから受け取ったalertsの値:', serverAlerts);
+                console.log('サーバーアラート数:', serverAlerts ? serverAlerts.length : 'undefined');
+                console.log('サーバーアラート詳細:', serverAlerts);
+                
+                if (serverAlerts !== null && serverAlerts !== undefined) {
+                    if (serverAlerts.length > 0) {
+                        console.log('✅ alertSystem.jsから生成されたアラートを使用');
+                        // alertSystem.jsのアラート形式を標準形式に変換
+                        const standardizedAlerts = serverAlerts.map(alert => ({
+                            id: alert.id,
+                            metric: alert.metric,
+                            message: alert.message,
+                            level: alert.severity === 'critical' ? 'high' : 'medium',
+                            timestamp: alert.triggeredAt || new Date().toISOString(),
+                            checkItems: alert.checkItems || [],
+                            improvements: alert.improvements || {}
+                        }));
+                        
+                        updateAlertDisplay(standardizedAlerts);
+                        updateStatus(standardizedAlerts, new Date());
+                        return;
+                    } else {
+                        console.log('✅ サーバーから空のアラート - アラートなし状態表示');
+                        // alertSystem.jsの厳密な判定に従い、アラートなし状態を表示
+                        updateAlertDisplay([]);
+                        updateStatus([], new Date());
+                        return;
+                    }
+                } else {
+                    console.log('⚠️ サーバーアラートが未定義 - アラートなし状態表示');
+                    // alertSystem.jsの厳密な判定に従い、アラートなし状態を表示
+                    updateAlertDisplay([]);
+                    updateStatus([], new Date());
+                    return;
+                }
+                
+                // アラート履歴に追加
+                currentAlerts.forEach(alert => {
+                    addToAlertHistory(alert);
+                });
+                
+            } catch (error) {
+                console.error('アラートデータ読み込みエラー:', error);
+                showError('データの読み込みに失敗しました: ' + error.message);
+            }
+        }
+
+        // ダッシュボードデータを取得
+        async function getDashboardData() {
+            try {
+                const response = await fetch('/api/dashboard-data');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    return {
+                        budgetConsumption: data.data.budgetRate, // 実際の予算消化率
+                        ctr: data.data.ctr, // 実際のCTR
+                        cv: data.data.conversions, // 実際のCV数
+                        cpa: data.data.cpa, // 実際のCPA
+                        dailyBudget: data.data.dailyBudget || 45000, // 実際の日予算
+                        cpm: data.data.cpm // 実際のCPM
+                    };
+                } else {
+                    // フォールバック値
+                    return {
+                        budgetConsumption: 65,
+                        ctr: 1.5,
+                        cv: 0,
+                        cpa: 12000,
+                        dailyBudget: 45000,
+                        cpm: 1200
+                    };
+                }
+            } catch (error) {
+                console.error('ダッシュボードデータ取得エラー:', error);
+                return {
+                    budgetConsumption: 65,
+                    ctr: 1.5,
+                    cv: 0,
+                    cpa: 12000,
+                    dailyBudget: 45000,
+                    cpm: 1200
+                };
+            }
+        }
+
+        // アラートチェック
+        function checkForAlerts(data, goals) {
+            const alerts = [];
+            const currentTime = new Date().toISOString();
+            
+            try {
+                // 予算消化率チェック
+                if (data.budgetConsumption && goals['予算消化率'] && 
+                    data.budgetConsumption < goals['予算消化率']) {
+                    // ハイブリッド方式: API取得日予算があればそれを優先、なければユーザー設定を使用
+                    let budgetInfo = '';
+                    if (data.actualDailyBudget && data.actualDailyBudget > 0) {
+                        budgetInfo = `API取得日予算: ${data.actualDailyBudget.toLocaleString()}円`;
+                    } else if (goals['日予算'] && goals['日予算'] > 0) {
+                        budgetInfo = `ユーザー設定日予算: ${goals['日予算'].toLocaleString()}円`;
+                    }
+                    
+                    let message = `予算消化率が${goals['予算消化率']}%以下の${data.budgetConsumption}%が3日間続いています`;
+                    if (budgetInfo) {
+                        message += `（${budgetInfo}）`;
+                    }
+                    
+                    alerts.push({
+                        id: `budget-${Date.now()}`,
+                        metric: '予算消化率',
+                        message: message,
+                        level: 'medium',
+                        timestamp: currentTime,
+                    });
+                }
+
+                // CTRチェック
+                if (data.ctr && goals['CTR'] && data.ctr < goals['CTR']) {
+                    alerts.push({
+                        id: `ctr-${Date.now()}`,
+                        metric: 'CTR',
+                        message: `CTRが${goals['CTR']}%以下の${data.ctr}%が3日間続いています`,
+                        level: 'medium',
+                        timestamp: currentTime,
+                    });
+                }
+
+                // CVチェック
+                if (data.cv !== undefined && goals['CV'] && data.cv < goals['CV']) {
+                    alerts.push({
+                        id: `cv-${Date.now()}`,
+                        metric: 'CV',
+                        message: `CV数が${goals['CV']}件以下の${data.cv}件が続いています`,
+                        level: 'high',
+                        timestamp: currentTime,
+                    });
+                }
+
+                // CPAチェック（120%基準）
+                if (data.cpa && goals['CPA']) {
+                    const thresholdCPA = goals['CPA'] * 1.2; // 120%基準
+                    if (data.cpa > thresholdCPA) {
+                        alerts.push({
+                            id: `cpa-${Date.now()}`,
+                            metric: 'CPA',
+                            message: `CPAが目標の120%（${Math.round(thresholdCPA).toLocaleString()}円）を超えた${Math.round(data.cpa).toLocaleString()}円が2日間続いています`,
+                            level: 'high',
+                            timestamp: currentTime,
+                        });
+                    }
+                }
+
+                // 日予算チェック
+                if (data.dailyBudget && goals['日予算'] && data.dailyBudget < goals['日予算']) {
+                    alerts.push({
+                        id: `daily-budget-${Date.now()}`,
+                        metric: '日予算',
+                        message: `日予算が${goals['日予算'].toLocaleString()}円以下の${data.dailyBudget.toLocaleString()}円になっています`,
+                        level: 'medium',
+                        timestamp: currentTime
+                    });
+                }
+
+                // CPMチェック
+                if (data.cpm && goals['CPM'] && data.cpm > goals['CPM']) {
+                    alerts.push({
+                        id: `cpm-${Date.now()}`,
+                        metric: 'CPM',
+                        message: `CPMが${goals['CPM'].toLocaleString()}円以上の${data.cpm.toLocaleString()}円になっています`,
+                        level: 'medium',
+                        timestamp: currentTime
+                    });
+                }
+
+            } catch (error) {
+                console.error('アラートチェックエラー:', error);
+            }
+
+            return alerts;
+        }
+
+        // アラート履歴に追加
+        function addToAlertHistory(alert) {
+            try {
+                const history = JSON.parse(localStorage.getItem('alert_history') || '[]');
+                
+                // 重複チェック（同じメトリックの直近のアラートと比較）
+                const isDuplicate = history.some(item => 
+                    item.metric === alert.metric && 
+                    Math.abs(new Date(item.timestamp) - new Date(alert.timestamp)) < 3600000 // 1時間以内
+                );
+                
+                if (!isDuplicate) {
+                    history.unshift(alert);
+                    
+                    // 過去30日分のみ保持
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    
+                    const filteredHistory = history.filter(item => 
+                        new Date(item.timestamp) > thirtyDaysAgo
+                    );
+                    
+                    localStorage.setItem('alert_history', JSON.stringify(filteredHistory));
+                }
+            } catch (error) {
+                console.error('アラート履歴追加エラー:', error);
+            }
+        }
+
+        // アラート表示更新
+        function updateAlertDisplay(alerts) {
+            const warningContainer = document.getElementById('warning-alerts');
+            
+            if (!warningContainer) {
+                console.error('警告アラートコンテナが見つかりません');
+                return;
+            }
+            
+            if (alerts.length > 0) {
+                warningContainer.innerHTML = alerts.map(alert => {
+                    const alertType = alert.level === 'high' ? 'critical' : 'warning';
+                    return createAlertCard(alert, alertType);
+                }).join('');
+            } else {
+                warningContainer.innerHTML = '<div class="no-alerts">注意アラートはありません ✅</div>';
+            }
+        }
+
+        // アラートカード作成
+        function createAlertCard(alert, type) {
+            const icon = type === 'critical' ? '🔴' : '⚠️';
+            
+            // 確認事項セクション
+            let checkItemsHtml = '';
+            if (alert.checkItems && alert.checkItems.length > 0) {
+                checkItemsHtml = `
+                    <div class="alert-section-header">📋 確認事項</div>
+                    <div class="alert-check-items">
+                        ${alert.checkItems.map((item, index) => `
+                            <div class="check-item">
+                                <div class="check-item-header">
+                                    <span class="check-priority">優先度 ${item.priority}</span>
+                                    <span class="check-title">${item.title}</span>
+                                </div>
+                                <div class="check-description">${item.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // 改善施策セクション
+            let improvementsHtml = '';
+            if (alert.improvements && Object.keys(alert.improvements).length > 0) {
+                improvementsHtml = `
+                    <div class="alert-section-header">💡 改善施策</div>
+                    <div class="alert-improvements">
+                        ${Object.entries(alert.improvements).map(([category, strategies]) => `
+                            <div class="improvement-category">
+                                <div class="improvement-category-title">${category}</div>
+                                <ul class="improvement-strategies">
+                                    ${strategies.map(strategy => `<li>${strategy}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="alert-card ${type}">
+                    <div class="alert-card-header">
+                        <span class="alert-type">${icon} ${alert.metric || 'アラート'}</span>
+                        <span class="alert-time">${formatTime(alert.timestamp || alert.triggeredAt)}</span>
+                    </div>
+                    <div class="alert-message">${alert.message || 'アラートメッセージ'}</div>
+                    ${checkItemsHtml}
+                    ${improvementsHtml}
+                </div>
+            `;
+        }
+
+        // ステータス更新
+        function updateStatus(alerts, lastCheck) {
+            const activeCountElement = document.getElementById('active-count');
+            const lastCheckElement = document.getElementById('last-check');
+            
+            if (activeCountElement) {
+                activeCountElement.textContent = alerts.length;
+            }
+            
+            if (lastCheckElement) {
+                lastCheckElement.textContent = formatTime(lastCheck);
+            }
+        }
+
+        // 時刻フォーマット
+        function formatTime(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString('ja-JP', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (error) {
+                return '-';
+            }
+        }
+
+        // フォールバックアラート生成（実際のデータに基づく注意アラート）
+        async function generateFallbackAlerts() {
+            try {
+                console.log('フォールバックアラート生成開始');
+                const dashboardData = await getDashboardData();
+                
+                if (!dashboardData) {
+                    console.log('ダッシュボードデータなし - アラートなし状態');
+                    updateAlertDisplay([]);
+                    updateStatus([], new Date());
+                    return;
+                }
+                
+                const fallbackAlerts = [];
+                
+                // 実際のデータに基づいて注意アラートを生成
+                if (dashboardData.budgetConsumption < 80) {
+                    fallbackAlerts.push({
+                        id: 'budget_rate_warning',
+                        metric: '予算消化率',
+                        message: `予算消化率が80%以下の${Math.round(dashboardData.budgetConsumption)}%です`,
+                        level: 'medium',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (dashboardData.ctr < 2.0) {
+                    fallbackAlerts.push({
+                        id: 'ctr_warning',
+                        metric: 'CTR',
+                        message: `CTRが2.0%以下の${dashboardData.ctr.toFixed(1)}%です`,
+                        level: 'medium',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (dashboardData.cv === 0) {
+                    fallbackAlerts.push({
+                        id: 'cv_warning',
+                        metric: 'CV',
+                        message: `CV数が0件です`,
+                        level: 'high',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (dashboardData.cpa > 12000) {
+                    fallbackAlerts.push({
+                        id: 'cpa_warning',
+                        metric: 'CPA',
+                        message: `CPAが目標の12,000円を超えて${Math.round(dashboardData.cpa).toLocaleString()}円です`,
+                        level: 'high',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                console.log('生成された注意アラート数:', fallbackAlerts.length);
+                updateAlertDisplay(fallbackAlerts);
+                updateStatus(fallbackAlerts, new Date());
+                
+            } catch (error) {
+                console.error('フォールバックアラート生成エラー:', error);
+                updateAlertDisplay([]);
+                updateStatus([], new Date());
+            }
+        }
+
+        // エラー表示
+        function showError(message) {
+            document.getElementById('warning-alerts').innerHTML = `<div class="no-alerts">❌ ${message}</div>`;
+        }
+
+        // ゴール設定モーダル機能
+        function openGoalSettings() {
+            loadCurrentGoals();
+            document.getElementById('goalSettingsModal').style.display = 'flex';
+        }
+
+        function closeGoalSettings() {
+            document.getElementById('goalSettingsModal').style.display = 'none';
+        }
+
+        function loadCurrentGoals() {
+            try {
+                const stored = localStorage.getItem('alert_goals');
+                const defaultGoals = {
+                    '予算消化率': 80,
+                    'CTR': 2.0,
+                    'CV': 1,
+                    'CPA': 10000,
+                    '日予算': 50000,
+                    'CPM': 1000
+                };
+                
+                const goals = stored ? JSON.parse(stored) : defaultGoals;
+                
+                document.getElementById('goal-budget-rate').value = goals['予算消化率'] || 80;
+                document.getElementById('goal-ctr').value = goals['CTR'] || 2.0;
+                document.getElementById('goal-cv').value = goals['CV'] || 1;
+                document.getElementById('goal-cpa').value = goals['CPA'] || 10000;
+                document.getElementById('goal-daily-budget').value = goals['日予算'] || 50000;
+                document.getElementById('goal-cpm').value = goals['CPM'] || 1000;
+            } catch (error) {
+                console.error('ゴール読み込みエラー:', error);
+            }
+        }
+
+        function saveGoalSettings() {
+            try {
+                const goals = {
+                    '予算消化率': parseFloat(document.getElementById('goal-budget-rate').value) || 80,
+                    'CTR': parseFloat(document.getElementById('goal-ctr').value) || 2.0,
+                    'CV': parseInt(document.getElementById('goal-cv').value) || 1,
+                    'CPA': parseInt(document.getElementById('goal-cpa').value) || 10000,
+                    '日予算': parseInt(document.getElementById('goal-daily-budget').value) || 50000,
+                    'CPM': parseInt(document.getElementById('goal-cpm').value) || 1000
+                };
+                
+                localStorage.setItem('alert_goals', JSON.stringify(goals));
+                closeGoalSettings();
+                
+                // 現在のゴール表示を更新
+                const goalType = '<%= currentGoalType || "toC_newsletter" %>';
+                updateCurrentGoalDisplay(goals, goalType);
+                
+                // アラートを再チェック
+                loadAlertData();
+                
+                alert('ゴール設定を保存しました');
+            } catch (error) {
+                console.error('ゴール保存エラー:', error);
+                alert('保存に失敗しました');
+            }
+        }
+
+        function updateCurrentGoalDisplay(goals, goalType = '') {
+            console.log('=== updateCurrentGoalDisplay デバッグ情報 ===');
+            console.log('受け取ったgoalType:', goalType);
+            console.log('goalTypeの型:', typeof goalType);
+            
+            // ゴールタイプの表示名を取得
+            const goalTypeNames = {
+                'toC_newsletter': 'toC（メルマガ登録）',
+                'toC_line': 'toC（LINE登録）',
+                'toC_phone': 'toC（電話ボタン）',
+                'toC_purchase': 'toC（購入）',
+                'toB_newsletter': 'toB（メルマガ登録）',
+                'toB_line': 'toB（LINE登録）',
+                'toB_phone': 'toB（電話ボタン）',
+                'toB_purchase': 'toB（購入）'
+            };
+            
+            const goalTypeName = goalTypeNames[goalType] || goalType || '未設定';
+            console.log('goalTypeNames[goalType]:', goalTypeNames[goalType]);
+            console.log('最終的なgoalTypeName:', goalTypeName);
+            
+            const goalText = Object.entries(goals)
+                .map(([metric, value]) => {
+                    const unit = metric.includes('率') || metric === 'CTR' ? '%' : 
+                               metric === 'CPA' || metric === '日予算' || metric === 'CPM' ? '円' : '件';
+                    return `${metric}: ${value}${unit}`;
+                })
+                .join(', ');
+            
+            const currentGoalElement = document.getElementById('current-goal');
+            if (currentGoalElement) {
+                currentGoalElement.innerHTML = `
+                    <strong>ゴールタイプ:</strong> ${goalTypeName}<br>
+                    <strong>目標値:</strong> ${goalText}
+                `;
+            }
+        }
+
+        // 初期化時にゴール設定を読み込み（重複削除：上記で既に初期化されているため不要）
+    </script>
+</body>
+</html> 

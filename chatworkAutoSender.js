@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 const axios = require('axios');
-const tokenManager = require('./utils/tokenManager');
+const tokenManager = require('./tokenManager');
 
 class ChatworkAutoSender {
     constructor() {
@@ -14,32 +14,29 @@ class ChatworkAutoSender {
     // 設定ファイルを読み込み
     loadSettings() {
         try {
-            // まずsettings.jsonを確認
-            const settingsPath = path.join(__dirname, '..', 'settings.json');
-            if (fs.existsSync(settingsPath)) {
-                this.settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-                console.log('✅ チャットワーク自動送信設定を読み込みました');
-                return;
-            }
-            
-            // フォールバック: setup.jsonから読み込み
-            const setupPath = path.join(__dirname, 'config', 'setup.json');
-            if (fs.existsSync(setupPath)) {
-                const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+            // 本番環境では環境変数から設定を取得
+            if (process.env.NODE_ENV === 'production') {
                 this.settings = {
                     chatwork: {
-                        apiToken: setupData.chatwork?.apiToken,
-                        roomId: setupData.chatwork?.roomId
+                        apiToken: process.env.CHATWORK_TOKEN,
+                        roomId: process.env.CHATWORK_ROOM_ID
                     },
-                    meta: {
-                        accessToken: setupData.meta?.accessToken,
-                        accountId: setupData.meta?.accountId
-                    },
-                    goal: setupData.goal
+                    notifications: {
+                        daily_report: { enabled: process.env.DAILY_REPORT_ENABLED === 'true' || true },
+                        update_notifications: { enabled: process.env.UPDATE_NOTIFICATIONS_ENABLED === 'true' || true },
+                        alert_notifications: { enabled: process.env.ALERT_NOTIFICATIONS_ENABLED === 'true' || true }
+                    }
                 };
-                console.log('✅ setup.jsonからチャットワーク設定を読み込みました');
+                console.log('✅ チャットワーク自動送信設定を環境変数から読み込みました');
             } else {
-                console.log('⚠️ 設定ファイルが見つかりません');
+                // ローカル環境では設定ファイルから取得
+                const settingsPath = path.join(__dirname, '..', 'settings.json');
+                if (fs.existsSync(settingsPath)) {
+                    this.settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+                    console.log('✅ チャットワーク自動送信設定を読み込みました');
+                } else {
+                    console.log('⚠️ 設定ファイルが見つかりません');
+                }
             }
         } catch (error) {
             console.error('❌ 設定ファイル読み込みエラー:', error.message);
@@ -229,7 +226,7 @@ class ChatworkAutoSender {
             }
             
             // フォールバック: setup.jsonから読み込み
-            const setupPath = path.join(__dirname, 'config', 'setup.json');
+            const setupPath = path.join(__dirname, '..', 'config', 'setup.json');
             if (fs.existsSync(setupPath)) {
                 const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
                 console.log('📋 Setup.json読み込み成功:', {
@@ -461,7 +458,7 @@ http://localhost:3000/dashboard`;
 
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
+CTR（平均）：${dashboardData.ctr || '0.00'}%
 CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
 フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
@@ -521,8 +518,8 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
         });
 
         message += `
-確認事項：https://meta-ads-dashboard.onrender.com/improvement-taskss
-改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategiess
+確認事項：https://meta-ads-dashboard.onrender.com/improvement-tasks
+改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies
 ダッシュボード：https://meta-ads-dashboard.onrender.com/dashboard`;
 
         await this.sendMessage(message);
@@ -550,8 +547,69 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
         await this.sendMessage(message);
     }
 
+    // ユーザー固有の設定を取得
+    getUserSettings(userId) {
+        if (!userId) {
+            console.log('⚠️ ユーザーIDが指定されていません');
+            return null;
+        }
+
+        try {
+            const UserManager = require('../userManager');
+            const userManager = new UserManager();
+            const userSettings = userManager.getUserSettings(userId);
+            
+            if (!userSettings) {
+                console.log(`⚠️ ユーザー設定が見つかりません: ${userId}`);
+                return null;
+            }
+
+            console.log(`✅ ユーザー設定取得成功: ${userId}`);
+            return {
+                chatwork: {
+                    apiToken: userSettings.chatwork_token,
+                    roomId: userSettings.chatwork_room_id
+                }
+            };
+        } catch (error) {
+            console.error('❌ ユーザー設定取得エラー:', error.message);
+            return null;
+        }
+    }
+
+    // チャットワークにメッセージを送信（ユーザー設定対応版）
+    async sendMessageWithUserSettings(message, userId) {
+        const userSettings = this.getUserSettings(userId);
+        
+        if (!userSettings?.chatwork?.apiToken || !userSettings?.chatwork?.roomId) {
+            console.log('⚠️ ユーザーのチャットワーク設定が不完全です');
+            return false;
+        }
+
+        try {
+            const url = `https://api.chatwork.com/v2/rooms/${userSettings.chatwork.roomId}/messages`;
+            const response = await axios.post(url, `body=${encodeURIComponent(message)}`, {
+                headers: {
+                    'X-ChatWorkToken': userSettings.chatwork.apiToken,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+
+            if (response.status === 200) {
+                console.log('✅ チャットワーク送信成功');
+                return true;
+            } else {
+                console.log('❌ チャットワーク送信失敗:', response.status);
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ チャットワーク送信エラー:', error.message);
+            return false;
+        }
+    }
+
     // テスト送信（重複送信チェック無効）
-    async sendTestMessage(type, userId = null) {
+    async sendTestMessage(type, userId) {
         console.log(`🧪 テスト送信開始: ${type}`, { userId });
         
         // テスト送信時は重複送信チェックを一時的に無効化
@@ -561,16 +619,16 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
         try {
             switch (type) {
                 case 'daily':
-                    await this.sendDailyReport();
+                    await this.sendDailyReportWithUser(userId);
                     break;
                 case 'update':
-                    await this.sendUpdateNotification();
+                    await this.sendUpdateNotificationWithUser(userId);
                     break;
                 case 'alert':
-                    await this.sendAlertNotification(true);
+                    await this.sendAlertNotificationWithUser(userId, true);
                     break;
                 case 'token':
-                    await this.sendTokenUpdateNotification();
+                    await this.sendTokenUpdateNotificationWithUser(userId);
                     break;
                 default:
                     console.log('❌ 不明なテストタイプ:', type);
@@ -579,6 +637,102 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             // 重複送信チェック機能を復元
             this.checkSentHistory = originalCheckSentHistory;
         }
+    }
+
+    // ユーザー固有の日次レポート送信
+    async sendDailyReportWithUser(userId) {
+        console.log('📅 ユーザー固有日次レポート送信開始', { userId });
+        
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toLocaleDateString('ja-JP');
+        
+        const dashboardData = await this.getYesterdayDashboardData();
+        if (!dashboardData) {
+            console.log('❌ 前日ダッシュボードデータ取得失敗');
+            const fallbackMessage = `Meta広告 日次レポート (${yesterdayStr})
+
+データ取得に失敗しました。ダッシュボードでご確認ください。
+
+確認はこちら
+https://meta-ads-dashboard.onrender.com/dashboard`;
+            await this.sendMessageWithUserSettings(fallbackMessage, userId);
+            return;
+        }
+
+        const message = `Meta広告 日次レポート (${yesterdayStr})
+
+消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
+予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
+CTR（平均）：${dashboardData.ctr || '0.00'}%
+CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
+CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
+フリークエンシー（平均）：${dashboardData.frequency || '0.00'}%
+コンバージョン数：${dashboardData.conversions || 0}件  
+
+確認はこちら
+https://meta-ads-dashboard.onrender.com/dashboard`;
+
+        await this.sendMessageWithUserSettings(message, userId);
+    }
+
+    // ユーザー固有の定期更新通知送信
+    async sendUpdateNotificationWithUser(userId) {
+        console.log('🔄 ユーザー固有定期更新通知送信開始', { userId });
+        
+        const message = `Meta広告 定期更新通知
+数値を更新しました。
+ご確認よろしくお願いいたします！
+
+確認はこちら
+https://meta-ads-dashboard.onrender.com/dashboard`;
+
+        await this.sendMessageWithUserSettings(message, userId);
+    }
+
+    // ユーザー固有のアラート通知送信
+    async sendAlertNotificationWithUser(userId, isTestMode = false) {
+        console.log('🚨 ユーザー固有アラート通知送信開始', { userId });
+        
+        const todayAlerts = this.getAlertHistory(isTestMode);
+        if (todayAlerts.length === 0) {
+            console.log('📝 今日のアラートはありません');
+            return;
+        }
+
+        let message = `Meta広告 アラート通知 (${new Date().toLocaleDateString('ja-JP')})
+以下のアラートが発生しています：
+
+`;
+
+        todayAlerts.forEach((alert, index) => {
+            const japaneseMetric = this.getJapaneseMetricName(alert.metric);
+            const formattedMessage = this.formatAlertMessage(alert);
+            message += `${index + 1}. ${japaneseMetric}：${formattedMessage}\n`;
+        });
+
+        message += `
+確認事項：https://meta-ads-dashboard.onrender.com/improvement-tasks
+改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies
+ダッシュボード：https://meta-ads-dashboard.onrender.com/dashboard`;
+
+        await this.sendMessageWithUserSettings(message, userId);
+    }
+
+    // ユーザー固有のアクセストークン更新通知送信
+    async sendTokenUpdateNotificationWithUser(userId) {
+        console.log('🔑 ユーザー固有アクセストークン更新通知送信開始', { userId });
+        
+        const message = `Meta APIのアクセストークンが2ヶ月経過し更新が必要です。
+
+更新手順
+①アクセストークン発行：https://developers.facebook.com/tools/explorer/ 
+②長期トークン発行：https://developers.facebook.com/tools/debug/accesstoken/
+③設定画面で更新： https://meta-ads-dashboard.onrender.com/setup
+
+トークンが期限切れになると、自動送信機能が停止します。`;
+
+        await this.sendMessageWithUserSettings(message, userId);
     }
 
     // スケジューラーを開始
