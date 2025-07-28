@@ -681,9 +681,12 @@
                 console.log('アラートデータ読み込み開始');
                 
                 // サーバーから統一されたアラートを取得（alertSystem.js使用）
-                console.log('統一アラートシステムからアラート取得...');
+                console.log('=== アラートデータ受け取り詳細デバッグ ===');
                 const serverAlerts = <%- JSON.stringify(alerts || []) %>;
-                console.log('サーバーアラート数:', serverAlerts.length);
+                console.log('サーバーから受け取ったalertsの型:', typeof serverAlerts);
+                console.log('サーバーから受け取ったalertsの値:', serverAlerts);
+                console.log('サーバーアラート数:', serverAlerts ? serverAlerts.length : 'undefined');
+                console.log('サーバーアラート詳細:', serverAlerts);
                 
                 if (serverAlerts !== null && serverAlerts !== undefined) {
                     if (serverAlerts.length > 0) {

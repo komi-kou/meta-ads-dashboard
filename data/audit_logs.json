@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "id": "0f603a3b-14dc-4f0c-9e59-6d19b68462d0",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T10:14:12.415Z"
+  },
+  {
+    "id": "0788d537-f45c-4dcc-96fe-432af5479fac",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T10:14:12.657Z"
+  }
+]
