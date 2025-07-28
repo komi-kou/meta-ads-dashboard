@@ -607,6 +607,51 @@
     </div>
 
     <script>
+        // 現在のゴール表示を更新
+        function updateCurrentGoalDisplay(goals, goalType) {
+            try {
+                console.log('=== updateCurrentGoalDisplay 実行 ===');
+                console.log('goals:', goals);
+                console.log('goalType:', goalType);
+                
+                // ゴールタイプの日本語変換マップ
+                const goalTypeNames = {
+                    'toC_newsletter': 'toC（メルマガ登録）',
+                    'toC_line': 'toC（LINE登録）',
+                    'toC_phone': 'toC（電話問い合わせ）',
+                    'toC_purchase': 'toC（購入）',
+                    'toB_newsletter': 'toB（メルマガ登録）',
+                    'toB_line': 'toB（LINE登録）',
+                    'toB_phone': 'toB（電話問い合わせ）',
+                    'toB_purchase': 'toB（購入）'
+                };
+                
+                const goalDisplayName = goalTypeNames[goalType] || goalType;
+                console.log('goalDisplayName:', goalDisplayName);
+                
+                const currentGoalElement = document.getElementById('current-goal');
+                if (currentGoalElement) {
+                    currentGoalElement.innerHTML = `
+                        <strong>${goalDisplayName}</strong><br>
+                        <small style="color: #6b7280; font-size: 12px;">
+                            CPA目標: ${goals['CPA'] || 'N/A'}円 | 
+                            CTR目標: ${goals['CTR'] || 'N/A'}% | 
+                            CPM目標: ${goals['CPM'] || 'N/A'}円
+                        </small>
+                    `;
+                    console.log('✅ ゴール表示更新完了');
+                } else {
+                    console.error('❌ current-goal要素が見つかりません');
+                }
+            } catch (error) {
+                console.error('ゴール表示更新エラー:', error);
+                const currentGoalElement = document.getElementById('current-goal');
+                if (currentGoalElement) {
+                    currentGoalElement.textContent = 'ゴール表示エラー';
+                }
+            }
+        }
+
         // アラートページの初期化
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('アラートページ初期化');
@@ -630,8 +675,16 @@
         async function loadGoals() {
             try {
                 // サーバーから渡されたゴールタイプとユーザー設定を使用
+                const userSettings = <% try { %><%- JSON.stringify(userSettings) %><% } catch(e) { %>null<% } %>;
                 let goalType = '<%= currentGoalType || "toC_newsletter" %>';
-                const userSettings = <% try { %><%- JSON.stringify(userSettings || {}) %><% } catch(e) { %>null<% } %>;
+                
+                // ユーザー設定からゴールタイプを取得（優先）
+                if (userSettings && userSettings.service_goal) {
+                    goalType = userSettings.service_goal;
+                } else if (userSettings && userSettings.goal_type) {
+                    goalType = userSettings.goal_type;
+                }
+                
                 console.log('=== loadGoals 詳細デバッグ開始 ===');
                 console.log('EJSから渡されたgoalType:', goalType);
                 console.log('EJSから渡されたuserSettings:', userSettings);
