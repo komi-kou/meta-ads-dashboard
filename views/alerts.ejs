@@ -331,6 +331,80 @@
             color: #f59e0b;
         }
 
+        /* 確認事項と改善施策のスタイル */
+        .alert-section-header {
+            font-weight: 600;
+            color: #374151;
+            margin: 16px 0 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .alert-check-items, .alert-improvements {
+            margin-bottom: 16px;
+        }
+
+        .check-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .check-item-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .check-priority {
+            background-color: #3b82f6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .check-title {
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .check-description {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        .improvement-category {
+            margin-bottom: 12px;
+        }
+
+        .improvement-category-title {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .improvement-strategies {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .improvement-strategies li {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
         /* ゴール設定の追加項目対応 */
         .goals-list {
             display: grid;
@@ -915,6 +989,43 @@
         function createAlertCard(alert, type) {
             const icon = type === 'critical' ? '🔴' : '⚠️';
             
+            // 確認事項セクション
+            let checkItemsHtml = '';
+            if (alert.checkItems && alert.checkItems.length > 0) {
+                checkItemsHtml = `
+                    <div class="alert-section-header">📋 確認事項</div>
+                    <div class="alert-check-items">
+                        ${alert.checkItems.map((item, index) => `
+                            <div class="check-item">
+                                <div class="check-item-header">
+                                    <span class="check-priority">優先度 ${item.priority}</span>
+                                    <span class="check-title">${item.title}</span>
+                                </div>
+                                <div class="check-description">${item.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // 改善施策セクション
+            let improvementsHtml = '';
+            if (alert.improvements && Object.keys(alert.improvements).length > 0) {
+                improvementsHtml = `
+                    <div class="alert-section-header">💡 改善施策</div>
+                    <div class="alert-improvements">
+                        ${Object.entries(alert.improvements).map(([category, strategies]) => `
+                            <div class="improvement-category">
+                                <div class="improvement-category-title">${category}</div>
+                                <ul class="improvement-strategies">
+                                    ${strategies.map(strategy => `<li>${strategy}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
             return `
                 <div class="alert-card ${type}">
                     <div class="alert-card-header">
@@ -922,6 +1033,8 @@
                         <span class="alert-time">${formatTime(alert.timestamp || alert.triggeredAt)}</span>
                     </div>
                     <div class="alert-message">${alert.message || 'アラートメッセージ'}</div>
+                    ${checkItemsHtml}
+                    ${improvementsHtml}
                 </div>
             `;
         }
