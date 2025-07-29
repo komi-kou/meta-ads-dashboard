@@ -503,7 +503,10 @@
                 <!-- 注意アラート - 緊急アラート削除後の美しいレイアウト -->
                 <div class="alert-section main-alert-section">
                     <h2>⚠️ 注意アラート</h2>
-                    <div id="warning-alerts" class="loading">
+                    <div id="warning-alerts">
+                        <!-- デバッグ用: サーバーから渡されたアラート数を表示 -->
+                        <script>console.log('📊 サーバーから渡されたアラート数:', <%= alerts ? alerts.length : 0 %>);</script>
+                        
                         <% if (alerts && alerts.length > 0) { %>
                             <% alerts.forEach(function(alert) { %>
                                 <div class="alert-card <%= alert.severity === 'critical' ? 'critical' : 'warning' %>">
@@ -580,12 +583,12 @@
                                 %>
                                 <strong><%= goalDisplayName %></strong><br>
                                 <small style="color: #6b7280; font-size: 12px;">
-                                    <% if (userSettings) { %>
-                                        CPA目標: <%= userSettings.target_cpa ? parseInt(userSettings.target_cpa).toLocaleString() : 'N/A' %>円 | 
-                                        CTR目標: <%= userSettings.target_ctr ? parseFloat(userSettings.target_ctr) : 'N/A' %>% | 
-                                        CPM目標: <%= userSettings.target_cpm ? parseInt(userSettings.target_cpm).toLocaleString() : 'N/A' %>円
+                                    <% if (userSettings && userSettings.target_cpa && userSettings.target_ctr && userSettings.target_cpm) { %>
+                                        CPA目標: <%= parseInt(userSettings.target_cpa).toLocaleString() %>円, 
+                                        CTR目標: <%= parseFloat(userSettings.target_ctr) %>%, 
+                                        CPM目標: <%= parseInt(userSettings.target_cpm).toLocaleString() %>円
                                     <% } else { %>
-                                        設定なし
+                                        設定を確認してください
                                     <% } %>
                                 </small>
                             </div>
@@ -686,11 +689,11 @@
             // setInterval(loadAlertData, 5 * 60 * 1000);
             
             // 目標値表示更新のみ実行（サーバーから渡されたuserSettingsとcurrentGoalTypeを使用）
-            <% if (userSettings && currentGoalType) { %>
+            <% if (userSettings && currentGoalType && userSettings.target_cpa && userSettings.target_ctr && userSettings.target_cpm) { %>
                 const serverGoals = {
-                    'CPA目標': '<%= userSettings.target_cpa ? parseInt(userSettings.target_cpa) : "N/A" %>',
-                    'CTR目標': '<%= userSettings.target_ctr ? parseFloat(userSettings.target_ctr) : "N/A" %>',
-                    'CPM目標': '<%= userSettings.target_cpm ? parseInt(userSettings.target_cpm) : "N/A" %>'
+                    'CPA目標': '<%= parseInt(userSettings.target_cpa) %>',
+                    'CTR目標': '<%= parseFloat(userSettings.target_ctr) %>',
+                    'CPM目標': '<%= parseInt(userSettings.target_cpm) %>'
                 };
                 const serverGoalType = '<%= currentGoalType %>';
                 updateCurrentGoalDisplay(serverGoals, serverGoalType);
