@@ -682,8 +682,21 @@
             // JavaScriptでの上書きは行わない
             console.log('📱 サーバーサイドレンダリングの内容を維持します');
             
-            // 定期更新のみ有効化（5分毎）
+            // 定期更新も無効化してサーバーサイドレンダリングを完全に維持
             // setInterval(loadAlertData, 5 * 60 * 1000);
+            
+            // 目標値表示更新のみ実行（サーバーから渡されたuserSettingsとcurrentGoalTypeを使用）
+            <% if (userSettings && currentGoalType) { %>
+                const serverGoals = {
+                    'CPA目標': '<%= userSettings.target_cpa || "N/A" %>',
+                    'CTR目標': '<%= userSettings.target_ctr || "N/A" %>',
+                    'CPM目標': '<%= userSettings.target_cpm || "N/A" %>'
+                };
+                const serverGoalType = '<%= currentGoalType %>';
+                updateCurrentGoalDisplay(serverGoals, serverGoalType);
+            <% } else { %>
+                console.log('⚠️ サーバーからuserSettingsまたはcurrentGoalTypeが渡されていません');
+            <% } %>
         });
 
         // アラートページ初期化

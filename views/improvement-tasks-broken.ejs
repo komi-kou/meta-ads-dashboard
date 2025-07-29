@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            padding: 0 20px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left-color: #fbbf24;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            flex: 1;
+        }
+
+        .checklist-page {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .page-header h2 {
+            color: #1f2937;
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        .header-info {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        .alert-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .alert-header {
+            margin-bottom: 20px;
+        }
+
+        .alert-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .alert-icon {
+            font-size: 1.2em;
+        }
+
+        .alert-metric {
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .alert-timestamp {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-left: auto;
+        }
+
+        .alert-message-row {
+            color: #374151;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .alert-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .checklist-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 3px solid #10b981;
+        }
+
+        .item-priority {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .priority-indicator {
+            font-size: 1em;
+        }
+
+        .priority-text {
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .item-description {
+            color: #4b5563;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
+        .item-description div {
+            margin-bottom: 4px;
+        }
+
+        .no-content {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .no-content-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .no-content h3 {
+            font-size: 1.3em;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- サイドバー -->
+        <nav class="sidebar">
+            <h2>📊 Meta広告ダッシュボード</h2>
+            <div class="nav-menu">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/alerts" class="nav-item">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item active">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+                <a href="/settings" class="nav-item">設定</a>
+            </div>
+        </nav>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="checklist-page">
+                <div class="page-header">
+                    <h2>📋 確認事項</h2>
+                    <div class="header-info">
+                        アクティブアラート: <span id="alertCount"><%= checkItems ? checkItems.length : 0 %></span>件 
+                        最終チェック: <span id="lastCheckTime"></span>
+                    </div>
+                </div>
+
+                <div id="content">
+                    <% if (checkItems && checkItems.length > 0) { %>
+                        <% 
+                        // checkItemsをメトリック別にグループ化
+                        const metricGroups = {};
+                        checkItems.forEach(item => {
+                            if (!metricGroups[item.metric]) {
+                                metricGroups[item.metric] = {
+                                    metric: item.metric,
+                                    message: item.message,
+                                    items: []
+                                };
+                            }
+                            metricGroups[item.metric].items.push(item);
+                        });
+                        %>
+                        
+                        <% Object.values(metricGroups).forEach(group => { %>
+                            <div class="alert-card">
+                                <div class="alert-header">
+                                    <div class="alert-title-row">
+                                        <span class="alert-icon">⚠️</span>
+                                        <span class="alert-metric"><%= group.metric %></span>
+                                        <span class="alert-timestamp">
+                                            <%= new Date().toLocaleString('ja-JP') %>
+                                        </span>
+                                    </div>
+                                    <div class="alert-message-row">
+                                        <%= group.message %>
+                                    </div>
+                                </div>
+
+                                <div class="alert-content">
+                                    <% group.items.forEach(item => { %>
+                                        <div class="checklist-item">
+                                            <div class="item-priority">
+                                                <span class="priority-indicator">⚠️</span>
+                                                <span class="priority-text"><%= item.title %></span>
+                                            </div>
+                                            <% if (item.description) { %>
+                                                <div class="item-description">
+                                                    <% item.description.split('\n').forEach(line => { %>
+                                                        <div><%= line %></div>
+                                                    <% }); %>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="no-content">
+                            <div class="no-content-icon">✅</div>
+                            <h3>確認が必要な項目はありません。</h3>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 最終チェック時間を更新
+        function updateLastCheckTime() {
+            document.getElementById('lastCheckTime').textContent = new Date().toLocaleString('ja-JP');
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== 確認事項ページ: サーバーサイドレンダリング ===');
+            updateLastCheckTime();
+        });
+
+        // 10秒ごとに更新
+        setInterval(() => {
+            updateLastCheckTime();
+        }, 10 * 1000);
+    </script>
+</body>
+</html>
