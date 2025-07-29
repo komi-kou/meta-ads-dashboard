@@ -586,7 +586,8 @@
                                     <% if (userSettings && userSettings.target_cpa && userSettings.target_ctr && userSettings.target_cpm) { %>
                                         CPA目標: <%= parseInt(userSettings.target_cpa).toLocaleString() %>円, 
                                         CTR目標: <%= parseFloat(userSettings.target_ctr) %>%, 
-                                        CPM目標: <%= parseInt(userSettings.target_cpm).toLocaleString() %>円
+                                        CPM目標: <%= parseInt(userSettings.target_cpm).toLocaleString() %>円,
+                                        日予算: <%= parseInt(userSettings.target_dailyBudget).toLocaleString() %>円
                                     <% } else { %>
                                         設定を確認してください
                                     <% } %>
@@ -1310,8 +1311,8 @@
                 const goalType = '<%= currentGoalType || "toC_newsletter" %>';
                 updateCurrentGoalDisplay(goals, goalType);
                 
-                // アラートを再チェック
-                loadAlertData();
+                // サーバーサイドレンダリングを維持するため、loadAlertDataは呼び出さない
+                // loadAlertData();
                 
                 alert('ゴール設定を保存しました');
             } catch (error) {
