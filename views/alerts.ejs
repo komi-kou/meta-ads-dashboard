@@ -1082,23 +1082,13 @@
             }
         }
 
-        // アラート表示更新
+        // アラート表示更新（サーバーサイドレンダリング優先のため無効化）
         function updateAlertDisplay(alerts) {
-            const warningContainer = document.getElementById('warning-alerts');
+            console.log('📱 updateAlertDisplay呼び出し検知 - サーバーサイドレンダリングを維持するため処理をスキップ');
+            console.log('📱 スキップされたアラート数:', alerts.length);
             
-            if (!warningContainer) {
-                console.error('警告アラートコンテナが見つかりません');
-                return;
-            }
-            
-            if (alerts.length > 0) {
-                warningContainer.innerHTML = alerts.map(alert => {
-                    const alertType = alert.level === 'high' ? 'critical' : 'warning';
-                    return createAlertCard(alert, alertType);
-                }).join('');
-            } else {
-                warningContainer.innerHTML = '<div class="no-alerts">注意アラートはありません ✅</div>';
-            }
+            // サーバーサイドレンダリングされた内容を保持するため、DOM操作は行わない
+            return;
         }
 
         // アラートカード作成
@@ -1253,9 +1243,13 @@
             }
         }
 
-        // エラー表示
+        // エラー表示（サーバーサイドレンダリング優先のため無効化）
         function showError(message) {
-            document.getElementById('warning-alerts').innerHTML = `<div class="no-alerts">❌ ${message}</div>`;
+            console.log('📱 showError呼び出し検知 - サーバーサイドレンダリングを維持するため処理をスキップ');
+            console.log('📱 スキップされたエラーメッセージ:', message);
+            
+            // サーバーサイドレンダリングされた内容を保持するため、DOM操作は行わない
+            return;
         }
 
         // ゴール設定モーダル機能

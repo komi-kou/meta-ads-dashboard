@@ -211,13 +211,40 @@
                 <div class="page-header">
                     <h2>🔧 改善施策</h2>
                     <div class="header-info">
-                        改善項目: <span id="strategyCount">8</span>件 
+                        改善項目: <span id="strategyCount"><%= improvements ? Object.values(improvements).reduce((total, strategies) => total + strategies.length, 0) : 0 %></span>件 
                         最終更新: <span id="lastUpdateTime"></span>
                     </div>
                 </div>
 
                 <div id="content">
-                    <!-- コンテンツはJavaScriptで生成 -->
+                    <!-- サーバーサイドレンダリング -->
+                    <% if (improvements && Object.keys(improvements).length > 0) { %>
+                        <% Object.entries(improvements).forEach(([category, strategies]) => { %>
+                            <div class="alert-card">
+                                <div class="alert-header">
+                                    <div class="alert-type">
+                                        <span class="metric-label">🔧</span>
+                                        <%= category %>
+                                    </div>
+                                    <div class="alert-time"><%= new Date().toLocaleString('ja-JP') %></div>
+                                </div>
+                                
+                                <div class="alert-section-header">改善施策</div>
+                                <div class="alert-improvements">
+                                    <ul class="improvement-strategies">
+                                        <% strategies.forEach(strategy => { %>
+                                            <li><%= strategy %></li>
+                                        <% }); %>
+                                    </ul>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="no-content">
+                            <div class="no-content-icon">✅</div>
+                            <div class="no-content-text">改善が必要な項目はありません</div>
+                        </div>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -332,10 +359,11 @@
             ]
         };
 
-        // ページ読み込み時の初期化
+        // ページ読み込み時の初期化（サーバーサイドレンダリング優先のため無効化）
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('=== 改善施策ページ: 初期化開始 ===');
-            await generateStrategies();
+            console.log('=== 改善施策ページ: サーバーサイドレンダリング優先 - JavaScript処理をスキップ ===');
+            // サーバーサイドレンダリングされた内容を維持するため、generateStrategiesは呼び出さない
+            // await generateStrategies();
             updateLastUpdateTime();
         });
 

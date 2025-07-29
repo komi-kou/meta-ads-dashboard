@@ -445,11 +445,25 @@ async function checkBelowThresholdDynamic(metric, rule, historicalData, userId) 
         const relevantData = historicalData.slice(0, rule.days);
         let threshold = rule.threshold;
         
-        // CTRの場合、ユーザー設定の目標値を使用
-        if (metric === 'ctr' && userId) {
+        // ユーザー設定から実際の目標値を取得
+        if (userId) {
             const userSettings = userManager.getUserSettings(userId);
-            if (userSettings && userSettings.target_ctr) {
-                threshold = parseFloat(userSettings.target_ctr);
+            if (userSettings) {
+                switch (metric) {
+                    case 'ctr':
+                        if (userSettings.target_ctr) {
+                            threshold = parseFloat(userSettings.target_ctr);
+                        }
+                        break;
+                    case 'budget_rate':
+                        // 予算消化率は80%固定（標準的な基準）
+                        threshold = 80;
+                        break;
+                    default:
+                        // その他のメトリクスは従来のルール閾値を使用
+                        threshold = rule.threshold;
+                        break;
+                }
             }
         }
         

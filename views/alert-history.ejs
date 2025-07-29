@@ -261,43 +261,6 @@
                     const levelIcon = getLevelIcon(alert.level);
                     const formattedDate = formatDate(alert.timestamp);
                     
-                    // 確認事項の生成
-                    let checkItemsHtml = '';
-                    if (alert.checkItems && alert.checkItems.length > 0) {
-                        checkItemsHtml = `
-                            <div class="alert-section-header">📋 確認事項</div>
-                            <div class="alert-check-items">
-                                ${alert.checkItems.map(item => `
-                                    <div class="check-item">
-                                        <div class="check-item-header">
-                                            <span class="check-priority">優先度 ${item.priority}</span>
-                                            <span class="check-title">${item.title}</span>
-                                        </div>
-                                        <div class="check-description">${item.description}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                    }
-                    
-                    // 改善施策の生成
-                    let improvementsHtml = '';
-                    if (alert.improvements && Object.keys(alert.improvements).length > 0) {
-                        improvementsHtml = `
-                            <div class="alert-section-header">🔧 改善施策</div>
-                            <div class="alert-improvements">
-                                ${Object.entries(alert.improvements).map(([category, strategies]) => `
-                                    <div class="improvement-category">
-                                        <div class="improvement-category-title">${category}</div>
-                                        <ul class="improvement-strategies">
-                                            ${strategies.map(strategy => `<li>${strategy}</li>`).join('')}
-                                        </ul>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                    }
-                    
                     return `
                         <div class="history-item">
                             <div class="alert-info">
@@ -310,8 +273,6 @@
                             <div class="alert-timestamp">
                                 ${formattedDate}
                             </div>
-                            ${checkItemsHtml}
-                            ${improvementsHtml}
                         </div>
                     `;
                 }).join('');
