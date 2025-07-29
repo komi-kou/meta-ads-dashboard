@@ -3218,7 +3218,7 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
                 metric: getMetricDisplayName(alert.metric),
                 message: dynamicMessage,
                 level: alert.severity === 'critical' ? 'high' : 'medium',
-                timestamp: alert.triggeredAt || new Date().toISOString(),
+                timestamp: alert.timestamp || alert.triggeredAt || new Date().toISOString(),
                 status: 'active',
                 checkItems: alert.checkItems || [],
                 improvements: alert.improvements || {}

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>確認事項 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* 確認事項ページ専用スタイル */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            background: #f5f6fa;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f9fafb;
+        }
+
+        .checklist-page {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h2 {
+            margin: 0;
+            color: #374151;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-info {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .no-content {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-content-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .no-content h3 {
+            color: #059669;
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .content-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* アラート内容風のスタイル */
+        .alert-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .alert-header {
+            background-color: #fef3c7;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f59e0b;
+        }
+
+        .alert-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .alert-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .alert-metric {
+            font-weight: 600;
+            color: #92400e;
+            font-size: 16px;
+        }
+
+        .alert-timestamp {
+            color: #a16207;
+            font-size: 12px;
+        }
+
+        .alert-message-row {
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .alert-content {
+            padding: 0;
+        }
+
+        .checklist-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            background-color: #fef9e7;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-priority {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .priority-indicator {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .priority-text {
+            font-weight: 500;
+            color: #374151;
+            flex: 1;
+        }
+
+        .item-timestamp {
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .item-description {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .alert-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/alerts" class="nav-item">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item active">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+                <a href="/chatwork-test" class="nav-item">チャットワークテスト</a>
+            </nav>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="checklist-page">
+                <div class="page-header">
+                    <h2>📋 確認事項</h2>
+                    <div class="header-info">
+                        アクティブアラート: <span id="alertCount">4</span>件 
+                        最終チェック: <span id="lastCheckTime"></span>
+                    </div>
+                </div>
+
+                <div id="content">
+                    <!-- コンテンツはJavaScriptで生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 確認事項の定義
+        const checklistRules = {
+            '予算消化率': [
+                { priority: 1, title: '配信されているか確認', description: '広告がアクティブになっているか' },
+                { priority: 2, title: '配信するクリエイティブが枯れている', description: 'CV数が0もしくは目標CPAの到達しておらず予算も消化されていない' },
+                { priority: 3, title: '配信するユーザー層が悪いのか', description: '配信するユーザー層が悪いと表示されないケースがある' }
+            ],
+            'CTR': [
+                { priority: 1, title: '配信しているクリエイティブが刺さっていないor枯れている', description: 'ありきたりのクリエイティブでユーザーに見られていない\n7日間ベースでずっと配信していて、飽きられている' },
+                { priority: 2, title: 'フリークエンシーが2.5%以上ある', description: '同じユーザーばかりに配信されていて、見飽きられている' },
+                { priority: 3, title: '配信するユーザー層が見込み顧客ではない', description: 'サービスに合ったユーザー層に配信されていないので、スルーされている' }
+            ],
+            'CPM': [
+                { priority: 1, title: '最適なCPM値で配信できていない', description: 'クリエイティブが刺さっていないため入力したCPMから乖離している\n配信するユーザー層が悪いため入力したCPMから乖離している' }
+            ],
+            'CV': [
+                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている', description: '入口のクリエイティブで魅力的に魅せれていないor飽きられてしまっている' },
+                { priority: 2, title: '配信するユーザー層がズレている', description: '購入見込みの低いユーザーに配信されている' },
+                { priority: 3, title: 'LPで離脱されている', description: 'LPの内容がユーザーに刺さっていない' }
+            ],
+            'CPA': [
+                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている', description: '' },
+                { priority: 2, title: '配信するユーザー層がズレている', description: '購入見込みの低いユーザーに配信されている' },
+                { priority: 3, title: '学習データが適切ではない', description: 'ピクセルで学習しているデータが誤った方向に進んでいる' },
+                { priority: 4, title: 'LPで離脱されている', description: 'LPの内容がユーザーに刺さっていない' }
+            ],
+            '日予算': [
+                { priority: 1, title: '予算設定が適切でない', description: '設定した日予算が市場の競合状況に合っていない可能性がある' },
+                { priority: 2, title: '配信時間帯の設定問題', description: '効果的な時間帯に配信されていない可能性がある' }
+            ]
+        };
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('=== 確認事項ページ: 初期化開始 ===');
+            await generateChecklist();
+            updateLastCheckTime();
+        });
+
+        // 確認事項を生成（サーバーサイドのcheckItemsを優先使用）
+        async function generateChecklist() {
+            console.log('=== 確認事項生成開始 ===');
+            
+            // サーバーサイドで生成されたcheckItemsを使用
+            const serverCheckItems = <%- JSON.stringify(checkItems || []) %>;
+            console.log('=== 確認事項ページデバッグ ===');
+            console.log('サーバーサイドのcheckItems:', serverCheckItems);
+            console.log('checkItems数:', serverCheckItems ? serverCheckItems.length : 0);
+            
+            // デバッグ用: サーバーから渡されたアラート情報も確認
+            console.log('サーバーから渡されたアラート情報を確認中...');
+            
+            let currentAlerts = [];
+            
+            // サーバーサイドのcheckItemsが定義されている場合（空配列含む）は使用
+            if (serverCheckItems !== null && serverCheckItems !== undefined) {
+                console.log('✅ サーバーサイドのcheckItemsを使用:', serverCheckItems.length + '件');
+                
+                if (serverCheckItems.length > 0) {
+                    // checkItemsからアラート情報をグループ化
+                    const alertGroups = {};
+                    serverCheckItems.forEach(item => {
+                        if (!alertGroups[item.metric]) {
+                            alertGroups[item.metric] = {
+                                id: Date.now() + Math.random(),
+                                metric: item.metric,
+                                message: item.message,
+                                level: 'medium',
+                                timestamp: new Date().toISOString(),
+                                checkItems: []
+                            };
+                        }
+                        alertGroups[item.metric].checkItems.push(item);
+                    });
+                    
+                    currentAlerts = Object.values(alertGroups);
+                } else {
+                    console.log('✅ サーバーから空のcheckItems - アラートなし状態');
+                    currentAlerts = [];
+                }
+                
+            } else {
+                console.log('⚠️ サーバーサイドのcheckItemsがない、APIから取得');
+                
+                try {
+                    // APIからアラート履歴を取得
+                    const alertResponse = await fetch('/api/alert-history');
+                    const alertData = await alertResponse.json();
+                    
+                    if (alertData.success && alertData.history && alertData.history.length > 0) {
+                        currentAlerts = alertData.history.slice(0, 10);
+                        console.log('✅ APIからアラート取得:', currentAlerts.length + '件');
+                    } else {
+                        console.log('❌ APIからのアラート取得失敗、アラートなし状態');
+                        currentAlerts = []; // アラートなし状態
+                    }
+                } catch (error) {
+                    console.error('アラート取得エラー:', error);
+                    currentAlerts = [];
+                }
+            }
+
+            // 確認事項を生成
+            const generatedChecklist = [];
+            
+            console.log('=== 確認事項生成デバッグ ===');
+            console.log('処理対象アラート数:', currentAlerts.length);
+            
+            currentAlerts.forEach((alert, index) => {
+                console.log(`--- アラート ${index + 1} ---`);
+                console.log('メトリック:', alert.metric);
+                console.log('alert全体:', alert);
+                console.log('checkItems:', alert.checkItems);
+                console.log('checkItems type:', typeof alert.checkItems);
+                console.log('checkItems length:', alert.checkItems ? alert.checkItems.length : 'undefined');
+                console.log('checklistRules[metric]:', checklistRules[alert.metric]);
+                console.log('checkItems配列確認:', Array.isArray(alert.checkItems));
+                console.log('checkItems内容詳細:', alert.checkItems);
+                
+                // APIから取得した確認事項を優先使用、なければフォールバック
+                let items = [];
+                
+                // まずAPIから取得したcheckItemsを確認
+                if (alert.checkItems && Array.isArray(alert.checkItems) && alert.checkItems.length > 0) {
+                    items = alert.checkItems;
+                    console.log(`✅ ${alert.metric}: APIのcheckItemsを使用 (${items.length}件)`);
+                } else {
+                    // フォールバック: ローカルルールを使用
+                    items = checklistRules[alert.metric] || [];
+                    console.log(`⚠️ ${alert.metric}: ローカルルールを使用 (${items.length}件)`);
+                }
+                
+                console.log(`${alert.metric} - 使用する確認事項:`, items);
+                console.log(`${alert.metric} - 確認事項数:`, items.length);
+                console.log(`${alert.metric} - 条件判定:`, {
+                    hasCheckItems: !!alert.checkItems,
+                    checkItemsLength: alert.checkItems ? alert.checkItems.length : 0,
+                    checkItemsGreaterThanZero: alert.checkItems && alert.checkItems.length > 0,
+                    fallbackRuleExists: !!checklistRules[alert.metric],
+                    fallbackRuleLength: checklistRules[alert.metric] ? checklistRules[alert.metric].length : 0,
+                    finalItemsLength: items.length
+                });
+                
+                // アイテムが存在する場合、確認事項を生成
+                if (items && items.length > 0) {
+                    const checklistItem = {
+                        metric: alert.metric,
+                        alertMessage: alert.message,
+                        alertLevel: alert.level || alert.severity,
+                        timestamp: alert.timestamp,
+                        items: items
+                    };
+                    
+                    generatedChecklist.push(checklistItem);
+                    console.log(`✅ ${alert.metric} の確認事項を追加:`, {
+                        metric: checklistItem.metric,
+                        itemsCount: checklistItem.items.length,
+                        items: checklistItem.items.map(item => item.title || item)
+                    });
+                } else {
+                    console.log(`❌ ${alert.metric} の確認事項が見つからない - items:`, items);
+                }
+            });
+            
+            // アラート数を更新
+            document.getElementById('alertCount').textContent = currentAlerts.length;
+
+            console.log('生成された確認事項:', generatedChecklist);
+            renderChecklist(generatedChecklist);
+        }
+
+        // 確認事項を表示
+        function renderChecklist(checklist) {
+            const contentDiv = document.getElementById('content');
+            
+            if (checklist.length === 0) {
+                contentDiv.innerHTML = `
+                    <div class="no-content">
+                        <div class="no-content-icon">✅</div>
+                        <h3>確認が必要な項目はありません。</h3>
+                    </div>
+                `;
+            } else {
+                const checklistHTML = checklist.map((section, index) => `
+                    <div class="alert-card">
+                        <!-- アラート内容と同じスタイルのヘッダー -->
+                        <div class="alert-header">
+                            <div class="alert-title-row">
+                                <span class="alert-icon">⚠️</span>
+                                <span class="alert-metric">${section.metric}</span>
+                                <span class="alert-timestamp">
+                                    ${new Date(section.timestamp).toLocaleString('ja-JP')}
+                                </span>
+                            </div>
+                            <div class="alert-message-row">
+                                ${section.alertMessage}
+                            </div>
+                        </div>
+
+                        <!-- 確認事項リスト -->
+                        <div class="alert-content">
+                            ${section.items.map((item, itemIndex) => `
+                                <div class="checklist-item">
+                                    <div class="item-priority">
+                                        <span class="priority-indicator">⚠️</span>
+                                        <span class="priority-text">${item.title}</span>
+                                    </div>
+                                    <div class="item-timestamp">
+                                        ${new Date(section.timestamp).toLocaleString('ja-JP')}
+                                    </div>
+                                    ${item.description ? `
+                                        <div class="item-description">
+                                            ${item.description.split('\n').map((line, lineIndex) => `
+                                                <div>${line}</div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+                
+                contentDiv.innerHTML = checklistHTML;
+            }
+        }
+
+        // 最終チェック時間を更新
+        function updateLastCheckTime() {
+            document.getElementById('lastCheckTime').textContent = new Date().toLocaleString('ja-JP');
+        }
+
+        // 10秒ごとに更新
+        setInterval(() => {
+            updateLastCheckTime();
+        }, 10 * 1000);
+    </script>
+</body>
+</html> 

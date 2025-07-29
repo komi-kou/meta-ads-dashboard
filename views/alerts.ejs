@@ -676,25 +676,14 @@
 
         // アラートページの初期化
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('📱 DOM読み込み完了 - アラートページ初期化開始');
+            console.log('📱 DOM読み込み完了 - サーバーサイドレンダリングを維持');
             
-            // DOM要素の確認
-            const warningElement = document.getElementById('warning-alerts');
-            const goalElement = document.getElementById('current-goal');
-            console.log('📱 DOM要素確認:', {
-                warningAlerts: !!warningElement,
-                currentGoal: !!goalElement
-            });
+            // サーバーサイドでレンダリングされた内容をそのまま使用
+            // JavaScriptでの上書きは行わない
+            console.log('📱 サーバーサイドレンダリングの内容を維持します');
             
-            try {
-                await initializeAlertsPage();
-                console.log('📱 アラートページ初期化完了');
-            } catch (error) {
-                console.error('📱 アラートページ初期化エラー:', error);
-            }
-            
-            // 5分毎にデータ更新
-            setInterval(loadAlertData, 5 * 60 * 1000);
+            // 定期更新のみ有効化（5分毎）
+            // setInterval(loadAlertData, 5 * 60 * 1000);
         });
 
         // アラートページ初期化
