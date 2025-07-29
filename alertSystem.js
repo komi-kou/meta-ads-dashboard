@@ -10,7 +10,7 @@ const userManager = new UserManager();
 
 // アラートルール定義
 const ALERT_RULES = {
-    'toC_メルマガ登録': {
+    'toC_newsletter': {
         budget_rate: { threshold: 80, days: 3, operator: 'below' },
         ctr: { threshold: 2.5, days: 3, operator: 'below' },
         conversions: { threshold: 0, days: 2, operator: 'equal' },
@@ -71,17 +71,63 @@ const ALERT_RULES = {
 };
 
 // 設定から現在のゴールタイプを取得
-function getCurrentGoalType() {
+function getCurrentGoalType(userId = null) {
     try {
+        // 優先順位1: UserManagerからユーザー固有設定を読み込み
+        if (userId) {
+            try {
+                const userSettings = userManager.getUserSettings(userId);
+                if (userSettings && (userSettings.service_goal || userSettings.goal_type)) {
+                    const goalType = userSettings.service_goal || userSettings.goal_type;
+                    console.log('✅ アラートシステム ゴールタイプ読み込み成功 (ユーザー固有):', goalType, 'for user:', userId);
+                    return goalType;
+                }
+            } catch (userError) {
+                console.log('⚠️ ユーザー固有設定読み込み失敗:', userError.message);
+            }
+        }
+        
+        // 優先順位2: ユーザー設定ファイルから読み込み（後方互換性）
+        const userSettingsPath = path.join(__dirname, 'data', 'user_settings.json');
+        if (fs.existsSync(userSettingsPath)) {
+            const userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+            if (Array.isArray(userSettings) && userSettings.length > 0) {
+                // 最新のユーザー設定を使用
+                const latestUserSetting = userSettings[userSettings.length - 1];
+                if (latestUserSetting.service_goal || latestUserSetting.goal_type) {
+                    const goalType = latestUserSetting.service_goal || latestUserSetting.goal_type;
+                    console.log('✅ アラートシステム ゴールタイプ読み込み成功 (共通設定):', goalType);
+                    return goalType;
+                }
+            }
+        }
+
+        // 優先順位2: setup.jsonから読み込み
+        const setupPath = path.join(__dirname, 'config', 'setup.json');
+        if (fs.existsSync(setupPath)) {
+            const setupData = JSON.parse(fs.readFileSync(setupPath, 'utf8'));
+            if (setupData.goal && setupData.goal.type) {
+                console.log('✅ アラートシステム ゴールタイプ読み込み成功 (setup.json):', setupData.goal.type);
+                return setupData.goal.type;
+            }
+        }
+
+        // 優先順位3: settings.jsonから読み込み
         const settingsPath = path.join(__dirname, 'settings.json');
         if (fs.existsSync(settingsPath)) {
             const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-            return settings.goal?.type || 'toC_メルマガ登録';
+            if (settings.goal && settings.goal.type) {
+                console.log('✅ アラートシステム ゴールタイプ読み込み成功 (settings.json):', settings.goal.type);
+                return settings.goal.type;
+            }
         }
+
+        console.log('⚠️ アラートシステム ゴールタイプが見つかりません。デフォルト値を使用: toC_newsletter');
+        return 'toC_newsletter'; // デフォルト値
     } catch (error) {
-        console.error('設定読み込みエラー:', error);
+        console.error('❌ アラートシステム ゴールタイプ読み込みエラー:', error.message);
+        return 'toC_newsletter'; // エラー時のデフォルト値
     }
-    return 'toC_メルマガ登録';
 }
 
 // 過去のデータを取得
@@ -175,8 +221,8 @@ async function checkUserAlerts(userId) {
             return [];
         }
         
-        // 現在のゴールタイプを使用
-        const currentGoal = getCurrentGoalType();
+        // 現在のゴールタイプを使用（ユーザー固有）
+        const currentGoal = getCurrentGoalType(userId);
         const rules = ALERT_RULES[currentGoal];
         
         if (!rules) {
@@ -709,7 +755,7 @@ function getAlertSettings() {
     } catch (error) {
         console.error('アラート設定取得エラー:', error);
         return {
-            currentGoal: 'toC_メルマガ登録',
+            currentGoal: 'toC_newsletter',
             rules: {},
             lastUpdated: new Date().toISOString()
         };

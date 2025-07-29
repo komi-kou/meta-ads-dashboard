@@ -885,9 +885,9 @@ app.get('/alerts', requireAuth, async (req, res) => {
         const userId = req.session.userId;
         const { checkUserAlerts, getCurrentGoalType } = require('./alertSystem');
         
-        // 現在のゴールタイプを取得
-        const currentGoalType = getCurrentGoalType();
-        console.log('現在のゴールタイプ:', currentGoalType);
+        // 現在のゴールタイプを取得（ユーザー固有）
+        const currentGoalType = getCurrentGoalType(userId);
+        console.log('現在のゴールタイプ:', currentGoalType, 'for user:', userId);
         
         // ユーザーの現在のアラートを取得
         const alerts = await checkUserAlerts(userId);

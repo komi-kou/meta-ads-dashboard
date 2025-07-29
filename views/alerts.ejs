@@ -581,9 +581,9 @@
                                 <strong><%= goalDisplayName %></strong><br>
                                 <small style="color: #6b7280; font-size: 12px;">
                                     <% if (userSettings) { %>
-                                        CPA目標: <%= userSettings.target_cpa || 'N/A' %>円 | 
-                                        CTR目標: <%= userSettings.target_ctr || 'N/A' %>% | 
-                                        CPM目標: <%= userSettings.target_cpm || 'N/A' %>円
+                                        CPA目標: <%= userSettings.target_cpa ? parseInt(userSettings.target_cpa).toLocaleString() : 'N/A' %>円 | 
+                                        CTR目標: <%= userSettings.target_ctr ? parseFloat(userSettings.target_ctr) : 'N/A' %>% | 
+                                        CPM目標: <%= userSettings.target_cpm ? parseInt(userSettings.target_cpm).toLocaleString() : 'N/A' %>円
                                     <% } else { %>
                                         設定なし
                                     <% } %>
@@ -688,9 +688,9 @@
             // 目標値表示更新のみ実行（サーバーから渡されたuserSettingsとcurrentGoalTypeを使用）
             <% if (userSettings && currentGoalType) { %>
                 const serverGoals = {
-                    'CPA目標': '<%= userSettings.target_cpa || "N/A" %>',
-                    'CTR目標': '<%= userSettings.target_ctr || "N/A" %>',
-                    'CPM目標': '<%= userSettings.target_cpm || "N/A" %>'
+                    'CPA目標': '<%= userSettings.target_cpa ? parseInt(userSettings.target_cpa) : "N/A" %>',
+                    'CTR目標': '<%= userSettings.target_ctr ? parseFloat(userSettings.target_ctr) : "N/A" %>',
+                    'CPM目標': '<%= userSettings.target_cpm ? parseInt(userSettings.target_cpm) : "N/A" %>'
                 };
                 const serverGoalType = '<%= currentGoalType %>';
                 updateCurrentGoalDisplay(serverGoals, serverGoalType);
@@ -699,11 +699,12 @@
             <% } %>
         });
 
-        // アラートページ初期化
+        // アラートページ初期化（JavaScriptの上書きを無効化）
         async function initializeAlertsPage() {
             try {
                 await loadGoals();
-                await loadAlertData();
+                // サーバーサイドレンダリングを維持するため、loadAlertDataは呼び出さない
+                console.log('📱 サーバーサイドレンダリングを維持 - loadAlertDataはスキップ');
             } catch (error) {
                 console.error('アラートページ初期化エラー:', error);
             }
