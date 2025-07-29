@@ -160,7 +160,12 @@ class AlertManager {
   
   // 現在のゴール情報取得
   getCurrentGoal() {
-    return alertRules.goals[this.currentGoal];
+    const goalData = alertRules.goals[this.currentGoal];
+    return {
+      key: this.currentGoal,
+      name: goalData?.name || this.currentGoal,
+      ...goalData
+    };
   }
   
   // 全ゴール一覧取得
