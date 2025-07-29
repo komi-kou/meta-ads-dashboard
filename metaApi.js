@@ -331,8 +331,12 @@ async function fetchMetaAdDailyStats({ accessToken, accountId, appId, datePreset
       // CV（コンバージョン）数を計算
       let cv = 0;
       if (dayData.actions && Array.isArray(dayData.actions)) {
-        // complete_registrationのみ合計
-        cv = dayData.actions.filter(action => action.action_type === 'complete_registration').reduce((sum, action) => sum + Number(action.value || 0), 0);
+        // lead と purchase の合計（toC_lineでは主にlead）
+        cv = dayData.actions.filter(action => 
+          action.action_type === 'lead' || 
+          action.action_type === 'purchase' || 
+          action.action_type === 'complete_registration'
+        ).reduce((sum, action) => sum + Number(action.value || 0), 0);
       }
 
       // CPA（コンバージョン単価）

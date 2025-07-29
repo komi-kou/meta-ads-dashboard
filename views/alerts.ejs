@@ -504,7 +504,49 @@
                 <div class="alert-section main-alert-section">
                     <h2>⚠️ 注意アラート</h2>
                     <div id="warning-alerts" class="loading">
-                        データを読み込み中...
+                        <% if (alerts && alerts.length > 0) { %>
+                            <% alerts.forEach(function(alert) { %>
+                                <div class="alert-card <%= alert.severity === 'critical' ? 'critical' : 'warning' %>">
+                                    <div class="alert-card-header">
+                                        <div class="alert-type"><%= alert.severity === 'critical' ? '🔴' : '⚠️' %> <%= alert.message %></div>
+                                        <div class="alert-time"><%= new Date(alert.triggeredAt).toLocaleString('ja-JP') %></div>
+                                    </div>
+                                    
+                                    <% if (alert.checkItems && alert.checkItems.length > 0) { %>
+                                        <div class="alert-section-header">📋 確認事項</div>
+                                        <div class="alert-check-items">
+                                            <% alert.checkItems.forEach(function(item) { %>
+                                                <div class="check-item">
+                                                    <div class="check-item-header">
+                                                        <div class="check-priority">優先度 <%= item.priority %></div>
+                                                        <div class="check-title"><%= item.title %></div>
+                                                    </div>
+                                                    <div class="check-description"><%= item.description %></div>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <% if (alert.improvements && Object.keys(alert.improvements).length > 0) { %>
+                                        <div class="alert-section-header">🔧 改善施策</div>
+                                        <div class="alert-improvements">
+                                            <% Object.entries(alert.improvements).forEach(function([category, strategies]) { %>
+                                                <div class="improvement-category">
+                                                    <div class="improvement-category-title"><%= category %></div>
+                                                    <ul class="improvement-strategies">
+                                                        <% strategies.forEach(function(strategy) { %>
+                                                            <li><%= strategy %></li>
+                                                        <% }) %>
+                                                    </ul>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-alerts">✅ 現在、アラートはありません</div>
+                        <% } %>
                     </div>
                 </div>
 
@@ -522,7 +564,31 @@
                     <div id="alert-settings">
                         <div class="alert-card">
                             <div class="alert-type">現在のゴールタイプ</div>
-                            <div class="alert-message" id="current-goal">設定を読み込み中...</div>
+                            <div class="alert-message" id="current-goal">
+                                <% 
+                                const goalTypeNames = {
+                                    'toC_newsletter': 'toC（メルマガ登録）',
+                                    'toC_line': 'toC（LINE登録）',
+                                    'toC_phone': 'toC（電話問い合わせ）',
+                                    'toC_purchase': 'toC（購入）',
+                                    'toB_newsletter': 'toB（メルマガ登録）',
+                                    'toB_line': 'toB（LINE登録）',
+                                    'toB_phone': 'toB（電話問い合わせ）',
+                                    'toB_purchase': 'toB（購入）'
+                                };
+                                const goalDisplayName = userSettings && userSettings.service_goal ? goalTypeNames[userSettings.service_goal] || userSettings.service_goal : goalTypeNames[currentGoalType] || currentGoalType;
+                                %>
+                                <strong><%= goalDisplayName %></strong><br>
+                                <small style="color: #6b7280; font-size: 12px;">
+                                    <% if (userSettings) { %>
+                                        CPA目標: <%= userSettings.target_cpa || 'N/A' %>円 | 
+                                        CTR目標: <%= userSettings.target_ctr || 'N/A' %>% | 
+                                        CPM目標: <%= userSettings.target_cpm || 'N/A' %>円
+                                    <% } else { %>
+                                        設定なし
+                                    <% } %>
+                                </small>
+                            </div>
                         </div>
                         <div class="alert-card">
                             <div class="alert-type">監視項目</div>
@@ -607,10 +673,25 @@
     </div>
 
     <script>
+
         // アラートページの初期化
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('アラートページ初期化');
-            await initializeAlertsPage();
+            console.log('📱 DOM読み込み完了 - アラートページ初期化開始');
+            
+            // DOM要素の確認
+            const warningElement = document.getElementById('warning-alerts');
+            const goalElement = document.getElementById('current-goal');
+            console.log('📱 DOM要素確認:', {
+                warningAlerts: !!warningElement,
+                currentGoal: !!goalElement
+            });
+            
+            try {
+                await initializeAlertsPage();
+                console.log('📱 アラートページ初期化完了');
+            } catch (error) {
+                console.error('📱 アラートページ初期化エラー:', error);
+            }
             
             // 5分毎にデータ更新
             setInterval(loadAlertData, 5 * 60 * 1000);
@@ -626,20 +707,43 @@
             }
         }
 
-        // ゴール設定読み込み（サーバーから渡されたgoalTypeを使用）
+        // ゴール設定読み込み（サーバーから渡されたuserSettingsを使用）
         async function loadGoals() {
             try {
-                // サーバーから渡されたゴールタイプを使用
+                // サーバーから渡されたゴールタイプとユーザー設定を使用
+                const userSettings = <% try { %><%- JSON.stringify(userSettings) %><% } catch(e) { %>null<% } %>;
                 let goalType = '<%= currentGoalType || "toC_newsletter" %>';
+                
+                // ユーザー設定からゴールタイプを取得（優先）
+                if (userSettings && userSettings.service_goal) {
+                    goalType = userSettings.service_goal;
+                } else if (userSettings && userSettings.goal_type) {
+                    goalType = userSettings.goal_type;
+                }
+                
                 console.log('=== loadGoals 詳細デバッグ開始 ===');
                 console.log('EJSから渡されたgoalType:', goalType);
+                console.log('EJSから渡されたuserSettings:', userSettings);
                 console.log('goalTypeの型:', typeof goalType);
                 console.log('goalTypeの長さ:', goalType.length);
                 
                 let currentGoals = {};
                 
-                // セットアップページと同じ goalTargets を使用
-                const goalTargets = {
+                // ユーザー設定から実際の目標値を取得
+                if (userSettings && userSettings.target_cpa) {
+                    currentGoals = {
+                        '予算消化率': 80, // 固定値
+                        'CTR': parseFloat(userSettings.target_ctr) || 2.5,
+                        'CV': 1, // 固定値
+                        'CPA': parseInt(userSettings.target_cpa) || 1500,
+                        '日予算': parseInt(userSettings.target_dailyBudget) || 10000,
+                        'CPM': parseInt(userSettings.target_cpm) || 800
+                    };
+                    console.log('✅ ユーザー設定から目標値を取得:', currentGoals);
+                } else {
+                    console.log('⚠️ ユーザー設定がnull - デフォルト値を使用');
+                    // フォールバック: goalTypeに基づくデフォルト値
+                    const goalTargets = {
                         toC_newsletter: {
                             '予算消化率': 80,
                             'CTR': 2.5,
@@ -706,29 +810,31 @@
                         }
                     };
                 
-                if (goalTargets[goalType]) {
-                    currentGoals = goalTargets[goalType];
-                }
-                
-                // localStorage の設定で上書き（ユーザーがカスタマイズした場合）
-                const storedGoals = localStorage.getItem('alert_goals');
-                if (storedGoals) {
-                    const customGoals = JSON.parse(storedGoals);
-                    currentGoals = { ...currentGoals, ...customGoals };
-                }
-                
-                // デフォルト値（フォールバック）
-                const defaultGoals = {
-                    '予算消化率': 80,
-                    'CTR': 2.0,
-                    'CV': 1,
-                    'CPA': 10000,
-                    '日予算': 50000,
-                    'CPM': 1000
-                };
-                
-                if (Object.keys(currentGoals).length === 0) {
-                    currentGoals = defaultGoals;
+                    if (goalTargets[goalType]) {
+                        currentGoals = goalTargets[goalType];
+                    }
+                    
+                    // localStorage の設定で上書き（ユーザーがカスタマイズした場合）
+                    const storedGoals = localStorage.getItem('alert_goals');
+                    if (storedGoals) {
+                        const customGoals = JSON.parse(storedGoals);
+                        currentGoals = { ...currentGoals, ...customGoals };
+                    }
+                    
+                    // デフォルト値（フォールバック）
+                    const defaultGoals = {
+                        '予算消化率': 80,
+                        'CTR': 2.0,
+                        'CV': 1,
+                        'CPA': 10000,
+                        '日予算': 50000,
+                        'CPM': 1000
+                    };
+                    
+                    if (Object.keys(currentGoals).length === 0) {
+                        currentGoals = defaultGoals;
+                    }
+                    console.log('⚠️ ユーザー設定なし - デフォルト値を使用:', currentGoals);
                 }
                 
                 // 現在のゴールタイプも表示に反映
@@ -979,7 +1085,10 @@
             }
             
             if (alerts.length > 0) {
-                warningContainer.innerHTML = alerts.map(alert => createAlertCard(alert, 'warning')).join('');
+                warningContainer.innerHTML = alerts.map(alert => {
+                    const alertType = alert.level === 'high' ? 'critical' : 'warning';
+                    return createAlertCard(alert, alertType);
+                }).join('');
             } else {
                 warningContainer.innerHTML = '<div class="no-alerts">注意アラートはありません ✅</div>';
             }
@@ -1206,9 +1315,10 @@
         }
 
         function updateCurrentGoalDisplay(goals, goalType = '') {
-            console.log('=== updateCurrentGoalDisplay デバッグ情報 ===');
-            console.log('受け取ったgoalType:', goalType);
-            console.log('goalTypeの型:', typeof goalType);
+            console.log('🎯 === updateCurrentGoalDisplay 実行開始 ===');
+            console.log('🎯 受け取ったgoals:', goals);
+            console.log('🎯 受け取ったgoalType:', goalType);
+            console.log('🎯 goalTypeの型:', typeof goalType);
             
             // ゴールタイプの表示名を取得
             const goalTypeNames = {

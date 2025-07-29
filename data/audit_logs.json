@@ -34,5 +34,149 @@
     "ip_address": "::1",
     "user_agent": "curl/8.7.1",
     "created_at": "2025-07-28T12:51:53.415Z"
+  },
+  {
+    "id": "403c51cc-1335-4f8d-b433-5e252f867528",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:03:36.413Z"
+  },
+  {
+    "id": "2caa79b4-0dc1-4dec-8d84-ad0aa6efacfc",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:03:36.650Z"
+  },
+  {
+    "id": "db8e9457-f17a-4914-844c-6a0e3028d6b1",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:07:40.092Z"
+  },
+  {
+    "id": "1c1e3cf5-a1d4-45cb-85c6-35c1a81ce894",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:07:40.324Z"
+  },
+  {
+    "id": "808cba42-4e59-4794-8cc3-7680c71d19c5",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:13:49.178Z"
+  },
+  {
+    "id": "0974ab87-eeb4-4ca2-98e9-e988a7aa5200",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:13:49.419Z"
+  },
+  {
+    "id": "242cec31-d14b-4ca6-a996-7916e69712a6",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:26:06.467Z"
+  },
+  {
+    "id": "3a4992ae-0167-40c3-821f-40dfcaf79c76",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:26:06.723Z"
+  },
+  {
+    "id": "9dbe94d1-be2b-48f2-b727-ad4e3eb84199",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:27:00.953Z"
+  },
+  {
+    "id": "d171dc48-4577-4e7c-9cc1-fcb10d33af40",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:27:01.202Z"
+  },
+  {
+    "id": "6940264a-65f7-4191-8661-7c7723d5c4e3",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:31:28.645Z"
+  },
+  {
+    "id": "a53e779c-a1a2-4765-b45e-968e8a505f80",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-28T13:31:28.870Z"
+  },
+  {
+    "id": "4d1c9b1c-4eab-44e9-a71c-e3d0f9a8fb52",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-29T01:06:24.218Z"
+  },
+  {
+    "id": "d70ebff7-d954-481d-8ee1-a75a942d46a0",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-29T01:06:24.433Z"
+  },
+  {
+    "id": "c067c428-7710-40ed-a222-60de594b579f",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-29T01:16:09.852Z"
+  },
+  {
+    "id": "2fa86821-55f5-4e7d-9a90-c3f41836f566",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-29T01:16:10.098Z"
   }
 ]
