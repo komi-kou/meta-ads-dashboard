@@ -247,6 +247,11 @@ async function checkUserAlerts(userId) {
             }
         }
         
+        // アラート履歴に保存
+        if (alerts.length > 0) {
+            await saveAlertHistory(alerts);
+        }
+        
         console.log(`ユーザー${userId}のアラートチェック完了: ${alerts.length}件のアラート`);
         return alerts;
         
