@@ -889,8 +889,14 @@ app.get('/alerts', requireAuth, async (req, res) => {
         const currentGoalType = getCurrentGoalType(userId);
         console.log('現在のゴールタイプ:', currentGoalType, 'for user:', userId);
         
-        // ユーザーの現在のアラートを取得
-        const alerts = await checkUserAlerts(userId);
+        // ユーザーの現在のアラートを取得（アクティブなアラート履歴から）
+        const alertHistory = await getAlertHistory();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const alerts = alertHistory.filter(alert => 
+            alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo
+        );
         console.log('=== /alertsルート詳細ログ ===');
         console.log('取得したアラート数:', alerts.length);
         console.log('アラート詳細:', alerts.map(alert => ({
@@ -1027,11 +1033,17 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
         // アラートシステムを安全に読み込み
         let alerts = [];
         try {
-            const { checkUserAlerts } = require('./alertSystem');
+            const { getAlertHistory } = require('./alertSystem');
             console.log('alertSystem.js を読み込み成功');
             
-            // ユーザーの現在のアラートを取得
-            alerts = await checkUserAlerts(userId);
+            // アクティブなアラート履歴を取得
+            const alertHistory = await getAlertHistory();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            alerts = alertHistory.filter(alert => 
+                alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo
+            );
             console.log('=== /improvement-tasksルート詳細ログ ===');
             console.log('取得したアラート数:', alerts.length);
             console.log('アラート詳細:', alerts.map(alert => ({
@@ -1163,10 +1175,16 @@ function getMetricDisplayName(metric) {
 app.get('/improvement-strategies', requireAuth, async (req, res) => {
     try {
         const userId = req.session.userId;
-        const { checkUserAlerts } = require('./alertSystem');
+        const { getAlertHistory } = require('./alertSystem');
         
-        // ユーザーの現在のアラートを取得
-        const alerts = await checkUserAlerts(userId);
+        // アクティブなアラート履歴を取得
+        const alertHistory = await getAlertHistory();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const alerts = alertHistory.filter(alert => 
+            alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo
+        );
         console.log('=== /improvement-strategiesルート詳細ログ ===');
         console.log('取得したアラート数:', alerts.length);
         console.log('アラート詳細:', alerts.map(alert => ({

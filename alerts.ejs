@@ -503,8 +503,53 @@
                 <!-- 注意アラート - 緊急アラート削除後の美しいレイアウト -->
                 <div class="alert-section main-alert-section">
                     <h2>⚠️ 注意アラート</h2>
-                    <div id="warning-alerts" class="loading">
-                        データを読み込み中...
+                    <div id="warning-alerts">
+                        <!-- デバッグ用: サーバーから渡されたアラート数を表示 -->
+                        <script>console.log('📊 サーバーから渡されたアラート数:', <%= alerts ? alerts.length : 0 %>);</script>
+                        
+                        <% if (alerts && alerts.length > 0) { %>
+                            <% alerts.forEach(function(alert) { %>
+                                <div class="alert-card <%= alert.severity === 'critical' ? 'critical' : 'warning' %>">
+                                    <div class="alert-card-header">
+                                        <div class="alert-type"><%= alert.severity === 'critical' ? '🔴' : '⚠️' %> <%= alert.message %></div>
+                                        <div class="alert-time"><%= new Date(alert.triggeredAt).toLocaleString('ja-JP') %></div>
+                                    </div>
+                                    
+                                    <% if (alert.checkItems && alert.checkItems.length > 0) { %>
+                                        <div class="alert-section-header">📋 確認事項</div>
+                                        <div class="alert-check-items">
+                                            <% alert.checkItems.forEach(function(item) { %>
+                                                <div class="check-item">
+                                                    <div class="check-item-header">
+                                                        <div class="check-priority">優先度 <%= item.priority %></div>
+                                                        <div class="check-title"><%= item.title %></div>
+                                                    </div>
+                                                    <div class="check-description"><%= item.description %></div>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <% if (alert.improvements && Object.keys(alert.improvements).length > 0) { %>
+                                        <div class="alert-section-header">🔧 改善施策</div>
+                                        <div class="alert-improvements">
+                                            <% Object.entries(alert.improvements).forEach(function([category, strategies]) { %>
+                                                <div class="improvement-category">
+                                                    <div class="improvement-category-title"><%= category %></div>
+                                                    <ul class="improvement-strategies">
+                                                        <% strategies.forEach(function(strategy) { %>
+                                                            <li><%= strategy %></li>
+                                                        <% }) %>
+                                                    </ul>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-alerts">✅ 現在、アラートはありません</div>
+                        <% } %>
                     </div>
                 </div>
 
@@ -522,7 +567,32 @@
                     <div id="alert-settings">
                         <div class="alert-card">
                             <div class="alert-type">現在のゴールタイプ</div>
-                            <div class="alert-message" id="current-goal">設定を読み込み中...</div>
+                            <div class="alert-message" id="current-goal">
+                                <% 
+                                const goalTypeNames = {
+                                    'toC_newsletter': 'toC（メルマガ登録）',
+                                    'toC_line': 'toC（LINE登録）',
+                                    'toC_phone': 'toC（電話問い合わせ）',
+                                    'toC_purchase': 'toC（購入）',
+                                    'toB_newsletter': 'toB（メルマガ登録）',
+                                    'toB_line': 'toB（LINE登録）',
+                                    'toB_phone': 'toB（電話問い合わせ）',
+                                    'toB_purchase': 'toB（購入）'
+                                };
+                                const goalDisplayName = userSettings && userSettings.service_goal ? goalTypeNames[userSettings.service_goal] || userSettings.service_goal : goalTypeNames[currentGoalType] || currentGoalType;
+                                %>
+                                <strong><%= goalDisplayName %></strong><br>
+                                <small style="color: #6b7280; font-size: 12px;">
+                                    <% if (userSettings && userSettings.target_cpa && userSettings.target_ctr && userSettings.target_cpm) { %>
+                                        CPA目標: <%= parseInt(userSettings.target_cpa).toLocaleString() %>円, 
+                                        CTR目標: <%= parseFloat(userSettings.target_ctr) %>%, 
+                                        CPM目標: <%= parseInt(userSettings.target_cpm).toLocaleString() %>円,
+                                        日予算: <%= parseInt(userSettings.target_dailyBudget).toLocaleString() %>円
+                                    <% } else { %>
+                                        設定を確認してください
+                                    <% } %>
+                                </small>
+                            </div>
                         </div>
                         <div class="alert-card">
                             <div class="alert-type">監視項目</div>
@@ -607,65 +677,38 @@
     </div>
 
     <script>
-        // 現在のゴール表示を更新
-        function updateCurrentGoalDisplay(goals, goalType) {
-            try {
-                console.log('=== updateCurrentGoalDisplay 実行 ===');
-                console.log('goals:', goals);
-                console.log('goalType:', goalType);
-                
-                // ゴールタイプの日本語変換マップ
-                const goalTypeNames = {
-                    'toC_newsletter': 'toC（メルマガ登録）',
-                    'toC_line': 'toC（LINE登録）',
-                    'toC_phone': 'toC（電話問い合わせ）',
-                    'toC_purchase': 'toC（購入）',
-                    'toB_newsletter': 'toB（メルマガ登録）',
-                    'toB_line': 'toB（LINE登録）',
-                    'toB_phone': 'toB（電話問い合わせ）',
-                    'toB_purchase': 'toB（購入）'
-                };
-                
-                const goalDisplayName = goalTypeNames[goalType] || goalType;
-                console.log('goalDisplayName:', goalDisplayName);
-                
-                const currentGoalElement = document.getElementById('current-goal');
-                if (currentGoalElement) {
-                    currentGoalElement.innerHTML = `
-                        <strong>${goalDisplayName}</strong><br>
-                        <small style="color: #6b7280; font-size: 12px;">
-                            CPA目標: ${goals['CPA'] || 'N/A'}円 | 
-                            CTR目標: ${goals['CTR'] || 'N/A'}% | 
-                            CPM目標: ${goals['CPM'] || 'N/A'}円
-                        </small>
-                    `;
-                    console.log('✅ ゴール表示更新完了');
-                } else {
-                    console.error('❌ current-goal要素が見つかりません');
-                }
-            } catch (error) {
-                console.error('ゴール表示更新エラー:', error);
-                const currentGoalElement = document.getElementById('current-goal');
-                if (currentGoalElement) {
-                    currentGoalElement.textContent = 'ゴール表示エラー';
-                }
-            }
-        }
 
         // アラートページの初期化
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('アラートページ初期化');
-            await initializeAlertsPage();
+            console.log('📱 DOM読み込み完了 - サーバーサイドレンダリングを維持');
             
-            // 5分毎にデータ更新
-            setInterval(loadAlertData, 5 * 60 * 1000);
+            // サーバーサイドでレンダリングされた内容をそのまま使用
+            // JavaScriptでの上書きは行わない
+            console.log('📱 サーバーサイドレンダリングの内容を維持します');
+            
+            // 定期更新も無効化してサーバーサイドレンダリングを完全に維持
+            // setInterval(loadAlertData, 5 * 60 * 1000);
+            
+            // 目標値表示更新のみ実行（サーバーから渡されたuserSettingsとcurrentGoalTypeを使用）
+            <% if (userSettings && currentGoalType && userSettings.target_cpa && userSettings.target_ctr && userSettings.target_cpm) { %>
+                const serverGoals = {
+                    'CPA目標': '<%= parseInt(userSettings.target_cpa) %>',
+                    'CTR目標': '<%= parseFloat(userSettings.target_ctr) %>',
+                    'CPM目標': '<%= parseInt(userSettings.target_cpm) %>'
+                };
+                const serverGoalType = '<%= currentGoalType %>';
+                updateCurrentGoalDisplay(serverGoals, serverGoalType);
+            <% } else { %>
+                console.log('⚠️ サーバーからuserSettingsまたはcurrentGoalTypeが渡されていません');
+            <% } %>
         });
 
-        // アラートページ初期化
+        // アラートページ初期化（JavaScriptの上書きを無効化）
         async function initializeAlertsPage() {
             try {
                 await loadGoals();
-                await loadAlertData();
+                // サーバーサイドレンダリングを維持するため、loadAlertDataは呼び出さない
+                console.log('📱 サーバーサイドレンダリングを維持 - loadAlertDataはスキップ');
             } catch (error) {
                 console.error('アラートページ初期化エラー:', error);
             }
@@ -1041,21 +1084,7 @@
 
         // アラート表示更新
         function updateAlertDisplay(alerts) {
-            const warningContainer = document.getElementById('warning-alerts');
-            
-            if (!warningContainer) {
-                console.error('警告アラートコンテナが見つかりません');
-                return;
-            }
-            
-            if (alerts.length > 0) {
-                warningContainer.innerHTML = alerts.map(alert => {
-                    const alertType = alert.level === 'high' ? 'critical' : 'warning';
-                    return createAlertCard(alert, alertType);
-                }).join('');
-            } else {
-                warningContainer.innerHTML = '<div class="no-alerts">注意アラートはありません ✅</div>';
-            }
+            console.log('📱 updateAlertDisplay呼び出し - アラート数:', alerts.length);
         }
 
         // アラートカード作成
@@ -1212,7 +1241,7 @@
 
         // エラー表示
         function showError(message) {
-            document.getElementById('warning-alerts').innerHTML = `<div class="no-alerts">❌ ${message}</div>`;
+            console.log('📱 showError呼び出し - メッセージ:', message);
         }
 
         // ゴール設定モーダル機能
@@ -1268,8 +1297,8 @@
                 const goalType = '<%= currentGoalType || "toC_newsletter" %>';
                 updateCurrentGoalDisplay(goals, goalType);
                 
-                // アラートを再チェック
-                loadAlertData();
+                // サーバーサイドレンダリングを維持するため、loadAlertDataは呼び出さない
+                // loadAlertData();
                 
                 alert('ゴール設定を保存しました');
             } catch (error) {
@@ -1279,9 +1308,10 @@
         }
 
         function updateCurrentGoalDisplay(goals, goalType = '') {
-            console.log('=== updateCurrentGoalDisplay デバッグ情報 ===');
-            console.log('受け取ったgoalType:', goalType);
-            console.log('goalTypeの型:', typeof goalType);
+            console.log('🎯 === updateCurrentGoalDisplay 実行開始 ===');
+            console.log('🎯 受け取ったgoals:', goals);
+            console.log('🎯 受け取ったgoalType:', goalType);
+            console.log('🎯 goalTypeの型:', typeof goalType);
             
             // ゴールタイプの表示名を取得
             const goalTypeNames = {

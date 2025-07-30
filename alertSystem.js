@@ -280,7 +280,7 @@ async function checkMetricAlert(metric, rule, historicalData, goalType, userId =
                     if (metric === 'ctr' && userId) {
                         const userSettings = userManager.getUserSettings(userId);
                         const targetCTR = userSettings?.target_ctr ? parseFloat(userSettings.target_ctr) : rule.threshold;
-                        alertMessage = `CTRが${targetCTR}%以下の${currentValue.toFixed(1)}%が${rule.days}日間続いています`;
+                        alertMessage = `CTRが${targetCTR}%以下の${currentValue.toFixed(2)}%が${rule.days}日間続いています`;
                     } else if (metric === 'budget_rate' && userId) {
                         const userSettings = userManager.getUserSettings(userId);
                         const userDailyBudget = userSettings?.target_dailyBudget ? parseInt(userSettings.target_dailyBudget) : null;

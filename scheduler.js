@@ -180,7 +180,7 @@ async function runBatch(isMorningReport = false) {
       let msg;
       if (isMorningReport) {
         // 朝9時は前日の詳細データ
-        msg = `広告データを更新しました。\nご確認ください。\n\n▼確認URL\nhttp://localhost:3000/\n\n日付: ${d.date || d.date_start || ''}\n消化金額: ${formatNumber(d.spend)}円\nCV: ${d.cv}\nCPA: ${formatNumber(d.cpa)}円\nCTR: ${formatPercentage(d.ctr, 2)}%\nCPM: ${formatNumber(d.cpm ? d.cpm / 10 : 0)}円\n予算消化率: ${formatPercentage(d.budgetRate, 0)}%`;
+        msg = `広告データを更新しました。\nご確認ください。\n\n▼確認URL\nhttp://localhost:3000/\n\n日付: ${d.date || d.date_start || ''}\n消化金額: ${formatNumber(d.spend)}円\nCV: ${d.cv || 0}\nCPA: ${d.cpa && d.cpa > 0 ? formatNumber(d.cpa) + '円' : '計算不可'}\nCTR: ${formatPercentage(d.ctr, 2)}%\nCPM: ${formatNumber(d.cpm ? d.cpm / 10 : 0)}円\n予算消化率: ${formatPercentage(d.budgetRate, 0)}%`;
       } else {
         // その他の時間帯は簡素化版
         msg = `広告データを更新しました。\nご確認ください。\n\n▼ご確認URL\nhttp://localhost:3000/`;
@@ -861,11 +861,11 @@ function generateDailyReportMessage(data) {
     return `[info][title]📊 Meta広告 日次レポート - ${today}[/title]
 💰 消化金額: ${data.spend?.toLocaleString() || 0}円
 📈 予算消化率: ${data.budgetRate || 0}%
-👆 CTR: ${data.ctr || 0}%
+👆 CTR: ${data.ctr ? parseFloat(data.ctr).toFixed(2) : '0.00'}%
 💵 CPM: ${data.cpm?.toLocaleString() || 0}円
 🎯 CV数: ${data.conversions || 0}件
-💰 CPA: ${data.cpa?.toLocaleString() || 0}円
-🔄 フリークエンシー: ${data.frequency || 0}
+💰 CPA: ${data.cpa && data.cpa > 0 ? data.cpa.toLocaleString() + '円' : '計算不可'}
+🔄 フリークエンシー: ${data.frequency ? parseFloat(data.frequency).toFixed(2) : '0.00'}
 
 ${data.budgetRate > 100 ? '⚠️ 予算オーバーしています' : '✅ 予算内で運用中'}
 [/info]`;
