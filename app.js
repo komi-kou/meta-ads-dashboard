@@ -1116,19 +1116,19 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
             }
         });
         
-        // 重複除去処理（同じmetricとtitleの組み合わせで重複を除去）
-        const uniqueCheckItems = [];
-        const seen = new Set();
+        // 重複除去処理を一時的に無効化（データ表示優先）
+        // const uniqueCheckItems = [];
+        // const seen = new Set();
         
-        checkItems.forEach(item => {
-            const key = `${item.metric}-${item.title}`;
-            if (!seen.has(key)) {
-                seen.add(key);
-                uniqueCheckItems.push(item);
-            }
-        });
+        // checkItems.forEach(item => {
+        //     const key = `${item.metric}-${item.title}-${item.alertId || 'no-id'}`;
+        //     if (!seen.has(key)) {
+        //         seen.add(key);
+        //         uniqueCheckItems.push(item);
+        //     }
+        // });
         
-        checkItems = uniqueCheckItems;
+        // checkItems = uniqueCheckItems;
         console.log('重複除去後のcheckItems数:', checkItems.length);
         console.log('=== 確認事項抽出デバッグ終了 ===');
 
@@ -1352,16 +1352,19 @@ app.get('/api/alerts-data', async (req, res) => {
 // アラートデータ取得API（既存）
 app.get('/api/alerts', async (req, res) => {
     try {
-        console.log('Attempting to run checkAllAlerts...');
-        const alerts = await checkAllAlerts();
-        console.log('checkAllAlerts succeeded, alerts count:', alerts.length);
+        console.log('=== /api/alerts - アラートデータ取得開始 ===');
         
+        // アラート履歴からアクティブなアラートを取得
         const alertHistory = await getAlertHistory();
+        const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+        console.log('アラート履歴総数:', alertHistory.length);
+        console.log('アクティブアラート数:', activeAlerts.length);
+        
         const alertSettings = getAlertSettings();
         
         res.json({
             success: true,
-            alerts: alerts,
+            alerts: activeAlerts,  // historyからアクティブなアラートを返す
             history: alertHistory,
             settings: alertSettings,
             lastCheck: new Date().toISOString()
@@ -1372,11 +1375,14 @@ app.get('/api/alerts', async (req, res) => {
         // フォールバック: エラー時でも基本的な構造を返す
         try {
             const alertHistory = await getAlertHistory();
+            const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
             const alertSettings = getAlertSettings();
+            
+            console.log('フォールバック: アクティブアラート数:', activeAlerts.length);
             
             res.json({
                 success: false,
-                alerts: [],
+                alerts: activeAlerts,  // フォールバック時もアクティブアラートを返す
                 history: alertHistory,
                 settings: alertSettings,
                 lastCheck: new Date().toISOString(),
@@ -1445,25 +1451,7 @@ app.get('/check', requireAuth, (req, res) => {
   }
 });
 
-// アラート取得API
-app.get('/api/alerts', requireAuth, async (req, res) => {
-  try {
-    console.log('=== アラート取得API ===');
-    
-    // 現在のアラートを取得
-    const alerts = await getCurrentAlerts();
-    
-    // アクティブなアラートのみを返す
-    const activeAlerts = alerts.filter(alert => alert.status === 'active');
-    
-    console.log('取得したアラート数:', activeAlerts.length);
-    
-    res.json(activeAlerts);
-  } catch (error) {
-    console.error('アラート取得エラー:', error);
-    res.status(500).json({ error: 'アラート取得に失敗しました' });
-  }
-});
+// 重複したアラート取得APIを削除（上位のものを使用）
 
 // チャットワーク送信API
 app.post('/api/send-chatwork', requireAuth, async (req, res) => {

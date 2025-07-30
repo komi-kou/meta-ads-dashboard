@@ -259,5 +259,194 @@
     "ip_address": "::1",
     "user_agent": "curl/8.7.1",
     "created_at": "2025-07-29T07:48:43.667Z"
+  },
+  {
+    "id": "13db8033-1b50-45df-a1db-3e6ee14623ca",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"username\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:11:54.630Z"
+  },
+  {
+    "id": "6f98d290-9ee5-40de-8dc9-b9dd70b50cec",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:00.144Z"
+  },
+  {
+    "id": "5d25b4dd-c49b-4bfe-bed6-adec135c725d",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:00.145Z"
+  },
+  {
+    "id": "b5943888-63c9-42ff-86ec-26414c6f89ad",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:11.513Z"
+  },
+  {
+    "id": "45f7c511-8d14-4da5-a542-e81b9b9ad604",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:11.733Z"
+  },
+  {
+    "id": "bf1db969-8042-46ff-a07e-c0273e5ed06e",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:23.364Z"
+  },
+  {
+    "id": "8cf510d3-ff83-4fe1-bc7f-811ac1e695b2",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:23.628Z"
+  },
+  {
+    "id": "01711771-26e2-43da-8c31-e2960aab7d16",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:30.202Z"
+  },
+  {
+    "id": "e62bf9c4-2d6c-4506-a89e-3e48a19bbd90",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:12:30.444Z"
+  },
+  {
+    "id": "428d577c-36e4-42b8-957e-c456132cbcea",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:13:32.472Z"
+  },
+  {
+    "id": "f2ada981-0922-40f9-9458-d1b6228c177c",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:13:32.697Z"
+  },
+  {
+    "id": "07a7f0dc-91fc-49e3-98bf-1287565e6f9f",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:25:55.230Z"
+  },
+  {
+    "id": "6c79f0dd-5372-48c5-8d4a-50f2b6414e18",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:25:55.469Z"
+  },
+  {
+    "id": "08826a2e-cfd2-417c-bb8c-a0e7dc3c7069",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:28:02.636Z"
+  },
+  {
+    "id": "c6ff027b-feaf-4a25-9643-ec32b3284bbc",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:28:02.865Z"
+  },
+  {
+    "id": "5abb1af0-48f5-44ce-9c5e-6854b492833b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:32:37.611Z"
+  },
+  {
+    "id": "be97e867-912c-4022-959d-9d13499f49ff",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:32:37.839Z"
+  },
+  {
+    "id": "415db936-b236-4379-b6a6-ad7450ac0565",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:37:28.444Z"
+  },
+  {
+    "id": "12ef7811-16e6-4624-96d1-755fa52925e4",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:37:28.671Z"
+  },
+  {
+    "id": "ee3eaa27-d9bb-4c90-a611-00d1eb457998",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:38:40.306Z"
+  },
+  {
+    "id": "539dd633-f416-4b76-b2fc-ca549535b841",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-07-30T14:38:40.533Z"
   }
 ]
