@@ -194,131 +194,14 @@
         <div class="history-section">
             <h3>過去30日間のアラート履歴</h3>
             
-            <div id="history-content">
+            <div id="alert-history-container">
                 <div class="loading">読み込み中...</div>
             </div>
         </div>
         </main>
     </div>
 
-    <script>
-        // アラート履歴を取得して表示
-        async function loadAlertHistory() {
-            try {
-                console.log('=== アラート履歴ページ: データ取得開始 ===');
-                
-                // サーバーのAPIから実際のアラート履歴を取得
-                const response = await fetch('/api/alert-history');
-                const apiData = await response.json();
-                
-                console.log('APIレスポンス:', apiData);
-                console.log('success:', apiData.success);
-                console.log('history:', apiData.history);
-                console.log('history length:', apiData.history ? apiData.history.length : 'undefined');
-                
-                let filteredHistory = [];
-                
-                if (apiData.success && apiData.history) {
-                    filteredHistory = apiData.history;
-                    console.log('✅ APIから履歴データ取得:', filteredHistory.length + '件');
-                } else if (Array.isArray(apiData)) {
-                    filteredHistory = apiData;
-                    console.log('✅ 配列形式でデータ取得:', filteredHistory.length + '件');
-                } else {
-                    console.log('❌ APIからのデータ取得失敗、ローカルストレージにフォールバック');
-                    // フォールバック: ローカルストレージから読み込み
-                    const stored = localStorage.getItem('alert_history');
-                    let history = stored ? JSON.parse(stored) : [];
-                    
-                    // 過去30日分のデータをフィルター
-                    const thirtyDaysAgo = new Date();
-                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                    
-                    filteredHistory = history.filter(item => 
-                        new Date(item.timestamp) > thirtyDaysAgo
-                    );
-                    console.log('ローカルストレージから取得:', filteredHistory.length + '件');
-                }
-                
-                console.log('最終的な表示対象:', filteredHistory);
-                
-                const historyContent = document.getElementById('history-content');
-                
-                if (filteredHistory.length === 0) {
-                    historyContent.innerHTML = `
-                        <div class="no-history">
-                            <div class="no-history-content">
-                                <span class="no-history-icon">📋</span>
-                                <p>アラート履歴はありません</p>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
 
-                const historyList = filteredHistory.map(alert => {
-                    const levelClass = getLevelClass(alert.level);
-                    const levelIcon = getLevelIcon(alert.level);
-                    const formattedDate = formatDate(alert.timestamp);
-                    
-                    return `
-                        <div class="history-item">
-                            <div class="alert-info">
-                                <span class="alert-level ${levelClass}">
-                                    ${levelIcon}
-                                </span>
-                                <span class="alert-metric">${alert.metric || '不明'}</span>
-                                <span class="alert-message">${alert.message || 'メッセージなし'}</span>
-                            </div>
-                            <div class="alert-timestamp">
-                                ${formattedDate}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                historyContent.innerHTML = `
-                    <div class="history-list">
-                        ${historyList}
-                    </div>
-                `;
-            } catch (error) {
-                console.error('アラート履歴の取得エラー:', error);
-                document.getElementById('history-content').innerHTML = `
-                    <div class="no-history">
-                        <div class="no-history-content">
-                            <span class="no-history-icon">❌</span>
-                            <p>エラーが発生しました</p>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function getLevelClass(level) {
-            switch(level) {
-                case 'high': return 'alert-level-high';
-                case 'medium': return 'alert-level-medium';
-                case 'low': return 'alert-level-low';
-                default: return 'alert-level-medium';
-            }
-        }
-
-        function getLevelIcon(level) {
-            switch(level) {
-                case 'high': return '🔴';
-                case 'medium': return '🟡';
-                case 'low': return '🟢';
-                default: return '🟡';
-            }
-        }
-
-        function formatDate(timestamp) {
-            return new Date(timestamp).toLocaleString('ja-JP');
-        }
-
-        // ページ読み込み時に履歴を取得
-        document.addEventListener('DOMContentLoaded', loadAlertHistory);
-    </script>
+    <script src="/alert-history.js"></script>
 </body>
 </html> 

@@ -211,48 +211,19 @@
                 <div class="page-header">
                     <h2>🔧 改善施策</h2>
                     <div class="header-info">
-                        改善項目: <span id="strategyCount"><%= improvements ? Object.values(improvements).reduce((total, strategies) => total + strategies.length, 0) : 0 %></span>件 
+                        改善項目: <span id="total-strategies">0</span>件 
+                        メトリクス: <span id="metrics-count">0</span>件
                         最終更新: <span id="lastUpdateTime"></span>
                     </div>
                 </div>
 
-                <div id="content">
-                    <!-- サーバーサイドレンダリング -->
-                    <% if (improvements && Object.keys(improvements).length > 0) { %>
-                        <% Object.entries(improvements).forEach(([category, strategies]) => { %>
-                            <div class="alert-card">
-                                <div class="alert-header">
-                                    <div class="alert-type">
-                                        <span class="metric-label">🔧</span>
-                                        <%= category %>
-                                    </div>
-                                    <div class="alert-time"><%= new Date().toLocaleString('ja-JP') %></div>
-                                </div>
-                                
-                                <div class="alert-section-header">改善施策</div>
-                                <div class="alert-improvements">
-                                    <ul class="improvement-strategies">
-                                        <% strategies.forEach(strategy => { %>
-                                            <li><%= strategy %></li>
-                                        <% }); %>
-                                    </ul>
-                                </div>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <div class="no-content">
-                            <div class="no-content-icon">✅</div>
-                            <div class="no-content-text">改善が必要な項目はありません</div>
-                        </div>
-                    <% } %>
+                <div id="improvement-strategies-container">
+                    <div class="loading">読み込み中...</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // 改善施策の定義
-        const improvementRules = {
             '予算消化率': {
                 '配信されているか確認': [
                     '管理画面の上の運用しているキャンペーンが緑でアクティブになっているか、キャンペーンを確認する',
@@ -553,10 +524,6 @@
             document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('ja-JP');
         }
 
-        // 10秒ごとに更新
-        setInterval(() => {
-            updateLastUpdateTime();
-        }, 10 * 1000);
-    </script>
+    <script src="/improvement-strategies.js"></script>
 </body>
 </html> 

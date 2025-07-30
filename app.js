@@ -880,6 +880,7 @@ const { checkAllAlerts, getAlertHistory, getAlertSettings } = require('./alertSy
 // アラート内容ページ
 app.get('/alerts', requireAuth, async (req, res) => {
     try {
+        console.log('=== /alerts ルート開始 ===');
         console.log('アラートページにアクセス - ユーザー:', req.session.userId);
         
         const userId = req.session.userId;
@@ -942,7 +943,9 @@ app.get('/alerts', requireAuth, async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('=== /alerts ルートエラー ===');
         console.error('アラートページエラー:', error);
+        console.error('エラースタック:', error.stack);
         const { getCurrentGoalType } = require('./alertSystem');
         const currentGoalType = getCurrentGoalType();
         // エラー時でもユーザー設定を取得
@@ -990,30 +993,10 @@ app.get('/api/user-settings', requireAuth, (req, res) => {
 // アラート履歴ページ
 app.get('/alert-history', requireAuth, async (req, res) => {
     try {
-        const userId = req.session.userId;
-        const { checkUserAlerts } = require('./alertSystem');
-        
-        // ユーザーの現在のアラートを取得（動的生成）
-        const alerts = await checkUserAlerts(userId);
-        
-        // アラート履歴形式に変換
-        const alertHistory = alerts.map(alert => ({
-            id: alert.id,
-            metric: getMetricDisplayName(alert.metric),
-            message: alert.message,
-            level: alert.severity === 'critical' ? 'high' : 'medium',
-            timestamp: alert.triggeredAt || new Date().toISOString(),
-            status: 'active',
-            checkItems: alert.checkItems || [],
-            improvements: alert.improvements || {}
-        }));
-        
         res.render('alert-history', {
             title: 'アラート履歴 - Meta広告ダッシュボード',
-            alerts: alertHistory,
             user: {
                 id: req.session.userId,
-                email: req.session.userEmail,
                 name: req.session.userName
             }
         });
@@ -1021,16 +1004,18 @@ app.get('/alert-history', requireAuth, async (req, res) => {
         console.error('アラート履歴ページエラー:', error);
         res.render('alert-history', {
             title: 'アラート履歴 - Meta広告ダッシュボード',
-            alerts: [],
-            error: 'アラート履歴の取得に失敗しました'
+            user: {
+                id: req.session.userId,
+                name: req.session.userName
+            }
         });
     }
 });
 
-// 確認事項ページ
-app.get('/improvement-tasks', requireAuth, async (req, res) => {
+// 確認事項API
+app.get('/api/check-items', requireAuth, async (req, res) => {
     try {
-        console.log('=== 確認事項ページへのアクセス ===');
+        console.log('=== API確認事項へのアクセス ===');
         console.log('ユーザーID:', req.session.userId);
         
         const userId = req.session.userId;
@@ -1049,7 +1034,7 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
             alerts = alertHistory.filter(alert => 
                 alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo
             );
-            console.log('=== /improvement-tasksルート詳細ログ ===');
+            console.log('=== /api/check-items詳細ログ ===');
             console.log('取得したアラート数:', alerts.length);
             console.log('アラート詳細:', alerts.map(alert => ({
                 metric: alert.metric,
@@ -1074,7 +1059,7 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
                 checkItems: alert.checkItems
             });
             
-            // checkItemsが存在する場合は使用、存在しない場合は直接ルールから取得
+            // checkItemsが存在する場合は使用
             if (alert.checkItems && alert.checkItems.length > 0) {
                 alert.checkItems.forEach((item, itemIndex) => {
                     console.log(`  - checkItem${itemIndex + 1}:`, item);
@@ -1086,171 +1071,151 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
                         description: item.description
                     });
                 });
-            } else {
-                // checkItemsがない場合、メトリック名から直接確認事項を取得
-                console.log(`  - アラート${index + 1}にcheckItemsがないため、直接ルールから取得`);
-                
-                try {
-                    const { checklistRules } = require('./utils/checklistRules');
-                    const metricDisplayName = getMetricDisplayName(alert.metric);
-                    console.log(`  - メトリック変換: ${alert.metric} -> ${metricDisplayName}`);
-                    
-                    const rules = checklistRules[metricDisplayName];
-                    if (rules && rules.items && rules.items.length > 0) {
-                        console.log(`  - ${metricDisplayName}の確認事項を${rules.items.length}件取得`);
-                        rules.items.forEach((item, itemIndex) => {
-                            checkItems.push({
-                                metric: alert.metric,
-                                message: alert.message,
-                                priority: item.priority || 1,
-                                title: item.title,
-                                description: item.description
-                            });
-                        });
-                    } else {
-                        console.log(`  - ${metricDisplayName}の確認事項ルールが見つからない`);
-                    }
-                } catch (error) {
-                    console.error('  - 確認事項ルール読み込みエラー:', error);
-                }
             }
         });
         
-        // 重複除去処理を一時的に無効化（データ表示優先）
-        // const uniqueCheckItems = [];
-        // const seen = new Set();
+        // 重複除去処理を修正
+        const uniqueCheckItems = [];
+        const seen = new Set();
         
-        // checkItems.forEach(item => {
-        //     const key = `${item.metric}-${item.title}-${item.alertId || 'no-id'}`;
-        //     if (!seen.has(key)) {
-        //         seen.add(key);
-        //         uniqueCheckItems.push(item);
-        //     }
-        // });
+        checkItems.forEach(item => {
+            const key = `${item.metric}-${item.title}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueCheckItems.push(item);
+            }
+        });
         
-        // checkItems = uniqueCheckItems;
-        console.log('重複除去後のcheckItems数:', checkItems.length);
-        console.log('=== 確認事項抽出デバッグ終了 ===');
-
-// getMetricDisplayName関数をここで定義（app.jsで利用できるように）
-function getMetricDisplayName(metric) {
-    switch (metric) {
-        case 'budget_rate':
-            return '予算消化率';
-        case 'daily_budget':
-            return '日予算';
-        case 'ctr':
-            return 'CTR';
-        case 'conversions':
-            return 'CV';
-        case 'cpm':
-            return 'CPM';
-        case 'cpa':
-        case 'cpa_rate':
-            return 'CPA';
-        default:
-            return metric;
+        console.log('=== 最終結果 ===');
+        console.log('重複除去前のcheckItems数:', checkItems.length);
+        console.log('重複除去後のcheckItems数:', uniqueCheckItems.length);
+        console.log('最終checkItems:', uniqueCheckItems);
+        
+        res.json({
+            success: true,
+            checkItems: uniqueCheckItems
+        });
+        
+    } catch (error) {
+        console.error('確認事項API取得エラー:', error);
+        res.json({
+            success: false,
+            error: 'データ取得に失敗しました',
+            checkItems: []
+        });
     }
-}
+});
+
+// アラート履歴API
+app.get('/api/alert-history', requireAuth, async (req, res) => {
+    try {
+        console.log('=== APIアラート履歴へのアクセス ===');
+        console.log('ユーザーID:', req.session.userId);
         
-        console.log('確認事項の数:', checkItems.length);
-        console.log('=== 確認事項ページレンダリング開始 ===');
+        const { getAlertHistory } = require('./alertSystem');
+        const alertHistory = await getAlertHistory();
         
-        // 📊 レンダリング前のデータ確認
-        console.log('🔍 RENDER前のデータ確認:');
-        console.log('   - checkItems数:', checkItems.length);
-        console.log('   - checkItems内容:', JSON.stringify(checkItems, null, 2));
+        console.log('取得したアラート履歴数:', alertHistory.length);
         
+        res.json({
+            success: true,
+            alerts: alertHistory
+        });
+        
+    } catch (error) {
+        console.error('アラート履歴API取得エラー:', error);
+        res.json({
+            success: false,
+            error: 'データ取得に失敗しました',
+            alerts: []
+        });
+    }
+});
+
+// 改善施策API
+app.get('/api/improvement-strategies', requireAuth, async (req, res) => {
+    try {
+        console.log('=== API改善施策へのアクセス ===');
+        console.log('ユーザーID:', req.session.userId);
+        
+        const { getAlertHistory } = require('./alertSystem');
+        const alertHistory = await getAlertHistory();
+        
+        // アクティブなアラートから改善施策を抽出
+        const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+        const improvements = [];
+        
+        activeAlerts.forEach(alert => {
+            if (alert.improvements) {
+                Object.entries(alert.improvements).forEach(([checkTitle, strategies]) => {
+                    improvements.push({
+                        metric: alert.metric,
+                        message: alert.message,
+                        checkTitle: checkTitle,
+                        strategies: strategies
+                    });
+                });
+            }
+        });
+        
+        console.log('取得した改善施策数:', improvements.length);
+        
+        res.json({
+            success: true,
+            improvements: improvements
+        });
+        
+    } catch (error) {
+        console.error('改善施策API取得エラー:', error);
+        res.json({
+            success: false,
+            error: 'データ取得に失敗しました',
+            improvements: []
+        });
+    }
+});
+
+// 確認事項ページ
+app.get('/improvement-tasks', requireAuth, async (req, res) => {
+    try {
         res.render('improvement-tasks', {
             title: '確認事項 - Meta広告ダッシュボード',
-            checkItems: checkItems,
             user: {
                 id: req.session.userId,
-                email: req.session.userEmail,
                 name: req.session.userName
             }
         });
-        
-        console.log('=== 確認事項ページレンダリング完了 ===');
     } catch (error) {
         console.error('確認事項ページエラー:', error);
-        console.error('エラースタック:', error.stack);
-        
-        // フォールバック - 最低限のページを表示
-        try {
-            res.render('improvement-tasks', {
-                title: '確認事項 - Meta広告ダッシュボード',
-                checkItems: [],
-                user: {
-                    id: req.session.userId,
-                    email: req.session.userEmail,
-                    name: req.session.userName
-                },
-                error: 'データの取得中にエラーが発生しました'
-            });
-        } catch (renderError) {
-            console.error('フォールバックレンダリングエラー:', renderError);
-            res.status(500).send('確認事項の取得に失敗しました: ' + error.message);
-        }
+        res.render('improvement-tasks', {
+            title: '確認事項 - Meta広告ダッシュボード',
+            user: {
+                id: req.session.userId,
+                name: req.session.userName
+            }
+        });
     }
 });
 
 // 改善施策ページ
 app.get('/improvement-strategies', requireAuth, async (req, res) => {
     try {
-        const userId = req.session.userId;
-        const { getAlertHistory } = require('./alertSystem');
-        
-        // アクティブなアラート履歴を取得
-        const alertHistory = await getAlertHistory();
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        const alerts = alertHistory.filter(alert => 
-            alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo
-        );
-        console.log('=== /improvement-strategiesルート詳細ログ ===');
-        console.log('取得したアラート数:', alerts.length);
-        console.log('アラート詳細:', alerts.map(alert => ({
-            metric: alert.metric,
-            message: alert.message,
-            improvementsCount: alert.improvements ? Object.keys(alert.improvements).length : 0
-        })));
-        
-        // アラートから改善施策を抽出
-        const improvements = {};
-        alerts.forEach(alert => {
-            if (alert.improvements && Object.keys(alert.improvements).length > 0) {
-                Object.keys(alert.improvements).forEach(key => {
-                    if (!improvements[key]) {
-                        improvements[key] = [];
-                    }
-                    alert.improvements[key].forEach(strategy => {
-                        if (!improvements[key].includes(strategy)) {
-                            improvements[key].push(strategy);
-                        }
-                    });
-                });
-            }
-        });
-        
-        // 📊 レンダリング前のデータ確認
-        console.log('🔍 RENDER前のデータ確認:');
-        console.log('   - improvements数:', Object.keys(improvements).length);
-        console.log('   - improvements内容:', JSON.stringify(improvements, null, 2));
-        
         res.render('improvement-strategies', {
             title: '改善施策 - Meta広告ダッシュボード',
-            improvements: improvements,
             user: {
                 id: req.session.userId,
-                email: req.session.userEmail,
                 name: req.session.userName
             }
         });
     } catch (error) {
         console.error('改善施策ページエラー:', error);
-        res.status(500).send('改善施策の取得に失敗しました');
+        res.render('improvement-strategies', {
+            title: '改善施策 - Meta広告ダッシュボード',
+            user: {
+                id: req.session.userId,
+                name: req.session.userName
+            }
+        });
     }
 });
 
