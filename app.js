@@ -1115,7 +1115,21 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
                 }
             }
         });
-        console.log('最終的なcheckItems数:', checkItems.length);
+        
+        // 重複除去処理（同じmetricとtitleの組み合わせで重複を除去）
+        const uniqueCheckItems = [];
+        const seen = new Set();
+        
+        checkItems.forEach(item => {
+            const key = `${item.metric}-${item.title}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueCheckItems.push(item);
+            }
+        });
+        
+        checkItems = uniqueCheckItems;
+        console.log('重複除去後のcheckItems数:', checkItems.length);
         console.log('=== 確認事項抽出デバッグ終了 ===');
 
 // getMetricDisplayName関数をここで定義（app.jsで利用できるように）
@@ -1387,22 +1401,11 @@ app.get('/api/alerts', async (req, res) => {
 async function getCurrentAlerts() {
     try {
         // アラート履歴からアクティブなアラートを取得
-        const alertHistoryManager = require('./utils/alertHistoryManager');
-        const history = alertHistoryManager.getAlertHistory();
+        const history = await getAlertHistory();
         return history.filter(alert => alert.status === 'active');
     } catch (error) {
         console.error('アラート取得エラー:', error);
-        // フォールバック: 一時的にダミーアラートを返す
-        return [
-            {
-                id: 'alert_1',
-                metric: '予算消化率',
-                level: 'medium',
-                message: '予算消化率が80%以下の状態が2日間続いています',
-                status: 'active',
-                timestamp: new Date().toISOString()
-            }
-        ];
+        return [];
     }
 }
 
