@@ -359,11 +359,9 @@
             ]
         };
 
-        // ページ読み込み時の初期化（サーバーサイドレンダリング優先のため無効化）
+        // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('=== 改善施策ページ: サーバーサイドレンダリング優先 - JavaScript処理をスキップ ===');
-            // サーバーサイドレンダリングされた内容を維持するため、generateStrategiesは呼び出さない
-            // await generateStrategies();
+            console.log('=== 改善施策ページ: 初期化開始 ===');
             updateLastUpdateTime();
         });
 

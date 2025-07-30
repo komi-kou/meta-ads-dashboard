@@ -883,7 +883,7 @@ app.get('/alerts', requireAuth, async (req, res) => {
         console.log('アラートページにアクセス - ユーザー:', req.session.userId);
         
         const userId = req.session.userId;
-        const { checkUserAlerts, getCurrentGoalType } = require('./alertSystem');
+        const { checkUserAlerts, getCurrentGoalType, getAlertHistory } = require('./alertSystem');
         
         // 現在のゴールタイプを取得（ユーザー固有）
         const currentGoalType = getCurrentGoalType(userId);
@@ -924,6 +924,11 @@ app.get('/alerts', requireAuth, async (req, res) => {
             console.error('❌ ユーザー設定取得エラー:', settingsError.message);
             userSettings = null;
         }
+        
+        // 📊 レンダリング前のデータ確認
+        console.log('🔍 ALERTS RENDER前のデータ確認:');
+        console.log('   - alerts数:', alerts.length);
+        console.log('   - alerts内容:', JSON.stringify(alerts, null, 2));
         
         res.render('alerts', {
             title: 'アラート内容 - Meta広告ダッシュボード',
@@ -1137,6 +1142,11 @@ function getMetricDisplayName(metric) {
         console.log('確認事項の数:', checkItems.length);
         console.log('=== 確認事項ページレンダリング開始 ===');
         
+        // 📊 レンダリング前のデータ確認
+        console.log('🔍 RENDER前のデータ確認:');
+        console.log('   - checkItems数:', checkItems.length);
+        console.log('   - checkItems内容:', JSON.stringify(checkItems, null, 2));
+        
         res.render('improvement-tasks', {
             title: '確認事項 - Meta広告ダッシュボード',
             checkItems: checkItems,
@@ -1209,6 +1219,11 @@ app.get('/improvement-strategies', requireAuth, async (req, res) => {
                 });
             }
         });
+        
+        // 📊 レンダリング前のデータ確認
+        console.log('🔍 RENDER前のデータ確認:');
+        console.log('   - improvements数:', Object.keys(improvements).length);
+        console.log('   - improvements内容:', JSON.stringify(improvements, null, 2));
         
         res.render('improvement-strategies', {
             title: '改善施策 - Meta広告ダッシュボード',

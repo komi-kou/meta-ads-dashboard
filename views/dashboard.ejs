@@ -752,11 +752,11 @@
             const updates = [
                 { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
                 { selector: '[data-metric="budget-rate"]', value: `${parseFloat(data.budgetRate).toFixed(1)}` },
-                { selector: '[data-metric="ctr"]', value: `${parseFloat(data.ctr).toFixed(1)}` },
+                { selector: '[data-metric="ctr"]', value: `${parseFloat(data.ctr).toFixed(2)}` },
                 { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },
-                { selector: '[data-metric="conversions"]', value: data.conversions },
-                { selector: '[data-metric="cpa"]', value: `${data.cpa.toLocaleString()}` },
-                { selector: '[data-metric="frequency"]', value: `${parseFloat(data.frequency).toFixed(1)}` }
+                { selector: '[data-metric="conversions"]', value: data.conversions || 0 },
+                { selector: '[data-metric="cpa"]', value: data.cpa && data.cpa > 0 ? `${data.cpa.toLocaleString()}` : '計算不可' },
+                { selector: '[data-metric="frequency"]', value: `${parseFloat(data.frequency).toFixed(2)}` }
             ];
             
             updates.forEach(update => {
