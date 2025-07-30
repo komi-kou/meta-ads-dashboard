@@ -515,36 +515,6 @@
                                         <div class="alert-time"><%= new Date(alert.triggeredAt).toLocaleString('ja-JP') %></div>
                                     </div>
                                     
-                                    <% if (alert.checkItems && alert.checkItems.length > 0) { %>
-                                        <div class="alert-section-header">📋 確認事項</div>
-                                        <div class="alert-check-items">
-                                            <% alert.checkItems.forEach(function(item) { %>
-                                                <div class="check-item">
-                                                    <div class="check-item-header">
-                                                        <div class="check-priority">優先度 <%= item.priority %></div>
-                                                        <div class="check-title"><%= item.title %></div>
-                                                    </div>
-                                                    <div class="check-description"><%= item.description %></div>
-                                                </div>
-                                            <% }) %>
-                                        </div>
-                                    <% } %>
-                                    
-                                    <% if (alert.improvements && Object.keys(alert.improvements).length > 0) { %>
-                                        <div class="alert-section-header">🔧 改善施策</div>
-                                        <div class="alert-improvements">
-                                            <% Object.entries(alert.improvements).forEach(function([category, strategies]) { %>
-                                                <div class="improvement-category">
-                                                    <div class="improvement-category-title"><%= category %></div>
-                                                    <ul class="improvement-strategies">
-                                                        <% strategies.forEach(function(strategy) { %>
-                                                            <li><%= strategy %></li>
-                                                        <% }) %>
-                                                    </ul>
-                                                </div>
-                                            <% }) %>
-                                        </div>
-                                    <% } %>
                                 </div>
                             <% }) %>
                         <% } else { %>
@@ -1091,42 +1061,10 @@
         function createAlertCard(alert, type) {
             const icon = type === 'critical' ? '🔴' : '⚠️';
             
-            // 確認事項セクション
-            let checkItemsHtml = '';
-            if (alert.checkItems && alert.checkItems.length > 0) {
-                checkItemsHtml = `
-                    <div class="alert-section-header">📋 確認事項</div>
-                    <div class="alert-check-items">
-                        ${alert.checkItems.map((item, index) => `
-                            <div class="check-item">
-                                <div class="check-item-header">
-                                    <span class="check-priority">優先度 ${item.priority}</span>
-                                    <span class="check-title">${item.title}</span>
-                                </div>
-                                <div class="check-description">${item.description}</div>
-                            </div>
-                        `).join('')}
                     </div>
                 `;
             }
             
-            // 改善施策セクション
-            let improvementsHtml = '';
-            if (alert.improvements && Object.keys(alert.improvements).length > 0) {
-                improvementsHtml = `
-                    <div class="alert-section-header">💡 改善施策</div>
-                    <div class="alert-improvements">
-                        ${Object.entries(alert.improvements).map(([category, strategies]) => `
-                            <div class="improvement-category">
-                                <div class="improvement-category-title">${category}</div>
-                                <ul class="improvement-strategies">
-                                    ${strategies.map(strategy => `<li>${strategy}</li>`).join('')}
-                                </ul>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
             
             return `
                 <div class="alert-card ${type}">
@@ -1135,8 +1073,6 @@
                         <span class="alert-time">${formatTime(alert.timestamp || alert.triggeredAt)}</span>
                     </div>
                     <div class="alert-message">${alert.message || 'アラートメッセージ'}</div>
-                    ${checkItemsHtml}
-                    ${improvementsHtml}
                 </div>
             `;
         }
