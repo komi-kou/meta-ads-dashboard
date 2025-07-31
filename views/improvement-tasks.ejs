@@ -217,8 +217,9 @@
             <div class="alert-header">
                 <h1>📋 確認事項</h1>
                 <div class="alert-status">
-                    <span>アクティブアラート: <span id="active-count">0</span>件</span>
-                    <span>最終チェック: <span id="last-check">-</span></span>
+                    <span>📊 サーバーから渡された確認事項数: <%= checkItems ? checkItems.length : 0 %>件</span>
+                    <span>アクティブアラート: <span id="active-count"><%= checkItems ? checkItems.filter((item, index, arr) => arr.findIndex(i => i.metric === item.metric) === index).length : 0 %></span>件</span>
+                    <span>最終チェック: <span id="last-check"><%= new Date().toLocaleString('ja-JP') %></span></span>
                 </div>
             </div>
         </div>
@@ -226,7 +227,70 @@
         <div class="alert-section main-alert-section">
             <h2>📋 確認が必要な項目</h2>
             <div id="check-items-container">
-                <div class="loading">読み込み中...</div>
+                <% if (checkItems && checkItems.length > 0) { %>
+                    <% 
+                    // checkItemsをメトリック別にグループ化
+                    const metricGroups = {};
+                    checkItems.forEach(item => {
+                        if (!metricGroups[item.metric]) {
+                            metricGroups[item.metric] = {
+                                metric: item.metric,
+                                message: item.message,
+                                items: []
+                            };
+                        }
+                        metricGroups[item.metric].items.push(item);
+                    });
+                    
+                    // メトリック名を表示用に変換
+                    function getMetricDisplayName(metric) {
+                        switch (metric) {
+                            case 'budget_rate': return '予算消化率';
+                            case 'daily_budget': return '日予算';
+                            case 'ctr': return 'CTR';
+                            case 'conversions': return 'CV';
+                            case 'cpm': 
+                            case 'cpm_increase': return 'CPM';
+                            case 'cpa':
+                            case 'cpa_rate': return 'CPA';
+                            default: return metric.toUpperCase();
+                        }
+                    }
+                    %>
+                    
+                    <% Object.values(metricGroups).forEach((group, groupIndex) => { %>
+                        <div class="alert-card <%= group.items[0].priority === 1 ? 'critical' : 'warning' %>">
+                            <div class="alert-card-header">
+                                <div class="alert-type">
+                                    <span class="metric-label"><%= getMetricDisplayName(group.metric) %></span>
+                                    <%= group.message %>
+                                </div>
+                                <div class="alert-time"><%= new Date().toLocaleString('ja-JP') %></div>
+                            </div>
+                            
+                            <div class="alert-section-header">📋 確認事項</div>
+                            <div class="alert-check-items">
+                                <% group.items.forEach(item => { %>
+                                    <div class="check-item">
+                                        <div class="check-item-header">
+                                            <div class="check-priority">優先度 <%= item.priority %></div>
+                                            <div class="check-title"><%= item.title %></div>
+                                        </div>
+                                        <% if (item.description) { %>
+                                            <div class="check-description">
+                                                <% item.description.split('\n').forEach(line => { %>
+                                                    <div><%= line %></div>
+                                                <% }); %>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-alerts">確認が必要な項目はありません ✅</div>
+                <% } %>
             </div>
         </div>
     </div>

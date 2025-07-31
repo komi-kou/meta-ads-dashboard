@@ -993,8 +993,16 @@ app.get('/api/user-settings', requireAuth, (req, res) => {
 // アラート履歴ページ
 app.get('/alert-history', requireAuth, async (req, res) => {
     try {
+        console.log('=== アラート履歴ページアクセス ===');
+        
+        const { getAlertHistory } = require('./alertSystem');
+        const alerts = await getAlertHistory();
+        
+        console.log('アラート履歴数:', alerts.length);
+        
         res.render('alert-history', {
             title: 'アラート履歴 - Meta広告ダッシュボード',
+            alerts: alerts,
             user: {
                 id: req.session.userId,
                 name: req.session.userName
@@ -1004,6 +1012,7 @@ app.get('/alert-history', requireAuth, async (req, res) => {
         console.error('アラート履歴ページエラー:', error);
         res.render('alert-history', {
             title: 'アラート履歴 - Meta広告ダッシュボード',
+            alerts: [],
             user: {
                 id: req.session.userId,
                 name: req.session.userName
@@ -1178,8 +1187,35 @@ app.get('/api/improvement-strategies', requireAuth, async (req, res) => {
 // 確認事項ページ
 app.get('/improvement-tasks', requireAuth, async (req, res) => {
     try {
+        console.log('=== 確認事項ページアクセス ===');
+        const userId = req.session.userId;
+        
+        // アラート履歴から確認事項を取得
+        const { getAlertHistory } = require('./alertSystem');
+        const alertHistory = await getAlertHistory();
+        const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+        
+        // 確認事項を抽出
+        const checkItems = [];
+        activeAlerts.forEach(alert => {
+            if (alert.checkItems && alert.checkItems.length > 0) {
+                alert.checkItems.forEach(item => {
+                    checkItems.push({
+                        metric: alert.metric,
+                        message: alert.message,
+                        priority: item.priority || 1,
+                        title: item.title,
+                        description: item.description
+                    });
+                });
+            }
+        });
+        
+        console.log('確認事項数:', checkItems.length);
+        
         res.render('improvement-tasks', {
             title: '確認事項 - Meta広告ダッシュボード',
+            checkItems: checkItems,
             user: {
                 id: req.session.userId,
                 name: req.session.userName
@@ -1189,6 +1225,7 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
         console.error('確認事項ページエラー:', error);
         res.render('improvement-tasks', {
             title: '確認事項 - Meta広告ダッシュボード',
+            checkItems: [],
             user: {
                 id: req.session.userId,
                 name: req.session.userName
@@ -1200,8 +1237,34 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
 // 改善施策ページ
 app.get('/improvement-strategies', requireAuth, async (req, res) => {
     try {
+        console.log('=== 改善施策ページアクセス ===');
+        
+        const { getAlertHistory } = require('./alertSystem');
+        const alertHistory = await getAlertHistory();
+        const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+        
+        // アラートから改善施策を抽出
+        const improvements = {};
+        activeAlerts.forEach(alert => {
+            if (alert.improvements && Object.keys(alert.improvements).length > 0) {
+                Object.keys(alert.improvements).forEach(key => {
+                    if (!improvements[key]) {
+                        improvements[key] = [];
+                    }
+                    alert.improvements[key].forEach(strategy => {
+                        if (!improvements[key].includes(strategy)) {
+                            improvements[key].push(strategy);
+                        }
+                    });
+                });
+            }
+        });
+        
+        console.log('改善施策カテゴリ数:', Object.keys(improvements).length);
+        
         res.render('improvement-strategies', {
             title: '改善施策 - Meta広告ダッシュボード',
+            improvements: improvements,
             user: {
                 id: req.session.userId,
                 name: req.session.userName
@@ -1211,6 +1274,7 @@ app.get('/improvement-strategies', requireAuth, async (req, res) => {
         console.error('改善施策ページエラー:', error);
         res.render('improvement-strategies', {
             title: '改善施策 - Meta広告ダッシュボード',
+            improvements: {},
             user: {
                 id: req.session.userId,
                 name: req.session.userName
@@ -1315,7 +1379,7 @@ app.get('/api/alerts-data', async (req, res) => {
 });
 
 // アラートデータ取得API（既存）
-app.get('/api/alerts', async (req, res) => {
+app.get('/api/alerts', requireAuth, async (req, res) => {
     try {
         console.log('=== /api/alerts - アラートデータ取得開始 ===');
         

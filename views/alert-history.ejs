@@ -187,7 +187,10 @@
         <div class="page-header">
             <h2>📋 アラート履歴</h2>
             <div class="header-info">
-                過去30日間の履歴
+                <span>📊 サーバーから渡されたアラート履歴数: <%= alerts ? alerts.length : 0 %>件</span>
+                <span>総数: <span id="total-count"><%= alerts ? alerts.length : 0 %></span>件</span>
+                <span>アクティブ: <span id="active-count"><%= alerts ? alerts.filter(a => a.status === 'active').length : 0 %></span>件</span>
+                <span>解決済み: <span id="resolved-count"><%= alerts ? alerts.filter(a => a.status === 'resolved').length : 0 %></span>件</span>
             </div>
         </div>
 
@@ -195,7 +198,54 @@
             <h3>過去30日間のアラート履歴</h3>
             
             <div id="alert-history-container">
-                <div class="loading">読み込み中...</div>
+                <% if (alerts && alerts.length > 0) { %>
+                    <% 
+                    // 日付別にグループ化
+                    const groupedByDate = {};
+                    alerts.forEach(alert => {
+                        const date = new Date(alert.timestamp).toLocaleDateString('ja-JP');
+                        if (!groupedByDate[date]) {
+                            groupedByDate[date] = [];
+                        }
+                        groupedByDate[date].push(alert);
+                    });
+                    
+                    function getLevelClass(level) {
+                        return level === 'high' ? 'level-critical' : level === 'medium' ? 'level-warning' : 'level-info';
+                    }
+                    
+                    function getLevelIcon(level) {
+                        return level === 'high' ? '🔴' : level === 'medium' ? '⚠️' : 'ℹ️';
+                    }
+                    
+                    function getStatusDisplayName(status) {
+                        return status === 'active' ? 'アクティブ' : status === 'resolved' ? '解決済み' : '確認済み';
+                    }
+                    %>
+                    
+                    <% Object.entries(groupedByDate).sort(([a], [b]) => new Date(b) - new Date(a)).forEach(([date, dayAlerts]) => { %>
+                        <div class="date-section">
+                            <h4 class="date-header"><%= date %> (<%= dayAlerts.length %>件)</h4>
+                            <div class="date-alerts">
+                                <% dayAlerts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(alert => { %>
+                                    <div class="history-card <%= getLevelClass(alert.level) %>">
+                                        <div class="card-header">
+                                            <div class="alert-info">
+                                                <span class="level-icon"><%= getLevelIcon(alert.level) %></span>
+                                                <span class="metric-badge"><%= alert.metric %></span>
+                                                <span class="alert-time"><%= new Date(alert.timestamp).toLocaleTimeString('ja-JP') %></span>
+                                            </div>
+                                            <div class="alert-status status-<%= alert.status %>"><%= getStatusDisplayName(alert.status) %></div>
+                                        </div>
+                                        <div class="alert-message"><%= alert.message %></div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="no-history">📋 アラート履歴はありません</div>
+                <% } %>
             </div>
         </div>
         </main>

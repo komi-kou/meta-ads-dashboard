@@ -494,31 +494,59 @@
                 <div class="alert-header">
                     <h1>🚨 アラート内容</h1>
                     <div class="alert-status">
-                        <span>アクティブアラート: <span id="active-count">-</span>件</span>
-                        <span>最終チェック: <span id="last-check">-</span></span>
+                        <span>📊 サーバーから渡されたアラート数: <%= alerts ? alerts.length : 0 %>件</span>
+                        <span>アクティブアラート: <span id="active-count"><%= alerts ? alerts.length : 0 %></span>件</span>
+                        <span>最終チェック: <span id="last-check"><%= new Date().toLocaleString('ja-JP') %></span></span>
                     </div>
                 </div>
             </div>
 
-                <!-- 注意アラート - 緊急アラート削除後の美しいレイアウト -->
+                <!-- 緊急アラート -->
                 <div class="alert-section main-alert-section">
-                    <h2>⚠️ 注意アラート</h2>
-                    <div id="warning-alerts">
-                        <!-- デバッグ用: サーバーから渡されたアラート数を表示 -->
-                        <script>console.log('📊 サーバーから渡されたアラート数:', <%= alerts ? alerts.length : 0 %>);</script>
-                        
-                        <% if (alerts && alerts.length > 0) { %>
-                            <% alerts.forEach(function(alert) { %>
-                                <div class="alert-card <%= alert.severity === 'critical' ? 'critical' : 'warning' %>">
-                                    <div class="alert-card-header">
-                                        <div class="alert-type"><%= alert.severity === 'critical' ? '🔴' : '⚠️' %> <%= alert.message %></div>
-                                        <div class="alert-time"><%= new Date(alert.triggeredAt).toLocaleString('ja-JP') %></div>
+                    <h2>🔴 緊急アラート</h2>
+                    <div id="critical-alerts">
+                        <% 
+                        const criticalAlerts = alerts ? alerts.filter(alert => alert.severity === 'critical' || alert.level === 'high') : [];
+                        if (criticalAlerts.length > 0) { %>
+                            <% criticalAlerts.forEach(function(alert) { %>
+                                <div class="alert-card critical">
+                                    <div class="alert-header">
+                                        <span class="alert-icon">🔴</span>
+                                        <span class="alert-metric"><%= alert.metric %></span>
+                                        <span class="alert-time"><%= new Date(alert.timestamp).toLocaleString('ja-JP') %></span>
                                     </div>
-                                    
+                                    <div class="alert-message"><%= alert.message %></div>
                                 </div>
                             <% }) %>
                         <% } else { %>
-                            <div class="no-alerts">✅ 現在、アラートはありません</div>
+                            <div class="no-alerts">緊急アラートはありません</div>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- 注意アラート -->
+                <div class="alert-section main-alert-section">
+                    <h2>⚠️ 注意アラート</h2>
+                    <div id="warning-alerts">
+                        <% 
+                        const warningAlerts = alerts ? alerts.filter(alert => alert.severity === 'warning' || alert.level === 'medium' || alert.level === 'low') : [];
+                        if (warningAlerts.length > 0) { %>
+                            <% warningAlerts.forEach(function(alert) { %>
+                                <div class="alert-card warning">
+                                    <div class="alert-header">
+                                        <span class="alert-icon">⚠️</span>
+                                        <span class="alert-metric"><%= alert.metric %></span>
+                                        <span class="alert-time"><%= new Date(alert.timestamp).toLocaleString('ja-JP') %></span>
+                                    </div>
+                                    <div class="alert-message"><%= alert.message %></div>
+                                    <div class="alert-actions">
+                                        <button onclick="viewAlertDetails('<%= alert.id %>')" class="btn-details">詳細表示</button>
+                                        <button onclick="acknowledgeAlert('<%= alert.id %>')" class="btn-acknowledge">確認済み</button>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-alerts">注意アラートはありません</div>
                         <% } %>
                     </div>
                 </div>
@@ -534,47 +562,8 @@
                             ゴール設定を編集
                         </button>
                     </div>
-                    <div id="alert-settings">
-                        <div class="alert-card">
-                            <div class="alert-type">現在のゴールタイプ</div>
-                            <div class="alert-message" id="current-goal">
-                                <% 
-                                const goalTypeNames = {
-                                    'toC_newsletter': 'toC（メルマガ登録）',
-                                    'toC_line': 'toC（LINE登録）',
-                                    'toC_phone': 'toC（電話問い合わせ）',
-                                    'toC_purchase': 'toC（購入）',
-                                    'toB_newsletter': 'toB（メルマガ登録）',
-                                    'toB_line': 'toB（LINE登録）',
-                                    'toB_phone': 'toB（電話問い合わせ）',
-                                    'toB_purchase': 'toB（購入）'
-                                };
-                                const goalDisplayName = userSettings && userSettings.service_goal ? goalTypeNames[userSettings.service_goal] || userSettings.service_goal : goalTypeNames[currentGoalType] || currentGoalType;
-                                %>
-                                <strong><%= goalDisplayName %></strong><br>
-                                <small style="color: #6b7280; font-size: 12px;">
-                                    <% if (userSettings && userSettings.target_cpa && userSettings.target_ctr && userSettings.target_cpm) { %>
-                                        CPA目標: <%= parseInt(userSettings.target_cpa).toLocaleString() %>円, 
-                                        CTR目標: <%= parseFloat(userSettings.target_ctr) %>%, 
-                                        CPM目標: <%= parseInt(userSettings.target_cpm).toLocaleString() %>円,
-                                        日予算: <%= parseInt(userSettings.target_dailyBudget).toLocaleString() %>円
-                                    <% } else { %>
-                                        設定を確認してください
-                                    <% } %>
-                                </small>
-                            </div>
-                        </div>
-                        <div class="alert-card">
-                            <div class="alert-type">監視項目</div>
-                            <div class="alert-message">
-                                • 予算消化率: 80%以下が3日間継続<br>
-                                • CTR: 基準値以下が3日間継続<br>
-                                • CV: 0件継続で発生<br>
-                                • CPA: 目標値120%超過が2日間継続<br>
-                                • 日予算: 設定値以下で発生<br>
-                                • CPM: ベースラインから+500円が3日間継続
-                            </div>
-                        </div>
+                    <div id="alert-settings-summary">
+                        <div class="loading">読み込み中...</div>
                     </div>
                 </div>
         </main>

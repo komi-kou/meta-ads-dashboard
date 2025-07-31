@@ -211,14 +211,41 @@
                 <div class="page-header">
                     <h2>🔧 改善施策</h2>
                     <div class="header-info">
-                        改善項目: <span id="total-strategies">0</span>件 
-                        メトリクス: <span id="metrics-count">0</span>件
-                        最終更新: <span id="lastUpdateTime"></span>
+                        📊 サーバーから渡された改善施策数: <%= improvements ? Object.values(improvements).reduce((total, strategies) => total + strategies.length, 0) : 0 %>件
+                        改善項目: <span id="total-strategies"><%= improvements ? Object.values(improvements).reduce((total, strategies) => total + strategies.length, 0) : 0 %></span>件 
+                        メトリクス: <span id="metrics-count"><%= improvements ? Object.keys(improvements).length : 0 %></span>件
+                        最終更新: <span id="lastUpdateTime"><%= new Date().toLocaleString('ja-JP') %></span>
                     </div>
                 </div>
 
                 <div id="improvement-strategies-container">
-                    <div class="loading">読み込み中...</div>
+                    <% if (improvements && Object.keys(improvements).length > 0) { %>
+                        <% Object.entries(improvements).forEach(([category, strategies]) => { %>
+                            <div class="improvement-card">
+                                <div class="improvement-header">
+                                    <div class="improvement-title">
+                                        <span class="metric-badge">🔧</span>
+                                        <span class="improvement-message"><%= category %></span>
+                                    </div>
+                                    <div class="improvement-count"><%= strategies.length %>件の施策</div>
+                                </div>
+                                
+                                <div class="improvement-section">
+                                    <h4 class="section-title">📈 推奨する改善施策</h4>
+                                    <div class="strategies-list">
+                                        <% strategies.forEach((strategy, index) => { %>
+                                            <div class="strategy-item">
+                                                <div class="strategy-number"><%= index + 1 %></div>
+                                                <div class="strategy-content"><%= strategy %></div>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="no-improvements">📋 改善施策はありません</div>
+                    <% } %>
                 </div>
             </div>
         </div>
