@@ -25,7 +25,10 @@ router.post('/save-setup', requireAuth, auditLog('setup_save'), async (req, res)
             goal_type,
             target_cpa,
             target_cpm,
-            target_ctr
+            target_ctr,
+            target_cv,
+            target_budget_rate,
+            target_daily_budget
         } = req.body;
         
         // データマッピング（フロントエンドからのデータ形式に合わせる）
@@ -61,6 +64,9 @@ router.post('/save-setup', requireAuth, auditLog('setup_save'), async (req, res)
             target_cpa: parseFloat(target_cpa) || 0,
             target_cpm: parseFloat(target_cpm) || 0,
             target_ctr: parseFloat(target_ctr) || 0,
+            target_cv: parseFloat(target_cv) || 1,
+            target_budget_rate: parseFloat(target_budget_rate) || 80,
+            target_daily_budget: parseFloat(target_daily_budget) || 0,
             notifications_enabled: true,
             daily_report_enabled: true,
             update_notifications_enabled: true,
