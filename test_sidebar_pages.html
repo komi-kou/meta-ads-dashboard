@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>サイドバーページ確認</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4a90e2;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #666;
+            margin-top: 30px;
+        }
+        .page-card {
+            background: #f9f9f9;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4a90e2;
+        }
+        .page-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .page-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4a90e2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .page-link:hover {
+            background: #357abd;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .checklist li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        .status-ok {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .status-check {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Meta広告ダッシュボード - サイドバーページ確認</h1>
+        
+        <h2>🔍 確認手順</h2>
+        <ol>
+            <li>下記のリンクから各ページにアクセス</li>
+            <li>ログイン: <span class="highlight">admin@test.com / admin</span></li>
+            <li>各ページで表示内容を確認</li>
+        </ol>
+
+        <h2>📋 各ページの確認項目</h2>
+
+        <div class="page-card">
+            <h3>1. アラート内容ページ</h3>
+            <a href="http://localhost:3000/alerts" target="_blank" class="page-link">
+                🚨 アラート内容を開く
+            </a>
+            <ul class="checklist">
+                <li>緊急アラートセクション - <span class="highlight">アラートがある場合は赤枠で表示</span></li>
+                <li>注意アラートセクション - <span class="highlight">警告レベルは黄色枠で表示</span></li>
+                <li>改善提案セクション - <span class="highlight">各アラートに対する改善策リスト</span></li>
+                <li>確認事項セクション - <span class="highlight">5つのデフォルトチェック項目</span></li>
+                <li>アラート設定 - <span class="highlight">ゴール設定の編集ボタン</span></li>
+            </ul>
+        </div>
+
+        <div class="page-card">
+            <h3>2. アラート履歴ページ</h3>
+            <a href="http://localhost:3000/alert-history" target="_blank" class="page-link">
+                📋 アラート履歴を開く
+            </a>
+            <ul class="checklist">
+                <li>過去30日間のアラート履歴 - <span class="highlight">日付別にグループ化</span></li>
+                <li>ステータス表示 - <span class="highlight">アクティブ/解決済み</span></li>
+                <li>件数サマリー - <span class="highlight">総数、アクティブ数、解決済み数</span></li>
+                <li>タイムスタンプ - <span class="highlight">各アラートの発生時刻</span></li>
+            </ul>
+        </div>
+
+        <div class="page-card">
+            <h3>3. 確認事項ページ</h3>
+            <a href="http://localhost:3000/improvement-tasks" target="_blank" class="page-link">
+                📋 確認事項を開く
+            </a>
+            <ul class="checklist">
+                <li>確認が必要な項目リスト - <span class="highlight">メトリクス別にグループ化</span></li>
+                <li>優先度表示 - <span class="highlight">高/中/低の3段階</span></li>
+                <li>詳細説明 - <span class="highlight">各項目の確認ポイント</span></li>
+                <li>デフォルト項目 - <span class="highlight">アラートがない場合は5つの基本項目</span></li>
+            </ul>
+        </div>
+
+        <div class="page-card">
+            <h3>4. 改善施策ページ</h3>
+            <a href="http://localhost:3000/improvement-strategies" target="_blank" class="page-link">
+                🔧 改善施策を開く
+            </a>
+            <ul class="checklist">
+                <li>カテゴリー別施策 - <span class="highlight">CPA、CTR、予算消化率など</span></li>
+                <li>推奨アクション - <span class="highlight">具体的な改善手順</span></li>
+                <li>施策件数表示 - <span class="highlight">各カテゴリーの施策数</span></li>
+                <li>実装優先度 - <span class="highlight">重要度順にソート</span></li>
+            </ul>
+        </div>
+
+        <h2>✅ 確認結果</h2>
+        <div class="page-card">
+            <h3>実装状況</h3>
+            <ul class="checklist">
+                <li><span class="status-ok">実装済み</span> - アラート内容ページ（改善提案と確認事項を追加）</li>
+                <li><span class="status-ok">実装済み</span> - アラート履歴ページ</li>
+                <li><span class="status-ok">実装済み</span> - 確認事項ページ</li>
+                <li><span class="status-ok">実装済み</span> - 改善施策ページ</li>
+            </ul>
+        </div>
+
+        <h2>🔍 デバッグ情報の確認方法</h2>
+        <div class="page-card">
+            <ol>
+                <li>ブラウザで各ページを開く</li>
+                <li>F12キーでデベロッパーツールを開く</li>
+                <li>Consoleタブで以下のログを確認：
+                    <ul>
+                        <li>📌 APIレスポンスステータス</li>
+                        <li>📌 取得データ内容</li>
+                        <li>📌 エラーメッセージ（ある場合）</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

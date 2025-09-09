@@ -5,11 +5,14 @@ const { v4: uuidv4 } = require('uuid');
 
 class UserManager {
     constructor() {
+        // データディレクトリ
+        this.dataDir = path.join(__dirname, 'data');
+        
         // データファイルのパス
-        this.usersFile = path.join(__dirname, 'data', 'users.json');
-        this.settingsFile = path.join(__dirname, 'data', 'user_settings.json');
-        this.dataFile = path.join(__dirname, 'data', 'user_ad_data.json');
-        this.auditFile = path.join(__dirname, 'data', 'audit_logs.json');
+        this.usersFile = path.join(this.dataDir, 'users.json');
+        this.settingsFile = path.join(this.dataDir, 'user_settings.json');
+        this.dataFile = path.join(this.dataDir, 'user_ad_data.json');
+        this.auditFile = path.join(this.dataDir, 'audit_logs.json');
         
         // データディレクトリを作成
         this.ensureDataDirectory();
@@ -202,17 +205,57 @@ class UserManager {
 
     // ユーザー設定取得
     getUserSettings(userId) {
-        const settings = this.readJsonFile(this.settingsFile);
-        return settings.find(s => s.user_id === userId) || null;
+        try {
+            // 個別ファイルから読み込み
+            const userSettingsPath = path.join(this.dataDir, 'user_settings', `${userId}.json`);
+            if (fs.existsSync(userSettingsPath)) {
+                const settingsContent = fs.readFileSync(userSettingsPath, 'utf8');
+                return JSON.parse(settingsContent);
+            }
+            
+            // 互換性のため、古い形式からも読み込み
+            const settings = this.readJsonFile(this.settingsFile);
+            return settings.find(s => s.user_id === userId) || null;
+        } catch (error) {
+            console.error('getUserSettings error:', error);
+            return null;
+        }
     }
 
     // ユーザー設定保存
     saveUserSettings(userId, settingsData) {
         try {
+            // 個別ファイルディレクトリを確認
+            const userSettingsDir = path.join(this.dataDir, 'user_settings');
+            if (!fs.existsSync(userSettingsDir)) {
+                fs.mkdirSync(userSettingsDir, { recursive: true });
+            }
+            
+            // 個別ファイルに保存
+            const userSettingsPath = path.join(userSettingsDir, `${userId}.json`);
+            const userSettings = {
+                meta_access_token: settingsData.meta_access_token,
+                meta_account_id: settingsData.meta_account_id,
+                chatwork_api_token: settingsData.chatwork_token || settingsData.chatwork_api_token,
+                chatwork_room_id: settingsData.chatwork_room_id,
+                service_goal: settingsData.service_goal || '',
+                target_cpa: settingsData.target_cpa || '',
+                target_cpm: settingsData.target_cpm || '',
+                target_ctr: settingsData.target_ctr || '',
+                enable_scheduler: settingsData.enable_scheduler !== false,
+                schedule_hours: settingsData.schedule_hours || [9, 12, 15, 17, 19],
+                enable_chatwork: settingsData.enable_chatwork !== false,
+                enable_alerts: settingsData.enable_alerts !== false
+            };
+            
+            fs.writeFileSync(userSettingsPath, JSON.stringify(userSettings, null, 2), 'utf8');
+            console.log(`✅ ユーザー設定保存完了 (個別ファイル): ${userSettingsPath}`);
+            
+            // 互換性のため、古い形式にも保存
             const settings = this.readJsonFile(this.settingsFile);
             const existingIndex = settings.findIndex(s => s.user_id === userId);
             
-            const userSettings = {
+            const oldFormatSettings = {
                 id: existingIndex >= 0 ? settings[existingIndex].id : uuidv4(),
                 user_id: userId,
                 meta_access_token: settingsData.meta_access_token,
@@ -232,15 +275,14 @@ class UserManager {
             };
 
             if (existingIndex >= 0) {
-                settings[existingIndex] = userSettings;
+                settings[existingIndex] = oldFormatSettings;
             } else {
-                userSettings.created_at = new Date().toISOString();
-                settings.push(userSettings);
+                oldFormatSettings.created_at = new Date().toISOString();
+                settings.push(oldFormatSettings);
             }
 
             this.writeJsonFile(this.settingsFile, settings);
-            console.log(`✅ ユーザー設定保存完了: ${userId}`);
-            return userSettings.id;
+            return oldFormatSettings.id;
         } catch (error) {
             console.error('設定保存エラー:', error);
             throw error;

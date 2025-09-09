@@ -1,0 +1,511 @@
+[dotenv@17.2.0] injecting env (6) from .env (tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`)
+=== 環境変数確認 ===
+META_ACCESS_TOKEN: 設定済み
+META_ACCOUNT_ID: 未設定
+META_APP_ID: 未設定
+📊 既存ユーザー数: 5
+👤 テストユーザーは既に存在します
+ℹ️ Trust proxy disabled for development
+⚠️ File store not available, using memory store: Cannot find module 'session-file-store'
+Require stack:
+- /Users/komiyakouhei/Desktop/meta-ads-dashboard-main/app.js
+ℹ️ Secure cookies disabled for development
+📋 Session config: { secure: false, sameSite: 'lax', maxAge: 86400000, trustProxy: false }
+Meta API読み込み成功
+scheduler.jsが実行されました
+🕐 データ取得スケジューラーを開始しました
+📊 データ取得: 9時、12時、15時、17時、19時
+💬 チャットワーク送信: chatworkAutoSender.js で管理
+✅ スケジューラー読み込み成功
+✅ マルチユーザー対応チャットワーク自動送信機能を開始しました
+
+==========================================
+✅ サーバー起動成功！
+🌐 URL: http://localhost:3000
+👤 ログイン: komiya / komiya
+==========================================
+
+🔍 CSRF Test Mode: GET /api/meta-ads-data?type=period&period=7
+🔑 CSRF Token Generated: a216a4a1...
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/meta-ads-data?type=period&period=7
+Headers: {
+  host: 'localhost:3000',
+  'user-agent': 'curl/8.7.1',
+  accept: '*/*',
+  cookie: 'metaads.sessionid=s%3A-sqDRhe4K9dPOubHiZpPbf-bcIeBkHwk.kKtdQCi3d%2FEpjSKZJ8r4tQNJWtUgMWjp%2F3iH2gJA5QM'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/meta-ads-data?type=period&period=7',
+  method: 'GET',
+  sessionId: 'y4o5oiYdx2oS-w2qxLK5Ur1iEzJmA1PU',
+  hasSession: true,
+  hasUserId: false,
+  userId: undefined,
+  userEmail: undefined,
+  lastActivity: undefined,
+  sessionKeys: [ 'cookie', 'csrfToken' ]
+}
+❌ 認証失敗 - ログインページにリダイレクト: {
+  hasSession: true,
+  sessionContent: Session {
+    cookie: {
+      path: '/',
+      _expires: 2025-09-10T14:50:54.872Z,
+      originalMaxAge: 86400000,
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false
+    },
+    csrfToken: 'a216a4a127a7c902eea026a7d37a80791f9c79dc3582b5bbc4fd23668f410248'
+  },
+  reason: 'userIdなし'
+}
+🔍 CSRF Test Mode: GET /api/dashboard-data
+🔑 CSRF Token Generated: 1152222f...
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/dashboard-data
+Headers: {
+  host: 'localhost:3000',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3000/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=a98adb8ba24059d4841e0909d4f7adb50474d8a7be4a27fbaf98b6279f6fe296%7Cd9a4eced9e30902af30bf4f8f22d58215e30511d3c58fbd9439a3ab6713c3956; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Fdashboard; __next_hmr_refresh_hash__=26; metaads.sessionid=s%3AQf_SOhemzmPEfyOHh1XhYxhDVbWanqes.3vaXAvTg8MaQ2eS%2BpSsyKscTwChkiObSQuXaO71Hf8w',
+  'if-none-match': 'W/"152-gU6aXLzadFMz/lFYFeWBChsqPA4"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/dashboard-data',
+  method: 'GET',
+  sessionId: 'IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ',
+  hasSession: true,
+  hasUserId: false,
+  userId: undefined,
+  userEmail: undefined,
+  lastActivity: undefined,
+  sessionKeys: [ 'cookie', 'csrfToken' ]
+}
+❌ 認証失敗 - ログインページにリダイレクト: {
+  hasSession: true,
+  sessionContent: Session {
+    cookie: {
+      path: '/',
+      _expires: 2025-09-10T14:50:58.771Z,
+      originalMaxAge: 86400000,
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false
+    },
+    csrfToken: '1152222f914bd17fcc02f331027bd520baeed77aa025160546497db37a81f799'
+  },
+  reason: 'userIdなし'
+}
+🔍 Session Debug: {
+  url: '/login',
+  method: 'GET',
+  sessionID: 'IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ',
+  hasSession: true,
+  sessionKeys: [ 'cookie', 'csrfToken' ],
+  userId: undefined,
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: GET /login
+📋 Login page render - Session ID: IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ
+🔑 CSRF token available: true
+🔍 Session Debug: {
+  url: '/login',
+  method: 'GET',
+  sessionID: 'bhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF',
+  hasSession: true,
+  sessionKeys: [ 'cookie' ],
+  userId: undefined,
+  cookies: 'missing',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: GET /login
+🔑 CSRF Token Generated: cb8b3cd3...
+📋 Login page render - Session ID: bhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF
+🔑 CSRF token available: true
+🔍 Session Debug: {
+  url: '/login',
+  method: 'POST',
+  sessionID: 'bhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF',
+  hasSession: true,
+  sessionKeys: [ 'cookie', 'csrfToken' ],
+  userId: undefined,
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: POST /login
+⚠️ CSRF validation BYPASSED for testing
+==================================================
+📝 POST /login リクエスト受信 - 開始時刻: 2025-09-09T14:51:25.021Z
+Session ID: bhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF
+Request headers: {
+  'user-agent': 'curl/8.7.1',
+  'content-type': 'application/x-www-form-urlencoded',
+  accept: '*/*',
+  referer: undefined
+}
+Request body: { email: 'komiya11122@gmail.com', hasPassword: true }
+📋 req.body詳細: {
+  email: 'komiya11122@gmail.com',
+  password: 'test123',
+  csrfToken: 'cb8b3cd3f2e0726d4f12822ffffe0427304e27733b30e20533c488fb9d9b1c0b>'
+}
+📋 req.body type: object
+📋 req.body keys: [ 'email', 'password', 'csrfToken' ]
+📧 抽出されたemail: komiya11122@gmail.com type: string
+🔑 抽出されたpassword: 存在します type: string
+🔐 ユーザー認証開始: komiya11122@gmail.com
+🔍 UserManager.authenticateUser 呼び出し: komiya11122@gmail.com type: string
+🔍 password type: string exists: true
+📊 ユーザーデータベース読み込み: 5人
+📧 正規化されたemail: komiya11122@gmail.com
+🔍 ユーザー検索結果: 見つかりました
+🔑 パスワード検証開始
+🔑 パスワード検証結果: 一致
+✅ ログイン成功: komiya11122@gmail.com - UserID: b4475ace-303e-4fd1-8740-221154c9b291
+🔐 認証結果: 成功
+✅ ログイン成功 - ユーザーID: b4475ace-303e-4fd1-8740-221154c9b291
+📝 ユーザー情報: {
+  id: 'b4475ace-303e-4fd1-8740-221154c9b291',
+  email: 'komiya11122@gmail.com',
+  username: '横濱不動産'
+}
+💾 セッション保存を明示的に実行中...
+💾 セッション保存開始: {
+  sessionID: 'bhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF',
+  userId: 'b4475ace-303e-4fd1-8740-221154c9b291',
+  beforeSave: true
+}
+==================================================
+📝 POST /login リクエスト完了 - 終了時刻: 2025-09-09T14:51:25.232Z
+✅ セッション保存完了 - リダイレクト準備中
+📋 最終セッション状態: {
+  userId: 'b4475ace-303e-4fd1-8740-221154c9b291',
+  userEmail: 'komiya11122@gmail.com',
+  userName: '横濱不動産',
+  sessionID: 'bhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF',
+  lastActivity: 1757429485232
+}
+⚙️ ユーザー設定状態: {
+  userId: 'b4475ace-303e-4fd1-8740-221154c9b291',
+  hasSettings: true,
+  settingsContent: {
+    meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+    meta_account_id: 'act_1165556408678089',
+    chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+    chatwork_room_id: '408053863',
+    service_goal: 'toB_newsletter',
+    target_cpa: '7000',
+    target_cpm: '1800',
+    target_ctr: '1.0',
+    target_cv: '1',
+    target_budget_rate: '80',
+    target_daily_budget: '2800',
+    enable_scheduler: true,
+    schedule_hours: [ 9, 12, 15, 17, 19 ],
+    enable_chatwork: true,
+    enable_alerts: true
+  },
+  hasMetaToken: true,
+  hasChatworkToken: false
+}
+🔄 リダイレクト判定: { needsSetup: true, redirectUrl: '/setup', reason: 'セットアップが必要' }
+🔄 リダイレクト実行: /setup
+🔄 セッション保存完了後のリダイレクト実行: /setup
+🔍 CSRF Test Mode: GET /api/meta-ads-data?type=period&period=7
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/meta-ads-data?type=period&period=7
+Headers: {
+  host: 'localhost:3000',
+  'user-agent': 'curl/8.7.1',
+  accept: '*/*',
+  cookie: 'metaads.sessionid=s%3AbhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF.3i1IQxjXAT7aRBLXZKiDRFuaEwlmdbTnU4NE0OtOSjg'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/meta-ads-data?type=period&period=7',
+  method: 'GET',
+  sessionId: 'bhOeJ9LgQiQo7lMJ2wSlWsYIz3NOVZRF',
+  hasSession: true,
+  hasUserId: true,
+  userId: 'b4475ace-303e-4fd1-8740-221154c9b291',
+  userEmail: 'komiya11122@gmail.com',
+  lastActivity: 1757429485232,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: 'b4475ace-303e-4fd1-8740-221154c9b291', userName: '横濱不動産' }
+=== ダッシュボード Meta広告データAPI ===
+🔍 セッション情報: {
+  hasSession: true,
+  sessionUserId: 'b4475ace-303e-4fd1-8740-221154c9b291',
+  sessionUser: undefined,
+  sessionUserID: undefined,
+  finalUserId: 'b4475ace-303e-4fd1-8740-221154c9b291'
+}
+リクエストパラメータ: {
+  type: 'period',
+  date: undefined,
+  period: '7',
+  campaignId: undefined,
+  userId: 'b4475ace-303e-4fd1-8740-221154c9b291'
+}
+過去7日間のMeta広告データを取得中...
+=== Meta API期間データ取得: 7日間 === { userId: 'b4475ace-303e-4fd1-8740-221154c9b291' }
+=== 設定済みMeta API情報取得開始 === { userId: 'b4475ace-303e-4fd1-8740-221154c9b291' }
+🔍 ユーザー別設定確認: {
+  userId: 'b4475ace-303e-4fd1-8740-221154c9b291',
+  userSettingsFound: true,
+  hasAccessToken: true,
+  hasAccountId: true,
+  accessTokenLength: 208,
+  accountId: 'act_1165556408678089'
+}
+✅ ユーザー別Meta API設定取得成功
+期間データ取得完了: 7日分
+aggregateRealPeriodData: 受信データ数=7
+抽出されたコンバージョン数: 0
+Day 1: date_start=2025-09-03, label=9/3, spend=3235
+抽出されたコンバージョン数: 0
+Day 2: date_start=2025-09-04, label=9/4, spend=2304
+抽出されたコンバージョン数: 0
+Day 3: date_start=2025-09-05, label=9/5, spend=2709
+抽出されたコンバージョン数: 0
+Day 4: date_start=2025-09-06, label=9/6, spend=2886
+抽出されたコンバージョン数: 0
+Day 5: date_start=2025-09-07, label=9/7, spend=4042
+抽出されたコンバージョン数: 0
+Day 6: date_start=2025-09-08, label=9/8, spend=2446
+抽出されたコンバージョン数: 0
+Day 7: date_start=2025-09-09, label=9/9, spend=2519
+=== ハイブリッド日予算取得 ===
+入力userId: b4475ace-303e-4fd1-8740-221154c9b291
+API取得日予算（アクティブキャンペーンのみ）: 0
+取得したuserSettings: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '408053863',
+  service_goal: 'toB_newsletter',
+  target_cpa: '7000',
+  target_cpm: '1800',
+  target_ctr: '1.0',
+  target_cv: '1',
+  target_budget_rate: '80',
+  target_daily_budget: '2800',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true
+}
+target_daily_budgetの値: 2800
+✅ ユーザー設定の日予算を使用: 2800 円
+=== 期間予算消化率計算（ハイブリッド方式） ===
+期間: 7 日
+API取得日予算: 0 円
+使用日予算: 2800 円
+期間予算: 19600 円
+合計消費: 20141 円
+計算式: 20141 ÷ 19600 × 100 = 102.76%
+✅ ダッシュボードデータ取得成功: {
+  spend: 20141,
+  budgetRate: 102.76,
+  ctr: 0.85,
+  cpm: 1862,
+  conversions: 0,
+  cpa: 0,
+  frequency: 1.32,
+  chartData: {
+    labels: [
+      '9/3', '9/4',
+      '9/5', '9/6',
+      '9/7', '9/8',
+      '9/9'
+    ],
+    spend: [
+      3235, 2304,
+      2709, 2886,
+      4042, 2446,
+      2519
+    ],
+    ctr: [
+      1.023891, 1.365188,
+      1.144366,   0.7922,
+      0.562852, 0.561447,
+       1.04469
+    ],
+    cpm: [
+      2760, 2621,
+      2385, 1759,
+      1517, 1526,
+      1462
+    ],
+    conversions: [
+      0, 0, 0, 0,
+      0, 0, 0
+    ],
+    cpa: [
+      0, 0, 0, 0,
+      0, 0, 0
+    ],
+    frequency: [
+      1.348677, 1.420032,
+       1.30725, 1.282031,
+      1.341893, 1.323699,
+      1.241354
+    ]
+  }
+}
+🔍 CSRF Test Mode: GET /api/dashboard-data
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/dashboard-data
+Headers: {
+  host: 'localhost:3000',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3000/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=a98adb8ba24059d4841e0909d4f7adb50474d8a7be4a27fbaf98b6279f6fe296%7Cd9a4eced9e30902af30bf4f8f22d58215e30511d3c58fbd9439a3ab6713c3956; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Fdashboard; __next_hmr_refresh_hash__=26; metaads.sessionid=s%3AIHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ.WmWmR7DsSrK0u5HEhHdn4f6BO0r9Yqd%2FE5YokS%2BHXTE'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/dashboard-data',
+  method: 'GET',
+  sessionId: 'IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ',
+  hasSession: true,
+  hasUserId: false,
+  userId: undefined,
+  userEmail: undefined,
+  lastActivity: undefined,
+  sessionKeys: [ 'cookie', 'csrfToken' ]
+}
+❌ 認証失敗 - ログインページにリダイレクト: {
+  hasSession: true,
+  sessionContent: Session {
+    cookie: {
+      path: '/',
+      _expires: 2025-09-10T14:50:58.787Z,
+      originalMaxAge: 86400000,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax'
+    },
+    csrfToken: '1152222f914bd17fcc02f331027bd520baeed77aa025160546497db37a81f799'
+  },
+  reason: 'userIdなし'
+}
+🔍 Session Debug: {
+  url: '/login',
+  method: 'GET',
+  sessionID: 'IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ',
+  hasSession: true,
+  sessionKeys: [ 'cookie', 'csrfToken' ],
+  userId: undefined,
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: GET /login
+📋 Login page render - Session ID: IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ
+🔑 CSRF token available: true
+🔍 CSRF Test Mode: GET /api/dashboard-data
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/dashboard-data
+Headers: {
+  host: 'localhost:3000',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3000/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=a98adb8ba24059d4841e0909d4f7adb50474d8a7be4a27fbaf98b6279f6fe296%7Cd9a4eced9e30902af30bf4f8f22d58215e30511d3c58fbd9439a3ab6713c3956; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Fdashboard; __next_hmr_refresh_hash__=26; metaads.sessionid=s%3AIHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ.WmWmR7DsSrK0u5HEhHdn4f6BO0r9Yqd%2FE5YokS%2BHXTE'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/dashboard-data',
+  method: 'GET',
+  sessionId: 'IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ',
+  hasSession: true,
+  hasUserId: false,
+  userId: undefined,
+  userEmail: undefined,
+  lastActivity: undefined,
+  sessionKeys: [ 'cookie', 'csrfToken' ]
+}
+❌ 認証失敗 - ログインページにリダイレクト: {
+  hasSession: true,
+  sessionContent: Session {
+    cookie: {
+      path: '/',
+      _expires: 2025-09-10T14:53:34.791Z,
+      originalMaxAge: 86400000,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax'
+    },
+    csrfToken: '1152222f914bd17fcc02f331027bd520baeed77aa025160546497db37a81f799'
+  },
+  reason: 'userIdなし'
+}
+🔍 Session Debug: {
+  url: '/login',
+  method: 'GET',
+  sessionID: 'IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ',
+  hasSession: true,
+  sessionKeys: [ 'cookie', 'csrfToken' ],
+  userId: undefined,
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: GET /login
+📋 Login page render - Session ID: IHQqBrJN9ZfHtn5h30OWy0UJmYmSDilZ
+🔑 CSRF token available: true

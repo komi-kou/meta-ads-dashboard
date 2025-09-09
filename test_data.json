@@ -1,0 +1,16 @@
+[
+  {
+    "date": "2025-09-09",
+    "spend": 15000,
+    "impressions": 50000,
+    "clicks": 1000,
+    "ctr": 2,
+    "cpm": 300,
+    "cpc": 15,
+    "conversions": 20,
+    "cvr": 2,
+    "cpa": 1500,
+    "budgetRate": 75,
+    "roas": 350
+  }
+]

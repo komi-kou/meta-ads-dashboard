@@ -567,7 +567,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             console.log(`✅ ユーザー設定取得成功: ${userId}`);
             return {
                 chatwork: {
-                    apiToken: userSettings.chatwork_token,
+                    apiToken: userSettings.chatwork_api_token,  // フィールド名を修正
                     roomId: userSettings.chatwork_room_id
                 }
             };
