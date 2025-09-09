@@ -2,15 +2,29 @@
 const UserManager = require('../userManager');
 const rateLimit = require('express-rate-limit');
 
-// レート制限設定
+// レート制限設定（メールアドレスベース - マルチユーザー対応）
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15分
-    max: 5, // 最大5回の試行
+    max: process.env.NODE_ENV === 'development' ? 50 : 5, // 開発環境では制限を緩和
     message: {
         error: 'ログイン試行回数が上限に達しました。15分後に再試行してください。'
     },
     standardHeaders: true,
     legacyHeaders: false,
+    // メールアドレスベースでレート制限（マルチユーザー対応）
+    keyGenerator: (req) => {
+        // POSTリクエストのemailフィールドを使用
+        const email = req.body?.email || req.query?.email || 'unknown';
+        // 開発環境では制限を緩和
+        if (process.env.NODE_ENV === 'development' && req.ip === '127.0.0.1') {
+            return `dev_${email}`; // 開発環境用の識別子
+        }
+        return `${req.ip}_${email}`; // IP + メールの組み合わせ
+    },
+    skip: (req) => {
+        // 新規登録は制限をスキップ
+        return req.path === '/register';
+    }
 });
 
 const generalLimiter = rateLimit({

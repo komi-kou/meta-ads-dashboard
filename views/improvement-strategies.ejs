@@ -20,7 +20,7 @@
         }
 
         .strategies-page {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -47,6 +47,74 @@
             font-size: 14px;
         }
 
+        /* 改善施策カード */
+        .improvement-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .improvement-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px;
+            color: white;
+        }
+
+        .improvement-category {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .improvement-metric {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .improvement-content {
+            padding: 20px;
+        }
+
+        .strategy-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .strategy-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .strategy-item:last-child {
+            border-bottom: none;
+        }
+
+        .strategy-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .strategy-text {
+            flex: 1;
+            line-height: 1.6;
+            color: #374151;
+        }
+
         .no-content {
             text-align: center;
             padding: 60px 20px;
@@ -58,7 +126,6 @@
         .no-content-icon {
             font-size: 48px;
             margin-bottom: 16px;
-            display: block;
         }
 
         .no-content h3 {
@@ -67,120 +134,13 @@
             font-size: 18px;
         }
 
-        .content-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        /* アラート内容風のスタイル */
-        .alert-card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .alert-header {
-            background-color: #dbeafe;
-            padding: 14px 16px;
-            border-bottom: 1px solid #3b82f6;
-        }
-
-        .alert-title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .alert-icon {
-            font-size: 18px;
-            margin-right: 8px;
-        }
-
-        .alert-metric {
-            font-weight: 600;
-            color: #1e40af;
-            font-size: 16px;
-        }
-
-        .alert-timestamp {
-            color: #1d4ed8;
-            font-size: 12px;
-        }
-
-        .alert-message-row {
-            color: #1e40af;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .alert-content {
-            padding: 0;
-        }
-
-        .strategy-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid #f3f4f6;
-            background-color: #f0f9ff;
-        }
-
-        .strategy-item:last-child {
-            border-bottom: none;
-        }
-
-        .item-priority {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .priority-indicator {
-            margin-right: 8px;
-            font-size: 16px;
-        }
-
-        .priority-text {
-            font-weight: 500;
-            color: #374151;
-            flex: 1;
-        }
-
-        .item-timestamp {
-            color: #6b7280;
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-
-        .strategy-actions {
-            color: #374151;
-            font-size: 14px;
-        }
-
-        .action-item {
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-
-        .action-item:last-child {
-            margin-bottom: 0;
-        }
-
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .main-content {
-                margin-left: 0;
                 padding: 10px;
             }
             
             .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            
-            .alert-title-row {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
@@ -209,12 +169,9 @@
         <div class="main-content">
             <div class="strategies-page">
                 <div class="page-header">
-                    <h2>🔧 改善施策</h2>
+                    <h2>💡 改善施策</h2>
                     <div class="header-info">
-                        📊 サーバーから渡された改善施策数: <%= improvements ? Object.values(improvements).reduce((total, strategies) => total + strategies.length, 0) : 0 %>件
-                        改善項目: <span id="total-strategies"><%= improvements ? Object.values(improvements).reduce((total, strategies) => total + strategies.length, 0) : 0 %></span>件 
-                        メトリクス: <span id="metrics-count"><%= improvements ? Object.keys(improvements).length : 0 %></span>件
-                        最終更新: <span id="lastUpdateTime"><%= new Date().toLocaleString('ja-JP') %></span>
+                        最終更新: <%= new Date().toLocaleString('ja-JP') %>
                     </div>
                 </div>
 
@@ -223,334 +180,35 @@
                         <% Object.entries(improvements).forEach(([category, strategies]) => { %>
                             <div class="improvement-card">
                                 <div class="improvement-header">
-                                    <div class="improvement-title">
-                                        <span class="metric-badge">🔧</span>
-                                        <span class="improvement-message"><%= category %></span>
+                                    <div class="improvement-category">
+                                        <%= category %>
                                     </div>
-                                    <div class="improvement-count"><%= strategies.length %>件の施策</div>
+                                    <div class="improvement-metric">
+                                        <%= strategies.length %>件の改善施策
+                                    </div>
                                 </div>
                                 
-                                <div class="improvement-section">
-                                    <h4 class="section-title">📈 推奨する改善施策</h4>
-                                    <div class="strategies-list">
+                                <div class="improvement-content">
+                                    <ul class="strategy-list">
                                         <% strategies.forEach((strategy, index) => { %>
-                                            <div class="strategy-item">
-                                                <div class="strategy-number"><%= index + 1 %></div>
-                                                <div class="strategy-content"><%= strategy %></div>
-                                            </div>
+                                            <li class="strategy-item">
+                                                <span class="strategy-number"><%= index + 1 %></span>
+                                                <span class="strategy-text"><%= strategy %></span>
+                                            </li>
                                         <% }) %>
-                                    </div>
+                                    </ul>
                                 </div>
                             </div>
                         <% }) %>
                     <% } else { %>
-                        <div class="no-improvements">📋 改善施策はありません</div>
+                        <div class="no-content">
+                            <div class="no-content-icon">✅</div>
+                            <h3>改善施策はありません</h3>
+                        </div>
                     <% } %>
                 </div>
             </div>
         </div>
     </div>
-
-            '予算消化率': {
-                '配信されているか確認': [
-                    '管理画面の上の運用しているキャンペーンが緑でアクティブになっているか、キャンペーンを確認する',
-                    '決済ができておらず配信エラーになっていないか、請求と支払いを確認する',
-                    'クリエイティブが審査落ちしていて配信エラーになっていないか、広告を確認する'
-                ],
-                '配信するクリエイティブが枯れている': [
-                    '過去7日間ベースでCV数が0もしくは目標CPAに達していないクリエイティブを差し替える'
-                ],
-                '配信するユーザー層が悪いのか': [
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）',
-                    'キャンペーンを複製して配信するユーザー層を変える（設定は変えずに）'
-                ]
-            },
-            'CTR': {
-                '配信しているクリエイティブが刺さっていないor枯れている': [
-                    '過去7日間ベースで予算が寄っておらずCVも取れていないクリエイティブを差し替える',
-                    '過去7日間ベースで予算は寄っているけど目標CPAに達しておらずクリック率も目標以下のクリエイティブは差し替える'
-                ],
-                'フリークエンシーが2.5%以上ある': [
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）',
-                    'キャンペーンを複製して配信するユーザー層を変える（設定は変えずに）'
-                ],
-                '配信するユーザー層が見込み顧客ではない': [
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
-                    '類似オーディエンスを活用して、見込み層の高いユーザーに配信する'
-                ]
-            },
-            'CPM': {
-                '最適なCPM値で配信できていない': [
-                    '過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える',
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
-                    'キャンペーンを複製する'
-                ]
-            },
-            'CV': {
-                'クリエイティブが刺さっていないorクリエイティブが枯れている': [
-                    '過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える',
-                    '過去7日間ベースでCVがついておらず配信が寄っていない（予算消化ができていない）クリエイティブを差し替える',
-                    '訴求軸が違うクリエイティブを配信する',
-                    '動画広告を配信する'
-                ],
-                '配信するユーザー層がズレている': [
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
-                    '類似オーディエンスを活用して、見込み層の高いユーザーに配信する',
-                    'キャンペーンを複製して配信するユーザー層を変える',
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）'
-                ],
-                'LPで離脱されている': [
-                    'ヒートマップを導入して離脱箇所が多いところを改善する（clarityがおすすめ）',
-                    'CTAの文言・デザイン・アクションを変更する',
-                    'FVを改善する'
-                ]
-            },
-            'CPA': {
-                'クリエイティブが刺さっていないorクリエイティブが枯れている': [
-                    '過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える',
-                    '過去7日間ベースでCVがついておらず配信が寄っていない（予算消化ができていない）クリエイティブを差し替える',
-                    '訴求軸が違うクリエイティブを配信する',
-                    '動画広告を配信する'
-                ],
-                '配信するユーザー層がズレている': [
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）',
-                    '類似オーディエンスを活用して、見込み層の高いユーザーに配信する',
-                    'キャンペーンを複製して配信するユーザー層を変える',
-                    '広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する（獲得できないユーザー層には配信しない）'
-                ],
-                '学習データが適切ではない': [
-                    'ピクセルを作成し直してデータを再度学習し直す'
-                ],
-                'LPで離脱されている': [
-                    'ヒートマップを導入して離脱箇所が多いところを改善する（clarityがおすすめ）',
-                    'CTAの文言・デザイン・アクションを変更する',
-                    'FVを改善する'
-                ]
-            }
-        };
-
-        // 確認事項リスト（checklistRules.jsと同期）
-        const checklistItems = {
-            '予算消化率': [
-                { priority: 1, title: '配信されているか確認', description: '広告がアクティブになっているか' },
-                { priority: 2, title: '配信するクリエイティブが枯れている', description: 'CV数が0もしくは目標CPAの到達しておらず予算も消化されていない' },
-                { priority: 3, title: '配信するユーザー層が悪いのか', description: '配信するユーザー層が悪いと表示されないケースがある' }
-            ],
-            'CTR': [
-                { priority: 1, title: '配信しているクリエイティブが刺さっていないor枯れている', description: 'ありきたりのクリエイティブでユーザーに見られていない\n7日間ベースでずっと配信していて、飽きられている' },
-                { priority: 2, title: 'フリークエンシーが2.5%以上ある', description: '同じユーザーばかりに配信されていて、見飽きられている' },
-                { priority: 3, title: '配信するユーザー層が見込み顧客ではない', description: 'サービスに合ったユーザー層に配信されていないので、スルーされている' }
-            ],
-            'CPM': [
-                { priority: 1, title: '最適なCPM値で配信できていない', description: 'クリエイティブが刺さっていないため入力したCPMから乖離している\n配信するユーザー層が悪いため入力したCPMから乖離している' }
-            ],
-            'CV': [
-                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている', description: '入口のクリエイティブで魅力的に魅せれていないor飽きられてしまっている' },
-                { priority: 2, title: '配信するユーザー層がズレている', description: '購入見込みの低いユーザーに配信されている' },
-                { priority: 3, title: 'LPで離脱されている', description: 'LPの内容がユーザーに刺さっていない' }
-            ],
-            'CPA': [
-                { priority: 1, title: 'クリエイティブが刺さっていないorクリエイティブが枯れている', description: '' },
-                { priority: 2, title: '配信するユーザー層がズレている', description: '購入見込みの低いユーザーに配信されている' },
-                { priority: 3, title: '学習データが適切ではない', description: 'ピクセルで学習しているデータが誤った方向に進んでいる' },
-                { priority: 4, title: 'LPで離脱されている', description: 'LPの内容がユーザーに刺さっていない' }
-            ]
-        };
-
-        // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('=== 改善施策ページ: 初期化開始 ===');
-            updateLastUpdateTime();
-        });
-
-        // CPAアラートメッセージを生成
-        async function generateCPAAlertMessage(targetCPA) {
-            try {
-                const dashboardResponse = await fetch('/api/dashboard-data');
-                const dashboardData = await dashboardResponse.json();
-                
-                let currentCPA = targetCPA + 2000; // デフォルト値
-                if (dashboardData.success && dashboardData.data && dashboardData.data.cpa) {
-                    currentCPA = dashboardData.data.cpa;
-                }
-                
-                return `CPAが${targetCPA.toLocaleString()}円以上の${Math.round(currentCPA).toLocaleString()}円が続いています`;
-            } catch (error) {
-                console.error('CPA alert message generation error:', error);
-                return `CPAが${targetCPA.toLocaleString()}円以上が続いています`;
-            }
-        }
-
-        // 改善施策を生成（実際のゴール設定に基づく）
-        async function generateStrategies() {
-            console.log('改善施策を生成開始');
-            
-            let testAlerts = [];
-            
-            try {
-                console.log('=== 改善施策ページ: APIからデータ取得 ===');
-                
-                // 実際のアラート履歴から現在のアラートを取得
-                const alertResponse = await fetch('/api/alert-history');
-                console.log('APIレスポンスステータス:', alertResponse.status);
-                
-                const alertData = await alertResponse.json();
-                console.log('APIレスポンス全体:', alertData);
-                console.log('success:', alertData.success);
-                console.log('history存在:', !!alertData.history);
-                console.log('history長さ:', alertData.history ? alertData.history.length : 'undefined');
-                
-                if (alertData.success && alertData.history && alertData.history.length > 0) {
-                    // APIから取得した実際のアラートを使用
-                    testAlerts = alertData.history.slice(0, 10); // 最新10件
-                    console.log('✅ 実際のAPIアラートを使用:', testAlerts.length + '件');
-                    console.log('アラートデータ詳細:', testAlerts.map(a => ({ 
-                        metric: a.metric, 
-                        checkItems: a.checkItems ? a.checkItems.length : 0,
-                        improvements: a.improvements ? Object.keys(a.improvements).length : 0,
-                        status: a.status,
-                        id: a.id
-                    })));
-                    
-                    // 各アラートの詳細データを出力
-                    testAlerts.forEach((alert, index) => {
-                        console.log(`アラート${index + 1} (${alert.metric}):`, {
-                            checkItems: alert.checkItems,
-                            improvements: alert.improvements
-                        });
-                    });
-                } else {
-                    console.log('アクティブアラートなし、改善施策なし状態');
-                    testAlerts = []; // アラートなし状態
-                }
-                
-            } catch (error) {
-                console.error('設定読み込みエラー:', error);
-                // エラー時はアラートなし状態
-                testAlerts = [];
-            }
-
-            const generatedStrategies = [];
-            
-            // 重複を防ぐためのメトリック別処理
-            const processedMetrics = new Set();
-            
-            testAlerts.forEach(alert => {
-                const metric = alert.metric;
-                
-                // 既に処理済みのメトリックはスキップ
-                if (processedMetrics.has(metric)) {
-                    return;
-                }
-                processedMetrics.add(metric);
-                
-                // APIから取得した確認事項と改善施策を優先使用
-                let items = [];
-                let improvements = {};
-                
-                if (alert.checkItems && Array.isArray(alert.checkItems) && alert.checkItems.length > 0) {
-                    items = alert.checkItems;
-                    console.log(`✅ ${metric}: APIのcheckItemsを使用 (${items.length}件)`);
-                } else {
-                    items = checklistItems[metric] || [];
-                    console.log(`⚠️ ${metric}: ローカルchecklistItemsを使用 (${items.length}件)`);
-                }
-                
-                if (alert.improvements && typeof alert.improvements === 'object' && Object.keys(alert.improvements).length > 0) {
-                    improvements = alert.improvements;
-                    console.log(`✅ ${metric}: APIのimprovementsを使用 (${Object.keys(improvements).length}件)`);
-                } else {
-                    improvements = improvementRules[metric] || {};
-                    console.log(`⚠️ ${metric}: ローカルimprovementRulesを使用 (${Object.keys(improvements).length}件)`);
-                }
-                
-                console.log(`${metric} - 確認事項:`, items);
-                console.log(`${metric} - 改善施策:`, improvements);
-                
-                items.forEach(item => {
-                    const actions = improvements[item.title] || [];
-                    console.log(`"${item.title}" に対するアクション:`, actions);
-                    
-                    if (actions.length > 0) {
-                        generatedStrategies.push({
-                            metric: metric,
-                            alertMessage: alert.message,
-                            alertLevel: alert.severity || alert.level,
-                            timestamp: alert.timestamp,
-                            checklistTitle: item.title,
-                            priority: item.priority,
-                            actions: actions
-                        });
-                    }
-                });
-            });
-
-            // 改善施策数を更新
-            document.getElementById('strategyCount').textContent = generatedStrategies.length;
-            
-            console.log('生成された改善施策:', generatedStrategies);
-            renderStrategies(generatedStrategies);
-        }
-
-        // 改善施策を表示
-        function renderStrategies(strategies) {
-            const contentDiv = document.getElementById('content');
-            
-            if (strategies.length === 0) {
-                contentDiv.innerHTML = `
-                    <div class="no-content">
-                        <div class="no-content-icon">✅</div>
-                        <h3>改善が必要な項目はありません。</h3>
-                    </div>
-                `;
-            } else {
-                const strategiesHTML = strategies.map((strategy, index) => `
-                    <div class="alert-card">
-                        <!-- アラート内容と同じスタイルのヘッダー -->
-                        <div class="alert-header">
-                            <div class="alert-title-row">
-                                <span class="alert-icon">🔧</span>
-                                <span class="alert-metric">${strategy.metric}</span>
-                                <span class="alert-timestamp">
-                                    ${new Date(strategy.timestamp).toLocaleString('ja-JP')}
-                                </span>
-                            </div>
-                            <div class="alert-message-row">
-                                ${strategy.alertMessage}
-                            </div>
-                        </div>
-
-                        <!-- 改善施策内容 -->
-                        <div class="alert-content">
-                            <div class="strategy-item">
-                                <div class="item-priority">
-                                    <span class="priority-indicator">🔧</span>
-                                    <span class="priority-text">${strategy.checklistTitle}</span>
-                                </div>
-                                <div class="item-timestamp">
-                                    ${new Date(strategy.timestamp).toLocaleString('ja-JP')}
-                                </div>
-                                <div class="strategy-actions">
-                                    ${strategy.actions.map((action, actionIndex) => `
-                                        <div class="action-item">
-                                            ${actionIndex + 1}. ${action}
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                contentDiv.innerHTML = strategiesHTML;
-            }
-        }
-
-        // 最終更新時間を更新
-        function updateLastUpdateTime() {
-            document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('ja-JP');
-        }
-
-    <script src="/improvement-strategies.js"></script>
 </body>
-</html> 
+</html>

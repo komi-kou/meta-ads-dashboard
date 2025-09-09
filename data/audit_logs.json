@@ -448,5 +448,2057 @@
     "ip_address": "::1",
     "user_agent": "curl/8.7.1",
     "created_at": "2025-07-30T14:38:40.533Z"
+  },
+  {
+    "id": "9bfd6d79-5ce3-4f17-9cb1-99246f7bd89b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"username\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:20:10.035Z"
+  },
+  {
+    "id": "503c86b8-0277-4420-89c7-6cd04693fbe5",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:20:22.691Z"
+  },
+  {
+    "id": "284bc2dc-e6d7-43d9-822c-7f4b2d927449",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:20:22.899Z"
+  },
+  {
+    "id": "71115621-17ff-4539-a8bb-20831ebe9cfc",
+    "user_id": null,
+    "action": "user_register",
+    "details": "{\"url\":\"/register\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"username\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:20:29.951Z"
+  },
+  {
+    "id": "8ee3a293-6112-49cf-9213-4c2cce197af1",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "user_registered",
+    "details": "New user registration",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:20:30.163Z"
+  },
+  {
+    "id": "31e62df2-26b3-467f-8b8d-9fbc50acca36",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:20:36.539Z"
+  },
+  {
+    "id": "85682290-4349-4046-b4dc-92919e3fc941",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:20:36.762Z"
+  },
+  {
+    "id": "9577fe7f-924f-420d-ac9d-f16581cd624d",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:32:06.733Z"
+  },
+  {
+    "id": "388b22f7-880e-4acb-83d0-41b2390dafb0",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:32:06.980Z"
+  },
+  {
+    "id": "1ce580b6-b842-477a-810b-174eb1444e0e",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:46:42.567Z"
+  },
+  {
+    "id": "af3117a2-53ed-4943-881a-0255e1ebfc8e",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T16:46:42.775Z"
+  },
+  {
+    "id": "6079251c-eac6-4098-8846-a81c0bcc9101",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:55:44.637Z"
+  },
+  {
+    "id": "fb7d6f23-1ee0-483b-83a5-5e37ea35b81b",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:55:44.641Z"
+  },
+  {
+    "id": "f60eca9d-be36-49bf-8ce8-50ba3ad4fe55",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:55:50.344Z"
+  },
+  {
+    "id": "fd6723b9-c0d7-4e51-a2b4-ed74677e88e9",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:55:50.347Z"
+  },
+  {
+    "id": "ebb39ee5-4147-46fe-ba56-e0335736d0bf",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:56:08.894Z"
+  },
+  {
+    "id": "afa830d3-7033-41db-89be-0a862a093fde",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:56:09.134Z"
+  },
+  {
+    "id": "72544292-cbe9-4cd8-90ae-41816d1fc0ef",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:57:12.129Z"
+  },
+  {
+    "id": "057faa4d-f255-4015-8ff0-fa5b47a24a14",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T16:58:18.231Z"
+  },
+  {
+    "id": "93ff72aa-b46f-4655-9d5e-8a2d674f04b8",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:01:30.158Z"
+  },
+  {
+    "id": "e5ed2533-3b31-476d-8264-e5658d8d4e8c",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:01:30.372Z"
+  },
+  {
+    "id": "2588affa-dd1a-4944-a6e7-26a6890bb712",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:03:21.274Z"
+  },
+  {
+    "id": "a0c2440c-7704-4420-b831-585bac91624f",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:03:21.482Z"
+  },
+  {
+    "id": "6223fdd9-69b4-4e0d-80a5-04158233e88c",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:06:57.027Z"
+  },
+  {
+    "id": "0b731b59-a510-4a4b-9220-e890bfd26f90",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for admin@test.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:06:57.236Z"
+  },
+  {
+    "id": "1c5019d0-6cbb-43d9-b1d4-412745b10a2b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:07:10.423Z"
+  },
+  {
+    "id": "cf0841b1-b3f4-47a6-a64b-65788de9d0cf",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:07:10.639Z"
+  },
+  {
+    "id": "ab73308a-80a1-4aec-aadf-d287f9843423",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:09:01.284Z"
+  },
+  {
+    "id": "e287b520-c1a3-4da6-b669-6ea605143a7b",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:09:01.504Z"
+  },
+  {
+    "id": "73676b65-9435-4224-821b-e88a240bfba7",
+    "user_id": null,
+    "action": "user_register",
+    "details": "{\"url\":\"/register\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"username\",\"email\",\"password\",\"confirmPassword\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:15:14.880Z"
+  },
+  {
+    "id": "a6696aac-8868-481e-88b7-945cbc110704",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "user_registered",
+    "details": "New user registration",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:15:15.115Z"
+  },
+  {
+    "id": "1f5c806e-652e-481a-9704-2050220b9535",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:15:20.550Z"
+  },
+  {
+    "id": "0ee7f7d3-7ad5-4946-a660-cb52d37dcc7d",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:15:20.787Z"
+  },
+  {
+    "id": "fd0ee548-3131-4551-a095-68957d63548e",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:16:13.594Z"
+  },
+  {
+    "id": "336df628-208b-4806-ad5d-773a81048941",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:20:17.633Z"
+  },
+  {
+    "id": "0c19d506-9a18-4010-8b01-ccb15635421f",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:20:17.846Z"
+  },
+  {
+    "id": "9bd21fb1-0e5e-4398-bf5e-5ae68dbcb8ff",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:20:52.435Z"
+  },
+  {
+    "id": "b4784131-d556-4618-9e0b-3c46675aaab7",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:28:11.453Z"
+  },
+  {
+    "id": "edc016bf-4471-49b6-9815-c70cab8f667b",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:28:11.698Z"
+  },
+  {
+    "id": "80845300-4776-4d70-adc3-4454c5f3fb45",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:29:02.421Z"
+  },
+  {
+    "id": "d3a9968b-3fba-4dd6-9156-902ef88c9668",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:33:18.497Z"
+  },
+  {
+    "id": "cce68ba8-31c3-49ee-a6e7-447a373cf7f4",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:33:18.708Z"
+  },
+  {
+    "id": "dabdd880-da65-400e-abad-f01f558785ab",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:37:56.844Z"
+  },
+  {
+    "id": "a12d0fee-7d63-4de2-bb83-0b18fc644e01",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:37:57.053Z"
+  },
+  {
+    "id": "5c3df595-8b41-4b64-a730-a6d0d8adac65",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:40:05.321Z"
+  },
+  {
+    "id": "8ad02761-7fb4-4f83-bfc2-f949a12c802c",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:40:05.559Z"
+  },
+  {
+    "id": "cd5b70de-73ef-4852-a0e5-39ae70067cc9",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:41:08.548Z"
+  },
+  {
+    "id": "705c4b6a-b6c6-4069-82e5-c71d78be73cb",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:43:04.672Z"
+  },
+  {
+    "id": "8f62a504-7d61-40fd-bde2-1dca26da3712",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:43:04.930Z"
+  },
+  {
+    "id": "dba6766b-c0b0-4ace-bfb9-08247ba21361",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:48:57.331Z"
+  },
+  {
+    "id": "ea4f81da-83b6-4012-bec1-82005f2f955b",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:48:57.540Z"
+  },
+  {
+    "id": "287bd5ee-6435-4934-adce-6c5529f88763",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:49:05.437Z"
+  },
+  {
+    "id": "b3aeed86-0efe-4b2d-b428-5277691efffa",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:49:05.645Z"
+  },
+  {
+    "id": "9b32732d-3d25-4013-9037-c27e5434c6ca",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:49:12.353Z"
+  },
+  {
+    "id": "dff5399b-1503-4bbf-af9c-da420991143b",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for admin@test.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-08T17:49:12.560Z"
+  },
+  {
+    "id": "0de66500-49a0-45be-a67f-f985451280b2",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T17:59:59.948Z"
+  },
+  {
+    "id": "765d17be-ca35-4642-836d-90f41abb7d23",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T18:00:00.209Z"
+  },
+  {
+    "id": "899655ff-3499-44d7-9246-3a8d64bf57ad",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-08T18:00:27.322Z"
+  },
+  {
+    "id": "b66e4374-aecb-46de-bbdf-159e8249cfab",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T01:40:34.755Z"
+  },
+  {
+    "id": "f060629d-086c-4620-9284-a265414cd3df",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T01:40:34.986Z"
+  },
+  {
+    "id": "cecbdd74-ef48-4e23-b9fc-0bf30ee44884",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T01:41:02.610Z"
+  },
+  {
+    "id": "367044cb-aec4-4dcd-8a14-eb5e587da305",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T01:44:24.781Z"
+  },
+  {
+    "id": "c153143e-f7ce-4cb1-86b9-4bb1d84bd293",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T01:44:25.011Z"
+  },
+  {
+    "id": "8c7361e7-f675-43c5-8da1-ab0c92b5313a",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T01:44:31.690Z"
+  },
+  {
+    "id": "2cc635c1-3ae6-420d-94e4-79c3d0d88856",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for admin@test.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T01:44:31.944Z"
+  },
+  {
+    "id": "3444332e-d677-489d-9d87-42bf65cc3a98",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T01:52:44.928Z"
+  },
+  {
+    "id": "3953cf52-ca8a-47c0-b2d1-dced39ed263d",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T01:52:45.155Z"
+  },
+  {
+    "id": "9e184145-93cc-48d5-a140-6dae7dcf4ef1",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T01:53:53.574Z"
+  },
+  {
+    "id": "a6affa6c-757d-4c62-abf0-19c319b0e599",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T02:05:14.875Z"
+  },
+  {
+    "id": "c0d372c4-bfc9-4c82-8105-90b2d9f24bcd",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T02:05:15.104Z"
+  },
+  {
+    "id": "3841ba89-d698-4411-87e7-0956593baeb9",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T02:05:53.377Z"
+  },
+  {
+    "id": "4cee7027-b940-4813-b2e7-d23237c1b847",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T02:14:20.900Z"
+  },
+  {
+    "id": "75ffcc9d-1fe5-42ac-9238-6ce32287b0e2",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T02:14:21.112Z"
+  },
+  {
+    "id": "84863d62-882d-4576-9000-3efe23b98ca6",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T02:14:36.620Z"
+  },
+  {
+    "id": "5d243348-e650-4886-a246-db54d4692c44",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T02:14:36.829Z"
+  },
+  {
+    "id": "cb1aea0d-b832-4a24-a053-351b9f864916",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T02:49:50.691Z"
+  },
+  {
+    "id": "587d6da5-da3d-4b7a-82af-766fb4a8ea17",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T02:49:50.906Z"
+  },
+  {
+    "id": "67ef99c9-e5e4-4ad3-86b2-d7d42edb39fa",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T02:50:33.427Z"
+  },
+  {
+    "id": "2f6b31b2-050b-446b-8c18-79ad7bc9004b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:08:01.903Z"
+  },
+  {
+    "id": "2b997eb1-d666-449d-a00d-2751824c4e69",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:08:02.135Z"
+  },
+  {
+    "id": "34d43014-cf6c-4692-a2e4-383f89a9bd5c",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:08:56.919Z"
+  },
+  {
+    "id": "54d63e6c-1cfe-4277-95b1-8235e01eaa59",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:10:28.935Z"
+  },
+  {
+    "id": "b3cb72b0-0b42-493e-b946-0992ada91c75",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:10:29.175Z"
+  },
+  {
+    "id": "43be8566-5823-45f8-bf2e-144bec52c6db",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:11:14.067Z"
+  },
+  {
+    "id": "b5c7efb3-16db-4541-9d27-ee7c63366344",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:54:53.453Z"
+  },
+  {
+    "id": "f070262f-cc90-4dd7-8559-a676cee10a4a",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:54:53.678Z"
+  },
+  {
+    "id": "5c4dce2b-a21c-4d2b-9081-354cad834dda",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T03:56:00.107Z"
+  },
+  {
+    "id": "39fd1ace-9eb1-4883-b1a9-e92c9c919edd",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T05:50:50.988Z"
+  },
+  {
+    "id": "267c8b7c-73b4-4ac6-8851-1e943cf34e0a",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T05:50:51.205Z"
+  },
+  {
+    "id": "219e9fd2-8ccd-4e8d-afd8-419aa86891d8",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T05:51:45.770Z"
+  },
+  {
+    "id": "dcd677e2-706a-4b4d-8dcf-b1888efbd369",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T07:59:37.012Z"
+  },
+  {
+    "id": "5febe700-7717-47ab-aa12-77991152875e",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T07:59:37.231Z"
+  },
+  {
+    "id": "00c755d5-29f4-4492-be1c-9b31e5152cb8",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:01:12.387Z"
+  },
+  {
+    "id": "8e400153-8380-4f06-b7fa-ad5839008653",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:25:48.690Z"
+  },
+  {
+    "id": "750bfb33-93f3-4f32-b7e8-ff69145e639c",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:25:51.907Z"
+  },
+  {
+    "id": "b4283c06-45ac-40c4-beb2-0c5d1337de25",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:25:54.524Z"
+  },
+  {
+    "id": "1434caa5-c250-4b3c-80c6-f6581d0ce923",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:25:54.763Z"
+  },
+  {
+    "id": "ce157df7-febd-4b74-a1ee-187758c67dba",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:26:00.877Z"
+  },
+  {
+    "id": "6f81cfd2-cf70-49ef-a77b-fb3540cfae84",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:26:01.111Z"
+  },
+  {
+    "id": "fdfab001-e7a2-4289-9f76-11587290f39d",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:26:45.413Z"
+  },
+  {
+    "id": "9a7bb676-a67d-46dc-8fab-770b66ce8962",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:36:01.667Z"
+  },
+  {
+    "id": "50c2e057-bb09-43ea-9b6b-8b590b08875c",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:36:01.892Z"
+  },
+  {
+    "id": "b4adefec-62da-4522-9b9e-b17ca01cfad7",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:37:13.971Z"
+  },
+  {
+    "id": "10c79fe3-818a-496c-a344-34dbb7287bf4",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T08:54:21.571Z"
+  },
+  {
+    "id": "f8f0f6b8-acd8-45d9-bfc1-f9ae3e741610",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:30:28.516Z"
+  },
+  {
+    "id": "ccf23ec9-ed07-4c47-9107-8a325462fc23",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:30:28.743Z"
+  },
+  {
+    "id": "4aa719b4-9297-42a8-9c6c-c6379fe53780",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:31:18.412Z"
+  },
+  {
+    "id": "83e537ff-ae8c-4180-aca4-51b994aa18ad",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:46:44.447Z"
+  },
+  {
+    "id": "61a641d2-6200-4d26-9baa-3db1d2c6736e",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:46:44.663Z"
+  },
+  {
+    "id": "0ea2a372-1f7d-4672-bd92-c8aaced414f9",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:47:38.075Z"
+  },
+  {
+    "id": "16e27950-2c35-4676-b6c8-5d384e795d38",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:57:07.440Z"
+  },
+  {
+    "id": "076d8111-f859-4ddd-8f85-e78397571674",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:57:07.664Z"
+  },
+  {
+    "id": "b6bc49c6-04e5-480c-ab6e-238f63d9d056",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:57:15.234Z"
+  },
+  {
+    "id": "137247c6-df2d-49c2-a1c8-19f33cc6c664",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:57:15.470Z"
+  },
+  {
+    "id": "91db8acf-20af-4bbf-82c3-ae7c9d781f82",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T09:58:05.335Z"
+  },
+  {
+    "id": "60d88bea-4186-422f-9fa3-36df5fffeb00",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:02:22.374Z"
+  },
+  {
+    "id": "df32b2bd-3b61-449c-a0ce-5196d7a9606d",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:02:22.590Z"
+  },
+  {
+    "id": "a3767e95-3d02-4929-bc7d-4776a01f6c66",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:03:41.327Z"
+  },
+  {
+    "id": "0668a7ac-2f36-4e61-8818-e12de8f8699e",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:03:41.565Z"
+  },
+  {
+    "id": "0ac227dd-87ec-41b8-acd6-4d8eeb047519",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:10:31.426Z"
+  },
+  {
+    "id": "d79bfc27-7308-4f3f-954a-6e3aa6907fff",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:10:31.636Z"
+  },
+  {
+    "id": "460a56c0-a952-4d5b-a2bd-cfb324212e1e",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:17:12.430Z"
+  },
+  {
+    "id": "ad2f94ff-dfd0-4c0d-af58-064f41e3e5cb",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:17:12.663Z"
+  },
+  {
+    "id": "ef10a936-9488-40b5-8733-8b57aea2356b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:18:39.805Z"
+  },
+  {
+    "id": "7a06e88b-23bd-4ab2-8c14-536041603c84",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:18:40.014Z"
+  },
+  {
+    "id": "8575da59-155e-46c2-b2fa-75945d2a77e3",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:21:23.364Z"
+  },
+  {
+    "id": "185c6723-7e9a-4566-8e94-78a5c8f52727",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:21:23.574Z"
+  },
+  {
+    "id": "7326ea7d-0924-4c55-9926-e296086050a5",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:22:14.822Z"
+  },
+  {
+    "id": "99e5bd05-ba51-4192-a965-94ea22616ffc",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:25:36.763Z"
+  },
+  {
+    "id": "a0d09139-4112-4569-ae0c-0474abef5468",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:25:36.997Z"
+  },
+  {
+    "id": "3839e239-aa25-4b5f-afc2-ad439772af32",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:26:01.552Z"
+  },
+  {
+    "id": "42a0fc11-3d75-44eb-bee4-c933f1f58ae4",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:26:01.824Z"
+  },
+  {
+    "id": "d9a8a720-f60b-48a7-9d27-e96a008d9630",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:26:36.589Z"
+  },
+  {
+    "id": "7d66999a-9e3f-465e-8fe3-3737b551b789",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:26:36.802Z"
+  },
+  {
+    "id": "9dcc0eb6-a607-4c4e-a649-4aa5f516afdd",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:26:55.885Z"
+  },
+  {
+    "id": "527ce839-8a93-4ec9-bbde-44ec0a6c0055",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:28:56.034Z"
+  },
+  {
+    "id": "3213346e-bb47-4d82-897f-cce06bbaddf4",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:28:56.267Z"
+  },
+  {
+    "id": "6d7c3dc9-bbf0-473b-bc21-d3e7e82848ca",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:29:25.931Z"
+  },
+  {
+    "id": "484efb4b-2bc4-471b-97e4-d8f687e6ae3d",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:29:26.145Z"
+  },
+  {
+    "id": "87d6d646-51c2-40ce-8c21-7eb28fcbfaa2",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:29:55.200Z"
+  },
+  {
+    "id": "55e7b10d-34df-4c80-9820-5f213c738161",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:32:33.430Z"
+  },
+  {
+    "id": "099df287-5f2c-4db2-9c5a-f7cf8d44cce5",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:32:33.639Z"
+  },
+  {
+    "id": "0807cbb8-744c-4c87-808c-4ac3a695ec16",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:35:43.629Z"
+  },
+  {
+    "id": "ae960b42-71ad-487a-a0d6-78152c86d5e7",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:35:43.871Z"
+  },
+  {
+    "id": "4397418f-6c18-43a6-b17b-737fd448b73a",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "setup_save",
+    "details": "{\"url\":\"/save-setup\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"metaAccessToken\",\"metaAccountId\",\"chatworkApiToken\",\"chatworkRoomId\",\"goal_type\",\"daily_report_enabled\",\"daily_report_time\",\"update_notifications_enabled\",\"alert_notifications_enabled\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T10:36:47.802Z"
+  },
+  {
+    "id": "05ca0d75-e7d2-4d7f-802e-9595db5feefb",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:41:04.669Z"
+  },
+  {
+    "id": "68147d45-ebce-4b33-9b0a-e1fefcf3d5bb",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T10:41:04.886Z"
+  },
+  {
+    "id": "15bcb354-0eb9-4d9c-a778-88bb7b08eeaa",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:05:26.767Z"
+  },
+  {
+    "id": "81a18265-2fa1-439f-86ed-08d1c31c992e",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:05:26.989Z"
+  },
+  {
+    "id": "bc9e46b2-bb1a-4d57-9ec8-e23b1b354727",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:14:35.998Z"
+  },
+  {
+    "id": "32851d03-59cc-460e-903f-626d9d28fc6b",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:14:36.235Z"
+  },
+  {
+    "id": "24191788-ca7b-4720-ac31-027dc20d266f",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:18:54.344Z"
+  },
+  {
+    "id": "c8031865-ed75-48e8-ac0f-706f36790fab",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:18:54.589Z"
+  },
+  {
+    "id": "466afc0e-d94e-4449-a42d-89b993e0cd69",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:20:44.998Z"
+  },
+  {
+    "id": "4e114fa8-8de1-4bc1-b73e-e71cf3aa7962",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:20:45.249Z"
+  },
+  {
+    "id": "8c3d53d8-0bde-4276-92bb-044584668bcd",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:27:20.756Z"
+  },
+  {
+    "id": "b34bc28f-49b4-4363-9c4b-476d75e34a1f",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:27:20.972Z"
+  },
+  {
+    "id": "33b30eef-d3b1-4fdf-88d8-5c51fca36038",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:29:23.234Z"
+  },
+  {
+    "id": "77954fad-13d6-4564-a9ff-52742df8bbe8",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:29:23.471Z"
+  },
+  {
+    "id": "8ab2c2be-c17c-4123-8702-2ddb50e7a948",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:37:58.126Z"
+  },
+  {
+    "id": "587d8afa-0e4b-4762-bcdd-59a52a080d9f",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:37:58.130Z"
+  },
+  {
+    "id": "0d8b630f-5b4b-48c5-8c40-6f673fdb13a3",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:38:49.812Z"
+  },
+  {
+    "id": "a28c668d-49fb-4833-97a8-a9bc2bc0dad6",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:38:49.814Z"
+  },
+  {
+    "id": "fa2b570e-d8e6-445c-8173-688820f85870",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:48:03.512Z"
+  },
+  {
+    "id": "06a9a7d9-3796-4d65-ab23-56472f9dd3ba",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:48:03.514Z"
+  },
+  {
+    "id": "c4bdf047-860b-4ed8-bc10-bec28a15e306",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:50:44.133Z"
+  },
+  {
+    "id": "da198555-0ee2-43f8-9f76-5eb538195ba1",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:50:44.372Z"
+  },
+  {
+    "id": "e0d271c1-9bd2-4862-8d14-c3d7773d5596",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:50:48.267Z"
+  },
+  {
+    "id": "988129da-0738-4eaf-a576-4558710f9742",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T11:50:48.509Z"
+  },
+  {
+    "id": "11d06b9a-79d8-492b-a9b1-5c7b24f956d5",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:58:09.480Z"
+  },
+  {
+    "id": "cabfdcf4-c27a-4ebc-85e9-7073b98a7823",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:58:09.484Z"
+  },
+  {
+    "id": "2b35990b-0eef-44d6-980e-362970bbbce1",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:59:21.222Z"
+  },
+  {
+    "id": "aefef3c3-e818-461f-ae8c-35ae4d3b9e21",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T11:59:21.223Z"
+  },
+  {
+    "id": "e493cfd1-b83c-447e-b696-e80306ff08b2",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T13:17:03.360Z"
+  },
+  {
+    "id": "e8b1ff3b-3d87-40af-ab92-97ca69edefbd",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T13:17:03.664Z"
+  },
+  {
+    "id": "014454db-3f39-4726-82cd-b61cd48d2e81",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T13:49:20.772Z"
+  },
+  {
+    "id": "e54146ad-7fce-424c-9272-194bca5c6b33",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T13:49:21.316Z"
+  },
+  {
+    "id": "cec9973a-d6b7-4b87-bc49-e12877b2397d",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:10:20.979Z"
+  },
+  {
+    "id": "f93f4d18-2342-4a13-aa22-4375e54c492b",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:10:21.201Z"
+  },
+  {
+    "id": "6ca8e085-0f07-498f-ae1e-900a907e9569",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:10:44.023Z"
+  },
+  {
+    "id": "36356dd8-4a88-47c5-8350-daa6b33c6349",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:10:44.232Z"
+  },
+  {
+    "id": "d76a1ed4-171f-4dc5-ac2d-aef0ed2985e4",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:12:27.500Z"
+  },
+  {
+    "id": "c7c908e6-833c-4825-aa51-3847e7ba6a34",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:12:27.735Z"
+  },
+  {
+    "id": "5b138363-9fb2-416c-8269-b19f46dac9cc",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:28:14.583Z"
+  },
+  {
+    "id": "8808631b-0ffa-43eb-8a24-f9fdf31be867",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:28:14.792Z"
+  },
+  {
+    "id": "62e4cb06-0567-44a3-a28d-7a1e99ae2a49",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:30:07.109Z"
+  },
+  {
+    "id": "a5908132-526e-4b03-9bf0-0ceeb7a04e48",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:30:07.315Z"
+  },
+  {
+    "id": "38edb6dd-cb87-4feb-a328-20eda2d305d5",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:31:40.425Z"
+  },
+  {
+    "id": "51d3fdae-2e41-4f24-a228-018efe43297d",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:31:40.668Z"
+  },
+  {
+    "id": "0c23c297-6e7f-4534-b510-82610e2846a7",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:31:44.772Z"
+  },
+  {
+    "id": "d1e5eca8-fc08-4da3-b2c8-3d2e86ffb845",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:31:45.005Z"
+  },
+  {
+    "id": "51ef495b-ea16-4a75-8c53-56fe594361de",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:31:50.392Z"
+  },
+  {
+    "id": "0a544c16-0c9e-405c-ae8e-f74b64c7545e",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:31:50.630Z"
+  },
+  {
+    "id": "4f0268de-26dc-41f2-941f-23bac1df4187",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:32:01.987Z"
+  },
+  {
+    "id": "c11d8809-5ddf-42d7-aa3e-6a8ae8108d85",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:32:02.222Z"
+  },
+  {
+    "id": "f72559a8-9229-46ef-927e-ed9a609bb9cd",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:39:25.179Z"
+  },
+  {
+    "id": "59ccd525-5472-4fc0-8e89-27e71b69e1db",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:39:25.387Z"
+  },
+  {
+    "id": "01e406e8-88d9-4819-8137-10fc91396dc0",
+    "user_id": null,
+    "action": "user_register",
+    "details": "{\"url\":\"/register\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"confirmPassword\",\"name\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:39:38.964Z"
+  },
+  {
+    "id": "431f3616-f39b-4f8e-b791-595c773d3a2a",
+    "user_id": null,
+    "action": "user_register",
+    "details": "{\"url\":\"/register\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"confirmPassword\",\"username\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:39:51.985Z"
+  },
+  {
+    "id": "8aa8bbd1-1cc0-49ab-9ad8-01c72b938bb3",
+    "user_id": "8bc1673b-15bf-4399-bccf-07b6ddbe3a88",
+    "action": "user_registered",
+    "details": "New user registration",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:39:52.199Z"
+  },
+  {
+    "id": "106c47df-57a3-4b6e-9d9a-8427d7d53885",
+    "user_id": null,
+    "action": "user_register",
+    "details": "{\"url\":\"/register\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"username\",\"email\",\"password\",\"confirmPassword\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:44:57.603Z"
+  },
+  {
+    "id": "fa035d4b-eb13-4113-a3ec-6fc7006dedc2",
+    "user_id": "efd84e75-3c6b-41d7-b895-27fdeec534fa",
+    "action": "user_registered",
+    "details": "New user registration",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:44:57.856Z"
+  },
+  {
+    "id": "11e2ffb2-6714-41e6-8c2b-1b215cee853b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:45:06.748Z"
+  },
+  {
+    "id": "c28800e7-75c2-47ce-a2ec-1ebb7cd2ecf2",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komi19931112@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:45:06.987Z"
+  },
+  {
+    "id": "f87106a0-aed2-483a-b298-42d3264fb054",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:45:14.957Z"
+  },
+  {
+    "id": "809493f3-826e-48cc-830d-189026b47a36",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:45:15.201Z"
+  },
+  {
+    "id": "1720c25b-81ea-4bc8-b2cb-aa3fe7ca6f30",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:51:25.019Z"
+  },
+  {
+    "id": "2f0cfd71-8a57-4876-83e0-528fb27877af",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:51:25.232Z"
+  },
+  {
+    "id": "227d07b6-2269-4322-a8fd-18a5d96e2423",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:56:42.603Z"
+  },
+  {
+    "id": "360abad8-b8d0-42b3-ae90-22cff210a1bf",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T14:56:42.819Z"
+  },
+  {
+    "id": "2258b926-3f5a-4596-8b31-d8692742d066",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:58:17.415Z"
+  },
+  {
+    "id": "557411fa-1c0b-48c7-974a-7f199134ef8e",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:58:17.660Z"
+  },
+  {
+    "id": "c7f6a148-d5f1-4467-81af-30420ce3c798",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\",\"rememberMe\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:58:48.633Z"
+  },
+  {
+    "id": "b57568bc-84ad-473b-8cbe-d4183d06e322",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "created_at": "2025-09-09T14:58:48.880Z"
+  },
+  {
+    "id": "2e5e5f3c-b342-473f-9415-b52fd005b79c",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:01:18.008Z"
+  },
+  {
+    "id": "4e0408bf-bee8-484b-9519-3dd2e4481939",
+    "user_id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:01:18.287Z"
+  },
+  {
+    "id": "7c558486-b40a-4eac-9896-1b02093c1881",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:01:25.575Z"
+  },
+  {
+    "id": "2e799920-67e9-472d-97e7-6881445b6dd4",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for admin@test.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:01:25.793Z"
+  },
+  {
+    "id": "9be78b83-ecd9-41f5-8cfd-3e8b56a5a2a1",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:02:46.304Z"
+  },
+  {
+    "id": "8ec57d12-a537-45f3-891e-36650d79971b",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for testuser2@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:02:46.514Z"
+  },
+  {
+    "id": "366ef03a-1c31-48a0-8bca-5be6c5dd7cbe",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:47.997Z"
+  },
+  {
+    "id": "34e9ac63-423e-4667-86de-2d5f939214b6",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komi19931112@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:48.229Z"
+  },
+  {
+    "id": "e01ac18a-b2c7-4d5e-bdb0-89e25ef2aded",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:48.239Z"
+  },
+  {
+    "id": "5b440c0d-0e70-4126-8552-fafb8a62c50d",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komi19931112@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:48.465Z"
+  },
+  {
+    "id": "eed63f5c-d9a3-44c0-a2c0-78572222cb9a",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:48.478Z"
+  },
+  {
+    "id": "8e4ba3c0-223d-4f89-8fd4-56169d0d20ca",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komi19931112@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:48.705Z"
+  },
+  {
+    "id": "26c1ba7f-b718-4c00-b2d1-5b75ed854918",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:56.961Z"
+  },
+  {
+    "id": "2853b3ef-605f-4663-ac2f-58fccc381260",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for <script>alert('xss')</script>",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-09T15:04:56.965Z"
   }
 ]

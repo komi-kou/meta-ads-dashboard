@@ -19,5 +19,39 @@
     "alert_notifications_enabled": true,
     "created_at": "2025-07-26T02:42:12.979Z",
     "updated_at": "2025-07-26T02:42:12.979Z"
+  },
+  {
+    "id": "59df6e57-568e-4f8b-896c-59d408761624",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "meta_access_token": "EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F",
+    "meta_account_id": "act_1165556408678089",
+    "meta_app_id": "",
+    "chatwork_token": "10e7538af625f74890e0f0bc4747c976",
+    "chatwork_room_id": "408053863",
+    "service_goal": "toC_newsletter",
+    "target_cpa": 0,
+    "target_cpm": 0,
+    "target_ctr": 0,
+    "notifications_enabled": true,
+    "daily_report_enabled": true,
+    "update_notifications_enabled": true,
+    "alert_notifications_enabled": true,
+    "updated_at": "2025-09-08T16:58:18.235Z"
+  },
+  {
+    "id": "3fae2abd-c6e5-470f-a7a5-68cd062b4baf",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "meta_access_token": "EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F",
+    "meta_account_id": "act_1165556408678089",
+    "chatwork_room_id": "408053863",
+    "service_goal": "toB_newsletter",
+    "target_cpa": 7000,
+    "target_cpm": 1500,
+    "target_ctr": 1,
+    "notifications_enabled": true,
+    "daily_report_enabled": true,
+    "update_notifications_enabled": true,
+    "alert_notifications_enabled": true,
+    "updated_at": "2025-09-09T11:23:17.821Z"
   }
 ]

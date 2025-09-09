@@ -403,7 +403,7 @@
                 <div>🎯 目標設定: <span id="step-goals">未設定</span></div>
             </div>
         </div>
-        <form method="POST" action="/save-setup" id="setupForm" class="setup-content">
+        <form method="POST" action="/setup" id="setupForm" class="setup-content">
             <input type="hidden" name="csrfToken" value="<%= csrfToken %>">
             <!-- API連携セクション -->
             <div class="api-section">
@@ -543,64 +543,64 @@
         // ゴール別目標数値設定（拡張版）
         const goalTargets = {
             toC_newsletter: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 1000, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 1000, unit: '円', label: '日予算' },
                 ctr: { min: 2.5, unit: '%', label: 'CTR' },
                 cpm: { max: 1000, unit: '円', label: 'CPM' },
                 cpa: { max: 2000, unit: '円', label: 'CPA' },
                 cv: { min: 1, unit: '件/日', label: 'CV' }
             },
             toC_line: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 1000, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 1000, unit: '円', label: '日予算' },
                 ctr: { min: 2.5, unit: '%', label: 'CTR' },
                 cpm: { max: 800, unit: '円', label: 'CPM' },
                 cpa: { max: 1000, unit: '円', label: 'CPA' },
                 cv: { min: 1, unit: '件/日', label: 'CV' }
             },
             toC_phone: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 1500, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 1500, unit: '円', label: '日予算' },
                 ctr: { min: 2.0, unit: '%', label: 'CTR' },
                 cpm: { max: 1200, unit: '円', label: 'CPM' },
                 cpa: { max: 3000, unit: '円', label: 'CPA' },
                 cv: { min: 1, unit: '件/日', label: 'CV' }
             },
             toC_purchase: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 2000, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 2000, unit: '円', label: '日予算' },
                 ctr: { min: 1.8, unit: '%', label: 'CTR' },
                 cpm: { max: 1500, unit: '円', label: 'CPM' },
                 cpa: { max: 5000, unit: '円', label: 'CPA' },
                 cv: { min: 1, unit: '件/日', label: 'CV' }
             },
             toB_newsletter: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 3000, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 3000, unit: '円', label: '日予算' },
                 ctr: { min: 1.5, unit: '%', label: 'CTR' },
                 cpm: { max: 2000, unit: '円', label: 'CPM' },
                 cpa: { max: 15000, unit: '円', label: 'CPA' },
                 cv: { min: 1, unit: '件/日', label: 'CV' }
             },
             toB_line: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 2500, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 2500, unit: '円', label: '日予算' },
                 ctr: { min: 1.5, unit: '%', label: 'CTR' },
                 cpm: { max: 1800, unit: '円', label: 'CPM' },
                 cpa: { max: 12000, unit: '円', label: 'CPA' },
                 cv: { min: 1, unit: '件/日', label: 'CV' }
             },
             toB_phone: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 4000, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 4000, unit: '円', label: '日予算' },
                 ctr: { min: 1.2, unit: '%', label: 'CTR' },
                 cpm: { max: 2500, unit: '円', label: 'CPM' },
                 cpa: { max: 20000, unit: '円', label: 'CPA' },
                 cv: { min: 1, unit: '件/日', label: 'CV' }
             },
             toB_purchase: {
-                budgetRate: { min: 80, unit: '%', label: '予算消化率' },
-                dailyBudget: { min: 5000, unit: '円', label: '日予算' },
+                budget_rate: { min: 80, unit: '%', label: '予算消化率' },
+                daily_budget: { min: 5000, unit: '円', label: '日予算' },
                 ctr: { min: 1.0, unit: '%', label: 'CTR' },
                 cpm: { max: 3000, unit: '円', label: 'CPM' },
                 cpa: { max: 30000, unit: '円', label: 'CPA' },
@@ -1045,8 +1045,15 @@ Meta広告レポートツールの設定が完了しました。
         }
 
         // フォーム送信時の処理（改善版）
-        document.getElementById('setupForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        document.getElementById('setupForm').addEventListener('submit', function(e) {
+            // 通常のフォーム送信を使用
+            return true;
+        });
+        
+        /* 以下の非同期処理はコメントアウト
+        document.getElementById('setupForm').addEventListener('submit__disabled', async function(e) {
+            // 通常のフォーム送信を許可
+            // e.preventDefault();
             
             console.log('=== フォーム送信デバッグ ===');
             console.log('送信先URL: /save-setup');
@@ -1068,6 +1075,12 @@ Meta広告レポートツールの設定が完了しました。
                 chatworkApiToken: formData.get('chatworkApiToken'),
                 chatworkRoomId: formData.get('chatworkRoomId'),
                 goal_type: formData.get('goal_type'),
+                target_budget_rate: formData.get('target_budget_rate'),
+                target_daily_budget: formData.get('target_daily_budget'),
+                target_ctr: formData.get('target_ctr'),
+                target_cpm: formData.get('target_cpm'),
+                target_cpa: formData.get('target_cpa'),
+                target_cv: formData.get('target_cv'),
                 daily_report_enabled: formData.get('daily_report_enabled'),
                 daily_report_time: formData.get('daily_report_time'),
                 update_notifications_enabled: formData.get('update_notifications_enabled'),
@@ -1084,7 +1097,7 @@ Meta広告レポートツールの設定が完了しました。
             try {
                 console.log('fetchリクエスト送信中...');
                 console.log('CSRF Token:', setupData.csrfToken);
-                const response = await fetch('/save-setup', {
+                const response = await fetch('/setup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1117,7 +1130,7 @@ Meta広告レポートツールの設定が完了しました。
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🚀 設定完了してダッシュボードを開始';
             }
-        });
+        }); */
         
         // 成功メッセージ表示関数
         function showSuccessMessage(message) {

@@ -1,0 +1,14 @@
+{
+  "meta_access_token": "EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F",
+  "meta_account_id": "act_1165556408678089",
+  "chatwork_api_token": "10e7538af625f74890e0f0bc4747c976",
+  "chatwork_room_id": "408053863",
+  "service_goal": "",
+  "target_cpa": "",
+  "target_cpm": "",
+  "target_ctr": "",
+  "enable_scheduler": true,
+  "schedule_hours": [9, 12, 15, 17, 19],
+  "enable_chatwork": true,
+  "enable_alerts": true
+}
