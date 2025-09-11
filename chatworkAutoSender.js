@@ -458,8 +458,8 @@ http://localhost:3000/dashboard`;
 
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${dashboardData.ctr || '0.00'}%
-CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
+CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
+CPM（平均）：${Math.round(dashboardData.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
 フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
 コンバージョン数：${dashboardData.conversions || 0}件  
@@ -567,7 +567,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             console.log(`✅ ユーザー設定取得成功: ${userId}`);
             return {
                 chatwork: {
-                    apiToken: userSettings.chatwork_token,
+                    apiToken: userSettings.chatwork_api_token,  // フィールド名を修正
                     roomId: userSettings.chatwork_room_id
                 }
             };
@@ -664,10 +664,10 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${dashboardData.ctr || '0.00'}%
-CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
+CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
+CPM（平均）：${Math.round(dashboardData.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${dashboardData.frequency || '0.00'}%
+フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
 コンバージョン数：${dashboardData.conversions || 0}件  
 
 確認はこちら
