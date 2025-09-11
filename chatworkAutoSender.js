@@ -49,10 +49,24 @@ class ChatworkAutoSender {
     }
 
     // 送信履歴をチェック（重複送信防止）- 時間単位に変更
-    checkSentHistory(type, date = null) {
+    checkSentHistory(type, date = null, alertIds = null) {
         const now = new Date();
         const today = now.toISOString().split('T')[0];
         const currentHour = now.getHours();
+        
+        // アラートの場合は、アラートIDを使用して重複チェック
+        if (type === 'alert' && alertIds && alertIds.length > 0) {
+            const alertKey = `alert_${alertIds.sort().join('_')}`;
+            if (this.sentHistory.has(alertKey)) {
+                console.log(`⚠️ これらのアラートは既に送信済みです: ${alertKey}`);
+                return false;
+            }
+            this.sentHistory.set(alertKey, new Date().toISOString());
+            console.log(`✅ アラート送信履歴を記録: ${alertKey}`);
+            return true;
+        }
+        
+        // 通常の重複チェック
         const key = `${type}_${date || today}_${currentHour}`;
         
         if (this.sentHistory.has(key)) {
@@ -290,13 +304,97 @@ class ChatworkAutoSender {
         if (!actions || !Array.isArray(actions)) return 0;
         
         let total = 0;
-        const conversionTypes = ['purchase', 'lead', 'complete_registration', 'add_to_cart'];
+        let detectedEvents = [];
+        
+        // Meta標準コンバージョンイベント + カスタムコンバージョンイベント
+        const conversionTypes = [
+            // 標準イベント
+            'purchase', 
+            'lead', 
+            'complete_registration', 
+            'add_to_cart',
+            'initiate_checkout',
+            'add_payment_info',
+            'subscribe',
+            'start_trial',
+            'submit_application',
+            'schedule',
+            'contact',
+            'donate'
+        ];
+        
+        // 重複カウント防止 - 同じ値の異なるアクションタイプは同一CVの可能性が高い
+        const conversionsByValue = {};
         
         actions.forEach(action => {
+            let shouldCount = false;
+            let eventType = action.action_type;
+            let priority = 0; // 優先度（高い方を採用）
+            
+            // 標準的なコンバージョンタイプをチェック
             if (conversionTypes.includes(action.action_type)) {
-                total += parseInt(action.value || 0);
+                shouldCount = true;
+                priority = 10;
+            }
+            // offsite_conversion プレフィックスを持つアクション（ただしview_contentは除外）
+            else if (action.action_type && action.action_type.startsWith('offsite_conversion.') &&
+                     !action.action_type.includes('view_content')) {
+                shouldCount = true;
+                priority = 8;
+                if (action.action_type === 'offsite_conversion.fb_pixel_custom') {
+                    eventType = 'カスタムCV';
+                }
+            }
+            // onsite_conversion プレフィックスを持つすべてのアクション
+            else if (action.action_type && action.action_type.startsWith('onsite_conversion.')) {
+                shouldCount = true;
+                priority = 7;
+            }
+            // Metaリード広告のコンバージョン（最優先）
+            else if (action.action_type && action.action_type.includes('meta_leads')) {
+                shouldCount = true;
+                eventType = 'Metaリード';
+                priority = 15; // 最優先
+            }
+            // offsite_content_view系のコンバージョン（リード広告など）
+            else if (action.action_type && action.action_type.startsWith('offsite_content_view_add_')) {
+                shouldCount = true;
+                eventType = 'リード広告CV';
+                priority = 12;
+            }
+            // omni プレフィックスを持つコンバージョン系アクション
+            else if (action.action_type && action.action_type.startsWith('omni_') && 
+                     ['purchase', 'lead', 'complete_registration', 'add_to_cart', 'initiated_checkout'].some(type => 
+                        action.action_type.includes(type))) {
+                shouldCount = true;
+                priority = 6;
+            }
+            // その他のlead関連アクション
+            else if (action.action_type && action.action_type.toLowerCase().includes('lead')) {
+                shouldCount = true;
+                priority = 5;
+            }
+            
+            if (shouldCount) {
+                const value = parseInt(action.value || 0);
+                
+                // 重複チェック：同じ値のコンバージョンは優先度が高い方のみカウント
+                if (!conversionsByValue[value] || conversionsByValue[value].priority < priority) {
+                    if (conversionsByValue[value]) {
+                        // 既存の値を減算
+                        total -= value;
+                    }
+                    conversionsByValue[value] = { priority, eventType };
+                    total += value;
+                    detectedEvents.push(`${eventType}: ${value}`);
+                }
             }
         });
+        
+        // デバッグ用ログ（本番環境では削除可能）
+        if (detectedEvents.length > 0) {
+            console.log('検出されたコンバージョン:', detectedEvents.join(', '));
+        }
         
         return total;
     }
@@ -345,17 +443,26 @@ class ChatworkAutoSender {
                     
                     console.log(`🧪 テストモード: 過去3日間のアクティブアラート数: ${filteredAlerts.length}件`);
                 } else {
-                    // 通常モード：今日のアラートのみをフィルタリング
-                    const today = new Date();
-                    const todayStr = today.toISOString().split('T')[0];
+                    // 通常モード：過去24時間以内のアクティブなアラートを取得
+                    const twentyFourHoursAgo = new Date();
+                    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
                     
                     filteredAlerts = alertHistory.filter(alert => {
                         const alertDate = new Date(alert.timestamp);
-                        const alertDateStr = alertDate.toISOString().split('T')[0];
-                        return alertDateStr === todayStr && alert.status === 'active';
+                        return alertDate >= twentyFourHoursAgo && alert.status === 'active';
                     });
                     
-                    console.log(`📊 今日のアラート数: ${filteredAlerts.length}件`);
+                    console.log(`📊 過去24時間のアラート数: ${filteredAlerts.length}件`);
+                    
+                    // さらに、アラートがない場合は最新のアクティブなアラートを最大5件取得
+                    if (filteredAlerts.length === 0) {
+                        const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+                        // タイムスタンプでソート（新しい順）
+                        activeAlerts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        // 最新5件を取得
+                        filteredAlerts = activeAlerts.slice(0, 5);
+                        console.log(`📝 最新のアクティブアラート数: ${filteredAlerts.length}件`);
+                    }
                 }
 
                 // 重複を除去（同じmetricの最新のアラートのみを保持）
@@ -494,15 +601,16 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
     async sendAlertNotification(isTestMode = false) {
         console.log('🚨 アラート通知送信開始');
         
-        // 重複送信チェック（テストモード時はスキップ）
-        if (!isTestMode && !this.checkSentHistory('alert')) {
-            console.log('⚠️ アラート通知は既に送信済みです');
+        const todayAlerts = this.getAlertHistory(isTestMode);
+        if (todayAlerts.length === 0) {
+            console.log('📝 送信可能なアラートはありません');
             return;
         }
         
-        const todayAlerts = this.getAlertHistory(isTestMode);
-        if (todayAlerts.length === 0) {
-            console.log('📝 今日のアラートはありません');
+        // アラートIDを取得して重複送信チェック（テストモード時はスキップ）
+        const alertIds = todayAlerts.map(alert => alert.id || alert.metric);
+        if (!isTestMode && !this.checkSentHistory('alert', null, alertIds)) {
+            console.log('⚠️ これらのアラートは既に送信済みです');
             return;
         }
 
@@ -567,7 +675,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             console.log(`✅ ユーザー設定取得成功: ${userId}`);
             return {
                 chatwork: {
-                    apiToken: userSettings.chatwork_api_token,  // フィールド名を修正
+                    apiToken: userSettings.chatwork_token,
                     roomId: userSettings.chatwork_room_id
                 }
             };
@@ -696,7 +804,14 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
         
         const todayAlerts = this.getAlertHistory(isTestMode);
         if (todayAlerts.length === 0) {
-            console.log('📝 今日のアラートはありません');
+            console.log('📝 送信可能なアラートはありません');
+            return;
+        }
+        
+        // アラートIDを取得して重複送信チェック（テストモード時はスキップ）
+        const alertIds = todayAlerts.map(alert => alert.id || alert.metric);
+        if (!isTestMode && !this.checkSentHistory(`alert_user_${userId}`, null, alertIds)) {
+            console.log('⚠️ これらのアラートは既にこのユーザーに送信済みです');
             return;
         }
 
