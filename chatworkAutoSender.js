@@ -2,7 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 const axios = require('axios');
-const tokenManager = require('./tokenManager');
+// tokenManagerは必要に応じて読み込む
+let tokenManager;
+try {
+    tokenManager = require('./tokenManager');
+} catch (error) {
+    console.log('⚠️ tokenManagerは利用できません');
+}
 
 class ChatworkAutoSender {
     constructor() {
@@ -879,24 +885,26 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
         });
 
         // アクセストークン更新通知: 期限1週間前に1回のみ送信
-        cron.schedule('0 9 * * *', async () => {
-            console.log('🔑 アクセストークン更新通知チェック実行');
-            try {
-                const checkResult = await tokenManager.checkTokenExpiry();
-                
-                if (checkResult.shouldNotify) {
-                    console.log('⚠️ トークン期限警告送信');
-                    await this.sendTokenUpdateNotification();
-                    await tokenManager.markNotificationSent();
-                } else {
-                    console.log(`ℹ️ トークン期限チェック: ${checkResult.reason}`);
+        if (tokenManager) {
+            cron.schedule('0 9 * * *', async () => {
+                console.log('🔑 アクセストークン更新通知チェック実行');
+                try {
+                    const checkResult = await tokenManager.checkTokenExpiry();
+                    
+                    if (checkResult.shouldNotify) {
+                        console.log('⚠️ トークン期限警告送信');
+                        await this.sendTokenUpdateNotification();
+                        await tokenManager.markNotificationSent();
+                    } else {
+                        console.log(`ℹ️ トークン期限チェック: ${checkResult.reason}`);
+                    }
+                } catch (error) {
+                    console.error('❌ トークン期限チェックエラー:', error);
                 }
-            } catch (error) {
-                console.error('❌ トークン期限チェックエラー:', error);
-            }
-        }, {
-            timezone: 'Asia/Tokyo'
-        });
+            }, {
+                timezone: 'Asia/Tokyo'
+            });
+        }
 
         console.log('✅ チャットワーク自動送信スケジューラー設定完了');
     }

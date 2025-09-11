@@ -8,7 +8,7 @@
     "currentValue": 0,
     "severity": "critical",
     "timestamp": "2025-09-09T11:28:56.840Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -44,7 +44,8 @@
         "CVボタンのデザイン・文言・配置を最適化してクリック率を向上させる",
         "ファーストビューでCV価値を明確に伝えるメッセージに改善する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.366Z"
   },
   {
     "id": "ctr_1757417336840",
@@ -55,7 +56,7 @@
     "currentValue": 0.6,
     "severity": "critical",
     "timestamp": "2025-09-09T11:28:56.840Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -86,7 +87,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.366Z"
   },
   {
     "id": "cpm_1757417336840",
@@ -97,7 +99,7 @@
     "currentValue": 1526,
     "severity": "warning",
     "timestamp": "2025-09-09T11:28:56.840Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -111,7 +113,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "キャンペーンを複製する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "ctr_1757416998298",
@@ -122,7 +125,7 @@
     "currentValue": 0.6,
     "severity": "critical",
     "timestamp": "2025-09-09T11:23:18.298Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -153,7 +156,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "cpm_1757416998298",
@@ -164,7 +168,7 @@
     "currentValue": 1526,
     "severity": "warning",
     "timestamp": "2025-09-09T11:23:18.298Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -178,7 +182,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "キャンペーンを複製する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "ctr_1757416984251",
@@ -189,7 +194,7 @@
     "currentValue": 0.6,
     "severity": "critical",
     "timestamp": "2025-09-09T11:23:04.251Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -220,7 +225,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "cpm_1757416984251",
@@ -231,7 +237,7 @@
     "currentValue": 1526,
     "severity": "warning",
     "timestamp": "2025-09-09T11:23:04.251Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -245,7 +251,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "キャンペーンを複製する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "ctr_1757415954815",
@@ -256,7 +263,7 @@
     "currentValue": 0.6,
     "severity": "critical",
     "timestamp": "2025-09-09T11:05:54.815Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -287,7 +294,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "cpm_1757415954815",
@@ -298,7 +306,7 @@
     "currentValue": 1526,
     "severity": "warning",
     "timestamp": "2025-09-09T11:05:54.815Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -312,7 +320,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "キャンペーンを複製する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "conversions_1757414655014",
@@ -323,7 +332,7 @@
     "currentValue": 0,
     "severity": "critical",
     "timestamp": "2025-09-09T10:44:15.014Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -359,7 +368,8 @@
         "CVボタンのデザイン・文言・配置を最適化してクリック率を向上させる",
         "ファーストビューでCV価値を明確に伝えるメッセージに改善する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "ctr_1757414655013",
@@ -370,7 +380,7 @@
     "currentValue": 0.6,
     "severity": "critical",
     "timestamp": "2025-09-09T10:44:15.013Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -401,7 +411,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "ctr_1757413121084",
@@ -412,7 +423,7 @@
     "currentValue": 0.6,
     "severity": "critical",
     "timestamp": "2025-09-09T10:18:41.084Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -443,7 +454,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "cpm_1757413121084",
@@ -454,7 +466,7 @@
     "currentValue": 1526,
     "severity": "warning",
     "timestamp": "2025-09-09T10:18:41.084Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -468,7 +480,8 @@
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "キャンペーンを複製する"
       ]
-    }
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
   },
   {
     "id": "ctr_1757412502362",
@@ -479,7 +492,7 @@
     "currentValue": 0.6,
     "severity": "critical",
     "timestamp": "2025-09-09T10:08:22.362Z",
-    "status": "active",
+    "status": "resolved",
     "checkItems": [
       {
         "priority": 1,
@@ -509,6 +522,174 @@
       "配信するユーザー層が見込み顧客ではない": [
         "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する（獲得できないユーザー層には配信しない）",
         "類似オーディエンスを活用して、見込み層の高いユーザーに配信する"
+      ]
+    },
+    "resolvedAt": "2025-09-11T06:33:14.367Z"
+  },
+  {
+    "id": "cv_test_1757572394367",
+    "userId": "test@example.com",
+    "metric": "CV",
+    "message": "CV数が目標値1件を下回っています（現在: 0件）",
+    "targetValue": 1,
+    "currentValue": 0,
+    "severity": "critical",
+    "timestamp": "2025-09-11T06:33:14.367Z",
+    "status": "resolved",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "クリエイティブの効果確認",
+        "description": "現在のクリエイティブがターゲット層に響いているか確認"
+      },
+      {
+        "priority": 2,
+        "title": "ターゲティング設定の見直し",
+        "description": "配信対象が適切か再確認"
+      }
+    ],
+    "improvements": {
+      "クリエイティブの効果確認": [
+        "A/Bテストで新しいクリエイティブを試す",
+        "訴求ポイントを変えてテスト配信"
+      ],
+      "ターゲティング設定の見直し": [
+        "類似オーディエンスを活用",
+        "リターゲティングの範囲を拡大"
+      ]
+    },
+    "resolvedAt": "2025-09-11T06:44:20.344Z"
+  },
+  {
+    "id": "ctr_test_1757572394368",
+    "userId": "test@example.com",
+    "metric": "CTR",
+    "message": "CTRが目標値1.0%を下回っています（現在: 0.6%）",
+    "targetValue": 1,
+    "currentValue": 0.6,
+    "severity": "warning",
+    "timestamp": "2025-09-11T06:33:14.367Z",
+    "status": "resolved",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "広告疲労の確認",
+        "description": "同じ広告を長期間配信していないか確認"
+      }
+    ],
+    "improvements": {
+      "広告疲労の確認": [
+        "新しいクリエイティブに差し替える",
+        "配信頻度を調整する"
+      ]
+    },
+    "resolvedAt": "2025-09-11T06:44:20.348Z"
+  },
+  {
+    "id": "cpm_test_1757572394369",
+    "userId": "test@example.com",
+    "metric": "CPM",
+    "message": "CPMが目標値1,500円を上回っています（現在: 1,800円）",
+    "targetValue": 1500,
+    "currentValue": 1800,
+    "severity": "warning",
+    "timestamp": "2025-09-11T06:33:14.367Z",
+    "status": "resolved",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "競合状況の確認",
+        "description": "同じターゲット層への競合が増加していないか確認"
+      }
+    ],
+    "improvements": {
+      "競合状況の確認": [
+        "配信時間帯を調整する",
+        "ターゲティングを微調整する"
+      ]
+    },
+    "resolvedAt": "2025-09-11T06:44:20.348Z"
+  },
+  {
+    "id": "ctr_test_1757573060349",
+    "userId": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "metric": "CTR",
+    "message": "CTRが目標値1.5%を下回っています（現在: 0.6%）",
+    "targetValue": 1.5,
+    "currentValue": 0.6,
+    "severity": "critical",
+    "timestamp": "2025-09-11T06:44:20.348Z",
+    "status": "active",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "配信しているクリエイティブが刺さっていないor枯れている",
+        "description": "ありきたりのクリエイティブでユーザーに見られていない\n7日間ベースでずっと配信していて、飽きられている"
+      },
+      {
+        "priority": 2,
+        "title": "フリークエンシーが2.5%以上ある",
+        "description": "同じユーザーばかりに配信されていて、見飽きられている"
+      }
+    ],
+    "improvements": {
+      "配信しているクリエイティブが刺さっていないor枯れている": [
+        "過去7日間ベースで予算が寄っておらずCVも取れていないクリエイティブを差し替える",
+        "過去7日間ベースで予算は寄っているけど目標CPAに達しておらずクリック率も目標以下のクリエイティブは差し替える"
+      ],
+      "フリークエンシーが2.5%以上ある": [
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を広げて配信する",
+        "キャンペーンを複製して配信するユーザー層を変える"
+      ]
+    }
+  },
+  {
+    "id": "cpm_test_1757573060350",
+    "userId": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "metric": "CPM",
+    "message": "CPMが目標値2,000円を上回っています（現在: 1,800円）",
+    "targetValue": 2000,
+    "currentValue": 1800,
+    "severity": "warning",
+    "timestamp": "2025-09-11T06:44:20.348Z",
+    "status": "active",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "最適なCPM値で配信できていない",
+        "description": "クリエイティブが刺さっていないため入力したCPMから乖離している\n配信するユーザー層が悪いため入力したCPMから乖離している"
+      }
+    ],
+    "improvements": {
+      "最適なCPM値で配信できていない": [
+        "過去7日間ベースでCV数が獲得できていない、CPAが高騰しているクリエイティブを差し替える",
+        "広告セット内の年齢・性別・エリア・興味関心・カスタムオーディエンス・配信媒体を狭めて配信する",
+        "キャンペーンを複製する"
+      ]
+    }
+  },
+  {
+    "id": "cpa_test_1757573060386",
+    "userId": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "metric": "CPA",
+    "message": "CPAが目標値15,000円を上回っています（現在: 8,500円）",
+    "targetValue": 15000,
+    "currentValue": 8500,
+    "severity": "warning",
+    "timestamp": "2025-09-11T06:44:20.348Z",
+    "status": "active",
+    "checkItems": [
+      {
+        "priority": 1,
+        "title": "CVRが低下している",
+        "description": "広告からLPまでの導線でユーザーが離脱している"
+      }
+    ],
+    "improvements": {
+      "CVRが低下している": [
+        "LPの改善（ファーストビュー、CTA、フォーム最適化）",
+        "広告とLPの一貫性を確認",
+        "ターゲティングの精度向上"
       ]
     }
   }

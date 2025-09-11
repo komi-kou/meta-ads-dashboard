@@ -4448,13 +4448,153 @@ app.post('/api/update-targets', requireAuth, async (req, res) => {
 
 // 重複した404ハンドラーと/save-setupルートを削除（正しい場所に移動予定）
 
+// ========================================
+// 前日比アラート機能
+// ========================================
+
+// 前日比アラートAPI
+app.get('/api/day-over-day-alerts', requireAuth, async (req, res) => {
+    try {
+        console.log('=== 前日比アラートAPI呼び出し ===');
+        
+        const ChatworkAutoSender = require('./chatworkAutoSender');
+        const DayOverDayScheduler = require('./dayOverDayScheduler');
+        
+        const chatworkSender = new ChatworkAutoSender();
+        const scheduler = new DayOverDayScheduler(chatworkSender);
+        
+        // ユーザーIDを取得
+        const userId = req.session.userId || 'test@example.com';
+        
+        // 前日比アラートチェックを実行
+        const alerts = await scheduler.runDayOverDayCheck(userId);
+        
+        res.json({
+            success: true,
+            alerts: alerts,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('前日比アラートAPIエラー:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// 前日比アラートテスト送信API
+app.post('/api/test-day-over-day-alert', requireAuth, async (req, res) => {
+    try {
+        console.log('🧪 前日比アラートテスト送信開始');
+        
+        const ChatworkAutoSender = require('./chatworkAutoSender');
+        const DayOverDayScheduler = require('./dayOverDayScheduler');
+        
+        const chatworkSender = new ChatworkAutoSender();
+        const scheduler = new DayOverDayScheduler(chatworkSender);
+        
+        // ユーザーIDを取得
+        const userId = req.session.userId || 'test@example.com';
+        
+        // テスト実行
+        const alerts = await scheduler.runDayOverDayCheck(userId);
+        
+        if (alerts.length > 0) {
+            res.json({
+                success: true,
+                message: `${alerts.length}件の前日比アラートを送信しました`,
+                alerts: alerts
+            });
+        } else {
+            res.json({
+                success: true,
+                message: '前日比で大きな変化はありませんでした',
+                alerts: []
+            });
+        }
+        
+    } catch (error) {
+        console.error('前日比アラートテスト送信エラー:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// アラート手動生成API
+app.post('/api/generate-alerts-manual', requireAuth, async (req, res) => {
+    try {
+        console.log('🔧 アラート手動生成API呼び出し');
+        
+        const AlertAutoGenerator = require('./alertAutoGenerator');
+        const alertGenerator = new AlertAutoGenerator();
+        
+        // 手動実行
+        const newAlerts = await alertGenerator.runManual();
+        
+        res.json({
+            success: true,
+            message: `${newAlerts.length}件の新規アラートを生成しました`,
+            alerts: newAlerts,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('アラート手動生成エラー:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // 404ハンドリング（必ず最後に配置）
 app.use((req, res) => {
   console.log('404エラー:', req.method, req.url);
   res.status(404).send('ページが見つかりません');
 });
 
+// ========================================
+// サーバー起動とスケジューラー初期化
+// ========================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n==========================================\n✅ サーバー起動成功！\n🌐 URL: http://localhost:${PORT}\n👤 ログイン: komiya / komiya\n==========================================\n`);
+  
+  // 前日比アラートスケジューラーを起動
+  try {
+    const ChatworkAutoSender = require('./chatworkAutoSender');
+    const DayOverDayScheduler = require('./dayOverDayScheduler');
+    
+    const chatworkSender = new ChatworkAutoSender();
+    const dayOverDayScheduler = new DayOverDayScheduler(chatworkSender);
+    
+    // スケジューラーを開始
+    dayOverDayScheduler.startScheduler();
+    console.log('✅ 前日比アラートスケジューラーを起動しました');
+  } catch (error) {
+    console.error('⚠️ 前日比アラートスケジューラーの起動に失敗:', error.message);
+    console.log('   手動でアラートチェックを実行してください');
+  }
+
+  // アラート自動生成スケジューラーを起動
+  try {
+    const AlertAutoGenerator = require('./alertAutoGenerator');
+    const alertGenerator = new AlertAutoGenerator();
+    
+    // スケジューラーを開始
+    alertGenerator.startScheduler();
+    console.log('✅ アラート自動生成スケジューラーを起動しました');
+    
+    // 初回実行（サーバー起動時に1回実行）
+    setTimeout(async () => {
+      console.log('📊 初回アラート生成を実行します...');
+      await alertGenerator.runManual();
+    }, 5000); // 5秒後に実行
+  } catch (error) {
+    console.error('⚠️ アラート自動生成スケジューラーの起動に失敗:', error.message);
+  }
 });
