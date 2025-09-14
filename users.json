@@ -1,0 +1,57 @@
+[
+  {
+    "id": "e292fec3-621b-47e9-9aaf-60ccfdabc07d",
+    "email": "test@example.com",
+    "password_hash": "$2b$12$M0ShBBQq7quFmq0BOkUHuuXgcfmJ6XxoMGjK0FIE7D1Zgr/rSHYhW",
+    "username": "テストユーザー",
+    "created_at": "2025-07-23T02:39:57.650Z",
+    "last_login": "2025-09-09T15:01:18.286Z",
+    "is_active": true,
+    "login_attempts": 2,
+    "locked_until": null
+  },
+  {
+    "id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "email": "admin@test.com",
+    "password_hash": "$2b$12$S7NIAMA/zWsbZDq8KF9aa.2UrAlLQMxdxiRoXB9HSeKxV9K2TG7zi",
+    "username": "Admin",
+    "created_at": "2025-09-08T16:20:30.162Z",
+    "last_login": "2025-09-08T17:09:01.500Z",
+    "is_active": true,
+    "login_attempts": 3,
+    "locked_until": null
+  },
+  {
+    "id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "email": "komiya11122@gmail.com",
+    "password_hash": "$2b$12$z//VdmQgKJdxMAFhj09kJe87bnRZOBCW1nSzcg9rlnV2.93QDMm22",
+    "username": "横濱不動産",
+    "created_at": "2025-09-08T17:15:15.114Z",
+    "last_login": "2025-09-14T15:02:18.820Z",
+    "is_active": true,
+    "login_attempts": 0,
+    "locked_until": null
+  },
+  {
+    "id": "8bc1673b-15bf-4399-bccf-07b6ddbe3a88",
+    "email": "testuser2@example.com",
+    "password_hash": "$2b$12$5yW.cTEzhFwkVVTtBPWUkOTUKEwUgkZA/dwdfRLw0oFn98YwMzLsS",
+    "username": "テストユーザー2",
+    "created_at": "2025-09-09T14:39:52.198Z",
+    "last_login": null,
+    "is_active": true,
+    "login_attempts": 1,
+    "locked_until": null
+  },
+  {
+    "id": "efd84e75-3c6b-41d7-b895-27fdeec534fa",
+    "email": "komi19931112@gmail.com",
+    "password_hash": "$2b$12$u.iO7fqeryviukG60IlOEeGOa3fLAitoVjdU/kx75paiKF/Pw.ZQO",
+    "username": "komiya",
+    "created_at": "2025-09-09T14:44:57.855Z",
+    "last_login": null,
+    "is_active": true,
+    "login_attempts": 4,
+    "locked_until": null
+  }
+]

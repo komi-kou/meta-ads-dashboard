@@ -946,12 +946,12 @@ app.get('/alerts', requireAuth, async (req, res) => {
         console.log('現在のゴールタイプ:', currentGoalType, 'for user:', userId);
         
         // ユーザーの現在のアラートを取得（アクティブなアラート履歴から）
-        const alertHistory = await getAlertHistory();
+        const alertHistory = await getAlertHistory(userId);
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         
         const alerts = alertHistory.filter(alert => 
-            alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo
+            alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo && alert.userId === userId
         );
         console.log('=== /alertsルート詳細ログ ===');
         console.log('取得したアラート数:', alerts.length);
@@ -986,47 +986,156 @@ app.get('/alerts', requireAuth, async (req, res) => {
         console.log('   - alerts数:', alerts.length);
         console.log('   - alerts内容:', JSON.stringify(alerts, null, 2));
         
+        // ========== ハイブリッドアプローチ実装 ==========
+        
+        // Step1: 古いアラートの自動解決（7日以上前）
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        
+        // アラート履歴から7日以上前のアクティブアラートを自動解決
+        const fs = require('fs');
+        const historyPath = path.join(__dirname, 'alert_history.json');
+        if (fs.existsSync(historyPath)) {
+            try {
+                let history = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+                let resolvedCount = 0;
+                
+                history = history.map(alert => {
+                    if (alert.status === 'active' && new Date(alert.timestamp) < sevenDaysAgo) {
+                        resolvedCount++;
+                        return {
+                            ...alert,
+                            status: 'resolved',
+                            resolvedAt: new Date().toISOString(),
+                            resolvedReason: 'auto-resolved after 7 days'
+                        };
+                    }
+                    return alert;
+                });
+                
+                if (resolvedCount > 0) {
+                    fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
+                    console.log(`✅ ${resolvedCount}件の古いアラートを自動解決`);
+                }
+            } catch (error) {
+                console.error('アラート自動解決エラー:', error);
+            }
+        }
+        
         // アラートがない場合は履歴から取得またはサンプルデータを生成
         let displayAlerts = alerts;
-        if (alerts.length === 0) {
+        
+        // 施策2: 目標値更新フラグがある場合は履歴を無視して静的データを生成
+        const forceNewAlerts = req.session.targetUpdated === true;
+        if (forceNewAlerts) {
+            console.log('🔄 目標値が更新されたため、新しいアラートを生成');
+            req.session.targetUpdated = false; // フラグをリセット
+            displayAlerts = []; // 履歴を無視
+        }
+        
+        if (displayAlerts.length === 0) {
             console.log('📌 新規アラートがないため、履歴から取得');
             // アラート履歴から最新のアクティブなアラートを取得
             const historyPath = path.join(__dirname, 'alert_history.json');
-            if (fs.existsSync(historyPath)) {
+            if (fs.existsSync(historyPath) && !forceNewAlerts) {
                 try {
                     const history = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
-                    // アクティブなアラートのみを取得（最新10件まで）
+                    // 施策1: 30日以上前のアラートは除外
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    
+                    // アクティブかつ30日以内、かつ現在のユーザーのアラートのみを取得
                     displayAlerts = history
-                        .filter(alert => alert.status === 'active')
+                        .filter(alert => {
+                            const alertDate = new Date(alert.timestamp);
+                            return alert.status === 'active' && alertDate > thirtyDaysAgo && alert.userId === userId;
+                        })
                         .slice(0, 10);
-                    console.log(`📊 履歴から${displayAlerts.length}件のアクティブアラートを取得`);
+                    console.log(`📊 履歴から${displayAlerts.length}件のアクティブアラートを取得（30日以内）`);
                 } catch (error) {
                     console.error('履歴読み込みエラー:', error);
                     displayAlerts = [];
                 }
             }
             
-            // それでも空の場合のみサンプルデータを生成
+            // それでも空の場合は静的データを生成
             if (displayAlerts.length === 0) {
-                console.log('📌 履歴もないため、サンプルデータを生成');
-                displayAlerts = [
-                    {
-                        id: 'sample1',
-                        metric: 'CPA',
-                        message: '目標CPAを20%超過しています（目標: 1,000円、実績: 1,200円）',
-                        severity: 'warning',
-                        timestamp: new Date(),
-                        checkItems: [
-                            { title: 'ターゲティング設定の見直し', priority: 1, description: '年齢層と地域の設定を確認' },
-                            { title: 'クリエイティブの疲労度チェック', priority: 2, description: '同じ広告の表示頻度を確認' }
-                        ],
-                        improvements: {
-                            'オーディエンスの最適化': ['類似オーディエンスの活用', 'カスタムオーディエンスの作成'],
-                            'クリエイティブの改善': ['新しい広告素材の追加', 'A/Bテストの実施']
-                        }
-                    }
-                ];
+                console.log('📌 履歴もないため、静的データを生成');
+                const { generateStaticAlerts } = require('./generateStaticAlerts');
+                
+                // ユーザー設定を使用して静的アラートを生成
+                const staticSettings = {
+                    userId: userId,
+                    target_ctr: userSettings?.target_ctr || 1.5,
+                    target_cpa: userSettings?.target_cpa || 7000,
+                    target_cpm: userSettings?.target_cpm || 1500,
+                    target_cv: userSettings?.target_cv || 3,
+                    target_cvr: userSettings?.target_cvr || 2.0,
+                    target_budget_rate: userSettings?.target_budget_rate || 80
+                };
+                
+                displayAlerts = generateStaticAlerts(staticSettings);
+                console.log(`✅ ${displayAlerts.length}件の静的アラートを生成しました`);
+                
+                // 生成したアラートを確認
+                displayAlerts.forEach((alert, index) => {
+                    console.log(`  アラート${index + 1}: ${alert.metric} - ${alert.message}`);
+                    console.log(`    - 確認事項: ${alert.checkItems ? alert.checkItems.length : 0}件`);
+                    console.log(`    - 改善施策: ${alert.improvements ? Object.keys(alert.improvements).length : 0}カテゴリ`);
+                });
             }
+        }
+        
+        // Step2: 動的な目標値更新（表示時に現在の設定を反映）
+        if (userSettings && displayAlerts.length > 0) {
+            console.log('🔄 動的な目標値更新処理開始');
+            
+            // 目標値のマッピング
+            const targetMapping = {
+                'CTR': parseFloat(userSettings.target_ctr),
+                'CPM': parseFloat(userSettings.target_cpm),
+                'CPA': parseFloat(userSettings.target_cpa),
+                'CV': parseInt(userSettings.target_cv) || 1,
+                'CVR': parseFloat(userSettings.target_cvr) || 2.0,
+                '予算消化率': parseFloat(userSettings.target_budget_rate) || 80
+            };
+            
+            // 各アラートの目標値を最新の設定で更新
+            displayAlerts = displayAlerts.map(alert => {
+                const oldTarget = alert.targetValue;
+                const newTarget = targetMapping[alert.metric] || alert.targetValue;
+                
+                // 目標値が変更されている場合のみ更新
+                if (oldTarget !== newTarget) {
+                    // メッセージの更新
+                    let updatedMessage = alert.message;
+                    const formattedNew = alert.metric === 'CTR' || alert.metric === 'CVR' || alert.metric === '予算消化率' 
+                        ? newTarget + '%'
+                        : alert.metric === 'CV' 
+                            ? newTarget + '件'
+                            : newTarget.toLocaleString() + '円';
+                    
+                    // 正規表現でメッセージ内の目標値を更新
+                    updatedMessage = alert.message.replace(
+                        /目標値[0-9,\\.%円件]+/,
+                        '目標値' + formattedNew
+                    );
+                    
+                    console.log(`  [${alert.metric}] 目標値更新: ${oldTarget} → ${newTarget}`);
+                    
+                    return {
+                        ...alert,
+                        targetValue: newTarget,
+                        message: updatedMessage,
+                        originalTargetValue: oldTarget,
+                        dynamicallyUpdated: true
+                    };
+                }
+                
+                return alert;
+            });
+            
+            console.log('✅ 動的な目標値更新完了');
         }
         
         res.render('alerts', {
@@ -1092,64 +1201,151 @@ app.get('/api/user-settings', requireAuth, (req, res) => {
 app.get('/alert-history', requireAuth, async (req, res) => {
     try {
         console.log('=== アラート履歴ページアクセス ===');
+        const userId = req.session.userId;
         
-        const { getAlertHistory } = require('./alertSystem');
-        let alerts = await getAlertHistory();
+        // ユーザー設定を取得
+        const UserManager = require('./userManager');
+        const userManagerInstance = new UserManager();
+        const userSettings = userManagerInstance.getUserSettings(userId) || {};
+        
+        const { getAlertHistory, getUserTargets } = require('./alertSystem');
+        let alerts = await getAlertHistory(userId);
+        
+        // 現在の目標値を取得
+        const currentTargets = getUserTargets ? getUserTargets(userId) : null;
+        
+        // 古いアラートをフィルタリング（現在の目標値と一致しないものを除外）
+        if (currentTargets && alerts.length > 0) {
+            const originalCount = alerts.length;
+            alerts = alerts.filter(alert => {
+                // メトリック名を正規化
+                const metricKey = alert.metric.toLowerCase()
+                    .replace('ctr', 'ctr')
+                    .replace('cpm', 'cpm')
+                    .replace('cpa', 'cpa')
+                    .replace('cv', 'conversions')
+                    .replace('cvr', 'cvr')
+                    .replace('予算消化率', 'budget_rate')
+                    .replace('budget', 'budget_rate');
+                
+                // 現在の目標値と一致するアラートのみ保持
+                if (currentTargets[metricKey] !== undefined) {
+                    return Math.abs(alert.targetValue - currentTargets[metricKey]) < 0.01;
+                }
+                return false; // 目標値が設定されていないメトリックは除外
+            });
+            console.log(`📊 フィルタリング: ${originalCount}件 → ${alerts.length}件`);
+        }
         
         console.log('アラート履歴数:', alerts.length);
         
-        // アラートがない場合は履歴ファイルから直接読み込み
+        // アラートがない場合は履歴ファイルから直接読み込み（ユーザーIDでフィルタリング）
         if (alerts.length === 0) {
             const historyPath = path.join(__dirname, 'alert_history.json');
             if (fs.existsSync(historyPath)) {
                 try {
-                    alerts = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
-                    console.log(`📊 履歴ファイルから${alerts.length}件のアラートを取得`);
+                    const allAlerts = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+                    // ユーザーIDでフィルタリング
+                    alerts = allAlerts.filter(alert => alert.userId === userId);
+                    console.log(`📊 履歴ファイルから${alerts.length}件のアラートを取得（ユーザー: ${userId}）`);
                 } catch (error) {
                     console.error('履歴ファイル読み込みエラー:', error);
                 }
             }
         }
         
-        // それでも空の場合のみサンプルデータを生成
+        // それでも空の場合は静的データを生成
         if (alerts.length === 0) {
-            console.log('📌 履歴ファイルもないため、サンプルデータを生成');
-            const today = new Date();
-            alerts = [
-                {
-                    id: 'history1',
-                    metric: 'CPA',
-                    message: '目標CPAを超過しました（1,500円→2,000円）',
-                    severity: 'critical',
-                    status: 'resolved',
-                    timestamp: new Date(today.getTime() - 86400000 * 5) // 5日前
-                },
-                {
-                    id: 'history2',
-                    metric: 'CTR',
-                    message: 'CTRが基準値を下回りました（2.0%→1.5%）',
-                    severity: 'warning',
-                    status: 'resolved',
-                    timestamp: new Date(today.getTime() - 86400000 * 3) // 3日前
-                },
-                {
-                    id: 'history3',
-                    metric: '予算消化率',
-                    message: '予算消化率が低下しています（80%→60%）',
-                    severity: 'warning',
-                    status: 'active',
-                    timestamp: new Date(today.getTime() - 86400000 * 1) // 1日前
-                },
-                {
-                    id: 'history4',
-                    metric: 'CPM',
-                    message: 'CPMが上昇しています（1,000円→1,300円）',
-                    severity: 'warning',
-                    status: 'active',
-                    timestamp: new Date() // 今日
-                }
-            ];
+            console.log('📌 履歴ファイルもないため、静的データを生成');
+            const { generateStaticAlertHistory } = require('./generateStaticAlerts');
+            
+            // ユーザー設定を取得
+            let userSettings = {};
+            try {
+                const UserManager = require('./userManager');
+                const userManagerInstance = new UserManager();
+                userSettings = userManagerInstance.getUserSettings(req.session.userId) || {};
+            } catch (error) {
+                console.error('ユーザー設定取得エラー:', error);
+            }
+            
+            // 静的な履歴データを生成
+            const staticSettings = {
+                userId: req.session.userId,
+                target_ctr: userSettings.target_ctr || 1.5,
+                target_cpa: userSettings.target_cpa || 7000,
+                target_cpm: userSettings.target_cpm || 1500,
+                target_cv: userSettings.target_cv || 3,
+                target_cvr: userSettings.target_cvr || 2.0,
+                target_budget_rate: userSettings.target_budget_rate || 80
+            };
+            
+            alerts = generateStaticAlertHistory(staticSettings);
+            console.log(`✅ ${alerts.length}件の静的履歴データを生成しました`);
+            
+            // 生成した履歴を確認
+            const activeCount = alerts.filter(a => a.status === 'active').length;
+            const resolvedCount = alerts.filter(a => a.status === 'resolved').length;
+            console.log(`  - アクティブ: ${activeCount}件`);
+            console.log(`  - 解決済み: ${resolvedCount}件`);
         }
+        
+        // 動的な目標値更新を適用
+        const targetMapping = {
+            'CTR': parseFloat(userSettings.target_ctr),
+            'CPM': parseFloat(userSettings.target_cpm),
+            'CPA': parseFloat(userSettings.target_cpa),
+            'CV': parseFloat(userSettings.target_cv),
+            'CVR': parseFloat(userSettings.target_cvr),
+            'Budget': parseFloat(userSettings.target_budget_rate)
+        };
+        
+        alerts = alerts.map(alert => {
+            if (targetMapping[alert.metric] && !isNaN(targetMapping[alert.metric])) {
+                const newTarget = targetMapping[alert.metric];
+                alert.targetValue = newTarget;
+                
+                // メッセージ内の目標値を正規表現で置換
+                if (alert.metric === 'CTR') {
+                    // CTRが目標値X%を → CTRが目標値{newTarget}%を
+                    alert.message = alert.message.replace(
+                        /目標値[\d.]+%/,
+                        `目標値${newTarget}%`
+                    );
+                } else if (alert.metric === 'CPM') {
+                    // 目標値X円 → 目標値{newTarget}円
+                    alert.message = alert.message.replace(
+                        /目標値[\d,]+円/,
+                        `目標値${newTarget.toLocaleString()}円`
+                    );
+                } else if (alert.metric === 'CPA') {
+                    // 目標値X円 → 目標値{newTarget}円
+                    alert.message = alert.message.replace(
+                        /目標値[\d,]+円/,
+                        `目標値${newTarget.toLocaleString()}円`
+                    );
+                } else if (alert.metric === 'CV') {
+                    // 目標値X件 → 目標値{newTarget}件
+                    alert.message = alert.message.replace(
+                        /目標値[\d]+件/,
+                        `目標値${newTarget}件`
+                    );
+                } else if (alert.metric === 'CVR') {
+                    // 目標値X% → 目標値{newTarget}%
+                    alert.message = alert.message.replace(
+                        /目標値[\d.]+%/,
+                        `目標値${newTarget}%`
+                    );
+                } else if (alert.metric === 'Budget') {
+                    // 目標値X% → 目標値{newTarget}%
+                    alert.message = alert.message.replace(
+                        /目標値[\d.]+%/,
+                        `目標値${newTarget}%`
+                    );
+                }
+            }
+            return alert;
+        });
         
         res.render('alert-history', {
             title: 'アラート履歴 - Meta広告ダッシュボード',
@@ -1186,8 +1382,8 @@ app.get('/api/check-items', requireAuth, async (req, res) => {
             const { getAlertHistory } = require('./alertSystem');
             console.log('alertSystem.js を読み込み成功');
             
-            // アクティブなアラート履歴を取得
-            const alertHistory = await getAlertHistory();
+            // アクティブなアラート履歴を取得（ユーザーIDでフィルタリング）
+            const alertHistory = await getAlertHistory(req.session.userId);
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             
@@ -1273,7 +1469,8 @@ app.get('/api/alert-history', requireAuth, async (req, res) => {
         console.log('ユーザーID:', req.session.userId);
         
         const { getAlertHistory } = require('./alertSystem');
-        const alertHistory = await getAlertHistory();
+        // ユーザーIDを指定してアラート履歴を取得
+        const alertHistory = await getAlertHistory(req.session.userId);
         
         console.log('取得したアラート履歴数:', alertHistory.length);
         
@@ -1299,7 +1496,7 @@ app.get('/api/improvement-strategies', requireAuth, async (req, res) => {
         console.log('ユーザーID:', req.session.userId);
         
         const { getAlertHistory } = require('./alertSystem');
-        const alertHistory = await getAlertHistory();
+        const alertHistory = await getAlertHistory(req.session.userId);
         
         // アクティブなアラートから改善施策を抽出
         const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
@@ -1341,11 +1538,41 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
         console.log('=== 確認事項ページアクセス ===');
         const userId = req.session.userId;
         
+        // ユーザー設定を取得
+        const UserManager = require('./userManager');
+        const userManagerInstance = new UserManager();
+        const userSettings = userManagerInstance.getUserSettings(userId) || {};
+        
         // アラート履歴から確認事項を取得
         let checkItems = [];
         try {
-            const { getAlertHistory } = require('./alertSystem');
-            const alertHistory = await getAlertHistory();
+            const { getAlertHistory, getUserTargets } = require('./alertSystem');
+            let alertHistory = await getAlertHistory(userId);
+            
+            // 現在の目標値を取得
+            const currentTargets = getUserTargets ? getUserTargets(userId) : null;
+            
+            // 古いアラートをフィルタリング（現在の目標値と一致しないものを除外）
+            if (currentTargets && alertHistory.length > 0) {
+                alertHistory = alertHistory.filter(alert => {
+                    // メトリック名を正規化
+                    const metricKey = alert.metric.toLowerCase()
+                        .replace('ctr', 'ctr')
+                        .replace('cpm', 'cpm')
+                        .replace('cpa', 'cpa')
+                        .replace('cv', 'conversions')
+                        .replace('cvr', 'cvr')
+                        .replace('予算消化率', 'budget_rate')
+                        .replace('budget', 'budget_rate');
+                    
+                    // 現在の目標値と一致するアラートのみ保持
+                    if (currentTargets[metricKey] !== undefined) {
+                        return Math.abs(alert.targetValue - currentTargets[metricKey]) < 0.01;
+                    }
+                    return false; // 目標値が設定されていないメトリックは除外
+                });
+            }
+            
             const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
             
             // 確認事項を抽出
@@ -1417,6 +1644,55 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
         
         console.log('確認事項数:', checkItems.length);
         
+        // 動的な目標値更新を適用
+        const targetMapping = {
+            'CPA': parseFloat(userSettings.target_cpa),
+            'CTR': parseFloat(userSettings.target_ctr),
+            'CPM': parseFloat(userSettings.target_cpm),
+            'Budget': parseFloat(userSettings.target_budget_rate),
+            'ROAS': parseFloat(userSettings.target_roas) || 300
+        };
+        
+        checkItems = checkItems.map(item => {
+            if (targetMapping[item.metric] && !isNaN(targetMapping[item.metric])) {
+                const newTarget = targetMapping[item.metric];
+                
+                // メッセージ内の目標値を正規表現で置換
+                if (item.metric === 'CPA') {
+                    // 目標値X円、目標CPAX円 などに対応
+                    item.message = item.message.replace(
+                        /目標CPA[\d,]+円|目標値[\d,]+円|[\d,]+円を/,
+                        `目標CPA${newTarget.toLocaleString()}円を`
+                    );
+                } else if (item.metric === 'CTR') {
+                    // CTRがX%を下回っています
+                    item.message = item.message.replace(
+                        /[\d.]+%を/,
+                        `${newTarget}%を`
+                    );
+                } else if (item.metric === 'CPM') {
+                    // CPMがX円を超過
+                    item.message = item.message.replace(
+                        /¥[\d,]+を|[\d,]+円を/,
+                        `¥${newTarget.toLocaleString()}を`
+                    );
+                } else if (item.metric === 'Budget') {
+                    // 予算消化率がX%を
+                    item.message = item.message.replace(
+                        /[\d.]+%を/,
+                        `${newTarget}%を`
+                    );
+                } else if (item.metric === 'ROAS') {
+                    // ROASが目標X%を
+                    item.message = item.message.replace(
+                        /目標[\d.]+%を/,
+                        `目標${newTarget}%を`
+                    );
+                }
+            }
+            return item;
+        });
+        
         res.render('improvement-tasks', {
             title: '確認事項 - Meta広告ダッシュボード',
             checkItems: checkItems,
@@ -1442,11 +1718,42 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
 app.get('/improvement-strategies', requireAuth, async (req, res) => {
     try {
         console.log('=== 改善施策ページアクセス ===');
+        const userId = req.session.userId;
+        
+        // ユーザー設定を取得
+        const UserManager = require('./userManager');
+        const userManagerInstance = new UserManager();
+        const userSettings = userManagerInstance.getUserSettings(userId) || {};
         
         let improvements = {};
         try {
-            const { getAlertHistory } = require('./alertSystem');
-            const alertHistory = await getAlertHistory();
+            const { getAlertHistory, getUserTargets } = require('./alertSystem');
+            let alertHistory = await getAlertHistory(userId);
+            
+            // 現在の目標値を取得
+            const currentTargets = getUserTargets ? getUserTargets(userId) : null;
+            
+            // 古いアラートをフィルタリング（現在の目標値と一致しないものを除外）
+            if (currentTargets && alertHistory.length > 0) {
+                alertHistory = alertHistory.filter(alert => {
+                    // メトリック名を正規化
+                    const metricKey = alert.metric.toLowerCase()
+                        .replace('ctr', 'ctr')
+                        .replace('cpm', 'cpm')
+                        .replace('cpa', 'cpa')
+                        .replace('cv', 'conversions')
+                        .replace('cvr', 'cvr')
+                        .replace('予算消化率', 'budget_rate')
+                        .replace('budget', 'budget_rate');
+                    
+                    // 現在の目標値と一致するアラートのみ保持
+                    if (currentTargets[metricKey] !== undefined) {
+                        return Math.abs(alert.targetValue - currentTargets[metricKey]) < 0.01;
+                    }
+                    return false; // 目標値が設定されていないメトリックは除外
+                });
+            }
+            
             const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
             
             // アラートから改善施策を抽出
@@ -1512,6 +1819,40 @@ app.get('/improvement-strategies', requireAuth, async (req, res) => {
         }
         
         console.log('改善施策カテゴリ数:', Object.keys(improvements).length);
+        
+        // 動的な目標値を改善施策に反映
+        const targetCPA = parseFloat(userSettings.target_cpa) || 7500;
+        const targetCPM = parseFloat(userSettings.target_cpm) || 1800;
+        const targetCTR = parseFloat(userSettings.target_ctr) || 1.0;
+        const targetBudget = parseFloat(userSettings.target_budget_rate) || 80;
+        
+        // 改善施策内の目標値を更新
+        if (improvements['ターゲティング設定の確認']) {
+            improvements['ターゲティング設定の確認'] = improvements['ターゲティング設定の確認'].map(strategy => {
+                if (strategy.includes('CPA')) {
+                    return `目標CPA¥${targetCPA}を達成するため、${strategy.replace(/¥\d+/, `¥${targetCPA}`)}`;
+                }
+                return strategy;
+            });
+        }
+        
+        if (improvements['広告文の見直し']) {
+            improvements['広告文の見直し'] = improvements['広告文の見直し'].map(strategy => {
+                if (strategy.includes('CTR')) {
+                    return `CTR目標${targetCTR}%を達成するため、${strategy.replace(/\d+(\.\d+)?%/, `${targetCTR}%`)}`;
+                }
+                return strategy;
+            });
+        }
+        
+        if (improvements['予算配分の見直し']) {
+            improvements['予算配分の見直し'] = improvements['予算配分の見直し'].map(strategy => {
+                if (strategy.includes('予算')) {
+                    return `予算消化率目標${targetBudget}%を維持するため、${strategy}`;
+                }
+                return strategy;
+            });
+        }
         
         res.render('improvement-strategies', {
             title: '改善施策 - Meta広告ダッシュボード',
@@ -1609,10 +1950,10 @@ app.get('/debug/alert-test/:userId?', requireAuth, async (req, res) => {
 });
 
 // アラートデータAPI
-app.get('/api/alerts-data', async (req, res) => {
+app.get('/api/alerts-data', requireAuth, async (req, res) => {
     try {
         const alerts = await getCurrentAlerts();
-        const alertHistory = await getAlertHistory();
+        const alertHistory = await getAlertHistory(req.session.userId);
         
         res.json({
             success: true,
@@ -3936,17 +4277,52 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
         
         console.log(`🧪 チャットワークテスト送信開始: ${type}`, { userId });
         
-        const ChatworkAutoSender = require('./utils/chatworkAutoSender');
-        const sender = new ChatworkAutoSender();
+        // MultiUserChatworkSenderを使用（修正）
+        const MultiUserChatworkSender = require('./utils/multiUserChatworkSender');
+        const sender = new MultiUserChatworkSender();
+        const userManager = getUserManager();
         
-        await sender.sendTestMessage(type, userId);
+        // ユーザー設定を取得
+        const userSettings = userManager.getUserSettings(userId);
+        if (!userSettings) {
+            return res.status(400).json({ 
+                error: 'ユーザー設定が見つかりません' 
+            });
+        }
+        
+        // テストタイプに応じて適切なメソッドを呼び出し
+        const formattedSettings = {
+            user_id: userId,
+            daily_report_enabled: true,
+            meta_access_token: userSettings.meta_access_token,
+            meta_account_id: userSettings.meta_account_id,
+            chatwork_token: userSettings.chatwork_api_token || userSettings.chatwork_token,
+            chatwork_room_id: userSettings.chatwork_room_id
+        };
+        
+        switch(type) {
+            case 'daily':
+            case 'daily_report':
+                await sender.sendUserDailyReport(formattedSettings);
+                break;
+            case 'update':
+                await sender.sendUserUpdateNotification(formattedSettings);
+                break;
+            case 'alert':
+                await sender.sendUserAlertNotification(formattedSettings);
+                break;
+            default:
+                return res.status(400).json({ 
+                    error: `不明なテストタイプ: ${type}` 
+                });
+        }
+        
         res.json({ success: true, message: `${type}テスト送信を実行しました` });
     } catch (error) {
         console.error('チャットワークテスト送信エラー:', error);
         res.status(500).json({ 
             error: 'テスト送信に失敗しました',
-            details: error.message,
-            stack: error.stack
+            details: error.message
         });
     }
 });
@@ -4427,11 +4803,15 @@ app.post('/api/update-targets', requireAuth, async (req, res) => {
         // 設定を保存
         userManager.saveUserSettings(userId, updatedSettings);
         
+        // セッションに目標値更新フラグを設定（施策2: 即時反映のため）
+        req.session.targetUpdated = true;
+        
         // アラートを再生成
         const alertSystem = require('./alertSystem');
         const alerts = await alertSystem.checkUserAlerts(userId);
         
         console.log('✅ 目標値更新成功:', userId);
+        console.log('✅ targetUpdatedフラグを設定');
         res.json({ 
             success: true, 
             message: '目標値を更新しました',

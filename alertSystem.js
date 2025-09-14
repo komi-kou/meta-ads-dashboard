@@ -467,13 +467,20 @@ async function saveAlertHistory(alerts) {
     }
 }
 
-// アラート履歴取得
-async function getAlertHistory() {
+// アラート履歴取得（ユーザーIDによるフィルタリング対応）
+async function getAlertHistory(userId = null) {
     try {
         const historyPath = path.join(__dirname, 'alert_history.json');
         
         if (fs.existsSync(historyPath)) {
-            return JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+            const allHistory = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+            
+            // ユーザーIDが指定されている場合はフィルタリング
+            if (userId) {
+                return allHistory.filter(alert => alert.userId === userId);
+            }
+            
+            return allHistory;
         }
         
         return [];
@@ -519,5 +526,6 @@ module.exports = {
     checkUserAlerts,
     getAlertHistory,
     getAlertSettings,
-    getCurrentGoalType
+    getCurrentGoalType,
+    getUserTargets
 };

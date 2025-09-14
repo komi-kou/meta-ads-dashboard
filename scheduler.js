@@ -50,13 +50,56 @@ function getEnvironmentSettings() {
   };
 }
 
-// 設定情報を取得する関数
-function getSettings() {
-  // 本番環境では環境変数から設定を取得
+// 設定情報を取得する関数（マルチユーザー対応版）
+function getSettings(userId = null) {
+  // 優先順位1: ユーザー個別設定
+  if (userId) {
+    try {
+      const UserManager = require('./userManager');
+      const userManager = new UserManager();
+      const userSettings = userManager.getUserSettings(userId);
+      
+      if (userSettings) {
+        // ユーザー設定を共通フォーマットに変換
+        const convertedSettings = {
+          // Meta API設定
+          meta_token: userSettings.meta_access_token,
+          meta_account_id: userSettings.meta_account_id,
+          meta_app_id: userSettings.meta_app_id || '',
+          
+          // チャットワーク設定
+          chatwork_token: userSettings.chatwork_api_token,
+          chatwork_room_id: userSettings.chatwork_room_id,
+          
+          // その他の設定
+          daily_budget: userSettings.target_daily_budget,
+          service_goal: userSettings.service_goal,
+          target_cpa: userSettings.target_cpa,
+          target_cpm: userSettings.target_cpm,
+          target_ctr: userSettings.target_ctr,
+          target_budget_rate: userSettings.target_budget_rate,
+          target_cv: userSettings.target_cv,
+          
+          // スケジューラー設定
+          enable_scheduler: userSettings.enable_scheduler,
+          enable_chatwork: userSettings.enable_chatwork,
+          enable_alerts: userSettings.enable_alerts
+        };
+        
+        writeLog(`ユーザー設定読み込み完了 (userId: ${userId}): Meta=${!!convertedSettings.meta_token}, Chatwork=${!!convertedSettings.chatwork_token}`);
+        return convertedSettings;
+      }
+    } catch (e) {
+      writeLog(`ユーザー設定読み込みエラー: ${e.message}`);
+    }
+  }
+  
+  // 優先順位2: 本番環境では環境変数から設定を取得
   if (process.env.NODE_ENV === 'production') {
     return getEnvironmentSettings();
   }
   
+  // 優先順位3: 共通設定ファイル（後方互換性）
   if (fs.existsSync(SETTINGS_FILE)) {
     try {
       const settings = JSON.parse(fs.readFileSync(SETTINGS_FILE));
@@ -82,7 +125,7 @@ function getSettings() {
         target_cv: settings.target_cv
       };
       
-      writeLog(`設定読み込み完了: Meta=${!!convertedSettings.meta_token}, Chatwork=${!!convertedSettings.chatwork_token}`);
+      writeLog(`共通設定読み込み完了: Meta=${!!convertedSettings.meta_token}, Chatwork=${!!convertedSettings.chatwork_token}`);
       return convertedSettings;
     } catch (e) {
       writeLog(`設定ファイル読み込みエラー: ${e.message}`);
@@ -122,12 +165,12 @@ function saveAdData(data) {
   }
 }
 
-// バッチ本体処理を関数化
-async function runBatch(isMorningReport = false) {
-  writeLog('=== 日次バッチ開始 ===');
+// バッチ本体処理を関数化（ユーザーIDを受け取るように修正）
+async function runBatch(isMorningReport = false, userId = null) {
+  writeLog(`=== 日次バッチ開始 ${userId ? `(userId: ${userId})` : '(共通設定)'} ===`);
   
-  // 設定を取得
-  const settings = getSettings();
+  // 設定を取得（ユーザーIDを渡す）
+  const settings = getSettings(userId);
   const latestDailyBudget = settings.daily_budget ? Number(settings.daily_budget) : undefined;
   writeLog(`使用する日予算: ${latestDailyBudget}`);
   
@@ -671,6 +714,39 @@ http://localhost:3000/dashboard`;
   writeLog('=== 日次バッチ完了 ===');
 }
 
+// 全ユーザーに対してバッチを実行する関数
+async function runBatchForAllUsers(isMorningReport = false) {
+  writeLog('=== 全ユーザーバッチ処理開始 ===');
+  
+  try {
+    const UserManager = require('./userManager');
+    const userManager = new UserManager();
+    const allUsers = userManager.getAllUsers();
+    
+    writeLog(`アクティブユーザー数: ${allUsers.length}`);
+    
+    // 各ユーザーに対してバッチを実行
+    for (const user of allUsers) {
+      const userSettings = userManager.getUserSettings(user.id);
+      
+      // スケジューラーが有効なユーザーのみ処理
+      if (userSettings && userSettings.enable_scheduler) {
+        writeLog(`ユーザー ${user.id} (${user.email}) のバッチ処理開始`);
+        await runBatch(isMorningReport, user.id);
+      } else {
+        writeLog(`ユーザー ${user.id} はスケジューラー無効のためスキップ`);
+      }
+    }
+    
+    writeLog('=== 全ユーザーバッチ処理完了 ===');
+  } catch (error) {
+    writeLog(`全ユーザーバッチ処理エラー: ${error.message}`);
+    // エラーが発生しても共通設定で実行を試みる
+    writeLog('共通設定でバッチ実行を試みます');
+    await runBatch(isMorningReport);
+  }
+}
+
 // テストメッセージ送信関数
 async function sendTestMessage(isMorningReport = false) {
   writeLog('=== テストメッセージ送信開始 ===');
@@ -1008,7 +1084,7 @@ async function sendScheduledChatworkNotification(type, data = {}) {
 // 朝9時のデータ取得とレポート送信
 cron.schedule('0 9 * * *', async () => {
   writeLog('朝9時のデータ取得とレポート送信開始');
-  await runBatch(true); // データ取得
+  await runBatchForAllUsers(true); // 全ユーザーのデータ取得
   
   // アラートチェック実行
   try {
@@ -1032,7 +1108,7 @@ cron.schedule('0 9 * * *', async () => {
 // その他の時間帯のデータ取得と更新通知（12時、15時、17時、19時）
 cron.schedule('0 12,15,17,19 * * *', async () => {
   writeLog('定期データ取得と更新通知開始');
-  await runBatch(false); // データ取得
+  await runBatchForAllUsers(false); // 全ユーザーのデータ取得
   
   // アラートチェック実行
   try {
@@ -1063,7 +1139,7 @@ console.log('💬 チャットワーク送信: chatworkAutoSender.js で管理')
 // node scheduler.js で即時実行できるように
 if (require.main === module) {
   writeLog('手動実行開始');
-  runBatch().then(async () => {
+  runBatchForAllUsers().then(async () => {
     // 手動実行時にもアラートチェックを実行
     try {
       writeLog('手動アラートチェック開始');
