@@ -473,10 +473,37 @@ async function getAlertHistory(userId = null) {
         const historyPath = path.join(__dirname, 'alert_history.json');
         
         if (fs.existsSync(historyPath)) {
-            const allHistory = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+            let allHistory = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
             
-            // ユーザーIDが指定されている場合はフィルタリング
+            // ユーザーIDが指定されている場合
             if (userId) {
+                // 現在の目標値を取得
+                const currentTargets = getUserTargets(userId);
+                
+                // このユーザーのアラートをフィルタリング＆目標値を更新
+                allHistory = allHistory.map(alert => {
+                    if (alert.userId === userId && currentTargets) {
+                        const metricLower = alert.metric.toLowerCase();
+                        if (metricLower in currentTargets) {
+                            const newTarget = currentTargets[metricLower];
+                            if (alert.targetValue !== newTarget) {
+                                // 目標値を更新
+                                alert.targetValue = newTarget;
+                                // メッセージも更新
+                                const targetStr = metricLower === 'conversions' ? newTarget + '件' : 
+                                                 metricLower === 'ctr' || metricLower === 'cvr' ? newTarget + '%' :
+                                                 newTarget.toLocaleString('ja-JP') + '円';
+                                alert.message = alert.message.replace(/目標値[^を）]+/g, '目標値' + targetStr);
+                            }
+                        }
+                    }
+                    return alert;
+                });
+                
+                // 更新された履歴を保存
+                fs.writeFileSync(historyPath, JSON.stringify(allHistory, null, 2));
+                
+                // フィルタリングして返す
                 return allHistory.filter(alert => alert.userId === userId);
             }
             
