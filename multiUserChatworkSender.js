@@ -141,41 +141,81 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
             console.log(`🚨 ユーザー${userSettings.user_id}のアラート通知チェック開始`);
 
-            // ユーザーの最新データを取得してアラートチェック
-            const userAdData = this.userManager.getUserAdData(userSettings.user_id, 3);
+            // 改善施策2: アラート履歴から最新データを取得（自動的に目標値が更新される）
+            const { getAlertHistory } = require('../alertSystem');
+            const alertHistory = await getAlertHistory(userSettings.user_id);
             
-            if (userAdData.length === 0) {
-                console.log(`ユーザー${userSettings.user_id}: アラートチェック用データなし`);
+            // アクティブなアラートのみ抽出
+            const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+            
+            if (activeAlerts.length === 0) {
+                console.log(`ユーザー${userSettings.user_id}: アクティブなアラートなし`);
                 return;
             }
 
-            // 簡易アラートチェック（実際のロジックは既存のものを流用）
-            const alerts = [];
-            const latestData = userAdData[0];
+            // 値のフォーマット用関数
+            const formatValue = (value, metric) => {
+                switch (metric.toLowerCase()) {
+                    case 'ctr':
+                    case 'cvr':
+                    case 'budget_rate':
+                        return `${value}%`;
+                    case 'conversions':
+                    case 'cv':
+                        return `${value}件`;
+                    case 'cpa':
+                    case 'cpm':
+                    case 'cpc':
+                        return `${value.toLocaleString('ja-JP')}円`;
+                    default:
+                        return value.toString();
+                }
+            };
 
-            // 予算消化率チェック
-            if (latestData.budget_rate > 100) {
-                alerts.push('予算超過が発生しています');
+            // メトリクス表示名取得
+            const getMetricDisplayName = (metric) => {
+                const names = {
+                    'budget_rate': '予算消化率',
+                    'ctr': 'CTR',
+                    'conversions': 'CV',
+                    'cv': 'CV',
+                    'cpm': 'CPM',
+                    'cpa': 'CPA',
+                    'cvr': 'CVR',
+                    'cpc': 'CPC'
+                };
+                return names[metric.toLowerCase()] || metric;
+            };
+
+            // アラートメッセージを構築
+            const dateStr = new Date().toLocaleDateString('ja-JP');
+            let message = `[info][title]Meta広告 アラート通知 (${dateStr})[/title]\n`;
+            message += `以下の指標が目標値から外れています：\n\n`;
+
+            // 重要度順にソート
+            const sortedAlerts = activeAlerts.sort((a, b) => {
+                if (a.severity === 'critical' && b.severity !== 'critical') return -1;
+                if (a.severity !== 'critical' && b.severity === 'critical') return 1;
+                return 0;
+            });
+
+            // 上位10件のアラートを表示
+            sortedAlerts.slice(0, 10).forEach((alert, index) => {
+                const icon = alert.severity === 'critical' ? '🔴' : '⚠️';
+                const metricName = getMetricDisplayName(alert.metric);
+                message += `${icon} ${metricName}: `;
+                message += `目標 ${formatValue(alert.targetValue, alert.metric)} → `;
+                message += `実績 ${formatValue(alert.currentValue, alert.metric)}\n`;
+            });
+
+            if (sortedAlerts.length > 10) {
+                message += `\n...他${sortedAlerts.length - 10}件のアラート\n`;
             }
 
-            // CPAチェック
-            if (userSettings.target_cpa && latestData.cpa > userSettings.target_cpa * 1.2) {
-                alerts.push(`CPA目標値を20%超過: ${latestData.cpa}円 (目標: ${userSettings.target_cpa}円)`);
-            }
-
-            if (alerts.length === 0) {
-                console.log(`ユーザー${userSettings.user_id}: アラートなし`);
-                return;
-            }
-
-            const message = `Meta広告 アラート通知 (${new Date().toLocaleDateString('ja-JP')})
-以下のアラートが発生しています：
-
-${alerts.map((alert, index) => `${index + 1}. ${alert}`).join('\n')}
-
-確認事項：https://meta-ads-dashboard.onrender.com/improvement-taskss
-改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategiess
-ダッシュボード：https://meta-ads-dashboard.onrender.com/dashboard`;
+            message += `\n📊 詳細はダッシュボードでご確認ください：\n`;
+            message += `http://localhost:3000/dashboard\n\n`;
+            message += `✅ 確認事項：http://localhost:3000/improvement-tasks\n`;
+            message += `💡 改善施策：http://localhost:3000/improvement-strategies[/info]`;
 
             await sendChatworkMessage({
                 date: new Date().toISOString().split('T')[0],
@@ -184,7 +224,7 @@ ${alerts.map((alert, index) => `${index + 1}. ${alert}`).join('\n')}
                 room_id: userSettings.chatwork_room_id
             });
 
-            console.log(`✅ ユーザー${userSettings.user_id}のアラート通知送信完了`);
+            console.log(`✅ ユーザー${userSettings.user_id}のアラート通知送信完了（${activeAlerts.length}件のアラート）`);
 
         } catch (error) {
             console.error(`❌ ユーザー${userSettings.user_id}のアラート通知送信エラー:`, error);
