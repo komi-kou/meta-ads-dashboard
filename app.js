@@ -939,20 +939,38 @@ app.get('/alerts', requireAuth, async (req, res) => {
         console.log('アラートページにアクセス - ユーザー:', req.session.userId);
         
         const userId = req.session.userId;
-        const { checkUserAlerts, getCurrentGoalType, getAlertHistory } = require('./alertSystem');
+        const { getCurrentGoalType } = require('./alertSystem');
+        const { generateDynamicAlerts } = require('./dynamicAlertGenerator');
         
         // 現在のゴールタイプを取得（ユーザー固有）
         const currentGoalType = getCurrentGoalType(userId);
         console.log('現在のゴールタイプ:', currentGoalType, 'for user:', userId);
         
-        // ユーザーの現在のアラートを取得（アクティブなアラート履歴から）
-        const alertHistory = await getAlertHistory(userId);
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        const alerts = alertHistory.filter(alert => 
-            alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo && alert.userId === userId
-        );
+        // 動的にリアルタイムアラートを生成
+        let alerts = [];
+        try {
+            console.log('📊 動的アラート生成開始...');
+            alerts = await generateDynamicAlerts(userId);
+            console.log(`✅ 動的アラート生成成功: ${alerts.length}件`);
+        } catch (dynamicError) {
+            console.error('❌ 動的アラート生成エラー:', dynamicError.message);
+            // フォールバック: 既存の静的生成を使用
+            console.log('📌 静的アラート生成にフォールバック...');
+            const { generateStaticAlerts } = require('./generateStaticAlerts');
+            const UserManager = require('./userManager');
+            const userManager = new UserManager();
+            const userSettings = userManager.getUserSettings(userId) || {};
+            const staticSettings = {
+                userId: userId,
+                target_ctr: userSettings.target_ctr || 1.5,
+                target_cpa: userSettings.target_cpa || 7000,
+                target_cpm: userSettings.target_cpm || 1500,
+                target_cv: userSettings.target_cv || 3,
+                target_cvr: userSettings.target_cvr || 2.0,
+                target_budget_rate: userSettings.target_budget_rate || 80
+            };
+            alerts = generateStaticAlerts(staticSettings);
+        }
         console.log('=== /alertsルート詳細ログ ===');
         console.log('取得したアラート数:', alerts.length);
         console.log('アラート詳細:', alerts.map(alert => ({
@@ -1045,13 +1063,23 @@ app.get('/alerts', requireAuth, async (req, res) => {
                     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
                     
                     // アクティブかつ30日以内、かつ現在のユーザーのアラートのみを取得
+                    // 修正: タイムスタンプを今日の日付に更新
+                    const jstNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
                     displayAlerts = history
                         .filter(alert => {
                             const alertDate = new Date(alert.timestamp);
                             return alert.status === 'active' && alertDate > thirtyDaysAgo && alert.userId === userId;
                         })
-                        .slice(0, 10);
-                    console.log(`📊 履歴から${displayAlerts.length}件のアクティブアラートを取得（30日以内）`);
+                        .slice(0, 10)
+                        .map(alert => {
+                            // タイムスタンプを今日に更新（他のデータは保持）
+                            return {
+                                ...alert,
+                                timestamp: jstNow.toISOString(),
+                                originalTimestamp: alert.timestamp // 元の日付を保存
+                            };
+                        });
+                    console.log(`📊 履歴から${displayAlerts.length}件のアクティブアラートを取得（日付を今日に更新）`);
                 } catch (error) {
                     console.error('履歴読み込みエラー:', error);
                     displayAlerts = [];
@@ -1208,55 +1236,18 @@ app.get('/alert-history', requireAuth, async (req, res) => {
         const userManagerInstance = new UserManager();
         const userSettings = userManagerInstance.getUserSettings(userId) || {};
         
-        const { getAlertHistory, getUserTargets } = require('./alertSystem');
-        let alerts = await getAlertHistory(userId);
+        // 動的にアラート履歴を生成
+        const { generateDynamicAlertHistory } = require('./dynamicAlertGenerator');
+        let alerts = [];
         
-        // 現在の目標値を取得
-        const currentTargets = getUserTargets ? getUserTargets(userId) : null;
-        
-        // 古いアラートをフィルタリング（現在の目標値と一致しないものを除外）
-        if (currentTargets && alerts.length > 0) {
-            const originalCount = alerts.length;
-            alerts = alerts.filter(alert => {
-                // メトリック名を正規化
-                const metricKey = alert.metric.toLowerCase()
-                    .replace('ctr', 'ctr')
-                    .replace('cpm', 'cpm')
-                    .replace('cpa', 'cpa')
-                    .replace('cv', 'conversions')
-                    .replace('cvr', 'cvr')
-                    .replace('予算消化率', 'budget_rate')
-                    .replace('budget', 'budget_rate');
-                
-                // 現在の目標値と一致するアラートのみ保持
-                if (currentTargets[metricKey] !== undefined) {
-                    return Math.abs(alert.targetValue - currentTargets[metricKey]) < 0.01;
-                }
-                return false; // 目標値が設定されていないメトリックは除外
-            });
-            console.log(`📊 フィルタリング: ${originalCount}件 → ${alerts.length}件`);
-        }
-        
-        console.log('アラート履歴数:', alerts.length);
-        
-        // アラートがない場合は履歴ファイルから直接読み込み（ユーザーIDでフィルタリング）
-        if (alerts.length === 0) {
-            const historyPath = path.join(__dirname, 'alert_history.json');
-            if (fs.existsSync(historyPath)) {
-                try {
-                    const allAlerts = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
-                    // ユーザーIDでフィルタリング
-                    alerts = allAlerts.filter(alert => alert.userId === userId);
-                    console.log(`📊 履歴ファイルから${alerts.length}件のアラートを取得（ユーザー: ${userId}）`);
-                } catch (error) {
-                    console.error('履歴ファイル読み込みエラー:', error);
-                }
-            }
-        }
-        
-        // それでも空の場合は静的データを生成
-        if (alerts.length === 0) {
-            console.log('📌 履歴ファイルもないため、静的データを生成');
+        try {
+            console.log('📊 動的アラート履歴生成開始...');
+            alerts = await generateDynamicAlertHistory(userId, 30); // 過去30日分
+            console.log(`✅ 動的アラート履歴生成成功: ${alerts.length}件`);
+        } catch (dynamicError) {
+            console.error('❌ 動的アラート履歴生成エラー:', dynamicError.message);
+            // フォールバック: 既存の静的生成を使用
+            console.log('📌 静的アラート履歴生成にフォールバック...');
             const { generateStaticAlertHistory } = require('./generateStaticAlerts');
             
             // ユーザー設定を取得
@@ -4940,7 +4931,7 @@ app.use((req, res) => {
 // ========================================
 // サーバー起動とスケジューラー初期化
 // ========================================
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3457;
 app.listen(PORT, () => {
   console.log(`\n==========================================\n✅ サーバー起動成功！\n🌐 URL: http://localhost:${PORT}\n👤 ログイン: komiya / komiya\n==========================================\n`);
   
