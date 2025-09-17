@@ -46,16 +46,16 @@ async function sendChatworkNotification(type, data = {}, userId = null) {
         console.log('🔍 ユーザー別チャットワーク設定確認:', {
           userId: userId,
           userSettingsFound: !!userSettings,
-          hasToken: !!(userSettings?.chatwork_token),
+          hasToken: !!(userSettings?.chatwork_api_token),
           hasRoomId: !!(userSettings?.chatwork_room_id),
-          tokenLength: userSettings?.chatwork_token?.length || 0,
+          tokenLength: userSettings?.chatwork_api_token?.length || 0,
           roomId: userSettings?.chatwork_room_id
         });
         
-        if (userSettings && userSettings.chatwork_token && userSettings.chatwork_room_id) {
+        if (userSettings && userSettings.chatwork_api_token && userSettings.chatwork_room_id) {
           console.log('✅ ユーザー別チャットワーク設定取得成功');
           config = {
-            apiToken: userSettings.chatwork_token,
+            apiToken: userSettings.chatwork_api_token,
             roomId: userSettings.chatwork_room_id
           };
         } else {
