@@ -68,10 +68,10 @@ class MultiUserChatworkSender {
 
 消化金額（合計）：${(data.spend || 0).toLocaleString()}円
 予算消化率（平均）：${data.budgetRate || '0.00'}%
-CTR（平均）：${(data.ctr || 0).toFixed(2)}%
-CPM（平均）：${Math.round(data.cpm || 0).toLocaleString()}円 
+CTR（平均）：${data.ctr || '0.00'}%
+CPM（平均）：${(data.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(data.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${(data.frequency || 0).toFixed(2)}%
+フリークエンシー（平均）：${data.frequency || '0.00'}
 コンバージョン数：${data.conversions || 0}件  
 
 確認はこちら
