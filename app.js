@@ -4282,12 +4282,16 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
         }
         
         // テストタイプに応じて適切なメソッドを呼び出し
+        // テスト送信時はすべての通知を有効化
         const formattedSettings = {
             user_id: userId,
             daily_report_enabled: true,
+            update_notifications_enabled: true,  // 追加: 定期更新通知を有効化
+            alert_notifications_enabled: true,   // 追加: アラート通知を有効化
             meta_access_token: userSettings.meta_access_token,
             meta_account_id: userSettings.meta_account_id,
-            chatwork_token: userSettings.chatwork_api_token || userSettings.chatwork_token,
+            chatwork_api_token: userSettings.chatwork_api_token,  // 修正: 正しいフィールド名
+            chatwork_token: userSettings.chatwork_api_token,      // 互換性維持
             chatwork_room_id: userSettings.chatwork_room_id
         };
         
@@ -4301,6 +4305,12 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
                 break;
             case 'alert':
                 await sender.sendUserAlertNotification(formattedSettings);
+                break;
+            case 'token':  // 追加: トークン更新通知テスト
+                // ChatworkAutoSenderを使用（トークン通知専用）
+                const ChatworkAutoSender = require('./chatworkAutoSender');
+                const autoSender = new ChatworkAutoSender();
+                await autoSender.sendTokenUpdateNotificationWithUser(userId);
                 break;
             default:
                 return res.status(400).json({ 
