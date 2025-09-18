@@ -348,20 +348,40 @@ class UserManager {
     // 全アクティブユーザー取得（チャットワーク送信用）
     getAllActiveUsers() {
         const users = this.readJsonFile(this.usersFile);
-        const settings = this.readJsonFile(this.settingsFile);
+        const fs = require('fs');
+        const path = require('path');
         
         return users
             .filter(u => u.is_active)
             .map(user => {
-                const userSettings = settings.find(s => s.user_id === user.id);
-                if (userSettings && 
-                    userSettings.notifications_enabled && 
-                    userSettings.chatwork_token && 
+                // ユーザー個別設定を直接ファイルから取得
+                const settingsPath = path.join(__dirname, 'data', 'user_settings', `${user.id}.json`);
+                let userSettings = {};
+                
+                try {
+                    if (fs.existsSync(settingsPath)) {
+                        userSettings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+                    }
+                } catch (e) {
+                    console.log(`ユーザー設定読み込みエラー: ${user.id}`);
+                }
+                
+                // 正しいフィールド名でチェック
+                if (userSettings.enable_chatwork && 
+                    userSettings.chatwork_api_token && 
                     userSettings.chatwork_room_id &&
                     userSettings.meta_access_token) {
+                    
+                    // MultiUserChatworkSenderが期待するフィールドを追加
                     return {
                         ...user,
-                        ...userSettings
+                        ...userSettings,
+                        // 互換性のためのフィールド追加
+                        user_id: user.id,
+                        daily_report_enabled: userSettings.daily_report_enabled !== false,
+                        update_notifications_enabled: userSettings.update_notifications_enabled !== false,
+                        alert_notifications_enabled: userSettings.alert_notifications_enabled !== false,
+                        chatwork_token: userSettings.chatwork_api_token  // 互換性のため両方設定
                     };
                 }
                 return null;
@@ -404,6 +424,21 @@ class UserManager {
     getUserById(userId) {
         const users = this.readJsonFile(this.usersFile);
         return users.find(u => u.id === userId) || null;
+    }
+
+    // 全ユーザー取得
+    getAllUsers() {
+        try {
+            const users = this.readJsonFile(this.usersFile);
+            // アクティブなユーザーのみ返す（設定ファイルが存在するユーザー）
+            return users.filter(user => {
+                const settingsPath = path.join(this.userSettingsDir, `${user.id}.json`);
+                return fs.existsSync(settingsPath);
+            });
+        } catch (error) {
+            console.error('全ユーザー取得エラー:', error);
+            return [];
+        }
     }
 }
 
