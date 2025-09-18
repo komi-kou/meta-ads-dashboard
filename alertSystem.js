@@ -396,9 +396,9 @@ async function sendUserAlertsToChatwork(alerts, userId) {
         });
         
         message += `\n📊 詳細はダッシュボードでご確認ください：\n`;
-        message += `http://localhost:3000/dashboard\n\n`;
-        message += `✅ 確認事項：http://localhost:3000/improvement-tasks\n`;
-        message += `💡 改善施策：http://localhost:3000/improvement-strategies[/info]`;
+        message += `https://meta-ads-dashboard.onrender.com/dashboard\n\n`;
+        message += `✅ 確認事項：https://meta-ads-dashboard.onrender.com/improvement-tasks\n`;
+        message += `💡 改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies[/info]`;
         
         // チャットワークAPI呼び出し
         const fetch = require('node-fetch');
