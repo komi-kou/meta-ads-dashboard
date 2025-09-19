@@ -3984,11 +3984,11 @@ function aggregateRealPeriodData(dailyData, userId = null, actualDailyBudget = n
                 return isNaN(rate) ? 0.00 : parseFloat(rate.toFixed(2));
             }
         })(),
-        ctr: parseFloat(avgCTR.toFixed(2)),
-        cpm: Math.round(avgCPM),
+        ctr: Math.round(avgCTR * 100) / 100,  // 小数点第2位で四捨五入 (1.477449 → 1.48)
+        cpm: Math.round(avgCPM),  // 整数に四捨五入 (2210.731 → 2211)
         conversions: totalConversions,
         cpa: Math.round(avgCPA),
-        frequency: parseFloat(avgFrequency.toFixed(2)),
+        frequency: Math.round(avgFrequency * 100) / 100,  // 小数点第2位で四捨五入 (1.4288... → 1.43)
         chartData: {
             labels: chartLabels,
             spend: chartSpend,
