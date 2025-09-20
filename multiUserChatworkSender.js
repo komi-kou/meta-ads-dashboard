@@ -44,43 +44,72 @@ class MultiUserChatworkSender {
 
             console.log(`📅 ユーザー${userSettings.user_id}の日次レポート${isTestMode ? 'テスト' : ''}送信開始`);
 
-            let data;
-            
+            // ===== テストモード: 早期リターンで完全分離 =====
             if (isTestMode) {
-                // テストモード: 固定のサンプルデータを使用
                 console.log('📝 テストモード: サンプルデータを使用');
-                data = {
+                
+                // テスト用固定データ
+                const testData = {
                     spend: 2206.789,
                     budgetRate: 99.876543,
-                    ctr: 0.793651,  // 0.793651% として扱う
+                    ctr: 0.793651,
                     cpm: 1946.208,
                     cpa: 0,
-                    frequency: 1.3451957295373667,  // 1.3451... として扱う（%ではない）
+                    frequency: 1.3451957295373667,
                     conversions: 0.25
                 };
-            } else {
-                // 通常モード: 実際のMeta広告データを取得
-                const metaData = await fetchMetaAdDailyStats({
-                    accessToken: userSettings.meta_access_token,
-                    accountId: userSettings.meta_account_id,
-                    datePreset: 'yesterday'
+                
+                const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000)
+                    .toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+                
+                // フォーマット処理（数値を適切に丸める）
+                const message = `Meta広告 日次レポート (${yesterdayStr})
+
+消化金額（合計）：${Math.round(testData.spend || 0).toLocaleString()}円
+予算消化率（平均）：${Math.round(testData.budgetRate || 0)}%
+CTR（平均）：${Math.round((testData.ctr || 0) * 10) / 10}%
+CPM（平均）：${Math.round(testData.cpm || 0).toLocaleString()}円 
+CPA（平均）：${Math.round(testData.cpa || 0).toLocaleString()}円
+フリークエンシー（平均）：${Math.round((testData.frequency || 0) * 10) / 10}
+コンバージョン数：${Math.round(testData.conversions || 0)}件  
+
+確認はこちら
+https://meta-ads-dashboard.onrender.com/dashboard
+
+※これはテストメッセージです`;
+                
+                // 送信
+                await sendChatworkMessage({
+                    date: yesterdayStr,
+                    message: message,
+                    token: userSettings.chatwork_token,
+                    room_id: userSettings.chatwork_room_id
                 });
-
-                if (!metaData || metaData.length === 0) {
-                    console.log(`ユーザー${userSettings.user_id}: データなし`);
-                    return;
-                }
-
-                data = metaData[0];
+                
+                console.log(`✅ ユーザー${userSettings.user_id}の日次レポートテスト送信完了`);
+                return; // ここで早期リターン（重要）
             }
+
+            // ===== 以下、通常モードの処理（テストモードでは実行されない） =====
             
+            // 実際のMeta広告データを取得
+            const metaData = await fetchMetaAdDailyStats({
+                accessToken: userSettings.meta_access_token,
+                accountId: userSettings.meta_account_id,
+                datePreset: 'yesterday'
+            });
+
+            if (!metaData || metaData.length === 0) {
+                console.log(`ユーザー${userSettings.user_id}: データなし`);
+                return;
+            }
+
+            const data = metaData[0];
             const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000)
                 .toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
 
-            // ユーザー別データベースに保存（通常モードのみ）
-            if (!isTestMode) {
-                this.userManager.saveUserAdData(userSettings.user_id, data);
-            }
+            // ユーザー別データベースに保存
+            this.userManager.saveUserAdData(userSettings.user_id, data);
 
             // CTRとfrequencyの特別処理（文字列で%が含まれている場合の対応）
             const ctr = typeof data.ctr === 'string' && data.ctr.includes('%') 
@@ -91,7 +120,7 @@ class MultiUserChatworkSender {
                 : data.frequency;
 
             // チャットワークメッセージを生成（数値を適切に丸める）
-            let message = `Meta広告 日次レポート (${yesterdayStr})
+            const message = `Meta広告 日次レポート (${yesterdayStr})
 
 消化金額（合計）：${Math.round(data.spend || 0).toLocaleString()}円
 予算消化率（平均）：${Math.round(data.budgetRate || 0)}%
@@ -103,11 +132,6 @@ CPA（平均）：${Math.round(data.cpa || 0).toLocaleString()}円
 
 確認はこちら
 https://meta-ads-dashboard.onrender.com/dashboard`;
-
-            // テストモードの場合は表記を追加
-            if (isTestMode) {
-                message += '\n\n※これはテストメッセージです';
-            }
 
             // チャットワークに送信
             await sendChatworkMessage({

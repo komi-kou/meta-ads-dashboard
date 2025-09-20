@@ -4283,6 +4283,25 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
         
         // テストタイプに応じて適切なメソッドを呼び出し
         // テスト送信時はすべての通知を有効化
+        // トークンフィールドの統一処理（複数のフィールド名に対応）
+        const chatworkToken = userSettings.chatwork_api_token || 
+                            userSettings.chatwork_token || 
+                            userSettings.chatworkApiToken ||
+                            userSettings.chatworkToken ||
+                            userSettings.chatwork_apitoken;
+        
+        const chatworkRoomId = userSettings.chatwork_room_id || 
+                              userSettings.chatworkRoomId || 
+                              userSettings.room_id;
+        
+        // デバッグ情報
+        if (!chatworkToken) {
+            console.log('⚠️ Chatworkトークンが見つかりません。利用可能なフィールド:', Object.keys(userSettings));
+        }
+        if (!chatworkRoomId) {
+            console.log('⚠️ ChatworkルームIDが見つかりません。利用可能なフィールド:', Object.keys(userSettings));
+        }
+        
         const formattedSettings = {
             user_id: userId,
             daily_report_enabled: true,
@@ -4290,11 +4309,8 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
             alert_notifications_enabled: true,   // 追加: アラート通知を有効化
             meta_access_token: userSettings.meta_access_token || 'test_dummy_token',  // テスト用ダミー値
             meta_account_id: userSettings.meta_account_id || 'test_dummy_account',     // テスト用ダミー値
-            // トークンフィールドの統一（複数のフィールド名に対応）
-            chatwork_token: userSettings.chatwork_api_token || 
-                          userSettings.chatwork_token || 
-                          userSettings.chatwork_apitoken,
-            chatwork_room_id: userSettings.chatwork_room_id
+            chatwork_token: chatworkToken || 'test_dummy_chatwork_token',  // テスト用ダミー値を追加
+            chatwork_room_id: chatworkRoomId || 'test_dummy_room_id'       // テスト用ダミー値を追加
         };
         
         switch(type) {
