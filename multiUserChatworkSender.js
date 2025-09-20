@@ -63,16 +63,16 @@ class MultiUserChatworkSender {
             // ユーザー別データベースに保存
             this.userManager.saveUserAdData(userSettings.user_id, data);
 
-            // チャットワークメッセージを生成
+            // チャットワークメッセージを生成（数値を適切に丸める）
             const message = `Meta広告 日次レポート (${yesterdayStr})
 
-消化金額（合計）：${(data.spend || 0).toLocaleString()}円
-予算消化率（平均）：${data.budgetRate || '0.00'}%
-CTR（平均）：${data.ctr || '0.00'}%
-CPM（平均）：${(data.cpm || 0).toLocaleString()}円 
-CPA（平均）：${(data.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${data.frequency || '0.00'}
-コンバージョン数：${data.conversions || 0}件  
+消化金額（合計）：${Math.round(data.spend || 0).toLocaleString()}円
+予算消化率（平均）：${Math.round(data.budgetRate || 0)}%
+CTR（平均）：${Math.round((data.ctr || 0) * 10) / 10}%
+CPM（平均）：${Math.round(data.cpm || 0).toLocaleString()}円 
+CPA（平均）：${Math.round(data.cpa || 0).toLocaleString()}円
+フリークエンシー（平均）：${Math.round((data.frequency || 0) * 10) / 10}
+コンバージョン数：${Math.round(data.conversions || 0)}件  
 
 確認はこちら
 https://meta-ads-dashboard.onrender.com/dashboard`;
@@ -153,20 +153,44 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 return;
             }
 
-            // 値のフォーマット用関数
+            // 修正案2: 各メトリックの最新1件のみを取得（重複排除）
+            const latestAlertsByMetric = {};
+            activeAlerts
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // 新しい順にソート
+                .forEach(alert => {
+                    // 各メトリックの最初の（最新の）アラートのみを保持
+                    if (!latestAlertsByMetric[alert.metric]) {
+                        latestAlertsByMetric[alert.metric] = alert;
+                    }
+                });
+            
+            const uniqueAlerts = Object.values(latestAlertsByMetric);
+            console.log(`ユーザー${userSettings.user_id}: 重複排除前${activeAlerts.length}件 → 重複排除後${uniqueAlerts.length}件`);
+            
+            if (uniqueAlerts.length === 0) {
+                console.log(`ユーザー${userSettings.user_id}: 重複排除後のアラートなし`);
+                return;
+            }
+
+            // 値のフォーマット用関数（適切な桁数に丸める）
             const formatValue = (value, metric) => {
                 switch (metric.toLowerCase()) {
                     case 'ctr':
                     case 'cvr':
+                        // CTR、CVRは小数点第1位まで表示（例: 0.899888 → 0.9）
+                        return `${Math.round(value * 10) / 10}%`;
                     case 'budget_rate':
-                        return `${value}%`;
+                    case '予算消化率':
+                        // 予算消化率は整数表示（例: 62.178 → 62）
+                        return `${Math.round(value)}%`;
                     case 'conversions':
                     case 'cv':
-                        return `${value}件`;
+                        return `${Math.round(value)}件`;
                     case 'cpa':
                     case 'cpm':
                     case 'cpc':
-                        return `${value.toLocaleString('ja-JP')}円`;
+                        // 整数に丸めてカンマ区切り（例: 1926.884 → 1,927）
+                        return `${Math.round(value).toLocaleString('ja-JP')}円`;
                     default:
                         return value.toString();
                 }
@@ -192,15 +216,17 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             let message = `[info][title]Meta広告 アラート通知 (${dateStr})[/title]\n`;
             message += `以下の指標が目標値から外れています：\n\n`;
 
-            // 重要度順にソート
-            const sortedAlerts = activeAlerts.sort((a, b) => {
+            // 重要度順にソート（重複排除後のアラートを使用）
+            const sortedAlerts = uniqueAlerts.sort((a, b) => {
                 if (a.severity === 'critical' && b.severity !== 'critical') return -1;
                 if (a.severity !== 'critical' && b.severity === 'critical') return 1;
-                return 0;
+                // 同じ重要度の場合はメトリック順
+                const metricOrder = ['CV', 'CTR', 'CPM', 'CPA', '予算消化率'];
+                return metricOrder.indexOf(a.metric) - metricOrder.indexOf(b.metric);
             });
 
-            // 上位10件のアラートを表示
-            sortedAlerts.slice(0, 10).forEach((alert, index) => {
+            // 全てのユニークなアラートを表示（最大10件制限を撤廃または維持）
+            sortedAlerts.forEach((alert, index) => {
                 const icon = alert.severity === 'critical' ? '🔴' : '⚠️';
                 const metricName = getMetricDisplayName(alert.metric);
                 message += `${icon} ${metricName}: `;
@@ -208,14 +234,15 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 message += `実績 ${formatValue(alert.currentValue, alert.metric)}\n`;
             });
 
-            if (sortedAlerts.length > 10) {
-                message += `\n...他${sortedAlerts.length - 10}件のアラート\n`;
-            }
+            // 10件を超える場合の表示は不要（重複排除後は通常10件以下）
+            // if (sortedAlerts.length > 10) {
+            //     message += `\n...他${sortedAlerts.length - 10}件のアラート\n`;
+            // }
 
             message += `\n📊 詳細はダッシュボードでご確認ください：\n`;
-            message += `http://localhost:3000/dashboard\n\n`;
-            message += `✅ 確認事項：http://localhost:3000/improvement-tasks\n`;
-            message += `💡 改善施策：http://localhost:3000/improvement-strategies[/info]`;
+            message += `https://meta-ads-dashboard.onrender.com/dashboard\n\n`;
+            message += `✅ 確認事項：https://meta-ads-dashboard.onrender.com/improvement-tasks\n`;
+            message += `💡 改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies[/info]`;
 
             await sendChatworkMessage({
                 date: new Date().toISOString().split('T')[0],

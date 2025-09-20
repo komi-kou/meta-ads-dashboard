@@ -39,22 +39,27 @@ function getMetricDisplayName(metric) {
     return names[metric.toLowerCase()] || metric;
 }
 
-// 値のフォーマット
+// 値のフォーマット（適切な桁数に丸める）
 function formatValue(value, metric) {
     switch (metric.toLowerCase()) {
         case 'ctr':
         case 'cvr':
+            // CTR、CVRは小数点第1位まで表示（例: 0.899888 → 0.9）
+            return `${Math.round(value * 10) / 10}%`;
         case 'budget_rate':
-            return `${value}%`;
+        case '予算消化率':
+            // 予算消化率は整数表示（例: 62.178 → 62）
+            return `${Math.round(value)}%`;
         case 'roas':
-            return `${value}%`;
+            return `${Math.round(value * 10) / 10}%`;
         case 'conversions':
         case 'cv':
-            return `${value}件`;
+            return `${Math.round(value)}件`;
         case 'cpa':
         case 'cpm':
         case 'cpc':
-            return `${value.toLocaleString()}円`;
+            // 整数に丸めてカンマ区切り（例: 1926.884 → 1,927）
+            return `${Math.round(value).toLocaleString()}円`;
         default:
             return value.toString();
     }
@@ -198,13 +203,14 @@ async function generateDynamicAlerts(userId) {
                 const improvements = improvementStrategiesRules[metricDisplayName] || {};
 
                 // アラートオブジェクトを作成（JST時刻使用）
+                // 保存値は元の値のまま保持（表示時にフォーマット）
                 const jstNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
                 alerts.push({
                     id: `${metric}_dynamic_${Date.now()}`,
                     userId: userId,
                     metric: metricDisplayName,
-                    targetValue: targetValue,
-                    currentValue: currentValue,
+                    targetValue: targetValue,  // 元の値のまま保存
+                    currentValue: currentValue,  // 元の値のまま保存
                     message: message,
                     severity: severity,
                     timestamp: jstNow.toISOString(),
@@ -218,6 +224,12 @@ async function generateDynamicAlerts(userId) {
         }
 
         console.log(`✅ 動的アラート生成完了: ${alerts.length}件`);
+        
+        // アラート履歴に保存
+        if (alerts.length > 0) {
+            await saveAlertsToHistory(alerts);
+        }
+        
         return alerts;
         
     } catch (error) {
@@ -394,9 +406,89 @@ async function generateAlertsForDay(dayData, userSettings, userId) {
     return alerts;
 }
 
+// アラートを履歴に保存する関数（改善版：古いアラートを自動解決）
+async function saveAlertsToHistory(alerts) {
+    try {
+        const historyPath = path.join(__dirname, 'alert_history.json');
+        let history = [];
+        
+        // 既存の履歴を読み込み
+        if (fs.existsSync(historyPath)) {
+            const data = fs.readFileSync(historyPath, 'utf8');
+            history = JSON.parse(data);
+        }
+        
+        // 古いアクティブアラートを解決済みにする
+        const now = new Date();
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        let resolvedCount = 0;
+        
+        history = history.map(h => {
+            // 24時間以上前のアクティブアラートを解決済みに変更
+            if (h.status === 'active' && new Date(h.timestamp) < oneDayAgo) {
+                resolvedCount++;
+                console.log(`🔄 古いアラートを解決済みに変更: ${h.metric} (${new Date(h.timestamp).toLocaleString()})`);
+                return { ...h, status: 'resolved', resolvedAt: now.toISOString() };
+            }
+            return h;
+        });
+        
+        if (resolvedCount > 0) {
+            console.log(`📊 ${resolvedCount}件の古いアラートを解決済みに変更`);
+        }
+        
+        // 新しいアラートごとに、同じメトリックの既存アクティブアラートを解決済みにする
+        for (const alert of alerts) {
+            // 同じユーザー・同じメトリックの既存のアクティブアラートを解決済みにする
+            history = history.map(h => {
+                if (h.userId === alert.userId && 
+                    h.metric === alert.metric && 
+                    h.status === 'active' &&
+                    h.id !== alert.id) {
+                    console.log(`🔄 同一メトリックの古いアラートを解決: ${h.metric} (ID: ${h.id})`);
+                    return { ...h, status: 'resolved', resolvedAt: now.toISOString() };
+                }
+                return h;
+            });
+            
+            // 同じアラートが既に存在するかチェック
+            const existingIndex = history.findIndex(h => h.id === alert.id);
+            
+            if (existingIndex !== -1) {
+                // 既存のアラートを更新
+                history[existingIndex] = alert;
+                console.log(`📝 既存アラート更新: ${alert.metric} (${alert.userId})`);
+            } else {
+                // 新規アラート追加
+                history.push(alert);
+                console.log(`✅ 新規アラート保存: ${alert.metric} (${alert.userId})`);
+            }
+        }
+        
+        // 30日以上前のアラートを削除
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const beforeCount = history.length;
+        history = history.filter(h => new Date(h.timestamp) > thirtyDaysAgo);
+        const deletedCount = beforeCount - history.length;
+        
+        if (deletedCount > 0) {
+            console.log(`🗑️ ${deletedCount}件の古いアラート（30日以上前）を削除`);
+        }
+        
+        // 保存
+        fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
+        console.log(`💾 アラート履歴保存完了: 総アラート数 ${history.length}件`);
+        
+    } catch (error) {
+        console.error('アラート履歴保存エラー:', error);
+    }
+}
+
 module.exports = {
     generateDynamicAlerts,
     generateDynamicAlertHistory,
+    saveAlertsToHistory,
     getMetricDisplayName,
     formatValue
 };
