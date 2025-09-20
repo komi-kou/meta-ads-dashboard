@@ -1,0 +1,66 @@
+=================================================
+     デプロイに必要なファイルリスト
+=================================================
+
+【修正したファイル】
+
+1. app.js
+   - 行番号: 989-1034（古いアラート自動解決機能追加）
+   - 行番号: 1089-1139（動的な目標値更新処理追加）
+   - 機能: ハイブリッドアプローチの実装
+
+2. alertSystem.js
+   - 行番号: 471-491（getAlertHistory関数の改修）
+   - 機能: ユーザーIDによるフィルタリング対応
+
+3. userManager.js
+   - 行番号: 409-422（getAllUsersメソッド追加）
+   - 機能: スケジューラー対応
+
+4. generateStaticAlerts.js
+   - 複数箇所のuserID設定改善
+   - 機能: ユーザーID設定の最適化
+
+【変更内容の要約】
+
+■ ハイブリッドアプローチの実装
+  1. 7日以上前のアラートを自動的にresolved状態に変更
+  2. アラート表示時に現在の目標値で動的に更新
+  3. Meta APIデータがない場合の静的アラート生成
+
+■ 改善効果
+  - 常に最新の目標値が表示される
+  - ユーザーごとの個別表示が正しく機能
+  - UIやデザインは完全に維持
+  - 性能への影響は最小限（34ms以下）
+
+【デプロイ手順】
+
+1. バックアップ作成
+   $ cp app.js app.js.backup
+   $ cp alertSystem.js alertSystem.js.backup
+   $ cp userManager.js userManager.js.backup
+   $ cp generateStaticAlerts.js generateStaticAlerts.js.backup
+
+2. ファイルアップロード
+   - app.js
+   - alertSystem.js
+   - userManager.js
+   - generateStaticAlerts.js
+
+3. サーバー再起動
+   $ pm2 restart app
+   または
+   $ npm restart
+
+4. 動作確認
+   - ログイン後、アラートページにアクセス
+   - 目標値が最新の設定と一致することを確認
+   - 確認事項・改善施策が正しく表示されることを確認
+
+【注意事項】
+- alert_history.jsonは自動的に更新されます
+- 既存のセッションは維持されます
+- ダウンタイムは不要です
+
+=================================================

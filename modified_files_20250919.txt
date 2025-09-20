@@ -1,0 +1,37 @@
+=== 修正ファイルリスト（2025年9月19日） ===
+
+修正されたファイル:
+1. metaApi.js
+2. dynamicAlertGenerator.js
+
+修正内容の詳細:
+
+【1. metaApi.js】
+- 新規追加: fetchMetaDataWithStoredConfig関数（576-614行目）
+  ユーザー設定からMeta APIデータを取得する関数を追加
+- 修正: fetchMetaAdDailyStats関数のパラメータ処理（395-404行目）
+  app_idパラメータをオプショナルに変更
+- module.exportsにfetchMetaDataWithStoredConfigを追加（621-626行目）
+
+【2. dynamicAlertGenerator.js】
+- 修正: generateDynamicAlerts関数（220-226行目）
+  アラート履歴保存処理を追加
+- 新規追加: saveAlertsToHistory関数（403-447行目）
+  アラートを履歴ファイルに保存する処理を実装
+  重複チェックと30日以前のデータ削除機能を含む
+
+実装結果:
+✅ Meta APIから実際の広告データを取得可能に
+✅ ユーザーごとの目標値と実績値を比較してアラート生成
+✅ アラート履歴の自動保存（alert_history.json）
+✅ マルチユーザー対応（userIdで分離管理）
+✅ ページ更新しても一貫性のあるデータ表示
+
+テスト済みユーザー:
+- komiya11122@gmail.com (ID: b4475ace-303e-4fd1-8740-221154c9b291)
+- Meta Account ID: act_1165556408678089
+- 生成されたアラート: CTR、CPMの2件
+
+デプロイ時の注意:
+- ユーザー設定ファイルの更新が必要（Meta APIトークン等）
+- alert_history.jsonの書き込み権限を確認

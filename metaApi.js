@@ -395,9 +395,13 @@ async function fetchMetaAdDailyStats({ accessToken, accountId, appId, datePreset
     const params = {
         access_token: accessToken,
         fields: fields.join(','),
-        time_increment: 1, // 日別
-        app_id: appId
+        time_increment: 1 // 日別
     };
+    
+    // appIdが指定されている場合のみ追加
+    if (appId) {
+        params.app_id = appId;
+    }
     
     // date_presetまたはsince/untilのいずれかを使用
     if (since && until) {
@@ -573,11 +577,52 @@ async function fetchMetaTokenExpiry(accessToken, appId, appSecret = '') {
   }
 }
 
+/**
+ * ユーザー設定からMeta APIデータを取得する関数
+ * @param {string} userId - ユーザーID
+ * @returns {Promise<Object|null>} Meta APIデータまたはnull
+ */
+async function fetchMetaDataWithStoredConfig(userId) {
+  try {
+    const UserManager = require('./userManager');
+    const userManager = new UserManager();
+    const userSettings = userManager.getUserSettings(userId);
+    
+    if (!userSettings || !userSettings.meta_access_token || !userSettings.meta_account_id) {
+      console.log('Meta API設定が不足しています:', userId);
+      return null;
+    }
+    
+    // 今日のデータを取得（オブジェクト形式で呼び出し）
+    const data = await fetchMetaAdDailyStats({
+      accountId: userSettings.meta_account_id,
+      accessToken: userSettings.meta_access_token,
+      appId: userSettings.meta_app_id || process.env.META_APP_ID || '',
+      datePreset: 'today',
+      dailyBudget: userSettings.target_daily_budget || 10000
+    });
+    
+    if (!data || data.length === 0) {
+      console.log('Meta APIからデータが取得できませんでした');
+      return null;
+    }
+    
+    // 最新のデータを返す
+    return {
+      summary: data[0] // 今日のデータ
+    };
+  } catch (error) {
+    console.error('fetchMetaDataWithStoredConfigエラー:', error.message);
+    return null;
+  }
+}
+
 // MetaApiクラスのインスタンスを作成
 const metaApi = new MetaApi();
 
 module.exports = { 
     fetchMetaAdDailyStats, 
     fetchMetaTokenExpiry,
+    fetchMetaDataWithStoredConfig,
     metaApi 
 };

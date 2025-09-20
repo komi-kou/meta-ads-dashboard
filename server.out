@@ -1,0 +1,171 @@
+[dotenv@17.2.0] injecting env (6) from .env (tip: ⚙️  suppress all logs with { quiet: true })
+=== 環境変数確認 ===
+META_ACCESS_TOKEN: 設定済み
+META_ACCOUNT_ID: 未設定
+META_APP_ID: 未設定
+📊 既存ユーザー数: 5
+👤 テストユーザーは既に存在します
+ℹ️ Trust proxy disabled for development
+⚠️ File store not available, using memory store: Cannot find module 'session-file-store'
+Require stack:
+- /Users/komiyakouhei/Library/Mobile Documents/com~apple~CloudDocs/meta-ads-dashboard-main/app.js
+ℹ️ Secure cookies disabled for development
+📋 Session config: { secure: false, sameSite: 'lax', maxAge: 86400000, trustProxy: false }
+Meta API読み込み成功
+scheduler.jsが実行されました
+🕐 データ取得スケジューラーを開始しました
+📊 データ取得: 9時、12時、15時、17時、19時
+💬 チャットワーク送信: chatworkAutoSender.js で管理
+✅ スケジューラー読み込み成功
+✅ マルチユーザー対応チャットワーク自動送信機能を開始しました
+
+==========================================
+✅ サーバー起動成功！
+🌐 URL: http://localhost:3000
+👤 ログイン: komiya / komiya
+==========================================
+
+⚠️ tokenManagerは利用できません
+⚠️ 設定ファイルが見つかりません
+🕐 前日比アラートスケジューラーを開始します
+✅ 前日比アラートスケジューラー設定完了
+   実行時刻: 毎日 10:00, 15:00 (JST)
+✅ 前日比アラートスケジューラーを起動しました
+🕐 アラート自動生成スケジューラーを開始します
+✅ アラート自動生成スケジューラー設定完了
+   実行時刻: 毎日 9:00, 12:00, 15:00, 17:00, 19:00 (JST)
+✅ アラート自動生成スケジューラーを起動しました
+📊 初回アラート生成を実行します...
+🔧 アラート生成を手動実行します
+=== アラート自動生成開始 ===
+📊 アクティブユーザー数: 2
+👤 ユーザー e292fec3-621b-47e9-9aaf-60ccfdabc07d のアラートチェック中...
+=== ユーザーe292fec3-621b-47e9-9aaf-60ccfdabc07dのアラートチェック開始 ===
+ユーザーe292fec3-621b-47e9-9aaf-60ccfdabc07dの生の設定: {
+  id: 'test-1753497732979-bdy6211ob',
+  user_id: 'e292fec3-621b-47e9-9aaf-60ccfdabc07d',
+  meta_access_token: 'EAAcUd0aSHKMBPNwDG1Tb7vnAyftCNCEZCjefIMUDmte1W91ZCNHlyHNuD6dj7HXbGnHptazneCJdc1XouLH4r3ZAgZBIlwykZBJMED0KsXrirwsYIijBr7ZBLoxh770oFnidMf1jdjUDEEK33JVwDxDxZBEhe0GVMJIwNLZCZC1AhOH6uu6m95eXhTIlEETMLbw292ER1PYqEQa5WQLoT',
+  meta_account_id: 'act_1755467588688735',
+  meta_app_id: '',
+  chatwork_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '405874412',
+  service_goal: 'toC_line',
+  goal_type: 'toC_line',
+  target_cpa: '1500',
+  target_cpm: '1900',
+  target_ctr: '2.5',
+  target_dailyBudget: '2000',
+  notifications_enabled: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true,
+  created_at: '2025-07-26T02:42:12.979Z',
+  updated_at: '2025-07-26T02:42:12.979Z'
+}
+ユーザーe292fec3-621b-47e9-9aaf-60ccfdabc07dの有効な目標値: { cpa: 1500, cpm: 1900, ctr: 2.5 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1755467588688735
+期間: 2025-09-15T10:51:04.501Z 〜 2025-09-16T10:51:04.501Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1755467588688735/insights?access_token=EAAcUd0aSHKMBPNwDG1Tb7vnAyftCNCEZCjefIMUDmte1W91ZCNHlyHNuD6dj7HXbGnHptazneCJdc1XouLH4r3ZAgZBIlwykZBJMED0KsXrirwsYIijBr7ZBLoxh770oFnidMf1jdjUDEEK33JVwDxDxZBEhe0GVMJIwNLZCZC1AhOH6uu6m95eXhTIlEETMLbw292ER1PYqEQa5WQLoT&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-09-15%22%2C%22until%22%3A%222025-09-16%22%7D&time_increment=1
+Meta API レスポンス: { data: [] }
+インサイトデータがありません - 現実的なデータを生成します
+現実的なフォールバックデータを生成しました
+cpaのアラートチェック中... 目標値: 1500
+cpmのアラートチェック中... 目標値: 1900
+✅ cpmの確認事項を取得: 1件
+✅ cpmの改善施策を取得: 1カテゴリ
+ctrのアラートチェック中... 目標値: 2.5
+✅ ctrの確認事項を取得: 3件
+✅ ctrの改善施策を取得: 3カテゴリ
+✅ アラート履歴保存完了
+ユーザーe292fec3-621b-47e9-9aaf-60ccfdabc07dのアラートチェック完了: 2件のアラート
+  → 2件のアラート検出
+👤 ユーザー 7fe7e401-a67b-40fb-bdff-0b61b67dc116 のアラートチェック中...
+=== ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116のアラートチェック開始 ===
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116の生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '408053863',
+  service_goal: '',
+  target_cpa: '5000',
+  target_cpm: '3000',
+  target_ctr: '3.0',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true
+}
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116の有効な目標値: { cpa: 5000, cpm: 3000, ctr: 3 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1165556408678089
+期間: 2025-09-15T10:51:05.339Z 〜 2025-09-16T10:51:05.339Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-09-15%22%2C%22until%22%3A%222025-09-16%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '3010',
+      impressions: '1683',
+      clicks: '21',
+      ctr: '1.247772',
+      cpm: '1788.472965',
+      cpc: '143.333333',
+      actions: [Array],
+      reach: '1318',
+      frequency: '1.276935',
+      date_start: '2025-09-15',
+      date_stop: '2025-09-15'
+    },
+    {
+      spend: '2294',
+      impressions: '1539',
+      clicks: '16',
+      ctr: '1.039636',
+      cpm: '1490.578298',
+      cpc: '143.375',
+      actions: [Array],
+      reach: '1328',
+      frequency: '1.158886',
+      date_start: '2025-09-16',
+      date_stop: '2025-09-16'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+cpaのアラートチェック中... 目標値: 5000
+cpmのアラートチェック中... 目標値: 3000
+ctrのアラートチェック中... 目標値: 3
+✅ ctrの確認事項を取得: 3件
+✅ ctrの改善施策を取得: 3カテゴリ
+✅ アラート履歴保存完了
+✅ チャットワークアラート通知送信完了
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116のアラートチェック完了: 1件のアラート
+  → 1件のアラート検出
+👤 デフォルトユーザーのアラートチェック中...
+=== ユーザーtest@example.comのアラートチェック開始 ===
+ユーザー設定が見つかりません: test@example.com
+目標値が設定されていません: test@example.com
+⚠️ 重複アラートスキップ: cpm
+⚠️ 重複アラートスキップ: ctr
+⚠️ 重複アラートスキップ: ctr
+✅ アラート履歴保存完了: 総数59件
+🚨 0件の新規アラートを保存
+📢 3件の新規アラートが生成されました
+=== アラート自動生成完了 ===
+
+🔍 Session Debug: {
+  url: '/login',
+  method: 'GET',
+  sessionID: 'n7KWvmyrc8p9BNQG6GthRgbhBOhvFVE1',
+  hasSession: true,
+  sessionKeys: [ 'cookie' ],
+  userId: undefined,
+  cookies: 'missing',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: GET /login
+🔑 CSRF Token Generated: 1b16e2ff...
+📋 Login page render - Session ID: n7KWvmyrc8p9BNQG6GthRgbhBOhvFVE1
+🔑 CSRF token available: true
