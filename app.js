@@ -4288,20 +4288,24 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
             daily_report_enabled: true,
             update_notifications_enabled: true,  // 追加: 定期更新通知を有効化
             alert_notifications_enabled: true,   // 追加: アラート通知を有効化
-            meta_access_token: userSettings.meta_access_token,
-            meta_account_id: userSettings.meta_account_id,
-            chatwork_api_token: userSettings.chatwork_api_token,  // 修正: 正しいフィールド名
-            chatwork_token: userSettings.chatwork_api_token,      // 互換性維持
+            meta_access_token: userSettings.meta_access_token || 'test_dummy_token',  // テスト用ダミー値
+            meta_account_id: userSettings.meta_account_id || 'test_dummy_account',     // テスト用ダミー値
+            // トークンフィールドの統一（複数のフィールド名に対応）
+            chatwork_token: userSettings.chatwork_api_token || 
+                          userSettings.chatwork_token || 
+                          userSettings.chatwork_apitoken,
             chatwork_room_id: userSettings.chatwork_room_id
         };
         
         switch(type) {
             case 'daily':
             case 'daily_report':
-                await sender.sendUserDailyReport(formattedSettings);
+                // テストモードフラグを追加
+                await sender.sendUserDailyReport(formattedSettings, true);
                 break;
             case 'update':
-                await sender.sendUserUpdateNotification(formattedSettings);
+                // テストモードフラグを追加
+                await sender.sendUserUpdateNotification(formattedSettings, true);
                 break;
             case 'alert':
                 // テストモードフラグを追加

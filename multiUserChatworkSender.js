@@ -31,51 +31,83 @@ class MultiUserChatworkSender {
     }
 
     // ユーザー別日次レポート送信
-    async sendUserDailyReport(userSettings) {
+    async sendUserDailyReport(userSettings, isTestMode = false) {
         try {
             if (!userSettings.daily_report_enabled) {
                 console.log(`ユーザー${userSettings.user_id}: 日次レポート無効`);
                 return;
             }
 
-            if (!this.checkUserSentHistory(userSettings.user_id, 'daily')) {
+            if (!isTestMode && !this.checkUserSentHistory(userSettings.user_id, 'daily')) {
                 return;
             }
 
-            console.log(`📅 ユーザー${userSettings.user_id}の日次レポート送信開始`);
+            console.log(`📅 ユーザー${userSettings.user_id}の日次レポート${isTestMode ? 'テスト' : ''}送信開始`);
 
-            // ユーザーのMeta広告データを取得
-            const metaData = await fetchMetaAdDailyStats({
-                accessToken: userSettings.meta_access_token,
-                accountId: userSettings.meta_account_id,
-                datePreset: 'yesterday'
-            });
+            let data;
+            
+            if (isTestMode) {
+                // テストモード: 固定のサンプルデータを使用
+                console.log('📝 テストモード: サンプルデータを使用');
+                data = {
+                    spend: 2206.789,
+                    budgetRate: 99.876543,
+                    ctr: 0.793651,  // 0.793651% として扱う
+                    cpm: 1946.208,
+                    cpa: 0,
+                    frequency: 1.3451957295373667,  // 1.3451... として扱う（%ではない）
+                    conversions: 0.25
+                };
+            } else {
+                // 通常モード: 実際のMeta広告データを取得
+                const metaData = await fetchMetaAdDailyStats({
+                    accessToken: userSettings.meta_access_token,
+                    accountId: userSettings.meta_account_id,
+                    datePreset: 'yesterday'
+                });
 
-            if (!metaData || metaData.length === 0) {
-                console.log(`ユーザー${userSettings.user_id}: データなし`);
-                return;
+                if (!metaData || metaData.length === 0) {
+                    console.log(`ユーザー${userSettings.user_id}: データなし`);
+                    return;
+                }
+
+                data = metaData[0];
             }
-
-            const data = metaData[0];
+            
             const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000)
                 .toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
 
-            // ユーザー別データベースに保存
-            this.userManager.saveUserAdData(userSettings.user_id, data);
+            // ユーザー別データベースに保存（通常モードのみ）
+            if (!isTestMode) {
+                this.userManager.saveUserAdData(userSettings.user_id, data);
+            }
+
+            // CTRとfrequencyの特別処理（文字列で%が含まれている場合の対応）
+            const ctr = typeof data.ctr === 'string' && data.ctr.includes('%') 
+                ? parseFloat(data.ctr) 
+                : data.ctr;
+            const frequency = typeof data.frequency === 'string' && data.frequency.includes('%')
+                ? parseFloat(data.frequency)
+                : data.frequency;
 
             // チャットワークメッセージを生成（数値を適切に丸める）
-            const message = `Meta広告 日次レポート (${yesterdayStr})
+            let message = `Meta広告 日次レポート (${yesterdayStr})
 
 消化金額（合計）：${Math.round(data.spend || 0).toLocaleString()}円
 予算消化率（平均）：${Math.round(data.budgetRate || 0)}%
-CTR（平均）：${Math.round((data.ctr || 0) * 10) / 10}%
+CTR（平均）：${Math.round((ctr || 0) * 10) / 10}%
 CPM（平均）：${Math.round(data.cpm || 0).toLocaleString()}円 
 CPA（平均）：${Math.round(data.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${Math.round((data.frequency || 0) * 10) / 10}
+フリークエンシー（平均）：${Math.round((frequency || 0) * 10) / 10}
 コンバージョン数：${Math.round(data.conversions || 0)}件  
 
 確認はこちら
 https://meta-ads-dashboard.onrender.com/dashboard`;
+
+            // テストモードの場合は表記を追加
+            if (isTestMode) {
+                message += '\n\n※これはテストメッセージです';
+            }
 
             // チャットワークに送信
             await sendChatworkMessage({
@@ -93,25 +125,29 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
     }
 
     // ユーザー別定期更新通知送信
-    async sendUserUpdateNotification(userSettings) {
+    async sendUserUpdateNotification(userSettings, isTestMode = false) {
         try {
             if (!userSettings.update_notifications_enabled) {
                 console.log(`ユーザー${userSettings.user_id}: 定期更新通知無効`);
                 return;
             }
 
-            if (!this.checkUserSentHistory(userSettings.user_id, 'update')) {
+            if (!isTestMode && !this.checkUserSentHistory(userSettings.user_id, 'update')) {
                 return;
             }
 
-            console.log(`🔄 ユーザー${userSettings.user_id}の定期更新通知送信開始`);
+            console.log(`🔄 ユーザー${userSettings.user_id}の定期更新通知${isTestMode ? 'テスト' : ''}送信開始`);
 
-            const message = `Meta広告 定期更新通知
+            let message = `Meta広告 定期更新通知
 数値を更新しました。
 ご確認よろしくお願いいたします！
 
 確認はこちら
 https://meta-ads-dashboard.onrender.com/dashboard`;
+
+            if (isTestMode) {
+                message += '\n\n※これはテストメッセージです';
+            }
 
             await sendChatworkMessage({
                 date: new Date().toISOString().split('T')[0],
