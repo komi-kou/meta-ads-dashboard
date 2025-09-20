@@ -44,53 +44,13 @@ class MultiUserChatworkSender {
 
             console.log(`📅 ユーザー${userSettings.user_id}の日次レポート${isTestMode ? 'テスト' : ''}送信開始`);
 
-            // ===== テストモード: 早期リターンで完全分離 =====
+            // ===== テストモード: 専用メソッドを呼び出し =====
             if (isTestMode) {
-                console.log('📝 テストモード: サンプルデータを使用');
-                
-                // テスト用固定データ
-                const testData = {
-                    spend: 2206.789,
-                    budgetRate: 99.876543,
-                    ctr: 0.793651,
-                    cpm: 1946.208,
-                    cpa: 0,
-                    frequency: 1.3451957295373667,
-                    conversions: 0.25
-                };
-                
-                const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000)
-                    .toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
-                
-                // フォーマット処理（数値を適切に丸める）
-                const message = `Meta広告 日次レポート (${yesterdayStr})
-
-消化金額（合計）：${Math.round(testData.spend || 0).toLocaleString()}円
-予算消化率（平均）：${Math.round(testData.budgetRate || 0)}%
-CTR（平均）：${Math.round((testData.ctr || 0) * 10) / 10}%
-CPM（平均）：${Math.round(testData.cpm || 0).toLocaleString()}円 
-CPA（平均）：${Math.round(testData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${Math.round((testData.frequency || 0) * 10) / 10}
-コンバージョン数：${Math.round(testData.conversions || 0)}件  
-
-確認はこちら
-https://meta-ads-dashboard.onrender.com/dashboard
-
-※これはテストメッセージです`;
-                
-                // 送信
-                await sendChatworkMessage({
-                    date: yesterdayStr,
-                    message: message,
-                    token: userSettings.chatwork_token,
-                    room_id: userSettings.chatwork_room_id
-                });
-                
-                console.log(`✅ ユーザー${userSettings.user_id}の日次レポートテスト送信完了`);
-                return; // ここで早期リターン（重要）
+                console.log('🔀 テスト専用メソッドにリダイレクト');
+                return this.sendTestDailyReport(userSettings);
             }
 
-            // ===== 以下、通常モードの処理（テストモードでは実行されない） =====
+            // ===== 以下、通常モードのみ実行（テストモードは上でreturn） =====
             
             // 実際のMeta広告データを取得
             const metaData = await fetchMetaAdDailyStats({
@@ -145,6 +105,64 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
         } catch (error) {
             console.error(`❌ ユーザー${userSettings.user_id}の日次レポート送信エラー:`, error);
+        }
+    }
+
+    // テスト専用日次レポート送信（完全に独立したメソッド）
+    async sendTestDailyReport(userSettings) {
+        try {
+            console.log('📝 === テスト専用日次レポート送信開始 ===');
+            console.log('テストデータのみ使用（Meta APIは呼びません）');
+            
+            // 固定のテストデータ（絶対に変更されない）
+            const testData = {
+                spend: 2206.789,
+                budgetRate: 99.876543,
+                ctr: 0.793651,
+                cpm: 1946.208,
+                cpa: 0,
+                frequency: 1.3451957295373667,
+                conversions: 0.25
+            };
+            
+            const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000)
+                .toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+            
+            // メッセージ生成（確実にフォーマット）
+            const message = `Meta広告 日次レポート (${yesterdayStr})
+
+消化金額（合計）：${Math.round(testData.spend).toLocaleString()}円
+予算消化率（平均）：${Math.round(testData.budgetRate)}%
+CTR（平均）：${Math.round(testData.ctr * 10) / 10}%
+CPM（平均）：${Math.round(testData.cpm).toLocaleString()}円
+CPA（平均）：${Math.round(testData.cpa).toLocaleString()}円
+フリークエンシー（平均）：${Math.round(testData.frequency * 10) / 10}
+コンバージョン数：${Math.round(testData.conversions)}件  
+
+確認はこちら
+https://meta-ads-dashboard.onrender.com/dashboard
+
+※これはテストメッセージです`;
+            
+            console.log('生成されたメッセージ:');
+            console.log('CTR:', Math.round(testData.ctr * 10) / 10 + '%');
+            console.log('CPM:', Math.round(testData.cpm).toLocaleString() + '円');
+            console.log('フリークエンシー:', Math.round(testData.frequency * 10) / 10);
+            
+            // 送信
+            await sendChatworkMessage({
+                date: yesterdayStr,
+                message: message,
+                token: userSettings.chatwork_token || 'dummy_test_token',
+                room_id: userSettings.chatwork_room_id || 'dummy_test_room'
+            });
+            
+            console.log('✅ テスト日次レポート送信完了');
+            return { success: true, message: 'テスト日次レポート送信完了' };
+            
+        } catch (error) {
+            console.error('❌ テスト日次レポート送信エラー:', error);
+            return { success: false, error: error.message };
         }
     }
 
@@ -254,19 +272,28 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 }
             }
 
-            // 修正案2: 各メトリックの最新1件のみを取得（重複排除）
-            const latestAlertsByMetric = {};
+            // 強化版: 完全な重複排除（メトリック + 目標値 + 現在値でユニーク）
+            const seenKeys = new Set();
+            const uniqueAlerts = [];
+            
+            console.log(`📊 重複排除開始: ${activeAlerts.length}件のアラート`);
+            
             activeAlerts
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // 新しい順にソート
                 .forEach(alert => {
-                    // 各メトリックの最初の（最新の）アラートのみを保持
-                    if (!latestAlertsByMetric[alert.metric]) {
-                        latestAlertsByMetric[alert.metric] = alert;
+                    // ユニークキーを作成（メトリック + 目標値 + 現在値）
+                    const uniqueKey = `${alert.metric}_${alert.targetValue}_${alert.currentValue}`;
+                    
+                    if (!seenKeys.has(uniqueKey)) {
+                        seenKeys.add(uniqueKey);
+                        uniqueAlerts.push(alert);
+                        console.log(`  ✅ 追加: ${alert.metric} (目標:${alert.targetValue}, 実績:${alert.currentValue})`);
+                    } else {
+                        console.log(`  ⚠️ 重複スキップ: ${alert.metric}`);
                     }
                 });
             
-            const uniqueAlerts = Object.values(latestAlertsByMetric);
-            console.log(`ユーザー${userSettings.user_id}: 重複排除前${activeAlerts.length}件 → 重複排除後${uniqueAlerts.length}件`);
+            console.log(`ユーザー${userSettings.user_id}: 重複排除完了 ${activeAlerts.length}件 → ${uniqueAlerts.length}件`);
             
             if (uniqueAlerts.length === 0) {
                 console.log(`ユーザー${userSettings.user_id}: 重複排除後のアラートなし`);

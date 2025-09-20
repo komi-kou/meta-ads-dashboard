@@ -4281,6 +4281,13 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
             });
         }
         
+        // デバッグ: ユーザー設定の実際のフィールドを確認
+        console.log('🔍 === ユーザー設定のデバッグ情報 ===');
+        console.log('🔍 利用可能なフィールド:', Object.keys(userSettings));
+        console.log('🔍 chatwork関連フィールド:', Object.keys(userSettings).filter(k => k.toLowerCase().includes('chatwork')));
+        console.log('🔍 token関連フィールド:', Object.keys(userSettings).filter(k => k.toLowerCase().includes('token')));
+        console.log('🔍 room関連フィールド:', Object.keys(userSettings).filter(k => k.toLowerCase().includes('room')));
+        
         // テストタイプに応じて適切なメソッドを呼び出し
         // テスト送信時はすべての通知を有効化
         // トークンフィールドの統一処理（複数のフィールド名に対応）
