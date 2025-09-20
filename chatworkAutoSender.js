@@ -569,13 +569,13 @@ http://localhost:3000/dashboard`;
 
         const message = `Meta広告 日次レポート (${yesterdayStr})
 
-消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
-予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${dashboardData.ctr || '0.00'}%
-CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
-CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${dashboardData.frequency || '0.00'}
-コンバージョン数：${dashboardData.conversions || 0}件  
+消化金額（合計）：${Math.round(dashboardData.spend || 0).toLocaleString()}円
+予算消化率（平均）：${Math.round(dashboardData.budgetRate || 0)}%
+CTR（平均）：${Math.round((dashboardData.ctr || 0) * 10) / 10}%
+CPM（平均）：${Math.round(dashboardData.cpm || 0).toLocaleString()}円 
+CPA（平均）：${Math.round(dashboardData.cpa || 0).toLocaleString()}円
+フリークエンシー（平均）：${Math.round((dashboardData.frequency || 0) * 10) / 10}
+コンバージョン数：${Math.round(dashboardData.conversions || 0)}件  
 
 確認はこちら
 https://meta-ads-dashboard.onrender.com/dashboard`;
@@ -776,13 +776,13 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
         const message = `Meta広告 日次レポート (${yesterdayStr})
 
-消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
-予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${dashboardData.ctr || '0.00'}%
-CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
-CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${dashboardData.frequency || '0.00'}
-コンバージョン数：${dashboardData.conversions || 0}件  
+消化金額（合計）：${Math.round(dashboardData.spend || 0).toLocaleString()}円
+予算消化率（平均）：${Math.round(dashboardData.budgetRate || 0)}%
+CTR（平均）：${Math.round((dashboardData.ctr || 0) * 10) / 10}%
+CPM（平均）：${Math.round(dashboardData.cpm || 0).toLocaleString()}円 
+CPA（平均）：${Math.round(dashboardData.cpa || 0).toLocaleString()}円
+フリークエンシー（平均）：${Math.round((dashboardData.frequency || 0) * 10) / 10}
+コンバージョン数：${Math.round(dashboardData.conversions || 0)}件  
 
 確認はこちら
 https://meta-ads-dashboard.onrender.com/dashboard`;

@@ -128,29 +128,70 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
     }
 
     // ユーザー別アラート通知送信
-    async sendUserAlertNotification(userSettings) {
+    async sendUserAlertNotification(userSettings, isTestMode = false) {
         try {
             if (!userSettings.alert_notifications_enabled) {
                 console.log(`ユーザー${userSettings.user_id}: アラート通知無効`);
                 return;
             }
 
-            if (!this.checkUserSentHistory(userSettings.user_id, 'alert')) {
+            if (!isTestMode && !this.checkUserSentHistory(userSettings.user_id, 'alert')) {
                 return;
             }
 
             console.log(`🚨 ユーザー${userSettings.user_id}のアラート通知チェック開始`);
 
-            // 改善施策2: アラート履歴から最新データを取得（自動的に目標値が更新される）
-            const { getAlertHistory } = require('../alertSystem');
-            const alertHistory = await getAlertHistory(userSettings.user_id);
+            let activeAlerts = [];
             
-            // アクティブなアラートのみ抽出
-            const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
-            
-            if (activeAlerts.length === 0) {
-                console.log(`ユーザー${userSettings.user_id}: アクティブなアラートなし`);
-                return;
+            if (isTestMode) {
+                // テストモード: サンプルアラートを生成
+                console.log('📝 テストモード: サンプルアラートを生成');
+                activeAlerts = [
+                    {
+                        metric: 'CTR',
+                        targetValue: 1.0,
+                        currentValue: 0.8,
+                        severity: 'warning',
+                        timestamp: new Date().toISOString(),
+                        status: 'active'
+                    },
+                    {
+                        metric: 'CPM',
+                        targetValue: 1800,
+                        currentValue: 2100,
+                        severity: 'warning',
+                        timestamp: new Date().toISOString(),
+                        status: 'active'
+                    },
+                    {
+                        metric: 'CV',
+                        targetValue: 1,
+                        currentValue: 0,
+                        severity: 'critical',
+                        timestamp: new Date().toISOString(),
+                        status: 'active'
+                    },
+                    {
+                        metric: 'budget_rate',
+                        targetValue: 80,
+                        currentValue: 95,
+                        severity: 'critical',
+                        timestamp: new Date().toISOString(),
+                        status: 'active'
+                    }
+                ];
+            } else {
+                // 通常モード: 改善施策2: アラート履歴から最新データを取得
+                const { getAlertHistory } = require('../alertSystem');
+                const alertHistory = await getAlertHistory(userSettings.user_id);
+                
+                // アクティブなアラートのみ抽出
+                activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+                
+                if (activeAlerts.length === 0) {
+                    console.log(`ユーザー${userSettings.user_id}: アクティブなアラートなし`);
+                    return;
+                }
             }
 
             // 修正案2: 各メトリックの最新1件のみを取得（重複排除）
@@ -242,7 +283,14 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             message += `\n📊 詳細はダッシュボードでご確認ください：\n`;
             message += `https://meta-ads-dashboard.onrender.com/dashboard\n\n`;
             message += `✅ 確認事項：https://meta-ads-dashboard.onrender.com/improvement-tasks\n`;
-            message += `💡 改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies[/info]`;
+            message += `💡 改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies`;
+            
+            // テストモードの場合は表記を追加
+            if (isTestMode) {
+                message += `\n\n※これはテストメッセージです`;
+            }
+            
+            message += `[/info]`;
 
             await sendChatworkMessage({
                 date: new Date().toISOString().split('T')[0],
@@ -255,6 +303,41 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
         } catch (error) {
             console.error(`❌ ユーザー${userSettings.user_id}のアラート通知送信エラー:`, error);
+        }
+    }
+
+    // ユーザー別トークン更新通知送信（テスト用）
+    async sendUserTokenUpdateNotification(userSettings) {
+        try {
+            console.log(`🔑 ユーザー${userSettings.user_id}のトークン更新通知テスト送信開始`);
+
+            const message = `[info][title]Meta API アクセストークン更新通知[/title]
+    
+⚠️ アクセストークンの有効期限が近づいています
+
+更新手順:
+1. Meta for Developersにアクセス
+   https://developers.facebook.com/tools/explorer/
+
+2. 長期アクセストークンを生成
+   https://developers.facebook.com/tools/debug/accesstoken/
+
+3. ダッシュボード設定画面で更新
+   https://meta-ads-dashboard.onrender.com/setup
+
+※これはテスト通知です[/info]`;
+
+            await sendChatworkMessage({
+                date: new Date().toISOString().split('T')[0],
+                message: message,
+                token: userSettings.chatwork_token,
+                room_id: userSettings.chatwork_room_id
+            });
+
+            console.log(`✅ ユーザー${userSettings.user_id}のトークン更新通知テスト送信完了`);
+
+        } catch (error) {
+            console.error(`❌ ユーザー${userSettings.user_id}のトークン更新通知テスト送信エラー:`, error);
         }
     }
 

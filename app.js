@@ -4304,13 +4304,12 @@ app.post('/api/chatwork-test', requireAuth, async (req, res) => {
                 await sender.sendUserUpdateNotification(formattedSettings);
                 break;
             case 'alert':
-                await sender.sendUserAlertNotification(formattedSettings);
+                // テストモードフラグを追加
+                await sender.sendUserAlertNotification(formattedSettings, true);
                 break;
             case 'token':  // 追加: トークン更新通知テスト
-                // ChatworkAutoSenderを使用（トークン通知専用）
-                const ChatworkAutoSender = require('./chatworkAutoSender');
-                const autoSender = new ChatworkAutoSender();
-                await autoSender.sendTokenUpdateNotificationWithUser(userId);
+                // MultiUserChatworkSenderを使用
+                await sender.sendUserTokenUpdateNotification(formattedSettings);
                 break;
             default:
                 return res.status(400).json({ 
