@@ -472,7 +472,7 @@
                         <div class="metric-icon">🔄</div>
                         <div class="metric-title">フリークエンシー（平均）</div>
                         <div class="metric-value">
-                            <span data-metric="frequency">読み込み中...</span><span class="metric-unit">%</span>
+                            <span data-metric="frequency">読み込み中...</span><span class="metric-unit">回</span>
                         </div>
                     </div>
                 </div>
@@ -1179,11 +1179,11 @@
             const updates = [
                 { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
                 { selector: '[data-metric="budget-rate"]', value: data.budgetRate !== undefined && data.budgetRate !== null ? `${parseFloat(data.budgetRate).toFixed(1)}` : '0.0' },
-                { selector: '[data-metric="ctr"]', value: `${parseFloat(data.ctr).toFixed(2)}` },
-                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },
+                { selector: '[data-metric="ctr"]', value: `${data.ctr.toFixed(2)}` },  // すでに四捨五入済みの値を表示
+                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },  // すでに四捨五入済みの整数値を表示
                 { selector: '[data-metric="conversions"]', value: data.conversions || 0 },
                 { selector: '[data-metric="cpa"]', value: data.cpa !== undefined && data.cpa !== null ? `${Math.round(data.cpa).toLocaleString()}` : '-' },
-                { selector: '[data-metric="frequency"]', value: `${parseFloat(data.frequency).toFixed(2)}` }
+                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` }  // すでに四捨五入済みの値を表示
             ];
             
             updates.forEach(update => {

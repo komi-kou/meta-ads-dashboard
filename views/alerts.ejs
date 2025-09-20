@@ -536,16 +536,19 @@
         switch(metric) {
             case 'CTR':
             case 'CVR':
+                // CTR、CVRは小数点第1位まで表示
+                return (Math.round(value * 10) / 10) + '%';
             case '予算消化率':
-                return value + '%';
+                // 予算消化率は整数表示
+                return Math.round(value) + '%';
             case 'ROAS':
-                return value + '%';
+                return (Math.round(value * 10) / 10) + '%';
             case 'CV':
-                return value + '件';
+                return Math.round(value) + '件';
             case 'CPA':
             case 'CPM':
             case 'CPC':
-                return value.toLocaleString() + '円';
+                return Math.round(value).toLocaleString() + '円';
             default:
                 return value.toString();
         }

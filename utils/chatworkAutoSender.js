@@ -459,9 +459,9 @@ http://localhost:3000/dashboard`;
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
 CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
-CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
+CPM（平均）：${Math.round(dashboardData.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}
+フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
 コンバージョン数：${dashboardData.conversions || 0}件  
 
 確認はこちら
@@ -664,10 +664,10 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
-CTR（平均）：${dashboardData.ctr || '0.00'}%
-CPM（平均）：${(dashboardData.cpm || 0).toLocaleString()}円 
+CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
+CPM（平均）：${Math.round(dashboardData.cpm || 0).toLocaleString()}円 
 CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
-フリークエンシー（平均）：${dashboardData.frequency || '0.00'}%
+フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
 コンバージョン数：${dashboardData.conversions || 0}件  
 
 確認はこちら
