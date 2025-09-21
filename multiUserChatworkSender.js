@@ -272,26 +272,34 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 }
             }
 
-            // 強化版: 完全な重複排除（メトリック + 目標値 + 現在値でユニーク）
-            const seenKeys = new Set();
-            const uniqueAlerts = [];
+            // 改善版: メトリックごとに最新値のみを保持（重複を完全排除）
+            const latestByMetric = new Map();
             
             console.log(`📊 重複排除開始: ${activeAlerts.length}件のアラート`);
             
+            // 各メトリックごとに最新のアラートのみを保持
             activeAlerts
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // 新しい順にソート
                 .forEach(alert => {
-                    // ユニークキーを作成（メトリック + 目標値 + 現在値）
-                    const uniqueKey = `${alert.metric}_${alert.targetValue}_${alert.currentValue}`;
+                    const metricKey = alert.metric; // メトリック名のみでユニーク判定
                     
-                    if (!seenKeys.has(uniqueKey)) {
-                        seenKeys.add(uniqueKey);
-                        uniqueAlerts.push(alert);
+                    if (!latestByMetric.has(metricKey)) {
+                        latestByMetric.set(metricKey, alert);
                         console.log(`  ✅ 追加: ${alert.metric} (目標:${alert.targetValue}, 実績:${alert.currentValue})`);
                     } else {
-                        console.log(`  ⚠️ 重複スキップ: ${alert.metric}`);
+                        // 既存のアラートより新しい場合は更新
+                        const existing = latestByMetric.get(metricKey);
+                        if (new Date(alert.timestamp) > new Date(existing.timestamp)) {
+                            latestByMetric.set(metricKey, alert);
+                            console.log(`  🔄 更新: ${alert.metric} (最新値:${alert.currentValue})`);
+                        } else {
+                            console.log(`  ⚠️ 重複スキップ: ${alert.metric} (古い値)`);
+                        }
                     }
                 });
+            
+            // Map から配列に変換
+            const uniqueAlerts = Array.from(latestByMetric.values());
             
             console.log(`ユーザー${userSettings.user_id}: 重複排除完了 ${activeAlerts.length}件 → ${uniqueAlerts.length}件`);
             
