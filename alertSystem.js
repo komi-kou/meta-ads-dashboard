@@ -388,7 +388,7 @@ async function sendUserAlertsToChatwork(alerts, userId) {
         });
         
         sortedAlerts.forEach((alert, index) => {
-            const icon = alert.severity === 'critical' ? '[!]' : '⚠';
+            const icon = alert.severity === 'critical' ? '🔴' : '⚠️';
             const metricName = getMetricDisplayName(alert.metric);
             message += `${icon} ${metricName}: `;
             message += `目標 ${formatValue(alert.targetValue, alert.metric)} → `;

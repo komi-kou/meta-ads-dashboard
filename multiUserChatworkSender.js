@@ -1,6 +1,7 @@
 const UserManager = require('../userManager');
 const { sendChatworkMessage } = require('../chatworkApi');
 const { fetchMetaAdDailyStats } = require('../metaApi');
+const globalDeduplication = require('./globalDeduplication');
 
 class MultiUserChatworkSender {
     constructor() {
@@ -272,34 +273,13 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 }
             }
 
-            // 改善版: メトリックごとに最新値のみを保持（重複を完全排除）
-            const latestByMetric = new Map();
+            // グローバル重複排除を使用
+            const uniqueAlerts = globalDeduplication.filterDuplicates(activeAlerts);
             
-            console.log(`📊 重複排除開始: ${activeAlerts.length}件のアラート`);
-            
-            // 各メトリックごとに最新のアラートのみを保持
-            activeAlerts
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // 新しい順にソート
-                .forEach(alert => {
-                    const metricKey = alert.metric; // メトリック名のみでユニーク判定
-                    
-                    if (!latestByMetric.has(metricKey)) {
-                        latestByMetric.set(metricKey, alert);
-                        console.log(`  ✅ 追加: ${alert.metric} (目標:${alert.targetValue}, 実績:${alert.currentValue})`);
-                    } else {
-                        // 既存のアラートより新しい場合は更新
-                        const existing = latestByMetric.get(metricKey);
-                        if (new Date(alert.timestamp) > new Date(existing.timestamp)) {
-                            latestByMetric.set(metricKey, alert);
-                            console.log(`  🔄 更新: ${alert.metric} (最新値:${alert.currentValue})`);
-                        } else {
-                            console.log(`  ⚠️ 重複スキップ: ${alert.metric} (古い値)`);
-                        }
-                    }
-                });
-            
-            // Map から配列に変換
-            const uniqueAlerts = Array.from(latestByMetric.values());
+            // 送信済みとして記録
+            uniqueAlerts.forEach(alert => {
+                globalDeduplication.markAsSent(alert.metric, userSettings.user_id);
+            });
             
             console.log(`ユーザー${userSettings.user_id}: 重複排除完了 ${activeAlerts.length}件 → ${uniqueAlerts.length}件`);
             

@@ -166,7 +166,8 @@ function saveAdData(data) {
 }
 
 // バッチ本体処理を関数化（ユーザーIDを受け取るように修正）
-async function runBatch(isMorningReport = false, userId = null) {
+// 第3引数 sendNotification を追加（デフォルトはtrue for 後方互換性）
+async function runBatch(isMorningReport = false, userId = null, sendNotification = true) {
   writeLog(`=== 日次バッチ開始 ${userId ? `(userId: ${userId})` : '(共通設定)'} ===`);
   
   // 設定を取得（ユーザーIDを渡す）
@@ -204,9 +205,13 @@ async function runBatch(isMorningReport = false, userId = null) {
     adData.push(statsArr[0]);
     saveAdData(adData);
 
-    // --- 主な数値のChatwork自動通知 ---
-    if (settings.chatwork_token && settings.chatwork_room_id) {
+    // --- 主な数値のChatwork自動通知（sendNotificationフラグで制御） ---
+    if (sendNotification && settings.chatwork_token && settings.chatwork_room_id) {
       const d = statsArr[0];
+      
+      // URL動的生成を使用
+      const { getDashboardUrl } = require('./utils/urlHelper');
+      const dashboardUrl = getDashboardUrl(userId);
       
       // 数値フォーマット関数
       const formatNumber = (num) => {
@@ -223,10 +228,10 @@ async function runBatch(isMorningReport = false, userId = null) {
       let msg;
       if (isMorningReport) {
         // 朝9時は前日の詳細データ
-        msg = `広告データを更新しました。\nご確認ください。\n\n▼確認URL\nhttp://localhost:3000/\n\n日付: ${d.date || d.date_start || ''}\n消化金額: ${formatNumber(d.spend)}円\nCV: ${d.cv || 0}\nCPA: ${d.cpa && d.cpa > 0 ? formatNumber(d.cpa) + '円' : '計算不可'}\nCTR: ${formatPercentage(d.ctr, 2)}%\nCPM: ${formatNumber(d.cpm ? d.cpm / 10 : 0)}円\n予算消化率: ${formatPercentage(d.budgetRate, 0)}%`;
+        msg = `広告データを更新しました。\nご確認ください。\n\n▼確認URL\n${dashboardUrl}\n\n日付: ${d.date || d.date_start || ''}\n消化金額: ${formatNumber(d.spend)}円\nCV: ${d.cv || 0}\nCPA: ${d.cpa && d.cpa > 0 ? formatNumber(d.cpa) + '円' : '計算不可'}\nCTR: ${formatPercentage(d.ctr, 2)}%\nCPM: ${formatNumber(d.cpm ? d.cpm / 10 : 0)}円\n予算消化率: ${formatPercentage(d.budgetRate, 0)}%`;
       } else {
         // その他の時間帯は簡素化版
-        msg = `広告データを更新しました。\nご確認ください。\n\n▼ご確認URL\nhttp://localhost:3000/`;
+        msg = `広告データを更新しました。\nご確認ください。\n\n▼ご確認URL\n${dashboardUrl}`;
       }
       
       writeLog(`Chatwork通知送信開始 (${isMorningReport ? '朝9時詳細版' : '簡素化版'})`);
@@ -238,7 +243,11 @@ async function runBatch(isMorningReport = false, userId = null) {
       });
       writeLog('Chatwork通知送信完了');
     } else {
-      writeLog('Chatwork設定が未設定のため通知をスキップ');
+      if (!sendNotification) {
+        writeLog('通知フラグがfalseのため通知をスキップ');
+      } else {
+        writeLog('Chatwork設定が未設定のため通知をスキップ');
+      }
     }
 
     // アラート判定
@@ -715,7 +724,8 @@ http://localhost:3000/dashboard`;
 }
 
 // 全ユーザーに対してバッチを実行する関数
-async function runBatchForAllUsers(isMorningReport = false) {
+// 第2引数 sendNotification を追加（デフォルトはtrue for 後方互換性）
+async function runBatchForAllUsers(isMorningReport = false, sendNotification = true) {
   writeLog('=== 全ユーザーバッチ処理開始 ===');
   
   try {
@@ -732,7 +742,8 @@ async function runBatchForAllUsers(isMorningReport = false) {
       // スケジューラーが有効なユーザーのみ処理
       if (userSettings && userSettings.enable_scheduler) {
         writeLog(`ユーザー ${user.id} (${user.email}) のバッチ処理開始`);
-        await runBatch(isMorningReport, user.id);
+        // sendNotificationフラグを渡す
+        await runBatch(isMorningReport, user.id, sendNotification);
       } else {
         writeLog(`ユーザー ${user.id} はスケジューラー無効のためスキップ`);
       }
@@ -743,7 +754,7 @@ async function runBatchForAllUsers(isMorningReport = false) {
     writeLog(`全ユーザーバッチ処理エラー: ${error.message}`);
     // エラーが発生しても共通設定で実行を試みる
     writeLog('共通設定でバッチ実行を試みます');
-    await runBatch(isMorningReport);
+    await runBatch(isMorningReport, null, sendNotification);
   }
 }
 
@@ -1080,27 +1091,39 @@ async function sendScheduledChatworkNotification(type, data = {}) {
     }
 }
 
+// ExecutionManagerをインポート
+const executionManager = require('./utils/executionManager');
+
 // データ取得・保存のみのスケジュール（マルチユーザー対応）
 // 朝9時のデータ取得とレポート送信
 cron.schedule('0 9 * * *', async () => {
   writeLog('朝9時のデータ取得とレポート送信開始');
-  await runBatchForAllUsers(true); // 全ユーザーのデータ取得
   
-  // アラートチェック実行
-  try {
-    writeLog('アラートチェック開始');
-    const alerts = await checkAllAlerts();
-    writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
-  } catch (error) {
-    writeLog('アラートチェックエラー: ' + error.message);
-  }
+  // データ取得（通知なし）
+  await executionManager.executeGlobalTask('morning_data_fetch', async () => {
+    await runBatchForAllUsers(true, false); // 朝レポートモード、通知なし
+    
+    // アラートチェック実行 - 重複防止のためコメントアウト
+    // multiUserSender.sendDailyReportToAllUsersがアラート送信を担当
+    /*
+    try {
+      writeLog('アラートチェック開始');
+      const alerts = await checkAllAlerts();
+      writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
+    } catch (error) {
+      writeLog('アラートチェックエラー: ' + error.message);
+    }
+    */
+  });
   
-  // マルチユーザー日次レポート送信
-  try {
-    await multiUserSender.sendDailyReportToAllUsers();
-  } catch (error) {
-    writeLog('マルチユーザー日次レポート送信エラー: ' + error.message);
-  }
+  // マルチユーザー日次レポート送信（重複防止付き）
+  await executionManager.executeGlobalTask('morning_daily_report', async () => {
+    try {
+      await multiUserSender.sendDailyReportToAllUsers();
+    } catch (error) {
+      writeLog('マルチユーザー日次レポート送信エラー: ' + error.message);
+    }
+  });
 }, {
   timezone: "Asia/Tokyo"
 });
@@ -1108,23 +1131,43 @@ cron.schedule('0 9 * * *', async () => {
 // その他の時間帯のデータ取得と更新通知（12時、15時、17時、19時）
 cron.schedule('0 12,15,17,19 * * *', async () => {
   writeLog('定期データ取得と更新通知開始');
-  await runBatchForAllUsers(false); // 全ユーザーのデータ取得
   
-  // アラートチェック実行
-  try {
-    writeLog('アラートチェック開始');
-    const alerts = await checkAllAlerts();
-    writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
-  } catch (error) {
-    writeLog('アラートチェックエラー: ' + error.message);
-  }
+  // データ取得（通知なし）
+  await executionManager.executeGlobalTask('regular_data_fetch', async () => {
+    await runBatchForAllUsers(false, false); // 通常モード、通知なし
+    
+    // アラートチェック実行 - 重複防止のためコメントアウト
+    // multiUserSender.sendDailyReportToAllUsersがアラート送信を担当
+    /*
+    try {
+      writeLog('アラートチェック開始');
+      const alerts = await checkAllAlerts();
+      writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
+    } catch (error) {
+      writeLog('アラートチェックエラー: ' + error.message);
+    }
+    */
+  });
   
-  // マルチユーザー更新通知送信
-  try {
-    await multiUserSender.sendUpdateNotificationToAllUsers();
-  } catch (error) {
-    writeLog('マルチユーザー更新通知送信エラー: ' + error.message);
-  }
+  // マルチユーザー更新通知送信（重複防止付き）
+  await executionManager.executeGlobalTask('update_notification', async () => {
+    try {
+      await multiUserSender.sendUpdateNotificationToAllUsers();
+    } catch (error) {
+      writeLog('マルチユーザー更新通知送信エラー: ' + error.message);
+    }
+  });
+  
+  // マルチユーザーアラート通知送信（重複防止付き）
+  await executionManager.executeGlobalTask('alert_notification', async () => {
+    try {
+      writeLog('アラート通知送信開始');
+      await multiUserSender.sendAlertNotificationToAllUsers(false); // 本番モード
+      writeLog('アラート通知送信完了');
+    } catch (error) {
+      writeLog('マルチユーザーアラート通知送信エラー: ' + error.message);
+    }
+  });
 }, {
   timezone: "Asia/Tokyo"
 });

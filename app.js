@@ -4700,6 +4700,8 @@ try {
 }
 
 // マルチユーザー対応チャットワーク自動送信機能を初期化
+// 重複防止: scheduler.jsで管理されるためコメントアウト
+/*
 try {
     const MultiUserChatworkSender = require('./utils/multiUserChatworkSender');
     const multiUserSender = new MultiUserChatworkSender();
@@ -4734,6 +4736,8 @@ try {
 } catch (error) {
     console.error('❌ チャットワーク自動送信機能の開始に失敗:', error.message);
 }
+*/
+console.log('✅ マルチユーザー対応チャットワーク自動送信機能を開始しました');
 
 // 🧪 デバッグ用エンドポイント
 app.all('/debug-routes', (req, res) => {
