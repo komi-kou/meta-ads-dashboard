@@ -237,8 +237,19 @@ class MetaApi {
             if (dayData) {
                 cpm = parseFloat(dayData.cpm || 0);
                 cpa = conversions > 0 ? spend / conversions : 0;
-                // テストデータとして予算消化率を設定（実際は後で上書きされる）
-                budgetRate = 130; // 実際のテストデータ: 2600円/2000円 = 130%
+                
+                // 予算消化率を動的に計算（ユーザー設定の日予算を使用）
+                const userSettings = this.getUserSettings ? this.getUserSettings() : {};
+                const dailyBudget = userSettings?.target_daily_budget || 2800;
+                const validSpend = Number(spend) || 0;
+                const validBudget = Number(dailyBudget) || 0;
+                
+                // Infinityチェックを追加
+                if (validSpend > 0 && validBudget > 0 && isFinite(validSpend)) {
+                    budgetRate = (validSpend / validBudget) * 100;
+                } else {
+                    budgetRate = 0;
+                }
             }
             
             dailyData.push({
