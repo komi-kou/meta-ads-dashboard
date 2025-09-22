@@ -3364,5 +3364,112 @@
     "ip_address": "::1",
     "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     "created_at": "2025-09-20T09:54:10.010Z"
+  },
+  {
+    "id": "495c4d29-3c77-43d1-b8e3-c9f5c7075e76",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "created_at": "2025-09-22T00:54:36.428Z"
+  },
+  {
+    "id": "e88fb5c7-1179-4227-9450-502dbdab9223",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "created_at": "2025-09-22T00:54:36.651Z"
+  },
+  {
+    "id": "afdd19d4-46b5-40b4-ab5b-19cd16481120",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "created_at": "2025-09-22T02:56:26.311Z"
+  },
+  {
+    "id": "e4930312-2bd2-45c3-93df-2ae5a0f4c457",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "created_at": "2025-09-22T02:56:26.535Z"
+  },
+  {
+    "id": "26a0777c-3a5c-43c1-bedc-60b7ea12d0ec",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-22T03:34:59.310Z"
+  },
+  {
+    "id": "347777d2-e746-4f48-a037-c0d4414eaac0",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-22T03:34:59.525Z"
+  },
+  {
+    "id": "1432ae74-f6d6-496a-826d-78d82cfd216f",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-22T04:02:27.251Z"
+  },
+  {
+    "id": "a2f8f945-ea00-4d31-9147-16e90200f724",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-09-22T04:02:27.497Z"
+  },
+  {
+    "id": "14acb713-3449-46d0-b7b1-8dbfcfc06cd1",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "",
+    "created_at": "2025-09-22T04:04:38.813Z"
+  },
+  {
+    "id": "cffa6870-b10e-4098-91ba-e6a9df06466c",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "created_at": "2025-09-22T04:04:39.024Z"
+  },
+  {
+    "id": "b03c657c-b444-4b65-b5ce-c772b9fc7221",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "created_at": "2025-09-22T04:52:02.875Z"
+  },
+  {
+    "id": "5034b559-8642-42b5-9c0b-737eb0696e3a",
+    "user_id": "b4475ace-303e-4fd1-8740-221154c9b291",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "created_at": "2025-09-22T04:52:03.136Z"
   }
 ]
