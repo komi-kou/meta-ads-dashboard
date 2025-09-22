@@ -15,8 +15,8 @@ const METRIC_DIRECTIONS = {
     ctr: 'higher_better',
     cvr: 'higher_better',
     conversions: 'higher_better',
-    budget_rate: 'higher_better',
     roas: 'higher_better',
+    budget_rate: 'higher_better',  // 予算消化率: 目標を下回る（80%未満）とアラート
     
     // 低い方が良い指標（目標を上回るとアラート）
     cpa: 'lower_better',
@@ -133,6 +133,15 @@ async function getHistoricalData(days, userId = null) {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
 
+        // ユーザー設定をmetaApiに渡す
+        if (userId) {
+            const userSettings = userManager.getUserSettings(userId);
+            if (userSettings) {
+                // metaApiのgetUserSettings関数をセット
+                metaApi.getUserSettings = () => userSettings;
+            }
+        }
+        
         const data = await metaApi.getAdInsights(
             config.accountId,
             config.accessToken,
@@ -166,7 +175,9 @@ async function checkUserAlerts(userId) {
             return [];
         }
         
-        const latestData = historicalData[0];
+        // 最新データは配列の最後の要素
+        const latestData = historicalData[historicalData.length - 1];
+        console.log('使用するデータ:', latestData);
         const alerts = [];
         
         // 各目標値に対してチェック
@@ -191,11 +202,13 @@ async function checkUserAlerts(userId) {
             // アラート履歴に保存
             await saveAlertHistory(alerts);
             
-            // チャットワーク通知（ユーザー設定で有効な場合）
-            const userSettings = userManager.getUserSettings(userId);
-            if (userSettings && userSettings.enable_alerts && userSettings.chatwork_api_token) {
-                await sendUserAlertsToChatwork(alerts, userId);
-            }
+            // チャットワーク通知は無効化
+            // 通知は以下の場所でのみ送信：
+            // 1. checkAllAlerts内のsendAlertsDirectly
+            // 2. スケジューラーからの定期実行時
+            // checkUserAlertsから直接送信しないことで重複を防ぐ
+            
+            console.log('📝 アラート履歴保存のみ実行（通知は別途送信）');
         }
         
         console.log(`ユーザー${userId}のアラートチェック完了: ${alerts.length}件のアラート`);
@@ -328,8 +341,9 @@ function formatValue(value, metric) {
     switch (metric) {
         case 'ctr':
         case 'cvr':
+            return `${Math.round(value * 10) / 10}%`;
         case 'budget_rate':
-            return `${value}%`;
+            return `${Math.round(value * 10) / 10}%`;
         case 'roas':
             return `${value}%`;
         case 'conversions':
@@ -553,6 +567,7 @@ async function checkAllAlerts() {
                     };
                     
                     // アラートデータを直接渡して送信
+                    console.log('➡️ checkAllAlertsから統一通知送信');
                     await sendAlertsDirectly(userAlerts, userSettingsForSend);
                 }
             }

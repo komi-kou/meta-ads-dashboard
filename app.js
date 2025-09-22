@@ -4717,12 +4717,13 @@ try {
     });
     
     // 定期更新通知: 12時、15時、17時、19時
-    cron.schedule('0 12,15,17,19 * * *', async () => {
-        console.log('🔄 定期更新通知送信スケジュール実行（全ユーザー）');
-        await multiUserSender.sendUpdateNotificationToAllUsers();
-    }, {
-        timezone: 'Asia/Tokyo'
-    });
+    // ❌ scheduler.jsの統一システムを使用するため無効化
+    // cron.schedule('0 12,15,17,19 * * *', async () => {
+    //     console.log('🔄 定期更新通知送信スケジュール実行（全ユーザー）');
+    //     await multiUserSender.sendUpdateNotificationToAllUsers();
+    // }, {
+    //     timezone: 'Asia/Tokyo'
+    // });
     
     // アラート通知: 9時、12時、15時、17時、19時
     // ❌ scheduler.jsの統一システムを使用するため無効化

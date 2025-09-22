@@ -76,7 +76,7 @@ async function sendAlertsDirectly(alerts, userSettings) {
                     return `${Math.round(value * 10) / 10}%`;
                 case 'budget_rate':
                 case '予算消化率':
-                    return `${Math.round(value)}%`;
+                    return `${Math.round(value * 10) / 10}%`;
                 case 'conversions':
                 case 'cv':
                     return `${Math.round(value)}件`;

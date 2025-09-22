@@ -164,8 +164,9 @@ class AlertAutoGenerator {
                 const savedCount = this.saveAlertHistory(allNewAlerts);
                 console.log(`🚨 ${savedCount}件の新規アラートを保存`);
                 
-                // チャットワーク通知（必要に応じて）
-                await this.notifyNewAlerts(allNewAlerts);
+                // チャットワーク通知はcheckAllAlertsに任せる
+                // ここでは通知しない（重複防止）
+                console.log('📢 アラート通知はスケジューラーの統一システムで送信');
             } else {
                 console.log('✅ 新規アラートなし');
             }
