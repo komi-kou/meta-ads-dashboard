@@ -1104,13 +1104,14 @@ cron.schedule('0 12,15,17,19 * * *', async () => {
   });
   
   // マルチユーザー更新通知送信（重複防止付き）
-  await executionManager.executeGlobalTask('update_notification', async () => {
-    try {
-      await multiUserSender.sendUpdateNotificationToAllUsers();
-    } catch (error) {
-      writeLog('マルチユーザー更新通知送信エラー: ' + error.message);
-    }
-  });
+  // ❌ アラート通知の重複を防ぐため無効化
+  // await executionManager.executeGlobalTask('update_notification', async () => {
+  //   try {
+  //     await multiUserSender.sendUpdateNotificationToAllUsers();
+  //   } catch (error) {
+  //     writeLog('マルチユーザー更新通知送信エラー: ' + error.message);
+  //   }
+  // });
   
   // アラート通知は9時の統一システムで処理するため、その他の時間帯では送信しない
   // 重複防止のため削除
