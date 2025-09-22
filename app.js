@@ -4725,12 +4725,13 @@ try {
     });
     
     // アラート通知: 9時、12時、15時、17時、19時
-    cron.schedule('0 9,12,15,17,19 * * *', async () => {
-        console.log('🚨 アラート通知送信スケジュール実行（全ユーザー）');
-        await multiUserSender.sendAlertNotificationToAllUsers();
-    }, {
-        timezone: 'Asia/Tokyo'
-    });
+    // ❌ scheduler.jsの統一システムを使用するため無効化
+    // cron.schedule('0 9,12,15,17,19 * * *', async () => {
+    //     console.log('🚨 アラート通知送信スケジュール実行（全ユーザー）');
+    //     await multiUserSender.sendAlertNotificationToAllUsers();
+    // }, {
+    //     timezone: 'Asia/Tokyo'
+    // });
     
     console.log('✅ マルチユーザー対応チャットワーク自動送信機能を開始しました');
 } catch (error) {

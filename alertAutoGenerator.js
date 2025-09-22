@@ -200,12 +200,13 @@ class AlertAutoGenerator {
         console.log('🕐 アラート自動生成スケジューラーを開始します');
 
         // 毎日9時、12時、15時、17時、19時に実行
-        cron.schedule('0 9,12,15,17,19 * * *', async () => {
-            console.log('📅 定期アラート生成実行');
-            await this.generateAllUserAlerts();
-        }, {
-            timezone: 'Asia/Tokyo'
-        });
+        // ❌ scheduler.jsの統一システムを使用するため無効化
+        // cron.schedule('0 9,12,15,17,19 * * *', async () => {
+        //     console.log('📅 定期アラート生成実行');
+        //     await this.generateAllUserAlerts();
+        // }, {
+        //     timezone: 'Asia/Tokyo'
+        // });
 
         this.isRunning = true;
         console.log('✅ アラート自動生成スケジューラー設定完了');
