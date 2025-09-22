@@ -1090,9 +1090,7 @@ cron.schedule('0 12,15,17,19 * * *', async () => {
   await executionManager.executeGlobalTask('regular_data_fetch', async () => {
     await runBatchForAllUsers(false, false); // 通常モード、通知なし
     
-    // アラートチェック実行 - 重複防止のためコメントアウト
-    // multiUserSender.sendDailyReportToAllUsersがアラート送信を担当
-    /*
+    // アラートチェック実行
     try {
       writeLog('アラートチェック開始');
       const alerts = await checkAllAlerts();
@@ -1100,18 +1098,16 @@ cron.schedule('0 12,15,17,19 * * *', async () => {
     } catch (error) {
       writeLog('アラートチェックエラー: ' + error.message);
     }
-    */
   });
   
   // マルチユーザー更新通知送信（重複防止付き）
-  // ❌ アラート通知の重複を防ぐため無効化
-  // await executionManager.executeGlobalTask('update_notification', async () => {
-  //   try {
-  //     await multiUserSender.sendUpdateNotificationToAllUsers();
-  //   } catch (error) {
-  //     writeLog('マルチユーザー更新通知送信エラー: ' + error.message);
-  //   }
-  // });
+  await executionManager.executeGlobalTask('update_notification', async () => {
+    try {
+      await multiUserSender.sendUpdateNotificationToAllUsers();
+    } catch (error) {
+      writeLog('マルチユーザー更新通知送信エラー: ' + error.message);
+    }
+  });
   
   // アラート通知は9時の統一システムで処理するため、その他の時間帯では送信しない
   // 重複防止のため削除
