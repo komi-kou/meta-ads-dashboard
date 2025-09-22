@@ -259,14 +259,13 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                     }
                 ];
             } else {
-                // 通常モード: 改善施策2: アラート履歴から最新データを取得
-                const { getAlertHistory } = require('../alertSystem');
-                const alertHistory = await getAlertHistory(userSettings.user_id);
+                // 通常モード: alertSystem.jsから最新のアラートを取得
+                const { checkUserAlerts } = require('../alertSystem');
                 
-                // アクティブなアラートのみ抽出
-                activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+                // ユーザー別のアラートをチェック（リアルタイムデータ使用）
+                activeAlerts = await checkUserAlerts(userSettings.user_id);
                 
-                if (activeAlerts.length === 0) {
+                if (!activeAlerts || activeAlerts.length === 0) {
                     console.log(`ユーザー${userSettings.user_id}: アクティブなアラートなし`);
                     return;
                 }

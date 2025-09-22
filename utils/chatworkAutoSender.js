@@ -748,20 +748,22 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
         });
 
         // 定期更新通知: 12時、15時、17時、19時
-        cron.schedule('0 12,15,17,19 * * *', async () => {
-            console.log('🔄 定期更新通知送信スケジュール実行');
-            await this.sendUpdateNotification();
-        }, {
-            timezone: 'Asia/Tokyo'
-        });
+        // ❌ scheduler.jsの統一システムを使用するため無効化
+        // cron.schedule('0 12,15,17,19 * * *', async () => {
+        //     console.log('🔄 定期更新通知送信スケジュール実行');
+        //     await this.sendUpdateNotification();
+        // }, {
+        //     timezone: 'Asia/Tokyo'
+        // });
 
         // アラート通知: 9時、12時、15時、17時、19時（アラートがある場合）
-        cron.schedule('0 9,12,15,17,19 * * *', async () => {
-            console.log('🚨 アラート通知送信スケジュール実行');
-            await this.sendAlertNotification();
-        }, {
-            timezone: 'Asia/Tokyo'
-        });
+        // ❌ scheduler.jsの統一システムを使用するため無効化
+        // cron.schedule('0 9,12,15,17,19 * * *', async () => {
+        //     console.log('🚨 アラート通知送信スケジュール実行');
+        //     await this.sendAlertNotification();
+        // }, {
+        //     timezone: 'Asia/Tokyo'
+        // });
 
         // アクセストークン更新通知: 期限1週間前に1回のみ送信
         cron.schedule('0 9 * * *', async () => {

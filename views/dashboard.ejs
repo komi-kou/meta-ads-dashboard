@@ -551,79 +551,6 @@
                 </div>
             </div>
             
-            <!-- アラート表示エリア -->
-            <div class="chart-section" style="margin-top: 30px;">
-                <h2>⚠️ アラート</h2>
-                
-                <!-- タブナビゲーション -->
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb;">
-                    <button onclick="showAlertTab('current')" id="tab-current" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
-                        現在のアラート
-                    </button>
-                    <button onclick="showAlertTab('history')" id="tab-history" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
-                        アラート履歴
-                    </button>
-                    <button onclick="showAlertTab('checklist')" id="tab-checklist" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
-                        確認事項
-                    </button>
-                    <button onclick="showAlertTab('improvements')" id="tab-improvements" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
-                        改善施策
-                    </button>
-                </div>
-                
-                <!-- 現在のアラート -->
-                <div id="alert-current" class="alert-tab-content" style="padding: 20px;">
-                    <div id="alert-messages" style="display: flex; flex-direction: column; gap: 10px;">
-                        <!-- アラートメッセージがここに表示されます -->
-                        <div style="padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
-                            <div style="font-weight: 500; color: #f59e0b;">⚠️ データ読み込み中...</div>
-                            <div style="color: #374151; margin-top: 4px;">アラート情報を取得しています</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- アラート履歴 -->
-                <div id="alert-history" class="alert-tab-content" style="padding: 20px; display: none;">
-                    <div id="alert-history-content">
-                        <!-- アラート履歴がここに表示されます -->
-                        <h3 style="margin-bottom: 15px;">📅 過去7日間のアラート履歴</h3>
-                        <div style="color: #6b7280;">履歴データを読み込み中...</div>
-                    </div>
-                </div>
-                
-                <!-- 確認事項 -->
-                <div id="alert-checklist" class="alert-tab-content" style="padding: 20px; display: none;">
-                    <div id="checklist-content">
-                        <h3 style="margin-bottom: 15px;">📋 確認すべき項目</h3>
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
-                                ✅ ターゲティング設定の見直し（年齢層、地域、興味関心）
-                            </li>
-                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
-                                ✅ クリエイティブの疲労度チェック（同じ広告の表示回数）
-                            </li>
-                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
-                                ✅ 競合他社の広告動向の確認
-                            </li>
-                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
-                                ✅ ランディングページの読み込み速度とユーザビリティ
-                            </li>
-                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
-                                ✅ コンバージョントラッキングの正常動作確認
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- 改善施策 -->
-                <div id="alert-improvements" class="alert-tab-content" style="padding: 20px; display: none;">
-                    <div id="improvements-content">
-                        <!-- 改善施策がここに表示されます -->
-                        <h3 style="margin-bottom: 15px;">💡 推奨改善施策</h3>
-                        <div style="color: #6b7280;">改善施策を読み込み中...</div>
-                    </div>
-                </div>
-            </div>
             
             <!-- 最終更新時間表示 -->
             <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
@@ -672,7 +599,6 @@
                     setTimeout(() => {
                         updateDashboardData();
                         loadCampaignDetails();  // キャンペーン詳細を読み込み
-                        loadAlerts();  // アラートを読み込み
                     }, 100);
                 } else {
                     console.log('❌ Meta API設定が見つかりません');
@@ -787,39 +713,6 @@
             }
         }
         
-        // アラートタブ切り替え関数
-        function showAlertTab(tabName) {
-            // 全てのタブコンテンツを非表示
-            document.querySelectorAll('.alert-tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
-            
-            // 全てのタブボタンのスタイルをリセット
-            document.querySelectorAll('[id^="tab-"]').forEach(btn => {
-                btn.style.background = '#e5e7eb';
-                btn.style.color = '#374151';
-            });
-            
-            // 選択されたタブを表示
-            const selectedContent = document.getElementById(`alert-${tabName}`);
-            if (selectedContent) {
-                selectedContent.style.display = 'block';
-            }
-            
-            // 選択されたタブボタンのスタイルを更新
-            const selectedTab = document.getElementById(`tab-${tabName}`);
-            if (selectedTab) {
-                selectedTab.style.background = '#3b82f6';
-                selectedTab.style.color = 'white';
-            }
-            
-            // タブごとの追加処理
-            if (tabName === 'history') {
-                loadAlertHistory();
-            } else if (tabName === 'improvements') {
-                loadImprovements();
-            }
-        }
         
         // キャンペーン複製関数
         async function duplicateCampaign(campaignId, campaignName) {
@@ -929,165 +822,9 @@
             }
         }
         
-        // アラートを読み込む関数
-        async function loadAlerts() {
-            console.log('📌 loadAlerts関数が呼ばれました');
-            try {
-                const response = await fetch('/api/alerts');
-                console.log('📌 アラートAPIレスポンスステータス:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`APIエラー: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('📌 アラートデータ:', data);
-                
-                const alertArea = document.getElementById('alert-messages');
-                if (alertArea) {
-                    if (data.success && data.alerts && data.alerts.length > 0) {
-                        alertArea.innerHTML = data.alerts.map(alert => {
-                            const alertColor = alert.severity === 'critical' ? '#ef4444' : '#f59e0b';
-                            return `
-                                <div style="padding: 12px; background: ${alertColor}20; border-left: 4px solid ${alertColor}; border-radius: 4px;">
-                                    <div style="font-weight: 500; color: ${alertColor};">⚠️ ${alert.metric}</div>
-                                    <div style="color: #374151; margin-top: 4px;">${alert.message}</div>
-                                </div>
-                            `;
-                        }).join('');
-                    } else {
-                        alertArea.innerHTML = '<div style="color: #10b981;">✅ 現在、アラートはありません</div>';
-                    }
-                } else {
-                    console.error('📌 alert-messagesエレメントが見つかりません');
-                }
-            } catch (error) {
-                console.error('📌 アラート読み込みエラー:', error);
-                const alertArea = document.getElementById('alert-messages');
-                if (alertArea) {
-                    alertArea.innerHTML = `<div style="color: #ef4444;">⚠️ アラートの読み込みに失敗しました: ${error.message}</div>`;
-                }
-            }
-        }
         
-        // アラート履歴を読み込む関数
-        async function loadAlertHistory() {
-            console.log('📌 loadAlertHistory関数が呼ばれました');
-            try {
-                const response = await fetch('/api/alerts-history');
-                console.log('📌 アラート履歴APIレスポンスステータス:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`APIエラー: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('📌 アラート履歴データ:', data);
-                
-                const historyContent = document.getElementById('alert-history-content');
-                if (historyContent) {
-                    if (data.history && data.history.length > 0) {
-                        historyContent.innerHTML = `
-                            <h3 style="margin-bottom: 15px;">📅 過去7日間のアラート履歴</h3>
-                            ${data.history.map(item => {
-                                const date = new Date(item.date).toLocaleDateString('ja-JP');
-                                const statusColor = item.resolved ? '#10b981' : '#ef4444';
-                                const statusText = item.resolved ? '解決済み' : '未解決';
-                                return `
-                                    <div style="padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; margin-bottom: 10px;">
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
-                                                <div style="font-weight: 500;">${date} - ${item.metric}</div>
-                                                <div style="color: #6b7280; margin-top: 4px;">${item.message}</div>
-                                            </div>
-                                            <span style="color: ${statusColor}; font-weight: 500;">${statusText}</span>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        `;
-                    } else {
-                        historyContent.innerHTML = '<div style="color: #6b7280;">過去7日間のアラート履歴はありません</div>';
-                    }
-                }
-            } catch (error) {
-                console.error('アラート履歴読み込みエラー:', error);
-            }
-        }
         
-        // 改善施策を読み込む関数
-        async function loadImprovements() {
-            console.log('📌 loadImprovements関数が呼ばれました');
-            try {
-                const response = await fetch('/api/improvements');
-                console.log('📌 改善施策APIレスポンスステータス:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`APIエラー: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('📌 改善施策データ:', data);
-                
-                const improvementsContent = document.getElementById('improvements-content');
-                if (improvementsContent) {
-                    improvementsContent.innerHTML = `
-                        <h3 style="margin-bottom: 15px;">💡 推奨改善施策</h3>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h4 style="color: #ef4444; margin-bottom: 10px;">🔴 CPAが高い場合の改善策</h4>
-                            <ul style="list-style: none; padding: 0;">
-                                <li style="padding: 10px; background: #fef2f2; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #ef4444;">
-                                    📊 オーディエンスの絞り込み（より購買意欲の高いセグメントに集中）
-                                </li>
-                                <li style="padding: 10px; background: #fef2f2; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #ef4444;">
-                                    🎨 広告クリエイティブのA/Bテスト実施
-                                </li>
-                                <li style="padding: 10px; background: #fef2f2; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #ef4444;">
-                                    🎯 リターゲティング設定の見直し
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h4 style="color: #f59e0b; margin-bottom: 10px;">🟡 CTRが低い場合の改善策</h4>
-                            <ul style="list-style: none; padding: 0;">
-                                <li style="padding: 10px; background: #fef3c7; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
-                                    ✍️ 広告コピーの見直し（より魅力的な訴求文に変更）
-                                </li>
-                                <li style="padding: 10px; background: #fef3c7; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
-                                    🖼️ ビジュアル要素の改善（動画やカルーセル広告の活用）
-                                </li>
-                                <li style="padding: 10px; background: #fef3c7; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
-                                    📱 プレースメントの最適化（パフォーマンスの良い配置に集中）
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h4 style="color: #10b981; margin-bottom: 10px;">🟢 予算消化率が低い場合の改善策</h4>
-                            <ul style="list-style: none; padding: 0;">
-                                <li style="padding: 10px; background: #d1fae5; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #10b981;">
-                                    🎯 ターゲット層の拡大（類似オーディエンスの活用）
-                                </li>
-                                <li style="padding: 10px; background: #d1fae5; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #10b981;">
-                                    💰 入札価格の調整（競争力のある入札へ）
-                                </li>
-                                <li style="padding: 10px; background: #d1fae5; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #10b981;">
-                                    📈 配信時間帯の拡大（パフォーマンスの良い時間帯を見つける）
-                                </li>
-                            </ul>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('改善施策読み込みエラー:', error);
-                const improvementsContent = document.getElementById('improvements-content');
-                if (improvementsContent) {
-                    improvementsContent.innerHTML = '<div style="color: #ef4444;">改善施策の読み込みに失敗しました</div>';
-                }
-            }
-        }
+        
 
         // フロントエンドでのエラー表示改善
         async function updateDashboardData() {
