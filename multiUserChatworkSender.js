@@ -1,7 +1,6 @@
 const UserManager = require('../userManager');
 const { sendChatworkMessage } = require('../chatworkApi');
 const { fetchMetaAdDailyStats } = require('../metaApi');
-const globalDeduplication = require('./globalDeduplication');
 
 class MultiUserChatworkSender {
     constructor() {
@@ -260,26 +259,38 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                     }
                 ];
             } else {
-                // 通常モード: 改善施策2: アラート履歴から最新データを取得
-                const { getAlertHistory } = require('../alertSystem');
-                const alertHistory = await getAlertHistory(userSettings.user_id);
+                // 通常モード: alertSystem.jsから最新のアラートを取得
+                const { checkUserAlerts } = require('../alertSystem');
                 
-                // アクティブなアラートのみ抽出
-                activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+                // ユーザー別のアラートをチェック（リアルタイムデータ使用）
+                activeAlerts = await checkUserAlerts(userSettings.user_id);
                 
-                if (activeAlerts.length === 0) {
+                if (!activeAlerts || activeAlerts.length === 0) {
                     console.log(`ユーザー${userSettings.user_id}: アクティブなアラートなし`);
                     return;
                 }
             }
 
-            // グローバル重複排除を使用
-            const uniqueAlerts = globalDeduplication.filterDuplicates(activeAlerts);
+            // 強化版: 完全な重複排除（メトリック + 目標値 + 現在値でユニーク）
+            const seenKeys = new Set();
+            const uniqueAlerts = [];
             
-            // 送信済みとして記録
-            uniqueAlerts.forEach(alert => {
-                globalDeduplication.markAsSent(alert.metric, userSettings.user_id);
-            });
+            console.log(`📊 重複排除開始: ${activeAlerts.length}件のアラート`);
+            
+            activeAlerts
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // 新しい順にソート
+                .forEach(alert => {
+                    // ユニークキーを作成（メトリック + 目標値 + 現在値）
+                    const uniqueKey = `${alert.metric}_${alert.targetValue}_${alert.currentValue}`;
+                    
+                    if (!seenKeys.has(uniqueKey)) {
+                        seenKeys.add(uniqueKey);
+                        uniqueAlerts.push(alert);
+                        console.log(`  ✅ 追加: ${alert.metric} (目標:${alert.targetValue}, 実績:${alert.currentValue})`);
+                    } else {
+                        console.log(`  ⚠️ 重複スキップ: ${alert.metric}`);
+                    }
+                });
             
             console.log(`ユーザー${userSettings.user_id}: 重複排除完了 ${activeAlerts.length}件 → ${uniqueAlerts.length}件`);
             

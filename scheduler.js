@@ -664,55 +664,12 @@ async function runBatch(isMorningReport = false, userId = null, sendNotification
       saveAdData(adData);
     }
     
-  // アラートがあればChatwork通知
+  // アラート通知はalertSystem.jsに統一したため、ここでは送信しない
   if (alerts.length === 0) {
-      writeLog("アラートがないためChatwork通知をスキップします。");
-} else if (settings.chatwork_token && settings.chatwork_room_id) {
-  const lastDate = statsArr[0].date || statsArr[0].date_start || '';
-  const dateStr = new Date().toLocaleDateString('ja-JP');
-      
-      // 技術用語を日本語に変換する関数
-      function translateAlertTerms(alertText) {
-        return alertText
-          .replace(/budget_rate/g, '予算消化率')
-          .replace(/ctr/g, 'CTR')
-          .replace(/conversions/g, 'CV')
-          .replace(/cpa_rate/g, 'CPA')
-          .replace(/cpm_increase/g, 'CPM上昇')
-          .replace(/日予算/g, '日予算')
-          .replace(/CPM/g, 'CPM');
-      }
-      
-      // 修正後のアラートメッセージ
-      let alertMessage = `Meta広告 アラート通知 (${dateStr})
-以下のアラートが発生しています：
-
-`;
-      
-      alerts.forEach((alert, index) => {
-        const translatedAlert = translateAlertTerms(alert);
-        alertMessage += `${index + 1}. **${alert}**：${translatedAlert}\n`;
-      });
-
-      alertMessage += `
-確認事項：http://localhost:3000/improvement-tasks
-改善施策：http://localhost:3000/improvement-strategies
-
-📊 ダッシュボードで詳細を確認してください。
-http://localhost:3000/dashboard`;
-      
-      writeLog(`アラート通知送信開始: ${alerts.length}件のアラート`);
-      writeLog(`アラート内容: ${alerts.join(', ')}`);
-      
-  await sendChatworkMessage({
-    date: lastDate,
-        message: alertMessage,
-    token: settings.chatwork_token,
-    room_id: settings.chatwork_room_id
-  });
-      writeLog('アラート通知送信完了');
-    } else {
-      writeLog('Chatwork設定が未設定のためアラート通知をスキップ');
+      writeLog("アラートがないため処理をスキップします。");
+  } else {
+      writeLog(`${alerts.length}件のアラートを検出（通知はalertSystemで統一管理）`);
+      // アラートデータのみ保存、通知は9時のalertSystem.checkAllAlerts()で一括処理
     }
     
   } catch (error) {
@@ -1103,17 +1060,14 @@ cron.schedule('0 9 * * *', async () => {
   await executionManager.executeGlobalTask('morning_data_fetch', async () => {
     await runBatchForAllUsers(true, false); // 朝レポートモード、通知なし
     
-    // アラートチェック実行 - 重複防止のためコメントアウト
-    // multiUserSender.sendDailyReportToAllUsersがアラート送信を担当
-    /*
+    // 統一アラートチェック実行（9時のみ）
     try {
-      writeLog('アラートチェック開始');
+      writeLog('統一アラートチェック開始');
       const alerts = await checkAllAlerts();
-      writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
+      writeLog(`統一アラートチェック完了: ${alerts.length}件のアラート`);
     } catch (error) {
-      writeLog('アラートチェックエラー: ' + error.message);
+      writeLog('統一アラートチェックエラー: ' + error.message);
     }
-    */
   });
   
   // マルチユーザー日次レポート送信（重複防止付き）
@@ -1158,16 +1112,8 @@ cron.schedule('0 12,15,17,19 * * *', async () => {
     }
   });
   
-  // マルチユーザーアラート通知送信（重複防止付き）
-  await executionManager.executeGlobalTask('alert_notification', async () => {
-    try {
-      writeLog('アラート通知送信開始');
-      await multiUserSender.sendAlertNotificationToAllUsers(false); // 本番モード
-      writeLog('アラート通知送信完了');
-    } catch (error) {
-      writeLog('マルチユーザーアラート通知送信エラー: ' + error.message);
-    }
-  });
+  // アラート通知は9時の統一システムで処理するため、その他の時間帯では送信しない
+  // 重複防止のため削除
 }, {
   timezone: "Asia/Tokyo"
 });

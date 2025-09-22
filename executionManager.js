@@ -1,99 +1,96 @@
-// 重複実行防止マネージャー
+// executionManager.js - タスク実行の重複防止管理
+const fs = require('fs');
+const path = require('path');
+
 class ExecutionManager {
     constructor() {
-        this.runningTasks = new Map();
-        this.completedTasks = new Map();
+        this.executionLog = new Map();
+        this.executionFile = path.join(__dirname, '..', 'execution_log.json');
+        this.loadExecutionLog();
     }
-    
-    /**
-     * タスクの実行を管理
-     * @param {string} userId - ユーザーID
-     * @param {string} taskId - タスクID
-     * @param {Function} taskFunction - 実行する関数
-     * @returns {Promise} 実行結果
-     */
-    async executeTask(userId, taskId, taskFunction) {
-        const now = new Date();
-        const hour = now.getHours();
-        const dateKey = now.toISOString().split('T')[0];
-        const uniqueKey = `${userId}_${taskId}_${dateKey}_${hour}`;
-        
-        // 既に実行中かチェック
-        if (this.runningTasks.get(uniqueKey)) {
-            console.log(`[ExecutionManager] タスク ${uniqueKey} は既に実行中です`);
-            return { skipped: true, reason: 'already_running' };
-        }
-        
-        // 1時間以内に完了済みかチェック
-        const completedTime = this.completedTasks.get(uniqueKey);
-        if (completedTime) {
-            const timeDiff = now - completedTime;
-            if (timeDiff < 3600000) { // 1時間 = 3600000ms
-                console.log(`[ExecutionManager] タスク ${uniqueKey} は既に完了済みです`);
-                return { skipped: true, reason: 'already_completed', completedAt: completedTime };
+
+    // 実行ログをファイルから読み込み
+    loadExecutionLog() {
+        try {
+            if (fs.existsSync(this.executionFile)) {
+                const data = JSON.parse(fs.readFileSync(this.executionFile, 'utf8'));
+                this.executionLog = new Map(Object.entries(data));
             }
+        } catch (error) {
+            console.error('実行ログ読み込みエラー:', error);
+        }
+    }
+
+    // 実行ログをファイルに保存
+    saveExecutionLog() {
+        try {
+            const data = Object.fromEntries(this.executionLog);
+            fs.writeFileSync(this.executionFile, JSON.stringify(data, null, 2));
+        } catch (error) {
+            console.error('実行ログ保存エラー:', error);
+        }
+    }
+
+    // タスクの実行可能性をチェック
+    canExecute(taskId, intervalMinutes = 55) {
+        const now = Date.now();
+        const lastExecution = this.executionLog.get(taskId);
+        
+        if (!lastExecution) {
+            return true;
         }
         
-        // 実行開始
-        this.runningTasks.set(uniqueKey, true);
-        console.log(`[ExecutionManager] タスク ${uniqueKey} 実行開始`);
+        const timeDiff = now - lastExecution;
+        const intervalMs = intervalMinutes * 60 * 1000;
+        
+        return timeDiff >= intervalMs;
+    }
+
+    // タスク実行を記録
+    recordExecution(taskId) {
+        this.executionLog.set(taskId, Date.now());
+        this.saveExecutionLog();
+    }
+
+    // グローバルタスクの実行
+    async executeGlobalTask(taskId, taskFunction, intervalMinutes = 55) {
+        if (!this.canExecute(taskId, intervalMinutes)) {
+            console.log(`⚠️ タスク ${taskId} は既に実行済みです（${intervalMinutes}分以内）`);
+            return null;
+        }
         
         try {
+            console.log(`▶️ タスク ${taskId} を実行開始`);
             const result = await taskFunction();
-            this.completedTasks.set(uniqueKey, now);
-            console.log(`[ExecutionManager] タスク ${uniqueKey} 正常完了`);
-            return { success: true, result };
+            this.recordExecution(taskId);
+            console.log(`✅ タスク ${taskId} 実行完了`);
+            return result;
         } catch (error) {
-            console.error(`[ExecutionManager] タスク ${uniqueKey} エラー:`, error);
-            return { success: false, error: error.message };
-        } finally {
-            this.runningTasks.delete(uniqueKey);
+            console.error(`❌ タスク ${taskId} 実行エラー:`, error);
+            throw error;
         }
     }
-    
-    /**
-     * 全ユーザー向けタスクの実行管理（ユーザーIDなし）
-     */
-    async executeGlobalTask(taskId, taskFunction) {
-        return this.executeTask('GLOBAL', taskId, taskFunction);
-    }
-    
-    /**
-     * 実行状態を取得
-     */
-    getStatus() {
-        const status = {
-            running: [],
-            completed: []
-        };
+
+    // 古いログをクリーンアップ
+    cleanup(daysToKeep = 7) {
+        const cutoffTime = Date.now() - (daysToKeep * 24 * 60 * 60 * 1000);
+        const keysToDelete = [];
         
-        this.runningTasks.forEach((value, key) => {
-            if (value) status.running.push(key);
-        });
-        
-        this.completedTasks.forEach((time, key) => {
-            status.completed.push({ task: key, completedAt: time });
-        });
-        
-        return status;
-    }
-    
-    /**
-     * 古い完了タスクをクリーンアップ（24時間以上経過）
-     */
-    cleanup() {
-        const now = new Date();
-        const oneDayAgo = 24 * 3600000; // 24時間
-        
-        this.completedTasks.forEach((time, key) => {
-            if (now - time > oneDayAgo) {
-                this.completedTasks.delete(key);
+        this.executionLog.forEach((timestamp, key) => {
+            if (timestamp < cutoffTime) {
+                keysToDelete.push(key);
             }
         });
+        
+        keysToDelete.forEach(key => {
+            this.executionLog.delete(key);
+        });
+        
+        if (keysToDelete.length > 0) {
+            this.saveExecutionLog();
+            console.log(`🧹 ${keysToDelete.length}件の古い実行ログを削除`);
+        }
     }
 }
 
-// シングルトンインスタンス
-const executionManager = new ExecutionManager();
-
-module.exports = executionManager;
+module.exports = new ExecutionManager();

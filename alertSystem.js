@@ -4,6 +4,7 @@ const path = require('path');
 const { metaApi } = require('./metaApi');
 const { sendChatworkNotification } = require('./chatworkApi');
 const UserManager = require('./userManager');
+const { checkSentHistory, recordSentHistory, sendAlertsDirectly } = require('./alertSystemExtensions');
 
 // UserManagerのインスタンスを作成
 const userManager = new UserManager();
@@ -519,22 +520,54 @@ async function getAlertHistory(userId = null) {
 
 // 全アラートチェック実行（後方互換性）
 async function checkAllAlerts() {
-    console.log('=== 全ユーザーのアラートチェック開始 ===');
+    console.log('=== 統一アラートシステム: 全ユーザーチェック開始 ===');
     
     try {
-        const allAlerts = [];
-        const users = userManager.getAllUsers();
-        
-        for (const user of users) {
-            const userAlerts = await checkUserAlerts(user.id);
-            allAlerts.push(...userAlerts);
+        // 送信履歴チェック（ファイルベース）
+        if (!checkSentHistory('alert')) {
+            console.log('⚠️ アラート通知は本日既に送信済みです');
+            return [];
         }
         
-        console.log(`全アラートチェック完了: ${allAlerts.length}件のアラート`);
-        return allAlerts;
+        const users = userManager.getAllUsers();
+        const MultiUserChatworkSender = require('./utils/multiUserChatworkSender');
+        const multiUserSender = new MultiUserChatworkSender();
+        let totalAlerts = 0;
+        
+        // 各ユーザーのアラートをチェックして送信
+        for (const user of users) {
+            const userSettings = userManager.getUserSettings(user.id);
+            
+            // アラート機能が有効なユーザーのみ処理
+            if (userSettings && userSettings.enable_alerts && userSettings.alert_notifications_enabled !== false) {
+                const userAlerts = await checkUserAlerts(user.id);
+                
+                if (userAlerts.length > 0) {
+                    totalAlerts += userAlerts.length;
+                    // 統一フォーマットでチャットワーク送信
+                    const userSettingsForSend = {
+                        user_id: user.id,
+                        chatwork_token: userSettings.chatwork_api_token || userSettings.chatwork_token,
+                        chatwork_room_id: userSettings.chatwork_room_id,
+                        alert_notifications_enabled: true
+                    };
+                    
+                    // アラートデータを直接渡して送信
+                    await sendAlertsDirectly(userAlerts, userSettingsForSend);
+                }
+            }
+        }
+        
+        // 送信完了を記録
+        if (totalAlerts > 0) {
+            recordSentHistory('alert');
+        }
+        
+        console.log(`統一アラートシステム: 完了 (総アラート数: ${totalAlerts})`);
+        return [];
         
     } catch (error) {
-        console.error('全アラートチェックエラー:', error);
+        console.error('統一アラートシステムエラー:', error);
         return [];
     }
 }
