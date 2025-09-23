@@ -7,6 +7,7 @@ class UserManager {
     constructor() {
         // データディレクトリ
         this.dataDir = path.join(__dirname, 'data');
+        this.userSettingsDir = path.join(this.dataDir, 'user_settings');
         
         // データファイルのパス
         this.usersFile = path.join(this.dataDir, 'users.json');
@@ -437,6 +438,38 @@ class UserManager {
             });
         } catch (error) {
             console.error('全ユーザー取得エラー:', error);
+            return [];
+        }
+    }
+
+    // アクティブユーザーの設定を取得（MultiUserChatworkSender用）
+    getAllActiveUsers() {
+        try {
+            const users = this.getAllUsers();
+            const activeUsers = [];
+            
+            for (const user of users) {
+                const settings = this.getUserSettings(user.id);
+                if (settings && settings.enable_chatwork !== false) {
+                    activeUsers.push({
+                        user_id: user.id,
+                        email: user.email,
+                        username: user.username,
+                        meta_access_token: settings.meta_access_token,
+                        meta_account_id: settings.meta_account_id,
+                        chatwork_token: settings.chatwork_api_token || settings.chatwork_token,
+                        chatwork_room_id: settings.chatwork_room_id,
+                        daily_report_enabled: settings.daily_report_enabled !== false,
+                        update_notifications_enabled: settings.update_notifications_enabled !== false,
+                        alert_notifications_enabled: settings.alert_notifications_enabled !== false,
+                        enable_alerts: settings.enable_alerts
+                    });
+                }
+            }
+            
+            return activeUsers;
+        } catch (error) {
+            console.error('アクティブユーザー取得エラー:', error);
             return [];
         }
     }
