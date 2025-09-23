@@ -1912,5 +1912,58 @@
       }
     ],
     "alerts": []
+  },
+  {
+    "date": "2025-09-22",
+    "date_start": "2025-09-22",
+    "date_stop": "2025-09-22",
+    "spend": 2585,
+    "impressions": 1069,
+    "reach": 717,
+    "clicks": 9,
+    "cpm": 2418.147802,
+    "cpc": 287.222222,
+    "ctr": 0.841908,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 86.16666666666667,
+    "frequency": 1.4909344490934449,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "5"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "44"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "3"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "3"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "44"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "38"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
   }
 ]

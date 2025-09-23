@@ -1,0 +1,72 @@
+# デプロイ必要ファイルリスト
+# 作成日: 2025-09-23
+# 対象: Meta広告ダッシュボード アラート通知修正
+
+## 修正・更新したファイル
+
+### 1. データファイル（必須）
+data/user_settings.json            # 幽霊アカウント削除済み
+sent_history.json                   # クリア済み（空オブジェクト）
+
+### 2. 設定ファイル（既存のまま使用）
+data/user_settings/b4475ace-303e-4fd1-8740-221154c9b291.json  # komiya11122@gmail.com設定
+
+### 3. コアシステムファイル（変更なし、動作確認済み）
+alertSystem.js                      # アラートシステム本体
+alertSystemExtensions.js            # アラート拡張機能
+scheduler.js                        # スケジューラー
+app.js                             # メインアプリケーション
+userManager.js                     # ユーザー管理
+metaApi.js                         # Meta API連携
+chatworkApi.js                     # Chatwork API連携
+
+### 4. ユーティリティ（変更なし、動作確認済み）
+utils/multiUserChatworkSender.js   # マルチユーザー通知送信
+utils/executionManager.js          # 実行管理
+utils/checklistRules.js           # チェックリストルール
+utils/improvementStrategiesRules.js # 改善施策ルール
+
+### 5. テストファイル（開発環境のみ、デプロイ不要）
+test-alert-notification.js         # テスト用（削除可）
+test-daily-report.js              # テスト用（削除可）
+test-update-notification.js       # テスト用（削除可）
+test-all-notifications.js         # テスト用（削除可）
+
+## デプロイ手順
+
+1. バックアップ作成
+   - data/user_settings.json
+   - sent_history.json
+
+2. ファイル更新
+   - data/user_settings.json を新しいバージョンに置き換え
+   - sent_history.json を {} に置き換え
+
+3. 削除対象
+   - data/user_settings/7fe7e401-a67b-40fb-bdff-0b61b67dc116.json（既に削除済み）
+
+4. サービス再起動
+   - Node.jsプロセスの再起動
+   - pm2 restart all（pm2使用の場合）
+
+## 動作確認項目
+
+✅ アラート通知：重複なく1通のみ送信
+✅ 日次レポート：正常送信
+✅ 定期更新通知：正常送信
+✅ 対象ユーザー：komiya11122@gmail.com のみ
+✅ Chatworkルーム：408053863
+
+## 注意事項
+
+- 幽霊アカウント（7fe7e401）の設定は完全に削除済み
+- sent_history.json は定期的にクリアが必要（cronジョブ推奨）
+- 送信時間：9時、12時、15時、17時、19時（JST）
+
+## 変更内容サマリー
+
+1. 重複送信の原因となっていた幽霊アカウントを削除
+2. 送信履歴をクリアして新規開始
+3. komiya11122@gmail.com アカウントのみで全機能動作
+
+以上
