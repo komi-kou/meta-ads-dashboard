@@ -29,9 +29,18 @@ const loginLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15分
-    max: 100, // 最大100リクエスト
+    max: 5000, // 最大5000リクエスト（開発環境用に緩和）
     message: {
         error: 'リクエスト数が上限に達しました。しばらくしてから再試行してください。'
+    },
+    skip: (req) => {
+        // 静的ファイルとAPIエンドポイントは制限をスキップ
+        return req.path.startsWith('/api/') || 
+               req.path.startsWith('/static/') ||
+               req.path.endsWith('.css') || 
+               req.path.endsWith('.js') || 
+               req.path.endsWith('.png') || 
+               req.path.endsWith('.jpg');
     }
 });
 
