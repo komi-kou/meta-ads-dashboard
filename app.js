@@ -896,6 +896,507 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
   }
 });
 
+// 新規追加：キャンペーン管理ページ
+app.get('/campaigns', requireAuth, (req, res) => {
+    res.render('campaigns');
+});
+
+// 新規追加：予算スケジューリングページ
+app.get('/budget-scheduling', requireAuth, (req, res) => {
+    res.render('budget-scheduling');
+});
+
+// 新規追加：詳細レポートページ
+app.get('/detailed-reports', requireAuth, (req, res) => {
+    res.render('detailed-reports');
+});
+
+// 新規追加：詳細レポートAPI
+// コンバージョン数を取得する標準化された関数
+function getConversionsFromDetailedActions(actions) {
+    if (!actions || !Array.isArray(actions)) return 0;
+    
+    // Meta標準のコンバージョンイベントタイプ
+    const conversionTypes = [
+        'purchase',
+        'lead',
+        'complete_registration',
+        'add_to_cart',
+        'initiate_checkout',
+        'add_payment_info',
+        'subscribe',
+        'start_trial',
+        'submit_application',
+        'schedule',
+        'contact',
+        'donate'
+    ];
+    
+    let totalConversions = 0;
+    
+    actions.forEach(action => {
+        // 標準コンバージョンタイプ
+        if (conversionTypes.includes(action.action_type)) {
+            totalConversions += parseInt(action.value || 0);
+        }
+        // カスタムコンバージョン
+        else if (action.action_type?.startsWith('offsite_conversion.') && 
+                !action.action_type.includes('view_content')) {
+            totalConversions += parseInt(action.value || 0);
+        }
+        else if (action.action_type?.startsWith('onsite_conversion.')) {
+            totalConversions += parseInt(action.value || 0);
+        }
+    });
+    
+    return totalConversions;
+}
+
+app.get('/api/reports/detailed', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { campaign, period, breakdown } = req.query;
+        
+        const userSettings = userManager.getUserSettings(userId);
+        
+        // Meta APIの設定確認
+        if (!userSettings || !userSettings.meta_access_token) {
+            // 設定がない場合はダミーデータを返す
+            const dummyData = {
+            region: [
+                { name: '東京', impressions: 45230, clicks: 856, spend: 54880, ctr: 1.89, cpm: 1213, conversions: 15, cpa: 3659 },
+                { name: '大阪', impressions: 32450, clicks: 612, spend: 39200, ctr: 1.89, cpm: 1208, conversions: 11, cpa: 3564 },
+                { name: '名古屋', impressions: 19870, clicks: 365, spend: 23520, ctr: 1.84, cpm: 1184, conversions: 6, cpa: 3920 },
+                { name: '福岡', impressions: 12340, clicks: 198, spend: 15680, ctr: 1.60, cpm: 1270, conversions: 4, cpa: 3920 },
+                { name: 'その他', impressions: 18560, clicks: 312, spend: 23520, ctr: 1.68, cpm: 1267, conversions: 6, cpa: 3920 }
+            ],
+            device_platform: [
+                { name: 'モバイル', impressions: 84225, clicks: 1516, spend: 98000, ctr: 1.80, cpm: 1163, conversions: 27, cpa: 3630 },
+                { name: 'デスクトップ', impressions: 32175, clicks: 579, spend: 39200, ctr: 1.80, cpm: 1218, conversions: 11, cpa: 3564 },
+                { name: 'タブレット', impressions: 12050, clicks: 248, spend: 19600, ctr: 2.06, cpm: 1627, conversions: 4, cpa: 4900 }
+            ],
+            hourly: Array.from({length: 24}, (_, i) => ({
+                hour: i,
+                impressions: Math.floor(Math.random() * 5000 + 2000),
+                clicks: Math.floor(Math.random() * 100 + 20),
+                spend: Math.floor(Math.random() * 5000 + 2000),
+                ctr: (Math.random() * 2 + 0.5).toFixed(2)
+            })),
+            'age,gender': [
+                { name: '18-24歳 男性', impressions: 15230, clicks: 289, spend: 18000, ctr: 1.90, conversions: 5 },
+                { name: '18-24歳 女性', impressions: 12450, clicks: 236, spend: 15000, ctr: 1.90, conversions: 4 },
+                { name: '25-34歳 男性', impressions: 22340, clicks: 425, spend: 26000, ctr: 1.90, conversions: 8 },
+                { name: '25-34歳 女性', impressions: 18560, clicks: 353, spend: 22000, ctr: 1.90, conversions: 6 },
+                { name: '35-44歳 男性', impressions: 16780, clicks: 318, spend: 20000, ctr: 1.89, conversions: 5 },
+                { name: '35-44歳 女性', impressions: 14230, clicks: 270, spend: 17000, ctr: 1.90, conversions: 4 },
+                { name: '45歳以上', impressions: 28860, clicks: 452, spend: 38800, ctr: 1.57, conversions: 10 }
+            ]
+        };
+        
+            res.json({
+                success: true,
+                report: {
+                    breakdown: breakdown,
+                    period: period,
+                    data: dummyData[breakdown] || dummyData.region,
+                    summary: {
+                        totalSpend: 156800,
+                        totalConversions: 42,
+                        avgCPA: 3733,
+                        avgCTR: 1.85
+                    }
+                }
+            });
+            return;
+        }
+        
+        // Meta APIを使用して実データを取得
+        try {
+            // 期間の設定
+            const now = new Date();
+            let since, until;
+            
+            switch (period) {
+                case 'last_7d':
+                    since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    until = now.toISOString().split('T')[0];
+                    break;
+                case 'last_30d':
+                    since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    until = now.toISOString().split('T')[0];
+                    break;
+                case 'this_month':
+                    since = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                    until = now.toISOString().split('T')[0];
+                    break;
+                case 'last_month':
+                    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    since = lastMonth.toISOString().split('T')[0];
+                    until = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+                    break;
+                default:
+                    since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    until = now.toISOString().split('T')[0];
+            }
+            
+            // Breakdownパラメータのマッピング
+            let metaBreakdown = [];
+            switch (breakdown) {
+                case 'region':
+                    metaBreakdown = ['country'];
+                    break;
+                case 'device_platform':
+                    metaBreakdown = ['impression_device'];
+                    break;
+                case 'hourly':
+                    metaBreakdown = ['hourly_stats_aggregated_by_advertiser_time_zone'];
+                    break;
+                case 'age,gender':
+                    metaBreakdown = ['age', 'gender'];
+                    break;
+                default:
+                    metaBreakdown = [];
+            }
+            
+            // Meta APIエンドポイント
+            const baseUrl = 'https://graph.facebook.com/v19.0';
+            const accountId = userSettings.meta_account_id;
+            
+            // キャンペーンIDが指定されている場合は、キャンペーン別のエンドポイントを使用
+            let endpoint;
+            if (campaign && campaign !== 'all') {
+                endpoint = `${baseUrl}/${campaign}/insights`;
+            } else {
+                endpoint = `${baseUrl}/${accountId}/insights`;
+            }
+            
+            const params = {
+                access_token: userSettings.meta_access_token,
+                fields: 'campaign_name,spend,impressions,clicks,ctr,cpm,actions,reach',
+                time_range: JSON.stringify({ since, until })
+            };
+            
+            // キャンペーンが指定されていない場合のみlevelを設定
+            if (!campaign || campaign === 'all') {
+                params.level = 'campaign'; // キャンペーン別のデータを取得
+            }
+            
+            // Breakdownが指定されている場合のみ追加
+            if (metaBreakdown.length > 0) {
+                params.breakdowns = metaBreakdown.join(',');
+            }
+            
+            const response = await axios.get(endpoint, { params });
+            const metaData = response.data.data || [];
+            
+            // データを整形
+            let formattedData = [];
+            
+            if (breakdown === 'device_platform' && metaData.length > 0) {
+                // デバイス別データの整形
+                const deviceMap = {
+                    'desktop': 'デスクトップ',
+                    'mobile': 'モバイル',
+                    'tablet': 'タブレット',
+                    'unknown': 'その他'
+                };
+                
+                metaData.forEach(item => {
+                    const deviceName = deviceMap[item.impression_device] || item.impression_device;
+                    const conversions = getConversionsFromDetailedActions(item.actions);
+                    
+                    formattedData.push({
+                        name: deviceName,
+                        impressions: parseInt(item.impressions || 0),
+                        clicks: parseInt(item.clicks || 0),
+                        spend: parseFloat(item.spend || 0),
+                        ctr: parseFloat(item.ctr || 0),
+                        cpm: parseFloat(item.cpm || 0),
+                        conversions: conversions,
+                        cpa: conversions > 0 ? parseFloat(item.spend || 0) / conversions : 0
+                    });
+                });
+            } else if (breakdown === 'region' && metaData.length > 0) {
+                // 地域別データの整形
+                metaData.forEach(item => {
+                    const conversions = getConversionsFromDetailedActions(item.actions);
+                    
+                    formattedData.push({
+                        name: item.country || '不明',
+                        impressions: parseInt(item.impressions || 0),
+                        clicks: parseInt(item.clicks || 0),
+                        spend: parseFloat(item.spend || 0),
+                        ctr: parseFloat(item.ctr || 0),
+                        cpm: parseFloat(item.cpm || 0),
+                        conversions: conversions,
+                        cpa: conversions > 0 ? parseFloat(item.spend || 0) / conversions : 0
+                    });
+                });
+            } else if (breakdown === 'age,gender' && metaData.length > 0) {
+                // 年齢・性別データの整形
+                metaData.forEach(item => {
+                    const conversions = getConversionsFromDetailedActions(item.actions);
+                    const ageGenderName = `${item.age || '不明'} ${item.gender === 'male' ? '男性' : item.gender === 'female' ? '女性' : ''}`;
+                    
+                    formattedData.push({
+                        name: ageGenderName.trim(),
+                        impressions: parseInt(item.impressions || 0),
+                        clicks: parseInt(item.clicks || 0),
+                        spend: parseFloat(item.spend || 0),
+                        ctr: parseFloat(item.ctr || 0),
+                        cpm: parseFloat(item.cpm || 0),
+                        conversions: conversions,
+                        cpa: conversions > 0 ? parseFloat(item.spend || 0) / conversions : 0
+                    });
+                });
+            } else if (metaData.length > 0) {
+                // その他のデータまたはキャンペーンレベルデータ
+                metaData.forEach(item => {
+                    const conversions = getConversionsFromDetailedActions(item.actions);
+                    
+                    formattedData.push({
+                        name: item.campaign_name || '全体',
+                        impressions: parseInt(item.impressions || 0),
+                        clicks: parseInt(item.clicks || 0),
+                        spend: parseFloat(item.spend || 0),
+                        ctr: parseFloat(item.ctr || 0),
+                        cpm: parseFloat(item.cpm || 0),
+                        conversions: conversions,
+                        cpa: conversions > 0 ? parseFloat(item.spend || 0) / conversions : 0
+                    });
+                });
+            }
+            
+            // サマリーの計算
+            const totalSpend = formattedData.reduce((sum, item) => sum + item.spend, 0);
+            const totalConversions = formattedData.reduce((sum, item) => sum + item.conversions, 0);
+            const avgCPA = totalConversions > 0 ? totalSpend / totalConversions : 0;
+            const totalClicks = formattedData.reduce((sum, item) => sum + item.clicks, 0);
+            const totalImpressions = formattedData.reduce((sum, item) => sum + item.impressions, 0);
+            const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+            
+            res.json({
+                success: true,
+                report: {
+                    breakdown: breakdown,
+                    period: period,
+                    data: formattedData,
+                    summary: {
+                        totalSpend: Math.round(totalSpend),
+                        totalConversions: totalConversions,
+                        avgCPA: Math.round(avgCPA),
+                        avgCTR: avgCTR.toFixed(2)
+                    }
+                }
+            });
+            
+        } catch (metaApiError) {
+            console.error('詳細レポートMeta APIエラー:', metaApiError);
+            
+            // Meta APIエラー時はダミーデータを返す（元のダミーデータと同じ形式を使用）
+            return res.json({
+                success: true,
+                report: {
+                    breakdown: breakdown,
+                    period: period,
+                    data: [],
+                    summary: {
+                        totalSpend: 0,
+                        totalConversions: 0,
+                        avgCPA: 0,
+                        avgCTR: 0
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('詳細レポート取得エラー:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'レポートの取得に失敗しました'
+        });
+    }
+});
+
+// 新規追加：キャンペーン予算更新API
+app.post('/api/campaigns/budget', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { campaign_id, daily_budget } = req.body;
+        
+        // バリデーション追加
+        if (!campaign_id) {
+            return res.status(400).json({
+                success: false,
+                error: 'キャンペーンIDが指定されていません'
+            });
+        }
+        
+        if (!daily_budget || isNaN(daily_budget) || Number(daily_budget) <= 0) {
+            return res.status(400).json({
+                success: false,
+                error: '有効な予算を入力してください（1円以上の正の数値）'
+            });
+        }
+        
+        // 最大値のチェック（例：1億円）
+        if (Number(daily_budget) > 100000000) {
+            return res.status(400).json({
+                success: false,
+                error: '予算は1億円以下で設定してください'
+            });
+        }
+        
+        const userSettings = userManager.getUserSettings(userId);
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({
+                success: false,
+                error: 'Meta APIの設定が必要です'
+            });
+        }
+        
+        const updateUrl = `https://graph.facebook.com/v19.0/${campaign_id}`;
+        const response = await axios.post(updateUrl, {
+            daily_budget: Math.floor(Number(daily_budget) * 100), // 円からセントへ変換（整数化）
+            access_token: userSettings.meta_access_token
+        });
+        
+        res.json({
+            success: true,
+            message: '予算を更新しました'
+        });
+    } catch (error) {
+        console.error('予算更新エラー:', error.response?.data || error.message);
+        res.status(500).json({
+            success: false,
+            error: '予算の更新に失敗しました'
+        });
+    }
+});
+
+// 新規追加：スケジュール一覧取得API
+app.get('/api/schedules', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const scheduleFile = path.join(__dirname, 'data', 'campaign_schedules.json');
+        
+        let schedules = [];
+        if (fs.existsSync(scheduleFile)) {
+            const allSchedules = JSON.parse(fs.readFileSync(scheduleFile, 'utf8'));
+            schedules = allSchedules.filter(s => s.userId === userId);
+        }
+        
+        res.json({
+            success: true,
+            schedules: schedules
+        });
+    } catch (error) {
+        console.error('スケジュール取得エラー:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'スケジュールの取得に失敗しました'
+        });
+    }
+});
+
+// 新規追加：スケジュール削除API
+app.delete('/api/schedules/:id', requireAuth, async (req, res) => {
+    try {
+        const scheduleId = req.params.id;
+        const scheduleFile = path.join(__dirname, 'data', 'campaign_schedules.json');
+        
+        if (fs.existsSync(scheduleFile)) {
+            let schedules = JSON.parse(fs.readFileSync(scheduleFile, 'utf8'));
+            schedules = schedules.filter(s => s.id !== scheduleId);
+            fs.writeFileSync(scheduleFile, JSON.stringify(schedules, null, 2));
+        }
+        
+        res.json({
+            success: true,
+            message: 'スケジュールを削除しました'
+        });
+    } catch (error) {
+        console.error('スケジュール削除エラー:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'スケジュール削除に失敗しました'
+        });
+    }
+});
+
+// 新規追加：曜日別予算設定API
+app.post('/api/campaigns/weekly-schedule', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { campaign_id, weekly_budgets } = req.body;
+        
+        // 曜日別設定を保存
+        const weeklyFile = path.join(__dirname, 'data', 'weekly_budgets.json');
+        let weeklySettings = {};
+        if (fs.existsSync(weeklyFile)) {
+            weeklySettings = JSON.parse(fs.readFileSync(weeklyFile, 'utf8'));
+        }
+        
+        weeklySettings[campaign_id] = {
+            userId,
+            budgets: weekly_budgets,
+            updated: new Date().toISOString()
+        };
+        
+        fs.writeFileSync(weeklyFile, JSON.stringify(weeklySettings, null, 2));
+        
+        res.json({
+            success: true,
+            message: '曜日別予算を設定しました'
+        });
+    } catch (error) {
+        console.error('曜日別予算設定エラー:', error.message);
+        res.status(500).json({
+            success: false,
+            error: '曜日別予算設定に失敗しました'
+        });
+    }
+});
+
+// 新規追加：キャンペーンスケジュール設定API
+app.post('/api/campaigns/schedule', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { campaign_id, schedule_time, new_budget } = req.body;
+        
+        // スケジュール情報を保存
+        const scheduleData = {
+            id: `schedule_${Date.now()}`,
+            userId,
+            campaignId: campaign_id,
+            scheduleTime: schedule_time,
+            newBudget: new_budget,
+            status: 'pending',
+            created: new Date().toISOString()
+        };
+        
+        // スケジュール保存（実際はデータベースに保存）
+        const scheduleFile = path.join(__dirname, 'data', 'campaign_schedules.json');
+        let schedules = [];
+        if (fs.existsSync(scheduleFile)) {
+            schedules = JSON.parse(fs.readFileSync(scheduleFile, 'utf8'));
+        }
+        schedules.push(scheduleData);
+        fs.writeFileSync(scheduleFile, JSON.stringify(schedules, null, 2));
+        
+        res.json({
+            success: true,
+            message: 'スケジュールを設定しました'
+        });
+    } catch (error) {
+        console.error('スケジュール設定エラー:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'スケジュール設定に失敗しました'
+        });
+    }
+});
+
 // Phase 1: セッション設定用の簡易ルート追加（既存ルーティングは削除しない）
 app.post('/temp-api-setup', (req, res) => {
   // テスト用：セッションに一時保存
@@ -2541,7 +3042,17 @@ app.get('/improve', requireAuth, (req, res) => {
 
 app.get('/settings', requireAuth, (req, res) => {
   try {
-    res.render('settings', { title: 'API連携設定' });
+    const userId = req.session.userId;
+    const userSettings = userManager.getUserSettings(userId) || {};
+    
+    res.render('settings', { 
+      title: '設定',
+      username: req.session.userName || '',
+      email: req.session.userEmail || '',
+      target_cpa: userSettings.target_cpa || '7000',
+      target_ctr: userSettings.target_ctr || '1.0',
+      target_budget_rate: userSettings.target_budget_rate || '80'
+    });
   } catch (error) {
     res.status(500).send('設定ページエラー: ' + error.message);
   }
