@@ -1,12 +1,74 @@
 const UserManager = require('../userManager');
 const { sendChatworkMessage } = require('../chatworkApi');
 const { fetchMetaAdDailyStats } = require('../metaApi');
-const globalDeduplication = require('./globalDeduplication');
+const fs = require('fs');
+const path = require('path');
 
 class MultiUserChatworkSender {
     constructor() {
         this.userManager = new UserManager();
-        this.sentHistory = new Map(); // メモリ内送信履歴
+        // ファイルパスの定義
+        this.historyFile = path.join(__dirname, '..', 'chatwork_sent_history.json');
+        // ファイルから履歴を読み込み
+        this.loadSentHistory();
+        // 定期的な古い履歴のクリーンアップ（1時間ごと）
+        this.startCleanupTimer();
+    }
+
+    // 履歴の読み込み
+    loadSentHistory() {
+        try {
+            if (fs.existsSync(this.historyFile)) {
+                const data = JSON.parse(fs.readFileSync(this.historyFile, 'utf8'));
+                this.sentHistory = new Map(Object.entries(data));
+                console.log(`📂 送信履歴を読み込みました: ${this.sentHistory.size}件`);
+            } else {
+                this.sentHistory = new Map();
+                console.log('📂 新規送信履歴を作成しました');
+            }
+        } catch (error) {
+            console.error('履歴ファイル読み込みエラー:', error);
+            this.sentHistory = new Map();
+        }
+    }
+
+    // 履歴の保存
+    saveSentHistory() {
+        try {
+            const data = Object.fromEntries(this.sentHistory);
+            fs.writeFileSync(this.historyFile, JSON.stringify(data, null, 2));
+        } catch (error) {
+            console.error('履歴ファイル保存エラー:', error);
+        }
+    }
+
+    // 古い履歴の自動削除タイマー開始
+    startCleanupTimer() {
+        // 初回実行
+        this.cleanupOldHistory();
+        // 1時間ごとに実行
+        setInterval(() => {
+            this.cleanupOldHistory();
+        }, 60 * 60 * 1000);
+    }
+
+    // 古い履歴のクリーンアップ（3日以上前のデータを削除）
+    cleanupOldHistory() {
+        const now = Date.now();
+        const threeDaysAgo = now - (3 * 24 * 60 * 60 * 1000);
+        let cleaned = 0;
+        
+        this.sentHistory.forEach((timestamp, key) => {
+            if (new Date(timestamp).getTime() < threeDaysAgo) {
+                this.sentHistory.delete(key);
+                cleaned++;
+            }
+        });
+        
+        if (cleaned > 0) {
+            this.saveSentHistory();
+            console.log(`🧹 古い送信履歴を${cleaned}件クリーンアップしました`);
+        }
     }
 
     // 全ユーザーの設定を取得
@@ -27,6 +89,7 @@ class MultiUserChatworkSender {
         }
         
         this.sentHistory.set(key, new Date().toISOString());
+        this.saveSentHistory(); // ファイルに保存
         console.log(`✅ ユーザー${userId}の${type}送信履歴を記録: ${key}`);
         return true;
     }
@@ -260,26 +323,38 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                     }
                 ];
             } else {
-                // 通常モード: 改善施策2: アラート履歴から最新データを取得
-                const { getAlertHistory } = require('../alertSystem');
-                const alertHistory = await getAlertHistory(userSettings.user_id);
+                // 通常モード: alertSystem.jsから最新のアラートを取得
+                const { checkUserAlerts } = require('../alertSystem');
                 
-                // アクティブなアラートのみ抽出
-                activeAlerts = alertHistory.filter(alert => alert.status === 'active');
+                // ユーザー別のアラートをチェック（リアルタイムデータ使用）
+                activeAlerts = await checkUserAlerts(userSettings.user_id);
                 
-                if (activeAlerts.length === 0) {
+                if (!activeAlerts || activeAlerts.length === 0) {
                     console.log(`ユーザー${userSettings.user_id}: アクティブなアラートなし`);
                     return;
                 }
             }
 
-            // グローバル重複排除を使用
-            const uniqueAlerts = globalDeduplication.filterDuplicates(activeAlerts);
+            // 強化版: 完全な重複排除（メトリック + 目標値 + 現在値でユニーク）
+            const seenKeys = new Set();
+            const uniqueAlerts = [];
             
-            // 送信済みとして記録
-            uniqueAlerts.forEach(alert => {
-                globalDeduplication.markAsSent(alert.metric, userSettings.user_id);
-            });
+            console.log(`📊 重複排除開始: ${activeAlerts.length}件のアラート`);
+            
+            activeAlerts
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // 新しい順にソート
+                .forEach(alert => {
+                    // ユニークキーを作成（メトリック + 目標値 + 現在値）
+                    const uniqueKey = `${alert.metric}_${alert.targetValue}_${alert.currentValue}`;
+                    
+                    if (!seenKeys.has(uniqueKey)) {
+                        seenKeys.add(uniqueKey);
+                        uniqueAlerts.push(alert);
+                        console.log(`  ✅ 追加: ${alert.metric} (目標:${alert.targetValue}, 実績:${alert.currentValue})`);
+                    } else {
+                        console.log(`  ⚠️ 重複スキップ: ${alert.metric}`);
+                    }
+                });
             
             console.log(`ユーザー${userSettings.user_id}: 重複排除完了 ${activeAlerts.length}件 → ${uniqueAlerts.length}件`);
             

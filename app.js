@@ -4985,9 +4985,10 @@ app.listen(PORT, () => {
     const chatworkSender = new ChatworkAutoSender();
     const dayOverDayScheduler = new DayOverDayScheduler(chatworkSender);
     
-    // スケジューラーを開始
-    dayOverDayScheduler.startScheduler();
-    console.log('✅ 前日比アラートスケジューラーを起動しました');
+    // スケジューラーを開始 - 無効化（2024-09-25: 15時の重複防止のため）
+    // dayOverDayScheduler.startScheduler();
+    // console.log('✅ 前日比アラートスケジューラーを起動しました');
+    console.log('⚠️ 前日比アラートスケジューラーは無効化されています（アラート通知は統一管理）');
   } catch (error) {
     console.error('⚠️ 前日比アラートスケジューラーの起動に失敗:', error.message);
     console.log('   手動でアラートチェックを実行してください');
