@@ -320,12 +320,33 @@
             </div>
             <nav class="sidebar-nav">
                 <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/campaigns" class="nav-item">📊 キャンペーン管理</a>
+                <a href="/budget-scheduling" class="nav-item">⏰ 予算スケジューリング</a>
+                <a href="/detailed-reports" class="nav-item">📈 詳細レポート</a>
                 <a href="/alerts" class="nav-item active">アラート内容</a>
                 <a href="/alert-history" class="nav-item">アラート履歴</a>
                 <a href="/improvement-tasks" class="nav-item">確認事項</a>
-                <a href="/improvement-strategies" class="nav-item">改善施策</a>
-                <a href="/chatwork-test" class="nav-item">チャットワークテスト</a>
-            </nav>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>            </nav>
+            <div class="sidebar-footer" style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
+                <form action="/logout" method="POST" style="margin: 0;">
+                    <button type="submit" class="nav-item" style="
+                        display: block;
+                        width: 100%;
+                        padding: 12px 20px;
+                        background: rgba(231, 76, 60, 0.1);
+                        color: #e74c3c;
+                        border: 1px solid rgba(231, 76, 60, 0.2);
+                        border-radius: 5px;
+                        text-align: left;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        font-size: 14px;
+                        font-weight: 500;
+                    " onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'" onmouseout="this.style.background='rgba(231, 76, 60, 0.1)'">
+                        🚪 ログアウト
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- メインコンテンツ -->

@@ -2,34 +2,387 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>設定 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
     <style>
-        body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; }
-        .side-menu { width: 220px; background: #2c3e50; color: white; padding: 25px; min-height: 100vh; }
-        .side-menu h2 { color: #ecf0f1; margin-bottom: 25px; }
-        .side-menu ul { list-style: none; padding: 0; }
-        .side-menu li { padding: 15px 20px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; transition: all 0.3s; }
-        .side-menu li:hover { background: rgba(255,255,255,0.1); }
-        .side-menu li.active { background: rgba(255,255,255,0.2); }
-        .main-content { flex: 1; padding: 30px; background: white; margin: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #fff;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 30px;
+        }
+        
+        .content-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .settings-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .settings-section {
+            margin-bottom: 40px;
+        }
+        
+        .settings-section h2 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
     </style>
 </head>
 <body>
-    <nav class="side-menu">
-        <h2>📊 Meta広告管理</h2>
-        <ul>
-            <li onclick="location.href='/dashboard'">🏠 ダッシュボード</li>
-            <li onclick="location.href='/alerts'">🚨 アラート内容</li>
-            <li onclick="location.href='/history'">📋 アラート履歴</li>
-            <li onclick="location.href='/check'">✅ 確認事項</li>
-            <li onclick="location.href='/improve'">💡 改善施策</li>
-            <li class="active" onclick="location.href='/settings'">⚙️ API連携</li>
-        </ul>
-    </nav>
-    
-    <div class="main-content">
-        <h1>⚙️ API連携設定</h1>
-        <p>API連携設定機能は準備中です。近日公開予定！</p>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/campaigns" class="nav-item">📊 キャンペーン管理</a>
+                <a href="/budget-scheduling" class="nav-item">⏰ 予算スケジューリング</a>
+                <a href="/detailed-reports" class="nav-item">📈 詳細レポート</a>
+                <a href="/alerts" class="nav-item">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>            </nav>
+            <div class="sidebar-footer" style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
+                <form action="/logout" method="POST" style="margin: 0;">
+                    <button type="submit" class="nav-item" style="
+                        display: block;
+                        width: 100%;
+                        padding: 12px 20px;
+                        background: rgba(231, 76, 60, 0.1);
+                        color: #e74c3c;
+                        border: 1px solid rgba(231, 76, 60, 0.2);
+                        border-radius: 5px;
+                        text-align: left;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        font-size: 14px;
+                        font-weight: 500;
+                    " onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'" onmouseout="this.style.background='rgba(231, 76, 60, 0.1)'">
+                        🚪 ログアウト
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">⚙️ 設定</h1>
+                <p style="color: #6c757d;">通知設定やアカウント情報を管理します</p>
+            </div>
+            
+            <div id="messageArea"></div>
+            
+            <div class="settings-container">
+                <!-- ユーザー設定セクション -->
+                <div class="settings-section">
+                    <h2>👤 アカウント設定</h2>
+                    <form id="accountForm">
+                        <div class="form-group">
+                            <label>ユーザー名</label>
+                            <input type="text" id="username" value="<%= username || '' %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>メールアドレス</label>
+                            <input type="email" id="email" value="<%= email || '' %>" readonly>
+                            <small>※ メールアドレスは変更できません</small>
+                        </div>
+                        <button type="submit" class="btn-primary">保存</button>
+                    </form>
+                </div>
+                
+                <!-- 通知設定セクション -->
+                <div class="settings-section">
+                    <h2>🔔 通知設定</h2>
+                    <form id="notificationForm">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="enableAlerts" checked>
+                                <label for="enableAlerts">アラート通知を有効にする</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="enableDailyReport" checked>
+                                <label for="enableDailyReport">日次レポートを受信する</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>通知時刻</label>
+                            <select id="notificationTime">
+                                <option value="9">9:00</option>
+                                <option value="12">12:00</option>
+                                <option value="15">15:00</option>
+                                <option value="17">17:00</option>
+                                <option value="19">19:00</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">保存</button>
+                    </form>
+                </div>
+                
+                <!-- 目標値設定セクション -->
+                <div class="settings-section">
+                    <h2>🎯 目標値設定</h2>
+                    <form id="goalForm">
+                        <div class="form-group">
+                            <label>目標CPA（円）</label>
+                            <input type="number" id="targetCpa" value="<%= target_cpa || '7000' %>" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>目標CTR（%）</label>
+                            <input type="number" id="targetCtr" value="<%= target_ctr || '1.0' %>" min="0.1" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>目標予算消化率（%）</label>
+                            <input type="number" id="targetBudgetRate" value="<%= target_budget_rate || '80' %>" min="1" max="100">
+                        </div>
+                        <button type="submit" class="btn-primary">保存</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <script>
+        // メッセージ表示関数
+        function showMessage(type, message) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+        
+        // アカウント設定保存
+        document.getElementById('accountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                username: document.getElementById('username').value
+            };
+            
+            try {
+                const response = await fetch('/api/settings/account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showMessage('success', 'アカウント設定を保存しました');
+                } else {
+                    showMessage('error', '保存に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'エラーが発生しました');
+            }
+        });
+        
+        // 通知設定保存
+        document.getElementById('notificationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                enableAlerts: document.getElementById('enableAlerts').checked,
+                enableDailyReport: document.getElementById('enableDailyReport').checked,
+                notificationTime: document.getElementById('notificationTime').value
+            };
+            
+            try {
+                const response = await fetch('/api/settings/notifications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showMessage('success', '通知設定を保存しました');
+                } else {
+                    showMessage('error', '保存に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'エラーが発生しました');
+            }
+        });
+        
+        // 目標値設定保存
+        document.getElementById('goalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                target_cpa: document.getElementById('targetCpa').value,
+                target_ctr: document.getElementById('targetCtr').value,
+                target_budget_rate: document.getElementById('targetBudgetRate').value
+            };
+            
+            try {
+                const response = await fetch('/api/settings/goals', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showMessage('success', '目標値を保存しました');
+                } else {
+                    showMessage('error', '保存に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'エラーが発生しました');
+            }
+        });
+    </script>
 </body>
 </html>
