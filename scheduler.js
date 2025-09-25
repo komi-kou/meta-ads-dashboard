@@ -1089,16 +1089,14 @@ cron.schedule('0 12,15,17,19 * * *', async () => {
   // データ取得（通知なし）
   await executionManager.executeGlobalTask('regular_data_fetch', async () => {
     await runBatchForAllUsers(false, false); // 通常モード、通知なし
-  });
-  
-  // アラートチェックと通知送信（9時と同様に全時間帯で実行）
-  await executionManager.executeGlobalTask('regular_alert_check', async () => {
+    
+    // アラートチェック実行
     try {
-      writeLog('統一アラートチェック開始');
+      writeLog('アラートチェック開始');
       const alerts = await checkAllAlerts();
-      writeLog(`統一アラートチェック完了: ${alerts.length}件のアラート`);
+      writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
     } catch (error) {
-      writeLog('統一アラートチェックエラー: ' + error.message);
+      writeLog('アラートチェックエラー: ' + error.message);
     }
   });
   
