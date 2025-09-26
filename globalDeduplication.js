@@ -62,28 +62,40 @@ class GlobalDeduplicationManager {
      * @param {Array} alerts - アラート配列
      * @returns {Array} 重複を除外したアラート配列
      */
-    filterDuplicates(alerts) {
+        /**
+     * 複数のアラートから重複を除外（改善版）
+     * @param {Array} alerts - アラート配列
+     * @param {string} userId - ユーザーID
+     * @returns {Array} 重複を除外したアラート配列
+     */
+    filterDuplicates(alerts, userId = null) {
         if (!alerts || alerts.length === 0) return alerts;
         
         const filtered = [];
         const metricsSeen = new Set();
+        const messagesSeen = new Set();
         
         for (const alert of alerts) {
             const metric = alert.metric || alert.type || alert.name;
+            const message = alert.message || '';
+            
+            // メトリックとメッセージの組み合わせで重複チェック
+            const uniqueKey = `${metric}_${message}`;
             
             // 同一バッチ内での重複チェック
-            if (metricsSeen.has(metric)) {
+            if (metricsSeen.has(metric) || messagesSeen.has(uniqueKey)) {
                 console.log(`[GlobalDedup] バッチ内重複スキップ: ${metric}`);
                 continue;
             }
             
             // グローバル履歴での重複チェック
-            if (this.isAlreadySent(metric)) {
+            if (this.isAlreadySent(metric, userId)) {
                 console.log(`[GlobalDedup] 履歴重複スキップ: ${metric}`);
                 continue;
             }
             
             metricsSeen.add(metric);
+            messagesSeen.add(uniqueKey);
             filtered.push(alert);
         }
         
