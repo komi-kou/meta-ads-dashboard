@@ -196,30 +196,43 @@
                     </div>
                 </div>
 
-                <div id="improvement-strategies-container">
+                
+                <!-- デバッグ用 -->
+                <script>
+                    console.log('Improvements data:', <%- JSON.stringify(improvements) %>);
+                </script>
+<div id="improvement-strategies-container">
                     <% if (improvements && Object.keys(improvements).length > 0) { %>
-                        <% Object.entries(improvements).forEach(([category, strategies]) => { %>
+                        <% Object.entries(improvements).forEach(([metricName, improvementData]) => { %>
+                            <% 
+                            // メタ情報を除外して改善施策のみを抽出
+                            const categoryEntries = Object.entries(improvementData).filter(([key]) => key !== '_meta');
+                            %>
+                            <% categoryEntries.forEach(([category, strategies]) => { %>
                             <div class="improvement-card">
                                 <div class="improvement-header">
                                     <div class="improvement-category">
-                                        <%= category %>
+                                        <%= metricName %> - <%= category %>
                                     </div>
                                     <div class="improvement-metric">
-                                        <%= strategies.length %>件の改善施策
+                                        <%= Array.isArray(strategies) ? strategies.length : 0 %>件の改善施策
                                     </div>
                                 </div>
                                 
                                 <div class="improvement-content">
                                     <ul class="strategy-list">
+                                        <% if (Array.isArray(strategies)) { %>
                                         <% strategies.forEach((strategy, index) => { %>
                                             <li class="strategy-item">
                                                 <span class="strategy-number"><%= index + 1 %></span>
                                                 <span class="strategy-text"><%= strategy %></span>
                                             </li>
                                         <% }) %>
+                                        <% } %>
                                     </ul>
                                 </div>
                             </div>
+                            <% }) %>
                         <% }) %>
                     <% } else { %>
                         <div class="no-content">

@@ -281,12 +281,24 @@
                             <input type="number" id="targetCpa" value="<%= target_cpa || '7000' %>" min="1">
                         </div>
                         <div class="form-group">
+                            <label>目標CPM（円）</label>
+                            <input type="number" id="targetCpm" value="<%= target_cpm || '3000' %>" min="1">
+                        </div>
+                        <div class="form-group">
                             <label>目標CTR（%）</label>
                             <input type="number" id="targetCtr" value="<%= target_ctr || '1.0' %>" min="0.1" step="0.1">
                         </div>
                         <div class="form-group">
+                            <label>目標CV（件）</label>
+                            <input type="number" id="targetCv" value="<%= target_cv || '1' %>" min="0">
+                        </div>
+                        <div class="form-group">
                             <label>目標予算消化率（%）</label>
                             <input type="number" id="targetBudgetRate" value="<%= target_budget_rate || '80' %>" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>日予算（円）</label>
+                            <input type="number" id="targetDailyBudget" value="<%= target_daily_budget || '30000' %>" min="1">
                         </div>
                         <button type="submit" class="btn-primary">保存</button>
                     </form>
@@ -363,8 +375,11 @@
             
             const data = {
                 target_cpa: document.getElementById('targetCpa').value,
+                target_cpm: document.getElementById('targetCpm').value,
                 target_ctr: document.getElementById('targetCtr').value,
-                target_budget_rate: document.getElementById('targetBudgetRate').value
+                target_cv: document.getElementById('targetCv').value,
+                target_budget_rate: document.getElementById('targetBudgetRate').value,
+                target_daily_budget: document.getElementById('targetDailyBudget').value
             };
             
             try {

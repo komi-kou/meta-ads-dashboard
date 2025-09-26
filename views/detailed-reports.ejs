@@ -291,7 +291,6 @@
                 <select id="breakdownType">
                     <option value="region">地域別</option>
                     <option value="device_platform">デバイス別</option>
-                    <option value="hourly">時間帯別</option>
                     <option value="age,gender">年齢・性別</option>
                 </select>
                 <button class="btn-primary" onclick="loadDetailedReport()">レポート生成</button>
@@ -318,14 +317,6 @@
                     <h2 class="card-title">📱 デバイス別パフォーマンス</h2>
                     <div class="chart-container">
                         <canvas id="deviceChart"></canvas>
-                    </div>
-                </div>
-                
-                <!-- 時間帯別パフォーマンス -->
-                <div class="report-card full-width">
-                    <h2 class="card-title">⏰ 時間帯別パフォーマンス</h2>
-                    <div class="chart-container" style="height: 200px;">
-                        <canvas id="hourlyChart"></canvas>
                     </div>
                 </div>
                 
@@ -370,8 +361,13 @@
         
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('ページ初期化開始');
             await loadCampaigns();
-            await loadDetailedReport();
+            // 初期表示用にデフォルトのレポートを生成
+            setTimeout(() => {
+                console.log('初期レポート生成');
+                loadDetailedReport();
+            }, 500);
         });
         
         // キャンペーン一覧を取得
@@ -383,51 +379,101 @@
                 if (data.success) {
                     campaigns = data.campaigns;
                     const select = document.getElementById('campaignFilter');
-                    const options = campaigns.map(c => 
-                        `<option value="${c.id}">${c.name}</option>`
-                    ).join('');
-                    select.innerHTML = '<option value="all">すべてのキャンペーン</option>' + options;
+                    
+                    // すべてのキャンペーンオプションを保持
+                    const currentValue = select.value;
+                    const options = '<option value="all">すべてのキャンペーン</option>' + 
+                        campaigns.map(c => 
+                            `<option value="${c.id}">${c.name}</option>`
+                        ).join('');
+                    
+                    select.innerHTML = options;
+                    
+                    // 以前の選択を復元
+                    if (currentValue) {
+                        select.value = currentValue;
+                    }
                 }
             } catch (error) {
-                console.error('キャンペーン取得エラー:', error);
+                console.error('キャンペーン読み込みエラー:', error);
             }
         }
         
         // 詳細レポートを読み込み
         async function loadDetailedReport() {
             try {
-                const campaignId = document.getElementById('campaignFilter').value;
-                const period = document.getElementById('periodFilter').value;
-                const breakdown = document.getElementById('breakdownType').value;
+                const campaignId = document.getElementById('campaignFilter').value || 'all';
+                const period = document.getElementById('periodFilter').value || 'last_7d';
+                const breakdownType = document.getElementById('breakdownType').value || 'summary';
                 
-                const response = await fetch(`/api/reports/detailed?campaign=${campaignId}&period=${period}&breakdown=${breakdown}`);
+                console.log('詳細レポート取得:', { campaignId, period, breakdownType });
+                
+                // 実データを取得
+                const response = await fetch(`/api/detailed-report?campaign_id=${campaignId}&period=${period}&breakdown_type=${breakdownType}`);
                 const data = await response.json();
                 
+                console.log('API応答:', data);
+                
                 if (data.success) {
-                    reportData = data.report;
-                    updateCharts(data.report);
-                    updateStats(data.report);
-                    updateTable(data.report);
+                    reportData = data;
+                    
+                    // キャンペーン名を表示
+                    const titleElement = document.querySelector('.content-title');
+                    if (titleElement && data.campaignName) {
+                        titleElement.innerHTML = `📈 詳細レポート - ${data.campaignName}`;
+                    }
+                    
+                    renderCharts();
+                    updateStatistics();
+                    renderDetailTable();
+                    
+                    // データソース情報を表示
+                    const sourceInfo = data.dataSource === 'meta_api' ? '実データ' : 
+                                     data.dataSource === 'estimated' ? '推定データ' : 'データなし';
+                    console.log('データソース:', sourceInfo);
+                } else {
+                    console.error('APIエラー:', data.error);
+                    showNoDataMessage();
                 }
             } catch (error) {
                 console.error('レポート取得エラー:', error);
-                // ダミーデータで表示
-                showDummyData();
+                showNoDataMessage();
             }
         }
         
-        // チャートを更新
-        function updateCharts(reportData) {
-            const data = reportData.data || [];
+        // チャートを描画
+        function renderCharts() {
+            if (!reportData) return;
+            
             // 地域別チャート
+            renderRegionChart();
+            // デバイス別チャート
+            renderDeviceChart();
+        }
+        
+        // 地域別チャート
+        function renderRegionChart() {
+            const ctx = document.getElementById('regionChart');
+            if (!ctx) return;
+            
             if (charts.region) charts.region.destroy();
-            const regionCtx = document.getElementById('regionChart').getContext('2d');
-            charts.region = new Chart(regionCtx, {
+            
+            const data = reportData.regionData || {};
+            const labels = Object.keys(data);
+            const values = labels.map(label => data[label].impressions || 0);
+            
+            if (labels.length === 0) {
+                // データがない場合のデフォルト表示
+                labels.push('データなし');
+                values.push(1);
+            }
+            
+            charts.region = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['東京', '大阪', '名古屋', '福岡', 'その他'],
+                    labels: labels,
                     datasets: [{
-                        data: [35, 25, 15, 10, 15],
+                        data: values,
                         backgroundColor: [
                             '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'
                         ]
@@ -443,16 +489,30 @@
                     }
                 }
             });
+        }
+        
+        // デバイス別チャート
+        function renderDeviceChart() {
+            const ctx = document.getElementById('deviceChart');
+            if (!ctx) return;
             
-            // デバイス別チャート
             if (charts.device) charts.device.destroy();
-            const deviceCtx = document.getElementById('deviceChart').getContext('2d');
-            charts.device = new Chart(deviceCtx, {
+            
+            const data = reportData.deviceData || {};
+            const labels = Object.keys(data);
+            const values = labels.map(label => data[label].impressions || 0);
+            
+            if (labels.length === 0) {
+                labels.push('データなし');
+                values.push(1);
+            }
+            
+            charts.device = new Chart(ctx.getContext('2d'), {
                 type: 'pie',
                 data: {
-                    labels: ['モバイル', 'デスクトップ', 'タブレット'],
+                    labels: labels,
                     datasets: [{
-                        data: [65, 25, 10],
+                        data: values,
                         backgroundColor: ['#667eea', '#764ba2', '#f093fb']
                     }]
                 },
@@ -466,51 +526,85 @@
                     }
                 }
             });
-            
-            // 時間帯別チャート
-            if (charts.hourly) charts.hourly.destroy();
-            const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
-            const hours = Array.from({length: 24}, (_, i) => `${i}時`);
-            const hourlyData = Array.from({length: 24}, () => Math.random() * 1000 + 500);
-            
-            charts.hourly = new Chart(hourlyCtx, {
-                type: 'line',
-                data: {
-                    labels: hours,
-                    datasets: [{
-                        label: 'インプレッション',
-                        data: hourlyData,
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
         }
         
         // 統計情報を更新
-        function updateStats(reportData) {
-            const summary = reportData.summary || {};
-            document.getElementById('totalSpend').textContent = '¥' + (summary.totalSpend || 0).toLocaleString();
-            document.getElementById('totalConversions').textContent = summary.totalConversions || 0;
-            document.getElementById('avgCPA').textContent = '¥' + (summary.avgCPA || 0).toLocaleString();
-            document.getElementById('avgCTR').textContent = (summary.avgCTR || 0) + '%';
+        function updateStatistics() {
+            if (!reportData || !reportData.statistics) {
+                document.getElementById('totalSpend').textContent = '¥0';
+                document.getElementById('totalConversions').textContent = '0';
+                document.getElementById('avgCPA').textContent = '¥0';
+                document.getElementById('avgCTR').textContent = '0%';
+                return;
+            }
+            
+            const stats = reportData.statistics;
+            document.getElementById('totalSpend').textContent = '¥' + (stats.totalSpend || 0).toLocaleString();
+            document.getElementById('totalConversions').textContent = stats.totalConversions || 0;
+            document.getElementById('avgCPA').textContent = '¥' + (stats.avgCPA || 0).toLocaleString();
+            document.getElementById('avgCTR').textContent = (stats.avgCTR || 0) + '%';
         }
         
-        // テーブルを更新
-        function updateTable(reportData) {
-            const data = reportData.data || [];
-            if (data.length === 0) {
-                document.getElementById('detailTableContainer').innerHTML = '<div class="loading">データがありません</div>';
+        // 詳細テーブルを描画
+        function renderDetailTable() {
+            const container = document.getElementById('detailTableContainer');
+            if (!container) return;
+            
+            console.log('詳細テーブル描画開始', reportData);
+            
+            if (!reportData) {
+                container.innerHTML = '<div class="loading">データを読み込み中...</div>';
+                return;
+            }
+            
+            let tableRows = [];
+            
+            // 地域データ
+            if (reportData.regionData && Object.keys(reportData.regionData).length > 0) {
+                Object.entries(reportData.regionData).forEach(([region, data]) => {
+                    tableRows.push({
+                        category: '地域',
+                        name: region,
+                        impressions: data.impressions || 0,
+                        clicks: data.clicks || 0,
+                        spend: data.spend || 0,
+                        ctr: data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) : 0
+                    });
+                });
+            }
+            
+            // デバイスデータ
+            if (reportData.deviceData && Object.keys(reportData.deviceData).length > 0) {
+                Object.entries(reportData.deviceData).forEach(([device, data]) => {
+                    tableRows.push({
+                        category: 'デバイス',
+                        name: device,
+                        impressions: data.impressions || 0,
+                        clicks: data.clicks || 0,
+                        spend: data.spend || 0,
+                        ctr: data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) : 0
+                    });
+                });
+            }
+            
+            // 年齢・性別データ
+            if (reportData.ageGenderData && Object.keys(reportData.ageGenderData).length > 0) {
+                Object.entries(reportData.ageGenderData).forEach(([key, data]) => {
+                    if (data.age && data.gender) {
+                        tableRows.push({
+                            category: '年齢・性別',
+                            name: `${data.age} ${data.gender}`,
+                            impressions: data.impressions || 0,
+                            clicks: data.clicks || 0,
+                            spend: data.spend || 0,
+                            ctr: data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) : 0
+                        });
+                    }
+                });
+            }
+            
+            if (tableRows.length === 0) {
+                container.innerHTML = '<div class="loading">表示するデータがありません</div>';
                 return;
             }
             
@@ -518,50 +612,136 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th>カテゴリ</th>
                             <th>セグメント</th>
                             <th>インプレッション</th>
                             <th>クリック</th>
                             <th>消化額</th>
                             <th>CTR</th>
-                            <th>CPC</th>
-                            <th>CV</th>
-                            <th>CPA</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${data.map(row => `
+                        ${tableRows.map(row => `
                             <tr>
-                                <td>${row.name || '-'}</td>
-                                <td>${(row.impressions || 0).toLocaleString()}</td>
-                                <td>${(row.clicks || 0).toLocaleString()}</td>
-                                <td>¥${(row.spend || 0).toLocaleString()}</td>
-                                <td>${(row.ctr || 0).toFixed(2)}%</td>
-                                <td>¥${Math.round(row.spend / row.clicks || 0).toLocaleString()}</td>
-                                <td>${row.conversions || 0}</td>
-                                <td>¥${(row.cpa || 0).toLocaleString()}</td>
+                                <td>${row.category}</td>
+                                <td>${row.name}</td>
+                                <td>${row.impressions.toLocaleString()}</td>
+                                <td>${row.clicks.toLocaleString()}</td>
+                                <td>¥${Math.round(row.spend).toLocaleString()}</td>
+                                <td>${row.ctr}%</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             `;
-            document.getElementById('detailTableContainer').innerHTML = html;
+            container.innerHTML = html;
         }
         
-        // ダミーデータ表示
-        function showDummyData() {
-            updateCharts({});
-            updateStats({});
-            updateTable({});
+        // データなしメッセージを表示
+        function showNoDataMessage() {
+            // チャートを初期化
+            renderCharts();
+            updateStatistics();
+            
+            const container = document.getElementById('detailTableContainer');
+            if (container) {
+                container.innerHTML = '<div class="loading">データを取得できませんでした。キャンペーンを選択してレポート生成をクリックしてください。</div>';
+            }
         }
         
         // CSV出力
         function exportCSV() {
-            alert('CSV出力機能は準備中です');
+            if (!reportData || Object.keys(reportData.regionData || {}).length === 0) {
+                alert('レポートデータが読み込まれていません');
+                return;
+            }
+            
+            // CSVデータの作成
+            let csvContent = 'カテゴリ,項目,インプレッション,クリック,消化額\n';
+            
+            // 地域データ
+            if (reportData.regionData) {
+                Object.entries(reportData.regionData).forEach(([region, data]) => {
+                    csvContent += `地域,${region},${data.impressions},${data.clicks},${data.spend}\n`;
+                });
+            }
+            
+            // デバイスデータ
+            if (reportData.deviceData) {
+                Object.entries(reportData.deviceData).forEach(([device, data]) => {
+                    csvContent += `デバイス,${device},${data.impressions},${data.clicks},${data.spend}\n`;
+                });
+            }
+            
+            // 統計サマリー
+            if (reportData.statistics) {
+                csvContent += `\n統計サマリー\n`;
+                csvContent += `総広告費,${reportData.statistics.totalSpend}\n`;
+                csvContent += `総コンバージョン,${reportData.statistics.totalConversions}\n`;
+                csvContent += `平均CPA,${reportData.statistics.avgCPA}\n`;
+                csvContent += `平均CTR,${reportData.statistics.avgCTR}%\n`;
+            }
+            
+            // BOMを追加（Excel文字化け対策）
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+            const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const campaignName = document.getElementById('campaignFilter').selectedOptions[0].text;
+            const period = document.getElementById('periodFilter').value;
+            const fileName = `詳細レポート_${campaignName}_${period}_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
         
         // PDF出力
         function exportPDF() {
-            alert('PDF出力機能は準備中です');
+            if (!reportData || Object.keys(reportData.regionData || {}).length === 0) {
+                alert('レポートデータが読み込まれていません');
+                return;
+            }
+            
+            // 印刷用スタイルを一時的に適用
+            const printStyles = `
+                <style id="print-styles">
+                    @media print {
+                        body { margin: 0; padding: 20px; }
+                        .sidebar { display: none !important; }
+                        .export-buttons { display: none !important; }
+                        .report-filters { display: none !important; }
+                        .main-content { width: 100%; max-width: none; }
+                        .report-card { page-break-inside: avoid; }
+                        canvas { max-height: 300px !important; }
+                    }
+                </style>
+            `;
+            
+            // スタイルを追加
+            document.head.insertAdjacentHTML('beforeend', printStyles);
+            
+            // タイトルを追加
+            const campaignName = document.getElementById('campaignFilter').selectedOptions[0].text;
+            const period = document.getElementById('periodFilter').selectedOptions[0].text;
+            const title = document.createElement('h1');
+            title.id = 'pdf-title';
+            title.style.textAlign = 'center';
+            title.innerHTML = `Meta広告 詳細レポート<br>${campaignName} - ${period}<br>${new Date().toLocaleDateString('ja-JP')}`;
+            document.querySelector('.main-content').insertBefore(title, document.querySelector('.content-header'));
+            
+            // 印刷ダイアログを開く
+            window.print();
+            
+            // クリーンアップ
+            setTimeout(() => {
+                document.getElementById('print-styles')?.remove();
+                document.getElementById('pdf-title')?.remove();
+            }, 1000);
         }
     </script>
 </body>

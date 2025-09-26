@@ -248,15 +248,8 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                         severity: 'critical',
                         timestamp: new Date().toISOString(),
                         status: 'active'
-                    },
-                    {
-                        metric: 'budget_rate',
-                        targetValue: 80,
-                        currentValue: 95,
-                        severity: 'critical',
-                        timestamp: new Date().toISOString(),
-                        status: 'active'
                     }
+                    // 予算消化率のアラートは削除（95% > 80%はアラート不要）
                 ];
             } else {
                 // 通常モード: alertSystem.jsから最新のアラートを取得

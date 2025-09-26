@@ -1208,6 +1208,10 @@ Meta広告レポートツールの設定が完了しました。
                 
                 if (result.success) {
                     updateDashboard(result.data);
+                    // キャンペーンテーブルも更新
+                    if (result.data && result.data.campaigns) {
+                        updateCampaignDetailsTable(result.data.campaigns);
+                    }
                     console.log('✅ ダッシュボードデータ更新完了');
                 } else {
                     showErrorMessage('データの読み込みに失敗しました: ' + result.message);
@@ -1244,6 +1248,58 @@ Meta広告レポートツールの設定が完了しました。
             
             // 最終更新時間を更新
             updateLastUpdateTime(data.lastUpdate);
+            // キャンペーン詳細テーブルを更新
+            updateCampaignDetailsTable(data.campaigns);
+        }
+        
+        // キャンペーン詳細テーブルを更新
+        function updateCampaignDetailsTable(campaigns) {
+            const tbody = document.getElementById('campaign-details-body');
+            if (!tbody) return;
+            
+            if (!campaigns || campaigns.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 20px; color: #666;">
+                            キャンペーンデータがありません
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = campaigns.map(campaign => `
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px;">${campaign.name || '-'}</td>
+                    <td style="padding: 12px; text-align: center;">
+                        <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; 
+                            background: ${campaign.status === 'ACTIVE' ? '#10b981' : '#ef4444'}20;">
+                            ${campaign.status || '-'}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; text-align: right;">¥${(campaign.spend || 0).toLocaleString()}</td>
+                    <td style="padding: 12px; text-align: right;">${(campaign.ctr || 0).toFixed(2)}%</td>
+                    <td style="padding: 12px; text-align: right;">¥${Math.round(campaign.cpm || 0).toLocaleString()}</td>
+                    <td style="padding: 12px; text-align: right; font-weight: bold; color: #059669;">
+                        ${campaign.conversions || 0}件
+                    </td>
+                    <td style="padding: 12px; text-align: right; font-weight: bold;">
+                        ¥${campaign.conversions > 0 ? Math.round(campaign.cpa || 0).toLocaleString() : '-'}
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <button onclick="viewCampaignDetail('${campaign.id}')" 
+                            style="padding: 4px 12px; background: #3b82f6; color: white; 
+                            border: none; border-radius: 4px; cursor: pointer;">
+                            詳細
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function viewCampaignDetail(campaignId) {
+            console.log('キャンペーン詳細表示:', campaignId);
+            // 詳細ページへの遷移やモーダル表示など
         }
 
         // メトリクスカード更新
