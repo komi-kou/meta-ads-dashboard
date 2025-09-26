@@ -19,7 +19,7 @@ const METRIC_DIRECTIONS = {
     'budget_rate': 'higher_better', // 予算消化率は高い方が良い（ただし100%以下）
     'roas': 'higher_better',       // ROASは高い方が良い
     'cpa': 'lower_better',         // CPAは低い方が良い
-    'cpm': 'lower_better',         // CPMは低い方が良い
+    'cpm': 'lower_better',         // CPMは低い方が良い（コスト効率）
     'cpc': 'lower_better'          // CPCは低い方が良い
 };
 
@@ -43,7 +43,7 @@ function getMetricDisplayName(metric) {
 function formatValue(value, metric) {
     switch (metric.toLowerCase()) {
         case 'ctr':
-        case 'cvr':
+        // CVR removed - 
             // CTR、CVRは小数点第1位まで表示（例: 0.899888 → 0.9）
             return `${Math.round(value * 10) / 10}%`;
         case 'budget_rate':
@@ -81,7 +81,7 @@ function getMetricValue(data, metric) {
             return parseFloat(data.cpm || 0);
         case 'cpa':
             return parseFloat(data.cpa || 0);
-        case 'cvr':
+        // CVR removed - 
             return parseFloat(data.cvr || 0);
         case 'roas':
             return parseFloat(data.roas || 0);

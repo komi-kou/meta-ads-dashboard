@@ -36,5 +36,21 @@
     "update_notifications_enabled": true,
     "alert_notifications_enabled": true,
     "updated_at": "2025-09-19T11:24:57.919Z"
+  },
+  {
+    "id": "638f3b34-6564-4c78-8751-e8537d8fc041",
+    "user_id": "02d004a8-03aa-4b6e-9dd2-94a1995b4360",
+    "meta_access_token": "EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F",
+    "meta_account_id": "act_1384276956051351",
+    "chatwork_room_id": "410870245",
+    "service_goal": "toB_newsletter",
+    "target_cpa": 1000,
+    "target_cpm": 9000,
+    "target_ctr": 3,
+    "notifications_enabled": true,
+    "daily_report_enabled": true,
+    "update_notifications_enabled": true,
+    "alert_notifications_enabled": true,
+    "updated_at": "2025-09-26T05:51:56.770Z"
   }
 ]
