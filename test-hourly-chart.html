@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>時間帯別チャートテスト</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .chart-container { width: 800px; height: 300px; margin: 20px 0; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>⏰ 時間帯別パフォーマンス デバッグ</h1>
+    
+    <div class="test-section">
+        <h2>1. APIデータ取得テスト</h2>
+        <button onclick="fetchHourlyData()">APIから時間帯データを取得</button>
+        <div id="apiResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. チャート描画テスト</h2>
+        <button onclick="renderTestChart()">テストデータでチャート描画</button>
+        <button onclick="renderApiChart()">APIデータでチャート描画</button>
+        <div class="chart-container">
+            <canvas id="hourlyChart"></canvas>
+        </div>
+        <div id="chartResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. データ内容</h2>
+        <pre id="dataDisplay"></pre>
+    </div>
+    
+    <script>
+        let chartInstance = null;
+        let apiData = null;
+        
+        // APIから時間帯データを取得
+        async function fetchHourlyData() {
+            const resultDiv = document.getElementById('apiResult');
+            const dataDiv = document.getElementById('dataDisplay');
+            resultDiv.innerHTML = '<div class="loading">取得中...</div>';
+            
+            try {
+                // 実際のAPIエンドポイントにアクセス
+                const response = await fetch('/api/detailed-report?campaign_id=all&period=last_7d&breakdown_type=hourly');
+                const data = await response.json();
+                
+                if (data.success) {
+                    apiData = data.hourlyData;
+                    resultDiv.innerHTML = `<div class="success">✅ データ取得成功</div>`;
+                    resultDiv.innerHTML += `<div>データ型: ${typeof data.hourlyData}</div>`;
+                    resultDiv.innerHTML += `<div>配列: ${Array.isArray(data.hourlyData)}</div>`;
+                    resultDiv.innerHTML += `<div>要素数: ${data.hourlyData ? data.hourlyData.length : 0}</div>`;
+                    
+                    // データ内容を表示
+                    dataDiv.textContent = JSON.stringify({
+                        hourlyData: data.hourlyData,
+                        statistics: data.statistics
+                    }, null, 2);
+                    
+                    // 値の分析
+                    if (data.hourlyData && Array.isArray(data.hourlyData)) {
+                        const total = data.hourlyData.reduce((sum, val) => sum + val, 0);
+                        const max = Math.max(...data.hourlyData);
+                        const min = Math.min(...data.hourlyData);
+                        resultDiv.innerHTML += `<div>合計: ${total}, 最大: ${max}, 最小: ${min}</div>`;
+                    }
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ エラー: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ 取得エラー: ${error.message}</div>`;
+            }
+        }
+        
+        // テストデータでチャートを描画
+        function renderTestChart() {
+            const resultDiv = document.getElementById('chartResult');
+            
+            // テスト用の固定データ
+            const testData = [10, 15, 20, 35, 50, 80, 120, 150, 180, 200, 190, 210, 
+                              220, 180, 160, 140, 120, 100, 90, 110, 130, 80, 40, 20];
+            
+            renderChart(testData, 'テストデータ');
+            resultDiv.innerHTML = '<div class="success">✅ テストチャート描画完了</div>';
+        }
+        
+        // APIデータでチャートを描画
+        function renderApiChart() {
+            const resultDiv = document.getElementById('chartResult');
+            
+            if (!apiData) {
+                resultDiv.innerHTML = '<div class="error">❌ 先にAPIデータを取得してください</div>';
+                return;
+            }
+            
+            renderChart(apiData, 'APIデータ');
+            resultDiv.innerHTML = '<div class="success">✅ APIデータチャート描画完了</div>';
+        }
+        
+        // チャート描画共通関数
+        function renderChart(data, label) {
+            const ctx = document.getElementById('hourlyChart');
+            
+            // 既存のチャートを破棄
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            
+            const hours = Array.from({length: 24}, (_, i) => `${i}時`);
+            
+            console.log('チャート描画データ:', data);
+            
+            chartInstance = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: hours,
+                    datasets: [{
+                        label: label + ' - クリック数',
+                        data: data,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'クリック数'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '時間'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ページ読み込み時にテストチャートを表示
+        window.addEventListener('load', () => {
+            renderTestChart();
+        });
+    </script>
+</body>
+</html>

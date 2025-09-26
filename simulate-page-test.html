@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>詳細レポート動作確認</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .loading { color: orange; }
+        #detailTableContainer { min-height: 100px; background: #f5f5f5; padding: 10px; }
+        canvas { max-width: 400px; max-height: 300px; }
+    </style>
+</head>
+<body>
+    <h1>📈 詳細レポート機能テスト</h1>
+    
+    <div class="test-section">
+        <h2>1. API接続テスト</h2>
+        <button onclick="testAPI()">APIをテスト</button>
+        <div id="apiResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. データ表示テスト</h2>
+        <select id="campaignFilter">
+            <option value="all">すべてのキャンペーン</option>
+        </select>
+        <select id="breakdownType">
+            <option value="region">地域別</option>
+            <option value="device_platform">デバイス別</option>
+        </select>
+        <button onclick="loadDetailedReport()">レポート生成</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. グラフ表示</h2>
+        <canvas id="regionChart" width="400" height="300"></canvas>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 詳細データ</h2>
+        <div id="detailTableContainer">
+            <div class="loading">データを読み込み中...</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. 統計情報</h2>
+        <div>総広告費: <span id="totalSpend">¥0</span></div>
+        <div>総CV数: <span id="totalConversions">0</span></div>
+        <div>平均CPA: <span id="avgCPA">¥0</span></div>
+        <div>平均CTR: <span id="avgCTR">0%</span></div>
+    </div>
+    
+    <script>
+        let reportData = null;
+        let charts = {};
+        
+        // APIテスト
+        async function testAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = '<div class="loading">テスト中...</div>';
+            
+            try {
+                const response = await fetch('/api/detailed-report?campaign_id=all&period=last_7d');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="success">✅ API接続成功<br>
+                        キャンペーン数: ${data.campaignsAnalyzed}件<br>
+                        総広告費: ¥${(data.statistics?.totalSpend || 0).toLocaleString()}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ APIエラー: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ 接続エラー: ${error.message}</div>`;
+            }
+        }
+        
+        // 詳細レポート読み込み
+        async function loadDetailedReport() {
+            console.log('loadDetailedReport開始');
+            const container = document.getElementById('detailTableContainer');
+            container.innerHTML = '<div class="loading">読み込み中...</div>';
+            
+            try {
+                const campaignId = document.getElementById('campaignFilter').value;
+                const breakdownType = document.getElementById('breakdownType').value;
+                
+                const response = await fetch(`/api/detailed-report?campaign_id=${campaignId}&period=last_7d&breakdown_type=${breakdownType}`);
+                const data = await response.json();
+                
+                console.log('API応答:', data);
+                
+                if (data.success) {
+                    reportData = data;
+                    renderCharts();
+                    updateStatistics();
+                    renderDetailTable();
+                } else {
+                    container.innerHTML = `<div class="error">エラー: ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('エラー:', error);
+                container.innerHTML = `<div class="error">読み込みエラー: ${error.message}</div>`;
+            }
+        }
+        
+        // チャート描画
+        function renderCharts() {
+            if (!reportData) return;
+            
+            const ctx = document.getElementById('regionChart');
+            if (!ctx) return;
+            
+            if (charts.region) charts.region.destroy();
+            
+            const data = reportData.regionData || {};
+            const labels = Object.keys(data).length > 0 ? Object.keys(data) : ['データなし'];
+            const values = labels[0] === 'データなし' ? [1] : labels.map(label => data[label].impressions || 0);
+            
+            charts.region = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b']
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // 統計更新
+        function updateStatistics() {
+            if (!reportData || !reportData.statistics) return;
+            
+            const stats = reportData.statistics;
+            document.getElementById('totalSpend').textContent = '¥' + (stats.totalSpend || 0).toLocaleString();
+            document.getElementById('totalConversions').textContent = stats.totalConversions || 0;
+            document.getElementById('avgCPA').textContent = '¥' + (stats.avgCPA || 0).toLocaleString();
+            document.getElementById('avgCTR').textContent = (stats.avgCTR || 0) + '%';
+        }
+        
+        // 詳細テーブル描画
+        function renderDetailTable() {
+            const container = document.getElementById('detailTableContainer');
+            if (!container || !reportData) return;
+            
+            let html = '<table border="1" style="width:100%"><thead><tr>';
+            html += '<th>カテゴリ</th><th>名前</th><th>インプレッション</th><th>クリック</th><th>消化額</th>';
+            html += '</tr></thead><tbody>';
+            
+            let hasData = false;
+            
+            // 地域データ
+            if (reportData.regionData) {
+                Object.entries(reportData.regionData).forEach(([region, data]) => {
+                    hasData = true;
+                    html += `<tr>
+                        <td>地域</td>
+                        <td>${region}</td>
+                        <td>${(data.impressions || 0).toLocaleString()}</td>
+                        <td>${(data.clicks || 0).toLocaleString()}</td>
+                        <td>¥${Math.round(data.spend || 0).toLocaleString()}</td>
+                    </tr>`;
+                });
+            }
+            
+            // デバイスデータ
+            if (reportData.deviceData) {
+                Object.entries(reportData.deviceData).forEach(([device, data]) => {
+                    hasData = true;
+                    html += `<tr>
+                        <td>デバイス</td>
+                        <td>${device}</td>
+                        <td>${(data.impressions || 0).toLocaleString()}</td>
+                        <td>${(data.clicks || 0).toLocaleString()}</td>
+                        <td>¥${Math.round(data.spend || 0).toLocaleString()}</td>
+                    </tr>`;
+                });
+            }
+            
+            html += '</tbody></table>';
+            
+            container.innerHTML = hasData ? html : '<div>データがありません</div>';
+        }
+        
+        // ページ読み込み時の初期化
+        window.addEventListener('load', () => {
+            console.log('ページ読み込み完了');
+            // 初期データは読み込まない（ユーザーがボタンをクリックしてから）
+        });
+    </script>
+</body>
+</html>
