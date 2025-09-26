@@ -1078,6 +1078,17 @@ cron.schedule('0 9 * * *', async () => {
       writeLog('マルチユーザー日次レポート送信エラー: ' + error.message);
     }
   });
+  
+  // マルチユーザーアラート通知送信（9時）
+  await executionManager.executeGlobalTask('morning_alert_notification', async () => {
+    try {
+      writeLog('朝9時のアラート通知送信開始');
+      await multiUserSender.sendAlertNotificationToAllUsers();
+      writeLog('朝9時のアラート通知送信完了');
+    } catch (error) {
+      writeLog('マルチユーザーアラート通知送信エラー: ' + error.message);
+    }
+  });
 }, {
   timezone: "Asia/Tokyo"
 });
@@ -1109,8 +1120,17 @@ cron.schedule('0 12,15,17,19 * * *', async () => {
     }
   });
   
-  // アラート通知は9時の統一システムで処理するため、その他の時間帯では送信しない
-  // 重複防止のため削除
+  // マルチユーザーアラート通知送信（12時、15時、17時、19時）
+  await executionManager.executeGlobalTask('regular_alert_notification', async () => {
+    try {
+      const currentHour = new Date().getHours();
+      writeLog(`${currentHour}時のアラート通知送信開始`);
+      await multiUserSender.sendAlertNotificationToAllUsers();
+      writeLog(`${currentHour}時のアラート通知送信完了`);
+    } catch (error) {
+      writeLog('マルチユーザーアラート通知送信エラー: ' + error.message);
+    }
+  });
 }, {
   timezone: "Asia/Tokyo"
 });
