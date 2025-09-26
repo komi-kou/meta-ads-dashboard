@@ -49,17 +49,15 @@ function getUserTargets(userId) {
             const val = parseFloat(userSettings.target_ctr);
             if (!isNaN(val) && val > 0) targets.ctr = val;
         }
-        if (userSettings.target_cvr && userSettings.target_cvr !== '') {
-            const val = parseFloat(userSettings.target_cvr);
-            if (!isNaN(val) && val > 0) targets.cvr = val;
+        // CVRは目標値に設定されていない場合はスキップ
+        // // CVR is removed from targets
+        if (userSettings.target_budget_rate && userSettings.target_budget_rate !== '') {
+            const val = parseFloat(userSettings.target_budget_rate);
+            if (!isNaN(val) && val > 0) targets.budget_rate = val;
         }
         if (userSettings.target_cv && userSettings.target_cv !== '') {
             const val = parseInt(userSettings.target_cv);
             if (!isNaN(val) && val > 0) targets.conversions = val;
-        }
-        if (userSettings.target_budget_rate && userSettings.target_budget_rate !== '') {
-            const val = parseFloat(userSettings.target_budget_rate);
-            if (!isNaN(val) && val > 0) targets.budget_rate = val;
         }
         if (userSettings.target_roas && userSettings.target_roas !== '') {
             const val = parseFloat(userSettings.target_roas);
@@ -209,6 +207,23 @@ async function checkUserAlerts(userId) {
             // checkUserAlertsから直接送信しないことで重複を防ぐ
             
             console.log('📝 アラート履歴保存のみ実行（通知は別途送信）');
+        }
+        
+        
+        // 重複除去: 同じメトリックのアラートは1つのみ保持
+        const uniqueAlerts = [];
+        const seenMetrics = new Set();
+        
+        for (const alert of alerts) {
+            if (!seenMetrics.has(alert.metric)) {
+                seenMetrics.add(alert.metric);
+                uniqueAlerts.push(alert);
+            }
+        }
+        
+        if (alerts.length !== uniqueAlerts.length) {
+            console.log(`重複除去: ${alerts.length}件 → ${uniqueAlerts.length}件`);
+            alerts = uniqueAlerts;
         }
         
         console.log(`ユーザー${userId}のアラートチェック完了: ${alerts.length}件のアラート`);

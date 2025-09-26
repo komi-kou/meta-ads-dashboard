@@ -25,6 +25,9 @@ const {
 const setupRouter = require('./routes/setup');
 const adminRouter = require('./routes/admin');
 
+// MetaApi モジュール
+const metaApi = require('./metaApi');
+
 // 環境変数確認ログ
 console.log('=== 環境変数確認 ===');
 console.log('META_ACCESS_TOKEN:', process.env.META_ACCESS_TOKEN ? '設定済み' : '未設定');
@@ -1048,9 +1051,6 @@ app.get('/api/reports/detailed', requireAuth, async (req, res) => {
                 case 'device_platform':
                     metaBreakdown = ['impression_device'];
                     break;
-                case 'hourly':
-                    metaBreakdown = ['hourly_stats_aggregated_by_advertiser_time_zone'];
-                    break;
                 case 'age,gender':
                     metaBreakdown = ['age', 'gender'];
                     break;
@@ -1789,7 +1789,7 @@ app.get('/alert-history', requireAuth, async (req, res) => {
             'CPA': parseFloat(userSettings.target_cpa),
             'CV': parseFloat(userSettings.target_cv),
             'CVR': parseFloat(userSettings.target_cvr),
-            'Budget': parseFloat(userSettings.target_budget_rate)
+            '予算消化率': parseFloat(userSettings.target_budget_rate)
         };
         
         alerts = alerts.map(alert => {
@@ -1868,18 +1868,18 @@ app.get('/api/check-items', requireAuth, async (req, res) => {
         
         const userId = req.session.userId;
         
-        // アラートシステムを安全に読み込み
+        // 動的アラート生成を使用（確認事項ページと同じロジック）
         let alerts = [];
         try {
-            const { getAlertHistory } = require('./alertSystem');
-            console.log('alertSystem.js を読み込み成功');
+            const { generateDynamicAlerts } = require('./dynamicAlertGenerator');
+            console.log('動的アラート生成中...');
             
-            // アクティブなアラート履歴を取得（ユーザーIDでフィルタリング）
-            const alertHistory = await getAlertHistory(req.session.userId);
+            // 動的にアラートを生成
+            const dynamicAlerts = await generateDynamicAlerts(userId);
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             
-            alerts = alertHistory.filter(alert => 
+            alerts = dynamicAlerts.filter(alert => 
                 alert.status === 'active' && new Date(alert.timestamp) > thirtyDaysAgo
             );
             console.log('=== /api/check-items詳細ログ ===');
@@ -2035,40 +2035,16 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
         const userManagerInstance = new UserManager();
         const userSettings = userManagerInstance.getUserSettings(userId) || {};
         
-        // アラート履歴から確認事項を取得
+        // 動的アラート生成を使用（アラート内容ページと同じロジック）
         let checkItems = [];
         try {
-            const { getAlertHistory, getUserTargets } = require('./alertSystem');
-            let alertHistory = await getAlertHistory(userId);
+            const { generateDynamicAlerts } = require('./dynamicAlertGenerator');
+            console.log('動的アラート生成中...');
+            const alerts = await generateDynamicAlerts(userId);
+            console.log('生成されたアラート数:', alerts.length);
             
-            // 現在の目標値を取得
-            const currentTargets = getUserTargets ? getUserTargets(userId) : null;
-            
-            // 古いアラートをフィルタリング（現在の目標値と一致しないものを除外）
-            if (currentTargets && alertHistory.length > 0) {
-                alertHistory = alertHistory.filter(alert => {
-                    // メトリック名を正規化
-                    const metricKey = alert.metric.toLowerCase()
-                        .replace('ctr', 'ctr')
-                        .replace('cpm', 'cpm')
-                        .replace('cpa', 'cpa')
-                        .replace('cv', 'conversions')
-                        .replace('cvr', 'cvr')
-                        .replace('予算消化率', 'budget_rate')
-                        .replace('budget', 'budget_rate');
-                    
-                    // 現在の目標値と一致するアラートのみ保持
-                    if (currentTargets[metricKey] !== undefined) {
-                        return Math.abs(alert.targetValue - currentTargets[metricKey]) < 0.01;
-                    }
-                    return false; // 目標値が設定されていないメトリックは除外
-                });
-            }
-            
-            const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
-            
-            // 確認事項を抽出
-            activeAlerts.forEach(alert => {
+            // アラートから確認事項を抽出（アラートがあるものだけ）
+            alerts.forEach(alert => {
                 if (alert.checkItems && alert.checkItems.length > 0) {
                     alert.checkItems.forEach(item => {
                         checkItems.push({
@@ -2076,114 +2052,21 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
                             message: alert.message,
                             priority: item.priority || 1,
                             title: item.title,
-                            description: item.description
+                            description: item.description,
+                            targetValue: alert.targetValue,
+                            currentValue: alert.currentValue
                         });
                     });
                 }
             });
-        } catch (alertError) {
-            console.error('アラート取得エラー:', alertError);
+            
+            console.log('抽出された確認事項数:', checkItems.length);
+            
+        } catch (error) {
+            console.error('動的アラート生成エラー:', error);
+            // エラー時は空配列を使用
+            checkItems = [];
         }
-        
-        // データがない場合はサンプルデータを生成
-        if (checkItems.length === 0) {
-            console.log('確認事項が空なのでサンプルデータを生成');
-            checkItems = [
-                {
-                    metric: 'CPA',
-                    message: '目標CPAを20%超過しています',
-                    priority: 1,
-                    title: 'ターゲティング設定の確認',
-                    description: 'オーディエンスサイズが大きすぎる可能性があります'
-                },
-                {
-                    metric: 'CPA',
-                    message: '目標CPAを20%超過しています',
-                    priority: 2,
-                    title: '広告クリエイティブの確認',
-                    description: 'CTRが低下している可能性があります'
-                },
-                {
-                    metric: 'CTR',
-                    message: 'CTRが1.5%を下回っています',
-                    priority: 1,
-                    title: '広告文の見直し',
-                    description: '訴求内容がターゲットに合っていない可能性があります'
-                },
-                {
-                    metric: 'CTR',
-                    message: 'CTRが1.5%を下回っています',
-                    priority: 2,
-                    title: 'ビジュアルの最適化',
-                    description: '画像や動画の品質を改善してください'
-                },
-                {
-                    metric: 'Budget',
-                    message: '予算消化率が80%を超えています',
-                    priority: 1,
-                    title: '予算配分の見直し',
-                    description: 'パフォーマンスの良いキャンペーンに予算を集中させてください'
-                },
-                {
-                    metric: 'ROAS',
-                    message: 'ROASが目標を下回っています',
-                    priority: 1,
-                    title: 'コンバージョン最適化',
-                    description: 'コンバージョン設定が適切か確認してください'
-                }
-            ];
-        }
-        
-        console.log('確認事項数:', checkItems.length);
-        
-        // 動的な目標値更新を適用
-        const targetMapping = {
-            'CPA': parseFloat(userSettings.target_cpa),
-            'CTR': parseFloat(userSettings.target_ctr),
-            'CPM': parseFloat(userSettings.target_cpm),
-            'Budget': parseFloat(userSettings.target_budget_rate),
-            'ROAS': parseFloat(userSettings.target_roas) || 300
-        };
-        
-        checkItems = checkItems.map(item => {
-            if (targetMapping[item.metric] && !isNaN(targetMapping[item.metric])) {
-                const newTarget = targetMapping[item.metric];
-                
-                // メッセージ内の目標値を正規表現で置換
-                if (item.metric === 'CPA') {
-                    // 目標値X円、目標CPAX円 などに対応
-                    item.message = item.message.replace(
-                        /目標CPA[\d,]+円|目標値[\d,]+円|[\d,]+円を/,
-                        `目標CPA${newTarget.toLocaleString()}円を`
-                    );
-                } else if (item.metric === 'CTR') {
-                    // CTRがX%を下回っています
-                    item.message = item.message.replace(
-                        /[\d.]+%を/,
-                        `${newTarget}%を`
-                    );
-                } else if (item.metric === 'CPM') {
-                    // CPMがX円を超過
-                    item.message = item.message.replace(
-                        /¥[\d,]+を|[\d,]+円を/,
-                        `¥${newTarget.toLocaleString()}を`
-                    );
-                } else if (item.metric === 'Budget') {
-                    // 予算消化率がX%を
-                    item.message = item.message.replace(
-                        /[\d.]+%を/,
-                        `${newTarget}%を`
-                    );
-                } else if (item.metric === 'ROAS') {
-                    // ROASが目標X%を
-                    item.message = item.message.replace(
-                        /目標[\d.]+%を/,
-                        `目標${newTarget}%を`
-                    );
-                }
-            }
-            return item;
-        });
         
         res.render('improvement-tasks', {
             title: '確認事項 - Meta広告ダッシュボード',
@@ -2206,7 +2089,6 @@ app.get('/improvement-tasks', requireAuth, async (req, res) => {
     }
 });
 
-// 改善施策ページ
 app.get('/improvement-strategies', requireAuth, async (req, res) => {
     try {
         console.log('=== 改善施策ページアクセス ===');
@@ -2219,131 +2101,51 @@ app.get('/improvement-strategies', requireAuth, async (req, res) => {
         
         let improvements = {};
         try {
-            const { getAlertHistory, getUserTargets } = require('./alertSystem');
-            let alertHistory = await getAlertHistory(userId);
+            const { generateDynamicAlerts } = require('./dynamicAlertGenerator');
+            console.log('動的アラート生成中...');
+            const alerts = await generateDynamicAlerts(userId);
+            console.log('生成されたアラート数:', alerts.length);
             
-            // 現在の目標値を取得
-            const currentTargets = getUserTargets ? getUserTargets(userId) : null;
-            
-            // 古いアラートをフィルタリング（現在の目標値と一致しないものを除外）
-            if (currentTargets && alertHistory.length > 0) {
-                alertHistory = alertHistory.filter(alert => {
-                    // メトリック名を正規化
-                    const metricKey = alert.metric.toLowerCase()
-                        .replace('ctr', 'ctr')
-                        .replace('cpm', 'cpm')
-                        .replace('cpa', 'cpa')
-                        .replace('cv', 'conversions')
-                        .replace('cvr', 'cvr')
-                        .replace('予算消化率', 'budget_rate')
-                        .replace('budget', 'budget_rate');
+            // アラートから改善施策を抽出（アラートがあるものだけ）
+            alerts.forEach(alert => {
+                if (alert.improvements) {
+                    const metricName = getMetricDisplayName(alert.metric);
                     
-                    // 現在の目標値と一致するアラートのみ保持
-                    if (currentTargets[metricKey] !== undefined) {
-                        return Math.abs(alert.targetValue - currentTargets[metricKey]) < 0.01;
-                    }
-                    return false; // 目標値が設定されていないメトリックは除外
-                });
-            }
-            
-            const activeAlerts = alertHistory.filter(alert => alert.status === 'active');
-            
-            // アラートから改善施策を抽出
-            activeAlerts.forEach(alert => {
-                if (alert.improvements && Object.keys(alert.improvements).length > 0) {
-                    Object.keys(alert.improvements).forEach(key => {
-                        if (!improvements[key]) {
-                            improvements[key] = [];
-                        }
-                        alert.improvements[key].forEach(strategy => {
-                            if (!improvements[key].includes(strategy)) {
-                                improvements[key].push(strategy);
+                    // 改善施策のデータ構造を修正（strategiesが配列であることを保証）
+                    improvements[metricName] = {};
+                    
+                    Object.entries(alert.improvements).forEach(([key, strategies]) => {
+                        // strategiesが配列でない場合は配列に変換
+                        if (!Array.isArray(strategies)) {
+                            if (typeof strategies === 'string') {
+                                strategies = [strategies];
+                            } else if (typeof strategies === 'object') {
+                                strategies = Object.values(strategies);
+                            } else {
+                                strategies = [];
                             }
-                        });
+                        }
+                        // 配列であることを保証
+                        if (!Array.isArray(strategies)) {
+                            strategies = typeof strategies === 'string' ? [strategies] : [];
+                        }
+                        improvements[metricName][key] = strategies;
                     });
+                    
+                    // メタ情報を追加
+                    improvements[metricName]._meta = {
+                        message: alert.message,
+                        targetValue: alert.targetValue,
+                        currentValue: alert.currentValue
+                    };
                 }
             });
-        } catch (alertError) {
-            console.error('アラート取得エラー:', alertError);
-        }
-        
-        // データがない場合はサンプルデータを生成
-        if (Object.keys(improvements).length === 0) {
-            console.log('改善施策が空なのでサンプルデータを生成');
-            improvements = {
-                'ターゲティング設定の確認': [
-                    'カスタムオーディエンスを作成して、より精度の高いターゲティングを行う',
-                    '類似オーディエンスのサイズを1-3%に絞り込む',
-                    '年齢・性別・地域の設定を見直し、最適化する',
-                    '興味関心カテゴリーを再検討し、関連性の高いものに絞る'
-                ],
-                '広告クリエイティブの確認': [
-                    'A/Bテストを実施して、パフォーマンスの良いクリエイティブを特定',
-                    '動画広告の最初の3秒を改善し、視聴者の注意を引く',
-                    'カルーセル広告を試して、複数の商品/サービスを訴求',
-                    '広告文のCTAボタンを明確にし、行動を促す'
-                ],
-                '広告文の見直し': [
-                    'ベネフィットを明確に伝える文章に変更',
-                    '数字や具体的な成果を含めて信頼性を高める',
-                    '緊急性や限定性を訴求して、行動を促進',
-                    'ターゲットの課題や悩みに直接訴えかける文章にする'
-                ],
-                'ビジュアルの最適化': [
-                    '高品質な画像や動画を使用し、プロフェッショナルな印象を与える',
-                    'ブランドカラーを統一し、認知度を高める',
-                    'モバイルファーストで設計し、スマートフォンでの見やすさを重視',
-                    'テキストオーバーレイは20%以下に抑える'
-                ],
-                '予算配分の見直し': [
-                    'パフォーマンスの高いキャンペーンに予算を集中',
-                    '曜日・時間帯別の配信を最適化',
-                    '自動入札戦略を活用して、効率的な予算配分を実現',
-                    'キャンペーン予算最適化（CBO）を有効にする'
-                ],
-                'コンバージョン最適化': [
-                    'ピクセルの設置を確認し、正確なトラッキングを実現',
-                    'コンバージョンAPIを導入して、データの精度を向上',
-                    'マイクロコンバージョンを設定し、最適化の機会を増やす',
-                    'ランディングページの改善で、コンバージョン率を向上'
-                ]
-            };
-        }
-        
-        console.log('改善施策カテゴリ数:', Object.keys(improvements).length);
-        
-        // 動的な目標値を改善施策に反映
-        const targetCPA = parseFloat(userSettings.target_cpa) || 7500;
-        const targetCPM = parseFloat(userSettings.target_cpm) || 1800;
-        const targetCTR = parseFloat(userSettings.target_ctr) || 1.0;
-        const targetBudget = parseFloat(userSettings.target_budget_rate) || 80;
-        
-        // 改善施策内の目標値を更新
-        if (improvements['ターゲティング設定の確認']) {
-            improvements['ターゲティング設定の確認'] = improvements['ターゲティング設定の確認'].map(strategy => {
-                if (strategy.includes('CPA')) {
-                    return `目標CPA¥${targetCPA}を達成するため、${strategy.replace(/¥\d+/, `¥${targetCPA}`)}`;
-                }
-                return strategy;
-            });
-        }
-        
-        if (improvements['広告文の見直し']) {
-            improvements['広告文の見直し'] = improvements['広告文の見直し'].map(strategy => {
-                if (strategy.includes('CTR')) {
-                    return `CTR目標${targetCTR}%を達成するため、${strategy.replace(/\d+(\.\d+)?%/, `${targetCTR}%`)}`;
-                }
-                return strategy;
-            });
-        }
-        
-        if (improvements['予算配分の見直し']) {
-            improvements['予算配分の見直し'] = improvements['予算配分の見直し'].map(strategy => {
-                if (strategy.includes('予算')) {
-                    return `予算消化率目標${targetBudget}%を維持するため、${strategy}`;
-                }
-                return strategy;
-            });
+            
+            console.log('抽出された改善施策数:', Object.keys(improvements).length);
+            
+        } catch (error) {
+            console.error('動的アラート生成エラー:', error);
+            improvements = {};
         }
         
         res.render('improvement-strategies', {
@@ -2363,6 +2165,40 @@ app.get('/improvement-strategies', requireAuth, async (req, res) => {
                 id: req.session.userId,
                 name: req.session.userName
             }
+        });
+    }
+});
+
+// チャットワークテストページ
+app.get('/chatwork-test', requireAuth, (req, res) => {
+    res.render('chatwork-test');
+});
+
+// デバッグ用エンドポイント
+app.get('/debug/user-settings/:userId?', requireAuth, (req, res) => {
+    try {
+        const userId = req.params.userId || req.session.userId;
+        console.log('Debug - ユーザーID:', userId);
+        
+        const UserManager = require('./userManager');
+        const userManager = new UserManager();
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (!userSettings) {
+            return res.status(404).json({
+                error: 'ユーザー設定が見つかりません'
+            });
+        }
+        
+        res.json({
+            userId: userId,
+            settings: userSettings
+        });
+        
+    } catch (error) {
+        console.error('デバッグエラー:', error);
+        res.status(500).json({
+            error: error.message
         });
     }
 });
@@ -2853,7 +2689,8 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
         const insights = insightsResponse.data.data[0] || {};
         // getConversionsFromActions関数を使用してすべてのコンバージョンタイプを検出
         const conversions = getConversionsFromActions(insights.actions);
-        const cpa = conversions > 0 ? (parseFloat(insights.spend) / conversions) : null;
+        const spend = parseFloat(insights.spend || 0);
+        const cpa = conversions > 0 ? Math.round(spend / conversions) : 0;
         
         campaignDetails.push({
           id: campaign.id,
@@ -3129,6 +2966,7 @@ app.get('/api/dashboard-data', requireAuth, async (req, res) => {
     
     res.json({
       success: true,
+      campaigns: metaData && metaData.campaigns ? metaData.campaigns : [],
       data: metaData,
       user: {
         targets: {
@@ -3979,7 +3817,7 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
         
         if (!data.data || data.data.length === 0) {
             console.log(`${selectedDate}のデータなし - 0値データを返します`);
-            return createZeroMetrics(selectedDate);
+            return createZeroMetrics(selectedDate, userId);
         }
         
         const insights = data.data[0];
@@ -4081,10 +3919,11 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
 }
 
 // データなし時の0値メトリクス（拡張版）
-function createZeroMetrics(selectedDate) {
+function createZeroMetrics(selectedDate, userId = null) {
+    // 予算消化率は消費が0の場合は0とする
     return {
         spend: 0,
-        budgetRate: 0.00,
+        budgetRate: 0.00, // 消費が0なので予算消化率も0
         ctr: 0.00,
         cpm: 0,
         conversions: 0,
@@ -5220,12 +5059,13 @@ try {
     const cron = require('node-cron');
     
     // 日次レポート: 毎朝9時
-    cron.schedule('0 9 * * *', async () => {
-        console.log('📅 日次レポート送信スケジュール実行（全ユーザー）');
-        await multiUserSender.sendDailyReportToAllUsers();
-    }, {
-        timezone: 'Asia/Tokyo'
-    });
+    // ❌ scheduler.jsの統一システムを使用するため無効化（重複防止）
+    // cron.schedule('0 9 * * *', async () => {
+    //     console.log('📅 日次レポート送信スケジュール実行（全ユーザー）');
+    //     await multiUserSender.sendDailyReportToAllUsers();
+    // }, {
+    //     timezone: 'Asia/Tokyo'
+    // });
     
     // 定期更新通知: 12時、15時、17時、19時
     // ❌ scheduler.jsの統一システムを使用するため無効化
@@ -5448,6 +5288,108 @@ app.post('/api/test-day-over-day-alert', requireAuth, async (req, res) => {
     }
 });
 
+// テスト通知送信API（全時間帯対応）
+app.post('/api/test/send-notification', requireAuth, async (req, res) => {
+    try {
+        const { hour, userId } = req.body;
+        console.log(`📧 テスト通知送信開始 - 時刻: ${hour}時, ユーザー: ${userId || '全ユーザー'}`);
+        
+        const MultiUserChatworkSender = require('./utils/multiUserChatworkSender');
+        const multiUserSender = new MultiUserChatworkSender();
+        
+        // ユーザー取得
+        let targetUsers = [];
+        if (userId) {
+            // 特定ユーザーのみ
+            const allUsers = multiUserSender.getAllActiveUsers();
+            const user = allUsers.find(u => u.user_id === userId || u.username === userId);
+            if (user) {
+                targetUsers = [user];
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    error: `ユーザー ${userId} が見つかりません`
+                });
+            }
+        } else {
+            // 全アクティブユーザー
+            targetUsers = multiUserSender.getAllActiveUsers();
+        }
+        
+        console.log(`対象ユーザー数: ${targetUsers.length}`);
+        
+        const results = [];
+        
+        // 各ユーザーに対して通知を送信
+        for (const user of targetUsers) {
+            const userResult = {
+                userId: user.user_id,
+                username: user.username,
+                notifications: []
+            };
+            
+            try {
+                // 時間帯に応じた通知を送信
+                if (hour === 9) {
+                    // 9時: 日次レポート + アラート通知
+                    console.log(`${user.username}に日次レポートを送信`);
+                    await multiUserSender.sendUserDailyReport(user, true);
+                    userResult.notifications.push('日次レポート');
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    console.log(`${user.username}にアラート通知を送信`);
+                    await multiUserSender.sendUserAlertNotification(user, true);
+                    userResult.notifications.push('アラート通知');
+                    
+                } else if ([12, 15, 17, 19].includes(hour)) {
+                    // 12時, 15時, 17時, 19時: 定期更新通知 + アラート通知
+                    console.log(`${user.username}に定期更新通知を送信`);
+                    await multiUserSender.sendUserUpdateNotification(user, true);
+                    userResult.notifications.push('定期更新通知');
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    console.log(`${user.username}にアラート通知を送信`);
+                    await multiUserSender.sendUserAlertNotification(user, true);
+                    userResult.notifications.push('アラート通知');
+                    
+                } else {
+                    userResult.error = `時刻 ${hour} は通知時間外です（対応時間: 9, 12, 15, 17, 19）`;
+                }
+                
+                userResult.success = true;
+            } catch (error) {
+                userResult.success = false;
+                userResult.error = error.message;
+                console.error(`ユーザー ${user.username} への通知送信エラー:`, error);
+            }
+            
+            results.push(userResult);
+            
+            // レート制限対策
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        // 成功したユーザー数をカウント
+        const successCount = results.filter(r => r.success).length;
+        
+        res.json({
+            success: successCount > 0,
+            message: `${successCount}/${targetUsers.length} ユーザーへの通知送信完了`,
+            hour: hour,
+            results: results
+        });
+        
+    } catch (error) {
+        console.error('テスト通知送信エラー:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // アラート手動生成API
 app.post('/api/generate-alerts-manual', requireAuth, async (req, res) => {
     try {
@@ -5475,13 +5417,338 @@ app.post('/api/generate-alerts-manual', requireAuth, async (req, res) => {
     }
 });
 
-// 404ハンドリング（必ず最後に配置）
-app.use((req, res) => {
-  console.log('404エラー:', req.method, req.url);
-  res.status(404).send('ページが見つかりません');
+// ========================================
+
+// 目標値設定API
+app.post('/api/settings/goals', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userManager = getUserManager();
+        
+        // 現在の設定を取得
+        const currentSettings = userManager.getUserSettings(userId) || {};
+        
+        // 目標値を更新（既存の設定を保持）
+        const updatedSettings = {
+            ...currentSettings, // 既存の設定を保持
+            target_cpa: req.body.target_cpa || currentSettings.target_cpa,
+            target_cpm: req.body.target_cpm || currentSettings.target_cpm,
+            target_ctr: req.body.target_ctr || currentSettings.target_ctr,
+            target_cv: req.body.target_cv || currentSettings.target_cv,
+            target_cvr: currentSettings.target_cvr || '', // 既存のCVRを保持
+            target_budget_rate: req.body.target_budget_rate || currentSettings.target_budget_rate,
+            target_daily_budget: req.body.target_daily_budget || currentSettings.target_daily_budget,
+            target_roas: currentSettings.target_roas || '' // 既存のROASを保持
+        };
+        
+        userManager.saveUserSettings(userId, updatedSettings);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('目標値保存エラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
-// ========================================
+
+// 詳細レポートAPI
+app.get('/api/detailed-report', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { campaign_id, period, breakdown_type } = req.query;
+        
+        // ユーザー設定を取得
+        const userSettings = userManager.getUserSettings(userId);
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Meta APIの設定が必要です' 
+            });
+        }
+        
+        // breakdownタイプに応じてMeta APIを呼び出し
+        let breakdownData = null;
+        let breakdownParam = null;
+        
+        // breakdownタイプの設定
+        switch(breakdown_type) {
+            case 'region':
+                breakdownParam = 'country';
+                break;
+            case 'device_platform':
+                breakdownParam = 'impression_device';
+                break;
+            case 'age,gender':
+                breakdownParam = 'age,gender';
+                break;
+            default:
+                breakdownParam = null;
+        }
+        
+        // 既存のキャンペーンデータを取得
+        let campaignsData = [];
+        try {
+            const result = await metaApi.fetchCampaignInsights(
+                userSettings.meta_access_token,
+                userSettings.meta_account_id,
+                period || 'last_7d'
+            );
+            
+            if (Array.isArray(result)) {
+                campaignsData = result;
+            } else if (result && result.data) {
+                campaignsData = result.data;
+            }
+            
+            console.log('取得したキャンペーン数:', campaignsData.length);
+        } catch (error) {
+            console.log('キャンペーンデータ取得エラー:', error.message);
+        }
+        
+        // キャンペーンフィルタリング
+        if (campaign_id && campaign_id !== 'all') {
+            campaignsData = campaignsData.filter(c => 
+                c.campaign_id === campaign_id || c.id === campaign_id
+            );
+            console.log('フィルター後のキャンペーン数:', campaignsData.length);
+        }
+        
+        // データを集計
+        let totalSpend = 0;
+        let totalConversions = 0;
+        let totalClicks = 0;
+        let totalImpressions = 0;
+        
+        campaignsData.forEach(campaign => {
+            totalSpend += parseFloat(campaign.spend || 0);
+            totalClicks += parseInt(campaign.clicks || 0);
+            totalImpressions += parseInt(campaign.impressions || 0);
+            totalConversions += parseInt(campaign.conversions || 0);
+        });
+        
+        // breakdownに応じたデータ生成
+        let regionData = {};
+        let deviceData = {};
+        let ageGenderData = {};
+        
+        // Meta APIのbreakdownを試みる（エラー時は推定データ）
+        if (breakdownParam && campaign_id && campaign_id !== 'all' && campaignsData.length > 0) {
+            try {
+                // 個別キャンペーンのbreakdownデータを取得
+                const baseUrl = 'https://graph.facebook.com/v19.0';
+                const campaignIdToUse = campaignsData[0].campaign_id || campaignsData[0].id;
+                const endpoint = `${baseUrl}/${campaignIdToUse}/insights`;
+                
+                const params = {
+                    access_token: userSettings.meta_access_token,
+                    fields: 'spend,impressions,clicks,ctr,cpm,actions',
+                    breakdowns: breakdownParam,
+                    date_preset: period || 'last_7_d'
+                };
+                
+                const axios = require('axios');
+                const response = await axios.get(endpoint, { params });
+                
+                if (response.data && response.data.data) {
+                    breakdownData = response.data.data;
+                    console.log('Breakdown データ取得成功:', breakdownData.length, '件');
+                }
+            } catch (error) {
+                console.log('Breakdown API エラー（推定データ使用）:', error.message);
+            }
+        }
+        
+        // breakdownデータがある場合は実データを使用、ない場合は推定
+        if (breakdownData && breakdownData.length > 0) {
+            // 実データを処理
+            if (breakdown_type === 'region') {
+                breakdownData.forEach(item => {
+                    const region = item.country || '不明';
+                    if (!regionData[region]) {
+                        regionData[region] = { impressions: 0, clicks: 0, spend: 0 };
+                    }
+                    regionData[region].impressions += parseInt(item.impressions || 0);
+                    regionData[region].clicks += parseInt(item.clicks || 0);
+                    regionData[region].spend += parseFloat(item.spend || 0);
+                });
+            } else if (breakdown_type === 'device_platform') {
+                breakdownData.forEach(item => {
+                    const device = item.impression_device || item.device_platform || '不明';
+                    const deviceName = device === 'desktop' ? 'デスクトップ' :
+                                     device === 'mobile' || device === 'iphone' || device === 'android' ? 'モバイル' :
+                                     device === 'tablet' || device === 'ipad' ? 'タブレット' : device;
+                    if (!deviceData[deviceName]) {
+                        deviceData[deviceName] = { impressions: 0, clicks: 0, spend: 0 };
+                    }
+                    deviceData[deviceName].impressions += parseInt(item.impressions || 0);
+                    deviceData[deviceName].clicks += parseInt(item.clicks || 0);
+                    deviceData[deviceName].spend += parseFloat(item.spend || 0);
+                });
+            } else if (breakdown_type === 'age,gender') {
+                breakdownData.forEach(item => {
+                    const age = item.age || '不明';
+                    const gender = item.gender || '不明';
+                    const key = `${age}_${gender}`;
+                    if (!ageGenderData[key]) {
+                        ageGenderData[key] = { 
+                            age, 
+                            gender: gender === 'male' ? '男性' : gender === 'female' ? '女性' : gender,
+                            impressions: 0, 
+                            clicks: 0, 
+                            spend: 0 
+                        };
+                    }
+                    ageGenderData[key].impressions += parseInt(item.impressions || 0);
+                    ageGenderData[key].clicks += parseInt(item.clicks || 0);
+                    ageGenderData[key].spend += parseFloat(item.spend || 0);
+                });
+            }
+        } else {
+            // 推定データを生成
+            if (totalSpend > 0) {
+                // 地域別推定
+                regionData = {
+                    '東京': { 
+                        impressions: Math.round(totalImpressions * 0.4),
+                        clicks: Math.round(totalClicks * 0.4),
+                        spend: Math.round(totalSpend * 0.4)
+                    },
+                    '大阪': { 
+                        impressions: Math.round(totalImpressions * 0.25),
+                        clicks: Math.round(totalClicks * 0.25),
+                        spend: Math.round(totalSpend * 0.25)
+                    },
+                    '名古屋': { 
+                        impressions: Math.round(totalImpressions * 0.2),
+                        clicks: Math.round(totalClicks * 0.2),
+                        spend: Math.round(totalSpend * 0.2)
+                    },
+                    '福岡': { 
+                        impressions: Math.round(totalImpressions * 0.1),
+                        clicks: Math.round(totalClicks * 0.1),
+                        spend: Math.round(totalSpend * 0.1)
+                    },
+                    'その他': { 
+                        impressions: Math.round(totalImpressions * 0.05),
+                        clicks: Math.round(totalClicks * 0.05),
+                        spend: Math.round(totalSpend * 0.05)
+                    }
+                };
+                
+                // デバイス別推定
+                deviceData = {
+                    'モバイル': { 
+                        impressions: Math.round(totalImpressions * 0.65),
+                        clicks: Math.round(totalClicks * 0.7),
+                        spend: Math.round(totalSpend * 0.65)
+                    },
+                    'デスクトップ': { 
+                        impressions: Math.round(totalImpressions * 0.25),
+                        clicks: Math.round(totalClicks * 0.2),
+                        spend: Math.round(totalSpend * 0.25)
+                    },
+                    'タブレット': { 
+                        impressions: Math.round(totalImpressions * 0.1),
+                        clicks: Math.round(totalClicks * 0.1),
+                        spend: Math.round(totalSpend * 0.1)
+                    }
+                };
+                
+                
+                // 年齢・性別推定
+                ageGenderData = {
+                    '18-24_male': { age: '18-24', gender: '男性', spend: Math.round(totalSpend * 0.15) },
+                    '18-24_female': { age: '18-24', gender: '女性', spend: Math.round(totalSpend * 0.10) },
+                    '25-34_male': { age: '25-34', gender: '男性', spend: Math.round(totalSpend * 0.20) },
+                    '25-34_female': { age: '25-34', gender: '女性', spend: Math.round(totalSpend * 0.15) },
+                    '35-44_male': { age: '35-44', gender: '男性', spend: Math.round(totalSpend * 0.15) },
+                    '35-44_female': { age: '35-44', gender: '女性', spend: Math.round(totalSpend * 0.10) },
+                    '45-54_male': { age: '45-54', gender: '男性', spend: Math.round(totalSpend * 0.08) },
+                    '45-54_female': { age: '45-54', gender: '女性', spend: Math.round(totalSpend * 0.07) }
+                };
+            }
+        }
+        
+        // 統計計算
+        const avgCPA = totalConversions > 0 ? Math.round(totalSpend / totalConversions) : 0;
+        const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions * 100).toFixed(2) : 0;
+        const avgCPM = totalImpressions > 0 ? Math.round(totalSpend / totalImpressions * 1000) : 0;
+        const avgCPC = totalClicks > 0 ? Math.round(totalSpend / totalClicks) : 0;
+        
+        // キャンペーン名を取得
+        const campaignName = campaignsData.length > 0 ? 
+            (campaignsData[0].campaign_name || campaignsData[0].name || 'キャンペーン') : 
+            'すべてのキャンペーン';
+        
+        console.log('詳細レポートAPI応答:', {
+            campaignName,
+            totalSpend: Math.round(totalSpend),
+            totalConversions,
+            campaignsCount: campaignsData.length,
+            hasBreakdownData: breakdownData ? breakdownData.length : 0,
+            breakdownType: breakdown_type || 'none'
+        });
+        
+        res.json({
+            success: true,
+            campaignName,
+            campaignId: campaign_id,
+            regionData,
+            deviceData,
+            ageGenderData,
+            statistics: {
+                totalSpend: Math.round(totalSpend),
+                totalConversions,
+                totalClicks,
+                totalImpressions,
+                avgCPA,
+                avgCTR: parseFloat(avgCTR),
+                avgCPM,
+                avgCPC
+            },
+            dataSource: breakdownData ? 'meta_api' : (totalSpend > 0 ? 'estimated' : 'no_data'),
+            campaignsAnalyzed: campaignsData.length,
+            breakdownType: breakdown_type || 'summary'
+        });
+        
+    } catch (error) {
+        console.error('詳細レポートエラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// キャンペーン一覧を取得するヘルパー関数
+async function getActiveCampaigns(userId) {
+    try {
+        const userSettings = userManager.getUserSettings(userId);
+        if (!userSettings || !userSettings.meta_access_token) return [];
+        
+        // キャンペーン詳細データを取得
+        const { data: campaignsData } = await metaApi.fetchCampaignInsights(
+            userSettings.meta_access_token,
+            userSettings.meta_account_id
+        );
+        
+        if (!campaignsData || !Array.isArray(campaignsData)) {
+            return [];
+        }
+        
+        // データを整形して返す
+        return campaignsData.map(campaign => ({
+            id: campaign.campaign_id,
+            name: campaign.campaign_name,
+            spend: campaign.spend || 0,
+            impressions: campaign.impressions || 0,
+            clicks: campaign.clicks || 0,
+            conversions: campaign.conversions || 0
+        }));
+    } catch (error) {
+        console.error('キャンペーン取得エラー:', error.message);
+        return [];
+    }
+}
+
+
+
 // サーバー起動とスケジューラー初期化
 // ========================================
 const PORT = process.env.PORT || 3457;
