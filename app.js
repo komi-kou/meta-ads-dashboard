@@ -5043,7 +5043,7 @@ app.get('/api/test-setup-status', (req, res) => {
 
 // スケジューラーを読み込み
 try {
-    // require('./scheduler'); // 重複実行防止のためコメントアウト
+    require('./scheduler'); // スケジューラーを有効化
     console.log('✅ スケジューラー読み込み成功');
 } catch (error) {
     console.error('❌ スケジューラー読み込み失敗:', error.message);
