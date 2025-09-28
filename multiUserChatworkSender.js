@@ -1,6 +1,6 @@
-const UserManager = require('../userManager');
-const { sendChatworkMessage } = require('../chatworkApi');
-const { fetchMetaAdDailyStats } = require('../metaApi');
+const UserManager = require('./userManager');
+const { sendChatworkMessage } = require('./chatworkApi');
+const { fetchMetaAdDailyStats } = require('./metaApi');
 const fs = require('fs');
 const path = require('path');
 
@@ -291,7 +291,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 ];
             } else {
                 // 通常モード: alertSystem.jsから最新のアラートを取得
-                const { checkUserAlerts } = require('../alertSystem');
+                const { checkUserAlerts } = require('./alertSystem');
                 
                 // ユーザー別のアラートをチェック（リアルタイムデータ使用）
                 activeAlerts = await checkUserAlerts(userSettings.user_id);
