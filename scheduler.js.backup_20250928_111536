@@ -689,14 +689,13 @@ cron.schedule('0 9 * * *', async () => {
     await runBatchForAllUsers(true, false); // 朝レポートモード、通知なし
     
     // 統一アラートチェック実行（9時のみ）
-    // 重複防止のためコメントアウト - MultiUserChatworkSenderで統一管理
-    // try {
-    //   writeLog('統一アラートチェック開始');
-    //   const alerts = await checkAllAlerts();
-    //   writeLog(`統一アラートチェック完了: ${alerts.length}件のアラート`);
-    // } catch (error) {
-    //   writeLog('統一アラートチェックエラー: ' + error.message);
-    // }
+    try {
+      writeLog('統一アラートチェック開始');
+      const alerts = await checkAllAlerts();
+      writeLog(`統一アラートチェック完了: ${alerts.length}件のアラート`);
+    } catch (error) {
+      writeLog('統一アラートチェックエラー: ' + error.message);
+    }
   });
   
   // マルチユーザー日次レポート送信（重複防止付き）
@@ -741,14 +740,13 @@ cron.schedule('0 12,15,17,19 * * *', async () => {
     await runBatchForAllUsers(false, false); // 通常モード、通知なし
     
     // アラートチェック実行
-    // 重複防止のためコメントアウト - MultiUserChatworkSenderで統一管理
-    // try {
-    //   writeLog('アラートチェック開始');
-    //   const alerts = await checkAllAlerts();
-    //   writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
-    // } catch (error) {
-    //   writeLog('アラートチェックエラー: ' + error.message);
-    // }
+    try {
+      writeLog('アラートチェック開始');
+      const alerts = await checkAllAlerts();
+      writeLog(`アラートチェック完了: ${alerts.length}件のアラート`);
+    } catch (error) {
+      writeLog('アラートチェックエラー: ' + error.message);
+    }
   });
   
   // マルチユーザー更新通知送信（重複防止付き）
@@ -790,14 +788,13 @@ if (require.main === module) {
   writeLog('手動実行開始');
   runBatchForAllUsers().then(async () => {
     // 手動実行時にもアラートチェックを実行
-    // 重複防止のためコメントアウト
-    // try {
-    //   writeLog('手動アラートチェック開始');
-    //   const alerts = await checkAllAlerts();
-    //   writeLog(`手動アラートチェック完了: ${alerts.length}件のアラート`);
-    // } catch (error) {
-    //   writeLog('手動アラートチェックエラー: ' + error.message);
-    // }
+    try {
+      writeLog('手動アラートチェック開始');
+      const alerts = await checkAllAlerts();
+      writeLog(`手動アラートチェック完了: ${alerts.length}件のアラート`);
+    } catch (error) {
+      writeLog('手動アラートチェックエラー: ' + error.message);
+    }
   });
 }
 
