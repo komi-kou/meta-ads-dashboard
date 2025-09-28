@@ -16,8 +16,5 @@
     19
   ],
   "enable_chatwork": false,
-  "enable_alerts": false,
-  "daily_report_enabled": true,
-  "update_notifications_enabled": true,
-  "alert_notifications_enabled": true
+  "enable_alerts": false
 }

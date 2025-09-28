@@ -14,14 +14,14 @@
   },
   "notifications": {
     "daily_report": {
-      "enabled": false,
+      "enabled": true,
       "time": "09:00"
     },
     "update_notifications": {
-      "enabled": false
+      "enabled": true
     },
     "alert_notifications": {
-      "enabled": false
+      "enabled": true
     }
   },
   "isConfigured": true,
