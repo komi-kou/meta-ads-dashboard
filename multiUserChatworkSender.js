@@ -7,32 +7,38 @@ const path = require('path');
 class MultiUserChatworkSender {
     constructor() {
         this.userManager = new UserManager();
-        // Phase 1.2: 送信履歴を永続化
-        this.historyFile = path.join(__dirname, '../sent_history.json');
-        this.sentHistory = this.loadHistory();
+        this.sentHistory = new Map(); // メモリ内送信履歴
+        this.sentHistoryFile = path.join(__dirname, '../sent_history.json');
+        this.loadSentHistory();
     }
 
-    // 履歴をファイルから読み込み
-    loadHistory() {
+    // 送信履歴をファイルから読み込み
+    loadSentHistory() {
         try {
-            if (fs.existsSync(this.historyFile)) {
-                const data = fs.readFileSync(this.historyFile, 'utf8');
-                const historyObj = JSON.parse(data);
-                return new Map(Object.entries(historyObj));
+            if (fs.existsSync(this.sentHistoryFile)) {
+                const data = JSON.parse(fs.readFileSync(this.sentHistoryFile, 'utf8'));
+                // 24時間以内のエントリのみ復元
+                const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+                Object.entries(data).forEach(([key, timestamp]) => {
+                    if (new Date(timestamp).getTime() > cutoff) {
+                        this.sentHistory.set(key, timestamp);
+                    }
+                });
+                console.log(`✅ 送信履歴を読み込みました: ${this.sentHistory.size}件`);
             }
         } catch (error) {
-            console.error('履歴ファイル読み込みエラー:', error);
+            console.error('送信履歴読み込みエラー:', error);
+            this.sentHistory = new Map();
         }
-        return new Map();
     }
 
-    // 履歴をファイルに保存
-    saveHistory() {
+    // 送信履歴をファイルに保存
+    saveSentHistory() {
         try {
-            const historyObj = Object.fromEntries(this.sentHistory);
-            fs.writeFileSync(this.historyFile, JSON.stringify(historyObj, null, 2));
+            const data = Object.fromEntries(this.sentHistory);
+            fs.writeFileSync(this.sentHistoryFile, JSON.stringify(data, null, 2));
         } catch (error) {
-            console.error('履歴ファイル保存エラー:', error);
+            console.error('送信履歴保存エラー:', error);
         }
     }
 
@@ -46,20 +52,7 @@ class MultiUserChatworkSender {
         const now = new Date();
         const today = now.toISOString().split('T')[0];
         const currentHour = now.getHours();
-        
-        // Phase 1.4: 重複防止キーの改善
-        // アラートの場合は時間を含めず、日付のみで管理（1日の重複を防ぐ）
-        let key;
-        if (type === 'alert' && currentHour === 9) {
-            // 朝9時のアラートは1日1回
-            key = `${userId}_${type}_${date || today}`;
-        } else if (type === 'daily') {
-            // 日次レポートは1日1回
-            key = `${userId}_${type}_${date || today}`;
-        } else {
-            // 更新通知とその他のアラートは時間単位
-            key = `${userId}_${type}_${date || today}_${currentHour}`;
-        }
+        const key = `${userId}_${type}_${date || today}_${currentHour}`;
         
         if (this.sentHistory.has(key)) {
             console.log(`⚠️ ユーザー${userId}の${type}は既に送信済み: ${key}`);
@@ -67,15 +60,16 @@ class MultiUserChatworkSender {
         }
         
         this.sentHistory.set(key, new Date().toISOString());
-        this.saveHistory(); // 履歴をファイルに保存
         console.log(`✅ ユーザー${userId}の${type}送信履歴を記録: ${key}`);
+        this.saveSentHistory(); // 履歴を永続化
         return true;
     }
 
     // ユーザー別日次レポート送信
     async sendUserDailyReport(userSettings, isTestMode = false) {
         try {
-            if (!userSettings.daily_report_enabled) {
+            // 明示的にfalseの場合のみ無効（未定義の場合は有効）
+            if (userSettings.daily_report_enabled === false) {
                 console.log(`ユーザー${userSettings.user_id}: 日次レポート無効`);
                 return;
             }
@@ -211,7 +205,8 @@ https://meta-ads-dashboard.onrender.com/dashboard
     // ユーザー別定期更新通知送信
     async sendUserUpdateNotification(userSettings, isTestMode = false) {
         try {
-            if (!userSettings.update_notifications_enabled) {
+            // 明示的にfalseの場合のみ無効（未定義の場合は有効）
+            if (userSettings.update_notifications_enabled === false) {
                 console.log(`ユーザー${userSettings.user_id}: 定期更新通知無効`);
                 return;
             }
@@ -250,7 +245,8 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
     // ユーザー別アラート通知送信
     async sendUserAlertNotification(userSettings, isTestMode = false) {
         try {
-            if (!userSettings.alert_notifications_enabled) {
+            // 明示的にfalseの場合のみ無効（未定義の場合は有効）
+            if (userSettings.alert_notifications_enabled === false) {
                 console.log(`ユーザー${userSettings.user_id}: アラート通知無効`);
                 return;
             }

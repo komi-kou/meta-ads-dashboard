@@ -251,7 +251,11 @@ class UserManager {
                 enable_scheduler: settingsData.enable_scheduler !== false,
                 schedule_hours: settingsData.schedule_hours || [9, 12, 15, 17, 19],
                 enable_chatwork: settingsData.enable_chatwork !== false,
-                enable_alerts: settingsData.enable_alerts !== false
+                enable_alerts: settingsData.enable_alerts !== false,
+                // 通知フラグを明示的に追加（未定義の場合はtrue）
+                daily_report_enabled: settingsData.daily_report_enabled !== false,
+                update_notifications_enabled: settingsData.update_notifications_enabled !== false,
+                alert_notifications_enabled: settingsData.alert_notifications_enabled !== false
             };
             
             fs.writeFileSync(userSettingsPath, JSON.stringify(userSettings, null, 2), 'utf8');
