@@ -1,45 +1,11 @@
-const UserManager = require('./userManager');
-const { sendChatworkMessage } = require('./chatworkApi');
-const { fetchMetaAdDailyStats } = require('./metaApi');
-const fs = require('fs');
-const path = require('path');
+const UserManager = require('../userManager');
+const { sendChatworkMessage } = require('../chatworkApi');
+const { fetchMetaAdDailyStats } = require('../metaApi');
 
 class MultiUserChatworkSender {
     constructor() {
         this.userManager = new UserManager();
         this.sentHistory = new Map(); // メモリ内送信履歴
-        this.sentHistoryFile = path.join(__dirname, '../sent_history.json');
-        this.loadSentHistory();
-    }
-
-    // 送信履歴をファイルから読み込み
-    loadSentHistory() {
-        try {
-            if (fs.existsSync(this.sentHistoryFile)) {
-                const data = JSON.parse(fs.readFileSync(this.sentHistoryFile, 'utf8'));
-                // 24時間以内のエントリのみ復元
-                const cutoff = Date.now() - 24 * 60 * 60 * 1000;
-                Object.entries(data).forEach(([key, timestamp]) => {
-                    if (new Date(timestamp).getTime() > cutoff) {
-                        this.sentHistory.set(key, timestamp);
-                    }
-                });
-                console.log(`✅ 送信履歴を読み込みました: ${this.sentHistory.size}件`);
-            }
-        } catch (error) {
-            console.error('送信履歴読み込みエラー:', error);
-            this.sentHistory = new Map();
-        }
-    }
-
-    // 送信履歴をファイルに保存
-    saveSentHistory() {
-        try {
-            const data = Object.fromEntries(this.sentHistory);
-            fs.writeFileSync(this.sentHistoryFile, JSON.stringify(data, null, 2));
-        } catch (error) {
-            console.error('送信履歴保存エラー:', error);
-        }
     }
 
     // 全ユーザーの設定を取得
@@ -61,15 +27,13 @@ class MultiUserChatworkSender {
         
         this.sentHistory.set(key, new Date().toISOString());
         console.log(`✅ ユーザー${userId}の${type}送信履歴を記録: ${key}`);
-        this.saveSentHistory(); // 履歴を永続化
         return true;
     }
 
     // ユーザー別日次レポート送信
     async sendUserDailyReport(userSettings, isTestMode = false) {
         try {
-            // 明示的にfalseの場合のみ無効（未定義の場合は有効）
-            if (userSettings.daily_report_enabled === false) {
+            if (!userSettings.daily_report_enabled) {
                 console.log(`ユーザー${userSettings.user_id}: 日次レポート無効`);
                 return;
             }
@@ -205,8 +169,7 @@ https://meta-ads-dashboard.onrender.com/dashboard
     // ユーザー別定期更新通知送信
     async sendUserUpdateNotification(userSettings, isTestMode = false) {
         try {
-            // 明示的にfalseの場合のみ無効（未定義の場合は有効）
-            if (userSettings.update_notifications_enabled === false) {
+            if (!userSettings.update_notifications_enabled) {
                 console.log(`ユーザー${userSettings.user_id}: 定期更新通知無効`);
                 return;
             }
@@ -245,8 +208,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
     // ユーザー別アラート通知送信
     async sendUserAlertNotification(userSettings, isTestMode = false) {
         try {
-            // 明示的にfalseの場合のみ無効（未定義の場合は有効）
-            if (userSettings.alert_notifications_enabled === false) {
+            if (!userSettings.alert_notifications_enabled) {
                 console.log(`ユーザー${userSettings.user_id}: アラート通知無効`);
                 return;
             }
@@ -291,7 +253,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 ];
             } else {
                 // 通常モード: alertSystem.jsから最新のアラートを取得
-                const { checkUserAlerts } = require('./alertSystem');
+                const { checkUserAlerts } = require('../alertSystem');
                 
                 // ユーザー別のアラートをチェック（リアルタイムデータ使用）
                 activeAlerts = await checkUserAlerts(userSettings.user_id);
