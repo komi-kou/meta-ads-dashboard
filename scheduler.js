@@ -248,8 +248,8 @@ async function runBatch(isMorningReport = false, userId = null, sendNotification
       const d = statsArr[0];
       
       // URL動的生成を使用
-      const { getDashboardUrl } = require('./utils/urlHelper');
-      const dashboardUrl = getDashboardUrl(userId);
+      const { generateDashboardUrl } = require('./utils/urlHelper');
+      const dashboardUrl = generateDashboardUrl(userId);
       
       // 数値フォーマット関数
       const formatNumber = (num) => {
