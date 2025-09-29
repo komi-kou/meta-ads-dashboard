@@ -7,7 +7,7 @@
   "target_cpa": "5000",
   "target_cpm": "3000",
   "target_ctr": "3.0",
-  "enable_scheduler": false,
+  "enable_scheduler": true,
   "schedule_hours": [
     9,
     12,
@@ -15,8 +15,8 @@
     17,
     19
   ],
-  "enable_chatwork": false,
-  "enable_alerts": false,
+  "enable_chatwork": true,
+  "enable_alerts": true,
   "daily_report_enabled": true,
   "update_notifications_enabled": true,
   "alert_notifications_enabled": true
