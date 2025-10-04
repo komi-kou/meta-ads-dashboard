@@ -358,33 +358,12 @@
             </div>
             <nav class="sidebar-nav">
                 <a href="/dashboard" class="nav-item active">ダッシュボード</a>
-                <a href="/campaigns" class="nav-item">📊 キャンペーン管理</a>
-                <a href="/budget-scheduling" class="nav-item">⏰ 予算スケジューリング</a>
-                <a href="/detailed-reports" class="nav-item">📈 詳細レポート</a>
                 <a href="/alerts" class="nav-item" id="alerts-link">アラート内容</a>
                 <a href="/alert-history" class="nav-item">アラート履歴</a>
                 <a href="/improvement-tasks" class="nav-item">確認事項</a>
-                <a href="/improvement-strategies" class="nav-item">改善施策</a>            </nav>
-            <div class="sidebar-footer" style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
-                <form action="/logout" method="POST" style="margin: 0;">
-                    <button type="submit" class="nav-item" style="
-                        display: block;
-                        width: 100%;
-                        padding: 12px 20px;
-                        background: rgba(231, 76, 60, 0.1);
-                        color: #e74c3c;
-                        border: 1px solid rgba(231, 76, 60, 0.2);
-                        border-radius: 5px;
-                        text-align: left;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                        font-size: 14px;
-                        font-weight: 500;
-                    " onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'" onmouseout="this.style.background='rgba(231, 76, 60, 0.1)'">
-                        🚪 ログアウト
-                    </button>
-                </form>
-            </div>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+                <a href="/chatwork-test" class="nav-item">チャットワークテスト</a>
+            </nav>
         </div>
         
         <!-- メインコンテンツ -->
@@ -472,7 +451,7 @@
                 </div>
                 
                 <!-- 下段指標 -->
-                <div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 40px;">
+                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 40px;">
                     <div class="metric-card cv">
                         <div class="metric-icon">🎯</div>
                         <div class="metric-title">CV（合計）</div>
@@ -493,15 +472,7 @@
                         <div class="metric-icon">🔄</div>
                         <div class="metric-title">フリークエンシー（平均）</div>
                         <div class="metric-value">
-                            <span data-metric="frequency">読み込み中...</span><span class="metric-unit">回</span>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-card impressions" style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);">
-                        <div class="metric-icon">👁️</div>
-                        <div class="metric-title">インプレッション（合計）</div>
-                        <div class="metric-value">
-                            <span data-metric="impressions">読み込み中...</span>
+                            <span data-metric="frequency">読み込み中...</span><span class="metric-unit">%</span>
                         </div>
                     </div>
                 </div>
@@ -537,11 +508,6 @@
                         <div class="legend-color" style="background: #6b7280;"></div>
                         <span>フリークエンシー</span>
                     </div>
-                    <!-- インプレッション追加 -->
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ec4899;"></div>
-                        <span>インプレッション</span>
-                    </div>
                 </div>
                 
                 <div class="chart-container">
@@ -567,7 +533,6 @@
                                 <th style="padding: 12px; text-align: left;">キャンペーン名</th>
                                 <th style="padding: 12px; text-align: center;">ステータス</th>
                                 <th style="padding: 12px; text-align: right;">広告費</th>
-                                <th style="padding: 12px; text-align: right;">インプレッション</th>
                                 <th style="padding: 12px; text-align: right;">CTR</th>
                                 <th style="padding: 12px; text-align: right;">CPM</th>
                                 <th style="padding: 12px; text-align: right;">CV</th>
@@ -577,7 +542,7 @@
                         </thead>
                         <tbody id="campaign-details-body">
                             <tr>
-                                <td colspan="9" style="text-align: center; padding: 20px; color: #666;">
+                                <td colspan="8" style="text-align: center; padding: 20px; color: #666;">
                                     🔄 データを読み込み中...
                                 </td>
                             </tr>
@@ -586,6 +551,79 @@
                 </div>
             </div>
             
+            <!-- アラート表示エリア -->
+            <div class="chart-section" style="margin-top: 30px;">
+                <h2>⚠️ アラート</h2>
+                
+                <!-- タブナビゲーション -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb;">
+                    <button onclick="showAlertTab('current')" id="tab-current" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
+                        現在のアラート
+                    </button>
+                    <button onclick="showAlertTab('history')" id="tab-history" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
+                        アラート履歴
+                    </button>
+                    <button onclick="showAlertTab('checklist')" id="tab-checklist" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
+                        確認事項
+                    </button>
+                    <button onclick="showAlertTab('improvements')" id="tab-improvements" style="padding: 10px 20px; background: #e5e7eb; color: #374151; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">
+                        改善施策
+                    </button>
+                </div>
+                
+                <!-- 現在のアラート -->
+                <div id="alert-current" class="alert-tab-content" style="padding: 20px;">
+                    <div id="alert-messages" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- アラートメッセージがここに表示されます -->
+                        <div style="padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                            <div style="font-weight: 500; color: #f59e0b;">⚠️ データ読み込み中...</div>
+                            <div style="color: #374151; margin-top: 4px;">アラート情報を取得しています</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- アラート履歴 -->
+                <div id="alert-history" class="alert-tab-content" style="padding: 20px; display: none;">
+                    <div id="alert-history-content">
+                        <!-- アラート履歴がここに表示されます -->
+                        <h3 style="margin-bottom: 15px;">📅 過去7日間のアラート履歴</h3>
+                        <div style="color: #6b7280;">履歴データを読み込み中...</div>
+                    </div>
+                </div>
+                
+                <!-- 確認事項 -->
+                <div id="alert-checklist" class="alert-tab-content" style="padding: 20px; display: none;">
+                    <div id="checklist-content">
+                        <h3 style="margin-bottom: 15px;">📋 確認すべき項目</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
+                                ✅ ターゲティング設定の見直し（年齢層、地域、興味関心）
+                            </li>
+                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
+                                ✅ クリエイティブの疲労度チェック（同じ広告の表示回数）
+                            </li>
+                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
+                                ✅ 競合他社の広告動向の確認
+                            </li>
+                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
+                                ✅ ランディングページの読み込み速度とユーザビリティ
+                            </li>
+                            <li style="padding: 10px; background: #f3f4f6; margin-bottom: 8px; border-radius: 4px;">
+                                ✅ コンバージョントラッキングの正常動作確認
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 改善施策 -->
+                <div id="alert-improvements" class="alert-tab-content" style="padding: 20px; display: none;">
+                    <div id="improvements-content">
+                        <!-- 改善施策がここに表示されます -->
+                        <h3 style="margin-bottom: 15px;">💡 推奨改善施策</h3>
+                        <div style="color: #6b7280;">改善施策を読み込み中...</div>
+                    </div>
+                </div>
+            </div>
             
             <!-- 最終更新時間表示 -->
             <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
@@ -634,6 +672,7 @@
                     setTimeout(() => {
                         updateDashboardData();
                         loadCampaignDetails();  // キャンペーン詳細を読み込み
+                        loadAlerts();  // アラートを読み込み
                     }, 100);
                 } else {
                     console.log('❌ Meta API設定が見つかりません');
@@ -748,6 +787,39 @@
             }
         }
         
+        // アラートタブ切り替え関数
+        function showAlertTab(tabName) {
+            // 全てのタブコンテンツを非表示
+            document.querySelectorAll('.alert-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // 全てのタブボタンのスタイルをリセット
+            document.querySelectorAll('[id^="tab-"]').forEach(btn => {
+                btn.style.background = '#e5e7eb';
+                btn.style.color = '#374151';
+            });
+            
+            // 選択されたタブを表示
+            const selectedContent = document.getElementById(`alert-${tabName}`);
+            if (selectedContent) {
+                selectedContent.style.display = 'block';
+            }
+            
+            // 選択されたタブボタンのスタイルを更新
+            const selectedTab = document.getElementById(`tab-${tabName}`);
+            if (selectedTab) {
+                selectedTab.style.background = '#3b82f6';
+                selectedTab.style.color = 'white';
+            }
+            
+            // タブごとの追加処理
+            if (tabName === 'history') {
+                loadAlertHistory();
+            } else if (tabName === 'improvements') {
+                loadImprovements();
+            }
+        }
         
         // キャンペーン複製関数
         async function duplicateCampaign(campaignId, campaignName) {
@@ -833,7 +905,6 @@
                                         <span style="color: ${statusColor}; font-weight: 500;">${statusText}</span>
                                     </td>
                                     <td style="padding: 12px; text-align: right;">${campaign.spend.toLocaleString()}円</td>
-                                    <td style="padding: 12px; text-align: right;">${campaign.impressions?.toLocaleString() || 0}</td>
                                     <td style="padding: 12px; text-align: right;">${campaign.ctr.toFixed(2)}%</td>
                                     <td style="padding: 12px; text-align: right;">${Math.round(campaign.cpm).toLocaleString()}円</td>
                                     <td style="padding: 12px; text-align: right;">${campaign.conversions}</td>
@@ -858,9 +929,165 @@
             }
         }
         
+        // アラートを読み込む関数
+        async function loadAlerts() {
+            console.log('📌 loadAlerts関数が呼ばれました');
+            try {
+                const response = await fetch('/api/alerts');
+                console.log('📌 アラートAPIレスポンスステータス:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`APIエラー: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📌 アラートデータ:', data);
+                
+                const alertArea = document.getElementById('alert-messages');
+                if (alertArea) {
+                    if (data.success && data.alerts && data.alerts.length > 0) {
+                        alertArea.innerHTML = data.alerts.map(alert => {
+                            const alertColor = alert.severity === 'critical' ? '#ef4444' : '#f59e0b';
+                            return `
+                                <div style="padding: 12px; background: ${alertColor}20; border-left: 4px solid ${alertColor}; border-radius: 4px;">
+                                    <div style="font-weight: 500; color: ${alertColor};">⚠️ ${alert.metric}</div>
+                                    <div style="color: #374151; margin-top: 4px;">${alert.message}</div>
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        alertArea.innerHTML = '<div style="color: #10b981;">✅ 現在、アラートはありません</div>';
+                    }
+                } else {
+                    console.error('📌 alert-messagesエレメントが見つかりません');
+                }
+            } catch (error) {
+                console.error('📌 アラート読み込みエラー:', error);
+                const alertArea = document.getElementById('alert-messages');
+                if (alertArea) {
+                    alertArea.innerHTML = `<div style="color: #ef4444;">⚠️ アラートの読み込みに失敗しました: ${error.message}</div>`;
+                }
+            }
+        }
         
+        // アラート履歴を読み込む関数
+        async function loadAlertHistory() {
+            console.log('📌 loadAlertHistory関数が呼ばれました');
+            try {
+                const response = await fetch('/api/alerts-history');
+                console.log('📌 アラート履歴APIレスポンスステータス:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`APIエラー: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📌 アラート履歴データ:', data);
+                
+                const historyContent = document.getElementById('alert-history-content');
+                if (historyContent) {
+                    if (data.history && data.history.length > 0) {
+                        historyContent.innerHTML = `
+                            <h3 style="margin-bottom: 15px;">📅 過去7日間のアラート履歴</h3>
+                            ${data.history.map(item => {
+                                const date = new Date(item.date).toLocaleDateString('ja-JP');
+                                const statusColor = item.resolved ? '#10b981' : '#ef4444';
+                                const statusText = item.resolved ? '解決済み' : '未解決';
+                                return `
+                                    <div style="padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; margin-bottom: 10px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <div style="font-weight: 500;">${date} - ${item.metric}</div>
+                                                <div style="color: #6b7280; margin-top: 4px;">${item.message}</div>
+                                            </div>
+                                            <span style="color: ${statusColor}; font-weight: 500;">${statusText}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        `;
+                    } else {
+                        historyContent.innerHTML = '<div style="color: #6b7280;">過去7日間のアラート履歴はありません</div>';
+                    }
+                }
+            } catch (error) {
+                console.error('アラート履歴読み込みエラー:', error);
+            }
+        }
         
-        
+        // 改善施策を読み込む関数
+        async function loadImprovements() {
+            console.log('📌 loadImprovements関数が呼ばれました');
+            try {
+                const response = await fetch('/api/improvements');
+                console.log('📌 改善施策APIレスポンスステータス:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`APIエラー: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📌 改善施策データ:', data);
+                
+                const improvementsContent = document.getElementById('improvements-content');
+                if (improvementsContent) {
+                    improvementsContent.innerHTML = `
+                        <h3 style="margin-bottom: 15px;">💡 推奨改善施策</h3>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #ef4444; margin-bottom: 10px;">🔴 CPAが高い場合の改善策</h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 10px; background: #fef2f2; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #ef4444;">
+                                    📊 オーディエンスの絞り込み（より購買意欲の高いセグメントに集中）
+                                </li>
+                                <li style="padding: 10px; background: #fef2f2; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #ef4444;">
+                                    🎨 広告クリエイティブのA/Bテスト実施
+                                </li>
+                                <li style="padding: 10px; background: #fef2f2; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #ef4444;">
+                                    🎯 リターゲティング設定の見直し
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #f59e0b; margin-bottom: 10px;">🟡 CTRが低い場合の改善策</h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 10px; background: #fef3c7; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
+                                    ✍️ 広告コピーの見直し（より魅力的な訴求文に変更）
+                                </li>
+                                <li style="padding: 10px; background: #fef3c7; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
+                                    🖼️ ビジュアル要素の改善（動画やカルーセル広告の活用）
+                                </li>
+                                <li style="padding: 10px; background: #fef3c7; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #f59e0b;">
+                                    📱 プレースメントの最適化（パフォーマンスの良い配置に集中）
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #10b981; margin-bottom: 10px;">🟢 予算消化率が低い場合の改善策</h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 10px; background: #d1fae5; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #10b981;">
+                                    🎯 ターゲット層の拡大（類似オーディエンスの活用）
+                                </li>
+                                <li style="padding: 10px; background: #d1fae5; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #10b981;">
+                                    💰 入札価格の調整（競争力のある入札へ）
+                                </li>
+                                <li style="padding: 10px; background: #d1fae5; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid #10b981;">
+                                    📈 配信時間帯の拡大（パフォーマンスの良い時間帯を見つける）
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('改善施策読み込みエラー:', error);
+                const improvementsContent = document.getElementById('improvements-content');
+                if (improvementsContent) {
+                    improvementsContent.innerHTML = '<div style="color: #ef4444;">改善施策の読み込みに失敗しました</div>';
+                }
+            }
+        }
 
         // フロントエンドでのエラー表示改善
         async function updateDashboardData() {
@@ -952,12 +1179,11 @@
             const updates = [
                 { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
                 { selector: '[data-metric="budget-rate"]', value: data.budgetRate !== undefined && data.budgetRate !== null ? `${parseFloat(data.budgetRate).toFixed(1)}` : '0.0' },
-                { selector: '[data-metric="ctr"]', value: `${data.ctr.toFixed(2)}` },  // すでに四捨五入済みの値を表示
-                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },  // すでに四捨五入済みの整数値を表示
+                { selector: '[data-metric="ctr"]', value: `${parseFloat(data.ctr).toFixed(2)}` },
+                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },
                 { selector: '[data-metric="conversions"]', value: data.conversions || 0 },
                 { selector: '[data-metric="cpa"]', value: data.cpa !== undefined && data.cpa !== null ? `${Math.round(data.cpa).toLocaleString()}` : '-' },
-                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` },  // すでに四捨五入済みの値を表示
-                { selector: '[data-metric="impressions"]', value: data.impressions ? `${data.impressions.toLocaleString()}` : '0' }
+                { selector: '[data-metric="frequency"]', value: `${parseFloat(data.frequency).toFixed(2)}` }
             ];
             
             updates.forEach(update => {
@@ -1050,16 +1276,6 @@
                                 tension: 0.4,
                                 fill: true,
                                 yAxisID: 'y1'
-                            },
-                            // インプレッション追加
-                            {
-                                label: 'インプレッション',
-                                data: data.chartData.impressions || [],
-                                borderColor: '#ec4899',
-                                backgroundColor: 'rgba(236, 72, 153, 0.1)',
-                                tension: 0.4,
-                                fill: true,
-                                yAxisID: 'y3'
                             }
                         ]
                     },
@@ -1091,11 +1307,6 @@
                                 beginAtZero: true
                             },
                             y2: {
-                                type: 'linear',
-                                display: false,
-                                beginAtZero: true
-                            },
-                            y3: {
                                 type: 'linear',
                                 display: false,
                                 beginAtZero: true
@@ -1239,10 +1450,6 @@ Meta広告レポートツールの設定が完了しました。
                 
                 if (result.success) {
                     updateDashboard(result.data);
-                    // キャンペーンテーブルも更新
-                    if (result.data && result.data.campaigns) {
-                        updateCampaignDetailsTable(result.data.campaigns);
-                    }
                     console.log('✅ ダッシュボードデータ更新完了');
                 } else {
                     showErrorMessage('データの読み込みに失敗しました: ' + result.message);
@@ -1279,59 +1486,6 @@ Meta広告レポートツールの設定が完了しました。
             
             // 最終更新時間を更新
             updateLastUpdateTime(data.lastUpdate);
-            // キャンペーン詳細テーブルを更新
-            updateCampaignDetailsTable(data.campaigns);
-        }
-        
-        // キャンペーン詳細テーブルを更新
-        function updateCampaignDetailsTable(campaigns) {
-            const tbody = document.getElementById('campaign-details-body');
-            if (!tbody) return;
-            
-            if (!campaigns || campaigns.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="9" style="text-align: center; padding: 20px; color: #666;">
-                            キャンペーンデータがありません
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = campaigns.map(campaign => `
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 12px;">${campaign.name || '-'}</td>
-                    <td style="padding: 12px; text-align: center;">
-                        <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; 
-                            background: ${campaign.status === 'ACTIVE' ? '#10b981' : '#ef4444'}20;">
-                            ${campaign.status || '-'}
-                        </span>
-                    </td>
-                    <td style="padding: 12px; text-align: right;">¥${(campaign.spend || 0).toLocaleString()}</td>
-                    <td style="padding: 12px; text-align: right;">${(campaign.impressions || 0).toLocaleString()}</td>
-                    <td style="padding: 12px; text-align: right;">${(campaign.ctr || 0).toFixed(2)}%</td>
-                    <td style="padding: 12px; text-align: right;">¥${Math.round(campaign.cpm || 0).toLocaleString()}</td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold; color: #059669;">
-                        ${campaign.conversions || 0}件
-                    </td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold;">
-                        ¥${campaign.conversions > 0 ? Math.round(campaign.cpa || 0).toLocaleString() : '-'}
-                    </td>
-                    <td style="padding: 12px; text-align: center;">
-                        <button onclick="viewCampaignDetail('${campaign.id}')" 
-                            style="padding: 4px 12px; background: #3b82f6; color: white; 
-                            border: none; border-radius: 4px; cursor: pointer;">
-                            詳細
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-        
-        function viewCampaignDetail(campaignId) {
-            console.log('キャンペーン詳細表示:', campaignId);
-            // 詳細ページへの遷移やモーダル表示など
         }
 
         // メトリクスカード更新

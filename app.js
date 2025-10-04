@@ -859,7 +859,7 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
     
     const params = new URLSearchParams({
       access_token: accessToken,
-      fields: 'id,name,status,objective,created_time,updated_time',
+      fields: 'id,name,status,objective,created_time,updated_time,impressions',
       limit: '100'
     });
     
@@ -876,7 +876,8 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
         status: campaign.status,
         objective: campaign.objective,
         created_time: campaign.created_time,
-        updated_time: campaign.updated_time
+        updated_time: campaign.updated_time,
+        impressions: parseInt(campaign.impressions || 0)
       }));
       
       console.log(`✅ キャンペーンリスト取得成功: ${campaigns.length}件`);
@@ -3929,6 +3930,7 @@ function createZeroMetrics(selectedDate, userId = null) {
         conversions: 0,
         cpa: 0,
         frequency: 0.00,
+        impressions: 0,  // インプレッション追加
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [0],
@@ -3936,7 +3938,8 @@ function createZeroMetrics(selectedDate, userId = null) {
             cpm: [0],
             conversions: [0],
             cpa: [0],           // ✅ CPA追加
-            frequency: [0]      // ✅ フリークエンシー追加
+            frequency: [0],      // ✅ フリークエンシー追加
+            impressions: [0]  // インプレッション追加
         }
     };
 }
@@ -3965,6 +3968,7 @@ function convertInsightsToMetrics(insights, selectedDate, userId = null, actualD
         conversions: conversions,
         cpa: Math.round(cpa),
         frequency: parseFloat(insights.frequency || 0),
+        impressions: parseInt(insights.impressions || 0),  // インプレッション追加
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [Math.round(spend)],
@@ -3972,7 +3976,8 @@ function convertInsightsToMetrics(insights, selectedDate, userId = null, actualD
             cpm: [Math.round(parseFloat(insights.cpm || 0))],
             conversions: [conversions],
             cpa: [Math.round(cpa)],           // ✅ CPA追加
-            frequency: [parseFloat(insights.frequency || 0)]            // ✅ フリークエンシー追加
+            frequency: [parseFloat(insights.frequency || 0)],            // ✅ フリークエンシー追加
+            impressions: [parseInt(insights.impressions || 0)]  // インプレッション追加
         }
     };
 }
@@ -3982,6 +3987,7 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
     const spend = parseFloat(insights.spend || 0);
     const conversions = getConversionsFromActions(insights.actions);
     const cpa = conversions > 0 ? spend / conversions : null;
+    const impressions = parseInt(insights.impressions || 0);  // インプレッション追加
     
     // ハイブリッド方式で日予算を取得（API優先、ユーザー設定フォールバック）
     console.log('convertInsightsToMetricsWithActualBudget - userId:', userId);
@@ -3991,6 +3997,7 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
     
     console.log('=== 予算消化率計算（実際の日予算使用） ===');
     console.log('実際の消費:', spend + '円');
+    console.log('インプレッション:', impressions);
     console.log('実際の日予算:', actualDailyBudget + '円');
     console.log('使用する日予算:', dailyBudget + '円');
     console.log('計算された予算消化率:', budgetRate.toFixed(2) + '%');
@@ -4003,6 +4010,7 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
         conversions: conversions,
         cpa: Math.round(cpa),
         frequency: parseFloat(insights.frequency || 0),
+        impressions: impressions,  // インプレッション追加
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [Math.round(spend)],
@@ -4010,7 +4018,8 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
             cpm: [Math.round(parseFloat(insights.cpm || 0))],
             conversions: [conversions],
             cpa: [Math.round(cpa)],           // ✅ CPA追加
-            frequency: [parseFloat(insights.frequency || 0)]            // ✅ フリークエンシー追加
+            frequency: [parseFloat(insights.frequency || 0)],            // ✅ フリークエンシー追加
+            impressions: [impressions]  // インプレッション追加
         }
     };
 }
@@ -4276,6 +4285,7 @@ function aggregateRealPeriodData(dailyData, userId = null, actualDailyBudget = n
     const chartConversions = [];
     const chartCPA = [];           // ✅ CPA配列追加
     const chartFrequency = [];     // ✅ フリークエンシー配列追加
+    const chartImpressions = [];   // インプレッション配列追加
     
     console.log(`aggregateRealPeriodData: 受信データ数=${dailyData.length}`);
     
@@ -4303,6 +4313,7 @@ function aggregateRealPeriodData(dailyData, userId = null, actualDailyBudget = n
         chartConversions.push(conversions);
         chartCPA.push(Math.round(cpa));          // ✅ CPA追加
         chartFrequency.push(frequency);          // ✅ フリークエンシー追加
+        chartImpressions.push(impressions);      // インプレッション追加
     });
     
     const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions * 100) : 0;
@@ -4339,6 +4350,7 @@ function aggregateRealPeriodData(dailyData, userId = null, actualDailyBudget = n
         conversions: totalConversions,
         cpa: Math.round(avgCPA),
         frequency: Math.round(avgFrequency * 100) / 100,  // 小数点第2位で四捨五入 (1.4288... → 1.43)
+        impressions: totalImpressions,  // インプレッション追加
         chartData: {
             labels: chartLabels,
             spend: chartSpend,
@@ -4346,7 +4358,8 @@ function aggregateRealPeriodData(dailyData, userId = null, actualDailyBudget = n
             cpm: chartCPM,
             conversions: chartConversions,
             cpa: chartCPA,           // ✅ CPA配列追加
-            frequency: chartFrequency // ✅ フリークエンシー配列追加
+            frequency: chartFrequency, // ✅ フリークエンシー配列追加
+            impressions: chartImpressions  // インプレッション追加
         }
     };
 }
