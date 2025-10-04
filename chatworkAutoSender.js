@@ -3,6 +3,7 @@ const path = require('path');
 const cron = require('node-cron');
 const axios = require('axios');
 const tokenManager = require('./tokenManager');
+const { getConversionsFromActions } = require('./conversionCounter');
 
 class ChatworkAutoSender {
     constructor() {
@@ -268,7 +269,7 @@ class ChatworkAutoSender {
     // インサイトデータをメトリクスに変換
     convertInsightsToMetrics(insights, selectedDate, userId = null) {
         const spend = parseFloat(insights.spend || 0);
-        const conversions = this.getConversionsFromActions(insights.actions);
+        const conversions = getConversionsFromActions(insights.actions);  // 共通モジュールを使用
         const cpa = conversions > 0 ? spend / conversions : 0;
         
         const dailyBudget = this.getDailyBudgetFromGoals(userId);
@@ -285,21 +286,8 @@ class ChatworkAutoSender {
         };
     }
 
-    // アクションからコンバージョン抽出
-    getConversionsFromActions(actions) {
-        if (!actions || !Array.isArray(actions)) return 0;
-        
-        let total = 0;
-        const conversionTypes = ['purchase', 'lead', 'complete_registration', 'add_to_cart'];
-        
-        actions.forEach(action => {
-            if (conversionTypes.includes(action.action_type)) {
-                total += parseInt(action.value || 0);
-            }
-        });
-        
-        return total;
-    }
+    // アクションからコンバージョン抽出は共通モジュールから使用
+    // getConversionsFromActions関数は conversionCounter.js に移動済み
 
     // 日予算を取得
     getDailyBudgetFromGoals(userId = null) {
@@ -739,38 +727,31 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
     startScheduler() {
         console.log('🕐 チャットワーク自動送信スケジューラーを開始しました');
 
-        // 日次レポート: scheduler.jsで管理されるため無効化
-        // 重複防止のためコメントアウト
-        /*
+        // 日次レポート: 毎朝9時
         cron.schedule('0 9 * * *', async () => {
             console.log('📅 日次レポート送信スケジュール実行');
             await this.sendDailyReport();
         }, {
             timezone: 'Asia/Tokyo'
         });
-        */
 
-        // 定期更新通知: scheduler.jsで管理されるため無効化
-        // 重複防止のためコメントアウト
-        /*
-        cron.schedule('0 12,15,17,19 * * *', async () => {
-            console.log('🔄 定期更新通知送信スケジュール実行');
-            await this.sendUpdateNotification();
-        }, {
-            timezone: 'Asia/Tokyo'
-        });
-        */
+        // 定期更新通知: 12時、15時、17時、19時
+        // ❌ scheduler.jsの統一システムを使用するため無効化
+        // cron.schedule('0 12,15,17,19 * * *', async () => {
+        //     console.log('🔄 定期更新通知送信スケジュール実行');
+        //     await this.sendUpdateNotification();
+        // }, {
+        //     timezone: 'Asia/Tokyo'
+        // });
 
-        // アラート通知: scheduler.jsで管理されるため無効化
-        // 重複防止のためコメントアウト
-        /*
-        cron.schedule('0 9,12,15,17,19 * * *', async () => {
-            console.log('🚨 アラート通知送信スケジュール実行');
-            await this.sendAlertNotification();
-        }, {
-            timezone: 'Asia/Tokyo'
-        });
-        */
+        // アラート通知: 9時、12時、15時、17時、19時（アラートがある場合）
+        // ❌ scheduler.jsの統一システムを使用するため無効化
+        // cron.schedule('0 9,12,15,17,19 * * *', async () => {
+        //     console.log('🚨 アラート通知送信スケジュール実行');
+        //     await this.sendAlertNotification();
+        // }, {
+        //     timezone: 'Asia/Tokyo'
+        // });
 
         // アクセストークン更新通知: 期限1週間前に1回のみ送信
         cron.schedule('0 9 * * *', async () => {
