@@ -7,6 +7,9 @@ const session = require('express-session');
 const axios = require('axios');
 const fs = require('fs');
 
+// 共通コンバージョンカウンターモジュール
+const { getConversionsFromActions } = require('./utils/conversionCounter');
+
 // テスト用軽量版マルチユーザー対応
 const {
     loginLimiter,
@@ -4024,7 +4027,9 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
     };
 }
 
-// アクションからコンバージョン抽出（改善版：すべてのコンバージョンタイプに対応）
+// getConversionsFromActions関数は共通モジュールから使用（上部でインポート済み）
+// アクションからコンバージョン抽出は utils/conversionCounter.js に移動済み
+/*
 function getConversionsFromActions(actions) {
     if (!actions || !Array.isArray(actions)) return 0;
     
@@ -4131,6 +4136,7 @@ function getConversionsFromActions(actions) {
     console.log('CV数合計:', total);
     return total;
 }
+*/
 
 // ハイブリッド方式で日予算を取得（API優先、ユーザー設定フォールバック）
 function getDailyBudgetFromGoals(userId = null, actualDailyBudget = null) {
