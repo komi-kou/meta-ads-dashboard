@@ -3,6 +3,7 @@ const path = require('path');
 const cron = require('node-cron');
 const axios = require('axios');
 const tokenManager = require('./tokenManager');
+const { getConversionsFromActions } = require('./utils/conversionCounter');
 
 class ChatworkAutoSender {
     constructor() {
@@ -268,7 +269,7 @@ class ChatworkAutoSender {
     // インサイトデータをメトリクスに変換
     convertInsightsToMetrics(insights, selectedDate, userId = null) {
         const spend = parseFloat(insights.spend || 0);
-        const conversions = this.getConversionsFromActions(insights.actions);
+        const conversions = getConversionsFromActions(insights.actions);
         const cpa = conversions > 0 ? spend / conversions : 0;
         
         const dailyBudget = this.getDailyBudgetFromGoals(userId);
@@ -286,20 +287,7 @@ class ChatworkAutoSender {
     }
 
     // アクションからコンバージョン抽出
-    getConversionsFromActions(actions) {
-        if (!actions || !Array.isArray(actions)) return 0;
-        
-        let total = 0;
-        const conversionTypes = ['purchase', 'lead', 'complete_registration', 'add_to_cart'];
-        
-        actions.forEach(action => {
-            if (conversionTypes.includes(action.action_type)) {
-                total += parseInt(action.value || 0);
-            }
-        });
-        
-        return total;
-    }
+    // 共通モジュール（utils/conversionCounter.js）を使用
 
     // 日予算を取得
     getDailyBudgetFromGoals(userId = null) {

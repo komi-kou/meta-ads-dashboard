@@ -8,7 +8,7 @@ const axios = require('axios');
 const fs = require('fs');
 
 // 共通コンバージョンカウンターモジュール
-// const { getConversionsFromActions } = require('./utils/conversionCounter');
+const { getConversionsFromActions, getConversionsFromDetailedActions } = require('./utils/conversionCounter');
 
 // テスト用軽量版マルチユーザー対応
 const {
@@ -977,45 +977,8 @@ app.get('/detailed-reports', requireAuth, (req, res) => {
 });
 
 // 新規追加：詳細レポートAPI
-// コンバージョン数を取得する標準化された関数
-function getConversionsFromDetailedActions(actions) {
-    if (!actions || !Array.isArray(actions)) return 0;
-    
-    // Meta標準のコンバージョンイベントタイプ
-    const conversionTypes = [
-        'purchase',
-        'lead',
-        'complete_registration',
-        'add_to_cart',
-        'initiate_checkout',
-        'add_payment_info',
-        'subscribe',
-        'start_trial',
-        'submit_application',
-        'schedule',
-        'contact',
-        'donate'
-    ];
-    
-    let totalConversions = 0;
-    
-    actions.forEach(action => {
-        // 標準コンバージョンタイプ
-        if (conversionTypes.includes(action.action_type)) {
-            totalConversions += parseInt(action.value || 0);
-        }
-        // カスタムコンバージョン
-        else if (action.action_type?.startsWith('offsite_conversion.') && 
-                !action.action_type.includes('view_content')) {
-            totalConversions += parseInt(action.value || 0);
-        }
-        else if (action.action_type?.startsWith('onsite_conversion.')) {
-            totalConversions += parseInt(action.value || 0);
-        }
-    });
-    
-    return totalConversions;
-}
+// getConversionsFromDetailedActions関数は共通モジュールから使用
+// 以下の実装は共通モジュール（utils/conversionCounter.js）に移動済み
 
 app.get('/api/reports/detailed', requireAuth, async (req, res) => {
     try {
@@ -4106,7 +4069,7 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
 
 // getConversionsFromActions関数は共通モジュールから使用（上部でインポート済み）
 // アクションからコンバージョン抽出は utils/conversionCounter.js に移動済み
-// 2025/01/05 - GitHubリポジトリにconversionCounter.jsが存在しないため、こちらの実装を使用
+/*
 function getConversionsFromActions(actions) {
     if (!actions || !Array.isArray(actions)) return 0;
     
@@ -4213,6 +4176,7 @@ function getConversionsFromActions(actions) {
     console.log('CV数合計:', total);
     return total;
 }
+*/
 
 // ハイブリッド方式で日予算を取得（API優先、ユーザー設定フォールバック）
 function getDailyBudgetFromGoals(userId = null, actualDailyBudget = null) {
