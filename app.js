@@ -880,20 +880,6 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
       
       const insightsPromises = campaigns.map(async (campaign) => {
         try {
-          // 削除済みやアーカイブ済みのキャンペーンはスキップ
-          if (campaign.status === 'DELETED' || campaign.status === 'ARCHIVED') {
-            console.log(`📋 Campaign ${campaign.id} (${campaign.name}) はステータス ${campaign.status} のためスキップ`);
-            return {
-              campaignId: campaign.id,
-              impressions: 0,
-              clicks: 0,
-              spend: 0,
-              ctr: 0,
-              cpm: 0,
-              conversions: 0
-            };
-          }
-          
           const insightsEndpoint = `${baseUrl}/${campaign.id}/insights`;
           const insightsParams = new URLSearchParams({
             access_token: accessToken,
@@ -916,12 +902,7 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
             conversions: getConversionsFromActions(insights.actions)
           };
         } catch (error) {
-          // 400エラーの場合は削除済みの可能性が高い
-          if (error.response && error.response.status === 400) {
-            console.log(`📋 Campaign ${campaign.id} は削除済みまたは無効（400エラー）`);
-          } else {
-            console.warn(`⚠️ Campaign ${campaign.id} のinsights取得失敗:`, error.message);
-          }
+          console.warn(`⚠️ Campaign ${campaign.id} のinsights取得失敗:`, error.message);
           // エラー時はデフォルト値を返す
           return {
             campaignId: campaign.id,
@@ -2741,26 +2722,6 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
     
     const insightsPromises = campaigns.map(async (campaign) => {
       try {
-        // 削除済みやアーカイブ済みのキャンペーンはスキップ
-        if (campaign.status === 'DELETED' || campaign.status === 'ARCHIVED') {
-          console.log(`📋 Campaign ${campaign.id} (${campaign.name}) はステータス ${campaign.status} のためスキップ`);
-          return {
-            id: campaign.id,
-            name: campaign.name,
-            status: campaign.status,
-            objective: campaign.objective,
-            spend: 0,
-            impressions: 0,
-            clicks: 0,
-            ctr: 0,
-            cpm: 0,
-            conversions: 0,
-            cpa: 0,
-            frequency: 0,
-            reach: 0
-          };
-        }
-        
         const insightsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/insights`;
         
         // 期間パラメータの設定
@@ -2811,12 +2772,7 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
           reach: parseInt(insights.reach || 0)
         };
       } catch (insightError) {
-        // 400エラーの場合は削除済みの可能性が高い
-        if (insightError.response && insightError.response.status === 400) {
-          console.log(`📋 Campaign ${campaign.id} は削除済みまたは無効（400エラー）`);
-        } else {
-          console.warn(`⚠️ キャンペーン${campaign.id}のインサイト取得エラー:`, insightError.message);
-        }
+        console.warn(`⚠️ キャンペーン${campaign.id}のインサイト取得エラー:`, insightError.message);
         // エラーがあってもキャンペーン基本情報は返す
         return {
           id: campaign.id,
