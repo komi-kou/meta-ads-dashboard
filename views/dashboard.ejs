@@ -1049,6 +1049,16 @@
                                 tension: 0.4,
                                 fill: true,
                                 yAxisID: 'y1'
+                            },
+                            // ✅ インプレッション追加
+                            {
+                                label: 'インプレッション',
+                                data: data.chartData.impressions || [],
+                                borderColor: '#8b4513',
+                                backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                yAxisID: 'y3'
                             }
                         ]
                     },
@@ -1083,6 +1093,12 @@
                                 type: 'linear',
                                 display: false,
                                 beginAtZero: true
+                            },
+                            y3: {
+                                type: 'linear',
+                                display: false,
+                                beginAtZero: true,
+                                position: 'right'
                             }
                         },
                         plugins: {
