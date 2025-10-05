@@ -1319,12 +1319,10 @@ Meta広告レポートツールの設定が完了しました。
 
         // メトリクスカード更新
         function updateMetricCard(type, value) {
-            const card = document.querySelector(`.metric-card.${type}`);
-            if (card) {
-                const valueElement = card.querySelector('.metric-value');
-                if (valueElement) {
-                    valueElement.textContent = value;
-                }
+            // data-metric属性を使用して正確に要素を選択
+            const element = document.querySelector(`[data-metric="${type}"]`);
+            if (element) {
+                element.textContent = value;
             }
         }
 
