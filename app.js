@@ -7,6 +7,9 @@ const session = require('express-session');
 const axios = require('axios');
 const fs = require('fs');
 
+// 共通コンバージョンカウンターモジュール
+// const { getConversionsFromActions } = require('./utils/conversionCounter');
+
 // テスト用軽量版マルチユーザー対応
 const {
     loginLimiter,
@@ -859,7 +862,7 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
     
     const params = new URLSearchParams({
       access_token: accessToken,
-      fields: 'id,name,status,objective,created_time,updated_time,impressions',
+      fields: 'id,name,status,objective,created_time,updated_time',
       limit: '100'
     });
     
@@ -870,21 +873,79 @@ app.get('/api/campaigns', requireAuth, async (req, res) => {
     });
     
     if (response.data && response.data.data) {
-      const campaigns = response.data.data.map(campaign => ({
-        id: campaign.id,
-        name: campaign.name,
-        status: campaign.status,
-        objective: campaign.objective,
-        created_time: campaign.created_time,
-        updated_time: campaign.updated_time,
-        impressions: parseInt(campaign.impressions || 0)
-      }));
+      const campaigns = response.data.data;
       
-      console.log(`✅ キャンペーンリスト取得成功: ${campaigns.length}件`);
+      // 並列でinsightsデータを取得
+      console.log(`📊 ${campaigns.length}件のキャンペーンのinsightsを並列取得開始...`);
+      
+      const insightsPromises = campaigns.map(async (campaign) => {
+        try {
+          const insightsEndpoint = `${baseUrl}/${campaign.id}/insights`;
+          const insightsParams = new URLSearchParams({
+            access_token: accessToken,
+            fields: 'impressions,clicks,spend,ctr,cpm,actions',
+            date_preset: 'lifetime'
+          });
+          
+          const insightsResponse = await axios.get(`${insightsEndpoint}?${insightsParams}`, {
+            timeout: 5000 // 5秒のタイムアウト
+          });
+          
+          const insights = insightsResponse.data?.data?.[0] || {};
+          return {
+            campaignId: campaign.id,
+            impressions: parseInt(insights.impressions || 0),
+            clicks: parseInt(insights.clicks || 0),
+            spend: parseFloat(insights.spend || 0),
+            ctr: parseFloat(insights.ctr || 0),
+            cpm: parseFloat(insights.cpm || 0),
+            conversions: getConversionsFromActions(insights.actions)
+          };
+        } catch (error) {
+          console.warn(`⚠️ Campaign ${campaign.id} のinsights取得失敗:`, error.message);
+          // エラー時はデフォルト値を返す
+          return {
+            campaignId: campaign.id,
+            impressions: 0,
+            clicks: 0,
+            spend: 0,
+            ctr: 0,
+            cpm: 0,
+            conversions: 0
+          };
+        }
+      });
+      
+      // すべてのinsights取得を待つ
+      const insightsData = await Promise.all(insightsPromises);
+      
+      // キャンペーンデータとinsightsデータを結合
+      const enrichedCampaigns = campaigns.map(campaign => {
+        const insights = insightsData.find(i => i.campaignId === campaign.id) || {};
+        const cpa = insights.conversions > 0 ? Math.round(insights.spend / insights.conversions) : 0;
+        
+        return {
+          id: campaign.id,
+          name: campaign.name,
+          status: campaign.status,
+          objective: campaign.objective,
+          created_time: campaign.created_time,
+          updated_time: campaign.updated_time,
+          impressions: insights.impressions || 0,
+          clicks: insights.clicks || 0,
+          spend: insights.spend || 0,
+          ctr: insights.ctr || 0,
+          cpm: insights.cpm || 0,
+          conversions: insights.conversions || 0,
+          cpa: cpa
+        };
+      });
+      
+      console.log(`✅ キャンペーンリスト取得成功: ${enrichedCampaigns.length}件（insights含む）`);
       res.json({
         success: true,
-        campaigns: campaigns,
-        total: campaigns.length
+        campaigns: enrichedCampaigns,
+        total: enrichedCampaigns.length
       });
     } else {
       throw new Error('Invalid API response format');
@@ -2655,10 +2716,11 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
     });
     
     const campaigns = campaignsResponse.data.data || [];
-    const campaignDetails = [];
     
-    // 各キャンペーンのインサイトを取得
-    for (const campaign of campaigns) {
+    // 並列で各キャンペーンのインサイトを取得
+    console.log(`📊 ${campaigns.length}件のキャンペーンのインサイトを並列取得開始...`);
+    
+    const insightsPromises = campaigns.map(async (campaign) => {
       try {
         const insightsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/insights`;
         
@@ -2684,7 +2746,8 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
         }
         
         const insightsResponse = await axios.get(insightsUrl, {
-          params: insightParams
+          params: insightParams,
+          timeout: 5000 // 5秒タイムアウト
         });
         
         const insights = insightsResponse.data.data[0] || {};
@@ -2693,7 +2756,7 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
         const spend = parseFloat(insights.spend || 0);
         const cpa = conversions > 0 ? Math.round(spend / conversions) : 0;
         
-        campaignDetails.push({
+        return {
           id: campaign.id,
           name: campaign.name,
           status: campaign.status,
@@ -2707,11 +2770,11 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
           cpa: cpa,
           frequency: parseFloat(insights.frequency || 0),
           reach: parseInt(insights.reach || 0)
-        });
+        };
       } catch (insightError) {
-        console.log(`キャンペーン${campaign.id}のインサイト取得エラー:`, insightError.message);
+        console.warn(`⚠️ キャンペーン${campaign.id}のインサイト取得エラー:`, insightError.message);
         // エラーがあってもキャンペーン基本情報は返す
-        campaignDetails.push({
+        return {
           id: campaign.id,
           name: campaign.name,
           status: campaign.status,
@@ -2725,9 +2788,12 @@ app.get('/api/campaigns/details', requireAuth, async (req, res) => {
           cpa: 0,
           frequency: 0,
           reach: 0
-        });
+        };
       }
-    }
+    });
+    
+    // すべてのPromiseが完了するのを待つ
+    const campaignDetails = await Promise.all(insightsPromises);
     
     // 結果をソート（広告費の多い順）
     campaignDetails.sort((a, b) => b.spend - a.spend);
@@ -4024,7 +4090,9 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
     };
 }
 
-// アクションからコンバージョン抽出（改善版：すべてのコンバージョンタイプに対応）
+// getConversionsFromActions関数は共通モジュールから使用（上部でインポート済み）
+// アクションからコンバージョン抽出は utils/conversionCounter.js に移動済み
+// 2025/01/05 - GitHubリポジトリにconversionCounter.jsが存在しないため、こちらの実装を使用
 function getConversionsFromActions(actions) {
     if (!actions || !Array.isArray(actions)) return 0;
     
