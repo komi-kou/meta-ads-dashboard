@@ -454,6 +454,7 @@
                             <th>ステータス</th>
                             <th>日予算</th>
                             <th>消化額</th>
+                            <th>インプレッション</th>
                             <th>CPA</th>
                             <th>CTR</th>
                             <th>CV数</th>
@@ -478,6 +479,7 @@
                                     <button class="btn-sm btn-edit" onclick="updateBudget('${campaign.id}')">更新</button>
                                 </td>
                                 <td>¥${campaign.spend?.toLocaleString() || 0}</td>
+                                <td>${(campaign.impressions || 0).toLocaleString()}</td>
                                 <td>¥${campaign.cpa?.toLocaleString() || '-'}</td>
                                 <td>${campaign.ctr?.toFixed(2) || 0}%</td>
                                 <td>${campaign.conversions || 0}</td>
