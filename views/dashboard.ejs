@@ -951,6 +951,7 @@
             const updates = [
                 { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
                 { selector: '[data-metric="budget-rate"]', value: data.budgetRate !== undefined && data.budgetRate !== null ? `${parseFloat(data.budgetRate).toFixed(1)}` : '0.0' },
+                { selector: '[data-metric="impressions"]', value: `${(data.impressions || 0).toLocaleString()}` },
                 { selector: '[data-metric="ctr"]', value: `${data.ctr.toFixed(2)}` },  // すでに四捨五入済みの値を表示
                 { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },  // すでに四捨五入済みの整数値を表示
                 { selector: '[data-metric="conversions"]', value: data.conversions || 0 },
