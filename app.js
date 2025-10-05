@@ -2851,13 +2851,26 @@ app.get('/api/campaign/:id/insights', requireAuth, async (req, res) => {
   }
 });
 
+// 動的にベースURLを取得する関数
+const getBaseUrl = (req) => {
+  // 本番環境
+  if (process.env.NODE_ENV === 'production') {
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const host = req.headers.host || 'localhost';
+    return `${protocol}://${host}`;
+  }
+  // ローカル環境
+  return `http://localhost:${process.env.PORT || 3000}`;
+};
+
 // エクスポート機能
 app.get('/api/export/campaigns', requireAuth, async (req, res) => {
   try {
     const format = req.query.format || 'csv';
+    const baseUrl = getBaseUrl(req);
     
     // キャンペーンデータを取得
-    const campaignsResponse = await axios.get(`http://localhost:${process.env.PORT || 3000}/api/campaigns`, {
+    const campaignsResponse = await axios.get(`${baseUrl}/api/campaigns`, {
       headers: {
         Cookie: req.headers.cookie
       }
@@ -2893,11 +2906,12 @@ app.get('/api/export/spreadsheet', requireAuth, async (req, res) => {
     const { exportToCSV } = require('./utils/googleSheets');
     const period = req.query.period || 'last_7d';
     const campaignId = req.query.campaign_id || 'all';
+    const baseUrl = getBaseUrl(req);
     
     // ダッシュボードデータ取得（選択された期間とキャンペーンで）
     const dashboardUrl = campaignId === 'all' 
-      ? `http://localhost:${process.env.PORT || 3000}/api/dashboard-data?period=${period}`
-      : `http://localhost:${process.env.PORT || 3000}/api/dashboard-data?period=${period}&campaign_id=${campaignId}`;
+      ? `${baseUrl}/api/dashboard-data?period=${period}`
+      : `${baseUrl}/api/dashboard-data?period=${period}&campaign_id=${campaignId}`;
     
     const dashboardResponse = await axios.get(dashboardUrl, {
       headers: { Cookie: req.headers.cookie }
@@ -2905,7 +2919,7 @@ app.get('/api/export/spreadsheet', requireAuth, async (req, res) => {
     
     // キャンペーン詳細データ取得
     const campaignsDetailResponse = await axios.get(
-      `http://localhost:${process.env.PORT || 3000}/api/campaigns/details?period=${period}`,
+      `${baseUrl}/api/campaigns/details?period=${period}`,
       { headers: { Cookie: req.headers.cookie }}
     );
     
