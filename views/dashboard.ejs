@@ -726,7 +726,7 @@
             const exportSpreadsheetBtn = document.getElementById('exportSpreadsheet');
             if (exportSpreadsheetBtn) {
                 exportSpreadsheetBtn.addEventListener('click', function() {
-                    const campaignSelect = document.getElementById('campaign-select');
+                    const campaignSelect = document.getElementById('selectedCampaign');
                     const campaignId = campaignSelect ? campaignSelect.value : 'all';
                     
                     // 表示モードに応じて適切な期間を使用

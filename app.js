@@ -2860,7 +2860,7 @@ const getBaseUrl = (req) => {
     return `${protocol}://${host}`;
   }
   // ローカル環境
-  return `http://localhost:${process.env.PORT || 3000}`;
+  return `http://localhost:${process.env.PORT || 3457}`;
 };
 
 // エクスポート機能
