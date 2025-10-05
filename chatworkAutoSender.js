@@ -4,16 +4,36 @@ const cron = require('node-cron');
 const axios = require('axios');
 const tokenManager = require('./tokenManager');
 
-// 安全なモジュール読み込み with エラーハンドリング
+// 安全なモジュール読み込み with 複数パス試行
 let getConversionsFromActions;
-try {
-    // 絶対パスでの読み込みを試みる
-    const conversionCounterPath = path.join(__dirname, 'utils', 'conversionCounter');
-    ({ getConversionsFromActions } = require(conversionCounterPath));
-    console.log('✅ conversionCounter.js loaded successfully from:', conversionCounterPath);
-} catch (error) {
-    console.error('❌ Failed to load conversionCounter.js:', error.message);
-    // フォールバック: 元の簡易版を使用
+let loadSuccess = false;
+
+// パス1: path.joinによる絶対パス
+if (!loadSuccess) {
+    try {
+        const conversionCounterPath = path.join(__dirname, 'utils', 'conversionCounter');
+        ({ getConversionsFromActions } = require(conversionCounterPath));
+        console.log('✅ conversionCounter.js loaded via path.join:', conversionCounterPath);
+        loadSuccess = true;
+    } catch (error) {
+        console.log('❌ path.join failed:', error.message);
+    }
+}
+
+// パス2: 相対パスによる読み込み
+if (!loadSuccess) {
+    try {
+        ({ getConversionsFromActions } = require('./utils/conversionCounter'));
+        console.log('✅ conversionCounter.js loaded via relative path: ./utils/conversionCounter');
+        loadSuccess = true;
+    } catch (error) {
+        console.log('❌ Relative path failed:', error.message);
+    }
+}
+
+// フォールバック: 組み込み実装
+if (!loadSuccess) {
+    console.warn('⚠️ Using embedded fallback conversion counter');
     getConversionsFromActions = function(actions) {
         if (!actions || !Array.isArray(actions)) return 0;
         let total = 0;
@@ -24,9 +44,9 @@ try {
                 total += parseInt(action.value || 0);
             }
         });
+        console.log('Fallback counter - found conversions:', total);
         return total;
     };
-    console.warn('⚠️ Using fallback conversion counter');
 }
 
 class ChatworkAutoSender {
