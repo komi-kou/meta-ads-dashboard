@@ -41,7 +41,7 @@
         
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 25px;
             margin-bottom: 40px;
         }
@@ -113,6 +113,10 @@
         
         .metric-card.budget {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .metric-card.impressions {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
         
         .metric-card.ctr {
@@ -454,6 +458,14 @@
                         </div>
                     </div>
                     
+                    <div class="metric-card impressions">
+                        <div class="metric-icon">👀</div>
+                        <div class="metric-title">インプレッション（合計）</div>
+                        <div class="metric-value">
+                            <span data-metric="impressions">読み込み中...</span><span class="metric-unit">回</span>
+                        </div>
+                    </div>
+                    
                     <div class="metric-card ctr">
                         <div class="metric-icon">👆</div>
                         <div class="metric-title">CTR（平均）</div>
@@ -472,7 +484,7 @@
                 </div>
                 
                 <!-- 下段指標 -->
-                <div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 40px;">
+                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 40px;">
                     <div class="metric-card cv">
                         <div class="metric-icon">🎯</div>
                         <div class="metric-title">CV（合計）</div>
@@ -494,14 +506,6 @@
                         <div class="metric-title">フリークエンシー（平均）</div>
                         <div class="metric-value">
                             <span data-metric="frequency">読み込み中...</span><span class="metric-unit">回</span>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-card impressions" style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);">
-                        <div class="metric-icon">👁️</div>
-                        <div class="metric-title">インプレッション（合計）</div>
-                        <div class="metric-value">
-                            <span data-metric="impressions">読み込み中...</span>
                         </div>
                     </div>
                 </div>
@@ -536,11 +540,6 @@
                     <div class="legend-item">
                         <div class="legend-color" style="background: #6b7280;"></div>
                         <span>フリークエンシー</span>
-                    </div>
-                    <!-- インプレッション追加 -->
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ec4899;"></div>
-                        <span>インプレッション</span>
                     </div>
                 </div>
                 
@@ -833,7 +832,7 @@
                                         <span style="color: ${statusColor}; font-weight: 500;">${statusText}</span>
                                     </td>
                                     <td style="padding: 12px; text-align: right;">${campaign.spend.toLocaleString()}円</td>
-                                    <td style="padding: 12px; text-align: right;">${campaign.impressions?.toLocaleString() || 0}</td>
+                                    <td style="padding: 12px; text-align: right;">${(campaign.impressions || 0).toLocaleString()}回</td>
                                     <td style="padding: 12px; text-align: right;">${campaign.ctr.toFixed(2)}%</td>
                                     <td style="padding: 12px; text-align: right;">${Math.round(campaign.cpm).toLocaleString()}円</td>
                                     <td style="padding: 12px; text-align: right;">${campaign.conversions}</td>
@@ -956,8 +955,7 @@
                 { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },  // すでに四捨五入済みの整数値を表示
                 { selector: '[data-metric="conversions"]', value: data.conversions || 0 },
                 { selector: '[data-metric="cpa"]', value: data.cpa !== undefined && data.cpa !== null ? `${Math.round(data.cpa).toLocaleString()}` : '-' },
-                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` },  // すでに四捨五入済みの値を表示
-                { selector: '[data-metric="impressions"]', value: data.impressions ? `${data.impressions.toLocaleString()}` : '0' }
+                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` }  // すでに四捨五入済みの値を表示
             ];
             
             updates.forEach(update => {
@@ -1050,16 +1048,6 @@
                                 tension: 0.4,
                                 fill: true,
                                 yAxisID: 'y1'
-                            },
-                            // インプレッション追加
-                            {
-                                label: 'インプレッション',
-                                data: data.chartData.impressions || [],
-                                borderColor: '#ec4899',
-                                backgroundColor: 'rgba(236, 72, 153, 0.1)',
-                                tension: 0.4,
-                                fill: true,
-                                yAxisID: 'y3'
                             }
                         ]
                     },
@@ -1091,11 +1079,6 @@
                                 beginAtZero: true
                             },
                             y2: {
-                                type: 'linear',
-                                display: false,
-                                beginAtZero: true
-                            },
-                            y3: {
                                 type: 'linear',
                                 display: false,
                                 beginAtZero: true
@@ -1309,7 +1292,7 @@ Meta広告レポートツールの設定が完了しました。
                         </span>
                     </td>
                     <td style="padding: 12px; text-align: right;">¥${(campaign.spend || 0).toLocaleString()}</td>
-                    <td style="padding: 12px; text-align: right;">${(campaign.impressions || 0).toLocaleString()}</td>
+                    <td style="padding: 12px; text-align: right;">${(campaign.impressions || 0).toLocaleString()}回</td>
                     <td style="padding: 12px; text-align: right;">${(campaign.ctr || 0).toFixed(2)}%</td>
                     <td style="padding: 12px; text-align: right;">¥${Math.round(campaign.cpm || 0).toLocaleString()}</td>
                     <td style="padding: 12px; text-align: right; font-weight: bold; color: #059669;">

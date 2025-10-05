@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>キャンペーン管理 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #fff;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 30px;
+        }
+        
+        .content-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .campaigns-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .filter-section select, .filter-section input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .campaigns-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .campaigns-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .campaigns-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+        
+        .campaigns-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.paused {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-pause {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .budget-input {
+            width: 100px;
+            padding: 4px 8px;
+            border: 1px solid #28a745;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .budget-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-column {
+            width: 30px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/campaigns" class="nav-item active">📊 キャンペーン管理</a>
+                <a href="/budget-scheduling" class="nav-item">⏰ 予算スケジューリング</a>
+                <a href="/detailed-reports" class="nav-item">📈 詳細レポート</a>
+                <a href="/alerts" class="nav-item">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>            </nav>
+            <div class="sidebar-footer" style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
+                <form action="/logout" method="POST" style="margin: 0;">
+                    <button type="submit" class="nav-item" style="
+                        display: block;
+                        width: 100%;
+                        padding: 12px 20px;
+                        background: rgba(231, 76, 60, 0.1);
+                        color: #e74c3c;
+                        border: 1px solid rgba(231, 76, 60, 0.2);
+                        border-radius: 5px;
+                        text-align: left;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        font-size: 14px;
+                        font-weight: 500;
+                    " onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'" onmouseout="this.style.background='rgba(231, 76, 60, 0.1)'">
+                        🚪 ログアウト
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">📊 キャンペーン管理</h1>
+                <p style="color: #6c757d;">すべてのキャンペーンの予算とステータスを管理します</p>
+            </div>
+            
+            <div class="campaigns-container">
+                <!-- フィルターセクション -->
+                <div class="filter-section">
+                    <select id="statusFilter">
+                        <option value="all">すべてのステータス</option>
+                        <option value="ACTIVE">アクティブ</option>
+                        <option value="PAUSED">一時停止</option>
+                    </select>
+                    <select id="periodFilter">
+                        <option value="last_7d">過去7日間</option>
+                        <option value="last_30d">過去30日間</option>
+                        <option value="this_month">今月</option>
+                        <option value="lifetime">全期間</option>
+                    </select>
+                    <button class="btn-primary" onclick="loadCampaigns()">更新</button>
+                    <button class="btn-primary" onclick="showScheduleModal()">⏰ スケジュール設定</button>
+                </div>
+                
+                <!-- 一括操作 -->
+                <div class="bulk-actions">
+                    <button class="btn-sm btn-edit" onclick="bulkUpdateBudget()">選択した項目の予算を一括変更</button>
+                    <button class="btn-sm btn-pause" onclick="bulkPause()">選択した項目を一時停止</button>
+                    <button class="btn-sm btn-edit" onclick="bulkResume()">選択した項目を再開</button>
+                </div>
+                
+                <!-- メッセージエリア -->
+                <div id="messageArea"></div>
+                
+                <!-- キャンペーンテーブル -->
+                <div id="campaignsTableContainer">
+                    <div class="loading">キャンペーン情報を読み込み中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 一括予算更新モーダル -->
+    <div id="bulkBudgetModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">💰 一括予算更新</h2>
+            <p style="color: #6c757d; margin-bottom: 20px;">
+                選択した<span id="selectedCount">0</span>件のキャンペーンの予算を更新します
+            </p>
+            <div class="form-group">
+                <label>新しい日予算（円）</label>
+                <input type="number" id="bulkNewBudget" min="1" max="100000000" step="1" placeholder="例: 10000">
+                <small style="display: block; color: #6c757d; margin-top: 5px;">
+                    ※ 1円以上、1億円以下で設定してください
+                </small>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" onclick="applyBulkBudget()">更新</button>
+                <button class="btn-sm" onclick="closeBulkBudgetModal()" style="background: #6c757d; color: white;">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- スケジュール設定モーダル -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">⏰ 予算スケジュール設定</h2>
+            <div class="form-group">
+                <label>キャンペーン</label>
+                <select id="scheduleCampaignId"></select>
+            </div>
+            <div class="form-group">
+                <label>実行日時</label>
+                <input type="datetime-local" id="scheduleDateTime">
+            </div>
+            <div class="form-group">
+                <label>新しい予算（円）</label>
+                <input type="number" id="scheduleNewBudget" placeholder="例: 10000">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" onclick="saveSchedule()">保存</button>
+                <button class="btn-sm" onclick="closeModal()" style="background: #6c757d; color: white;">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let campaigns = [];
+        let selectedCampaigns = new Set();
+        
+        // ページ読み込み時にキャンペーン一覧を取得
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCampaigns();
+        });
+        
+        async function loadCampaigns() {
+            try {
+                const period = document.getElementById('periodFilter').value;
+                const response = await fetch(`/api/campaigns/details?period=${period}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    campaigns = data.campaigns;
+                    renderCampaignsTable(data.campaigns);
+                } else {
+                    showMessage('error', data.error || 'キャンペーンの取得に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'キャンペーンの取得中にエラーが発生しました');
+            }
+        }
+        
+        function renderCampaignsTable(campaigns) {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const filteredCampaigns = statusFilter === 'all' 
+                ? campaigns 
+                : campaigns.filter(c => c.status === statusFilter);
+            
+            const html = `
+                <table class="campaigns-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-column"><input type="checkbox" onchange="toggleSelectAll(this)"></th>
+                            <th>キャンペーン名</th>
+                            <th>ステータス</th>
+                            <th>日予算</th>
+                            <th>消化額</th>
+                            <th>インプレッション</th>
+                            <th>CPA</th>
+                            <th>CTR</th>
+                            <th>CV数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredCampaigns.map(campaign => `
+                            <tr>
+                                <td><input type="checkbox" value="${campaign.id}" onchange="toggleSelect('${campaign.id}')"></td>
+                                <td>${campaign.name}</td>
+                                <td>
+                                    <span class="status-badge ${campaign.status.toLowerCase()}">
+                                        ${campaign.status === 'ACTIVE' ? 'アクティブ' : '一時停止'}
+                                    </span>
+                                </td>
+                                <td class="budget-cell">
+                                    <input type="number" class="budget-input" id="budget-${campaign.id}" 
+                                           value="${Math.round((campaign.daily_budget || campaign.spend || 0) / 100)}"
+                                           min="1" max="100000000" step="1"
+                                           onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                                    <button class="btn-sm btn-edit" onclick="updateBudget('${campaign.id}')">更新</button>
+                                </td>
+                                <td>¥${campaign.spend?.toLocaleString() || 0}</td>
+                                <td>${(campaign.impressions || 0).toLocaleString()}</td>
+                                <td>¥${campaign.cpa?.toLocaleString() || '-'}</td>
+                                <td>${campaign.ctr?.toFixed(2) || 0}%</td>
+                                <td>${campaign.conversions || 0}</td>
+                                <td class="action-buttons">
+                                    ${campaign.status === 'ACTIVE' 
+                                        ? `<button class="btn-sm btn-pause" onclick="toggleStatus('${campaign.id}', 'PAUSED')">停止</button>`
+                                        : `<button class="btn-sm btn-edit" onclick="toggleStatus('${campaign.id}', 'ACTIVE')">再開</button>`
+                                    }
+                                    <button class="btn-sm btn-delete" onclick="duplicateCampaign('${campaign.id}')">複製</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('campaignsTableContainer').innerHTML = html;
+        }
+        
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                const campaignId = cb.value;
+                if (checkbox.checked) {
+                    selectedCampaigns.add(campaignId);
+                } else {
+                    selectedCampaigns.delete(campaignId);
+                }
+            });
+        }
+        
+        function toggleSelect(campaignId) {
+            if (selectedCampaigns.has(campaignId)) {
+                selectedCampaigns.delete(campaignId);
+            } else {
+                selectedCampaigns.add(campaignId);
+            }
+        }
+        
+        async function updateBudget(campaignId) {
+            const budgetInput = document.getElementById(`budget-${campaignId}`);
+            if (!budgetInput) {
+                showMessage('error', '予算入力フィールドが見つかりません');
+                return;
+            }
+            const newBudget = parseFloat(budgetInput.value);
+            
+            // 詳細なバリデーション
+            if (!newBudget || isNaN(newBudget)) {
+                showMessage('error', '予算を入力してください');
+                return;
+            }
+            
+            if (newBudget <= 0) {
+                showMessage('error', '予算は1円以上で入力してください');
+                budgetInput.value = '';
+                budgetInput.focus();
+                return;
+            }
+            
+            if (newBudget > 100000000) {
+                showMessage('error', '予算は1億円以下で設定してください');
+                budgetInput.focus();
+                return;
+            }
+            
+            // 整数チェック
+            if (newBudget !== Math.floor(newBudget)) {
+                showMessage('error', '予算は整数で入力してください');
+                budgetInput.value = Math.floor(newBudget);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/campaigns/budget', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ campaign_id: campaignId, daily_budget: newBudget })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('success', '予算を更新しました');
+                } else {
+                    showMessage('error', data.error || '予算の更新に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'エラーが発生しました');
+            }
+        }
+        
+        async function toggleStatus(campaignId, newStatus) {
+            try {
+                const response = await fetch('/api/campaigns/status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ campaign_id: campaignId, status: newStatus })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('success', data.message);
+                    loadCampaigns();
+                } else {
+                    showMessage('error', data.error || 'ステータスの変更に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'エラーが発生しました');
+            }
+        }
+        
+        async function duplicateCampaign(campaignId) {
+            if (!confirm('このキャンペーンを複製しますか？')) return;
+            
+            try {
+                const response = await fetch('/api/campaigns/duplicate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ campaign_id: campaignId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('success', 'キャンペーンを複製しました');
+                    loadCampaigns();
+                } else {
+                    showMessage('error', data.error || '複製に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'エラーが発生しました');
+            }
+        }
+        
+        function bulkUpdateBudget() {
+            if (selectedCampaigns.size === 0) {
+                showMessage('error', 'キャンペーンを選択してください');
+                return;
+            }
+            
+            // モーダルを表示
+            document.getElementById('selectedCount').textContent = selectedCampaigns.size;
+            document.getElementById('bulkBudgetModal').style.display = 'flex';
+            document.getElementById('bulkNewBudget').value = '';
+            document.getElementById('bulkNewBudget').focus();
+        }
+        
+        function closeBulkBudgetModal() {
+            document.getElementById('bulkBudgetModal').style.display = 'none';
+        }
+        
+        async function applyBulkBudget() {
+            const newBudgetInput = document.getElementById('bulkNewBudget');
+            const newBudget = parseFloat(newBudgetInput.value);
+            
+            // バリデーション
+            if (!newBudget || isNaN(newBudget)) {
+                showMessage('error', '予算を入力してください');
+                newBudgetInput.focus();
+                return;
+            }
+            
+            if (newBudget <= 0) {
+                showMessage('error', '予算は1円以上で入力してください');
+                newBudgetInput.focus();
+                return;
+            }
+            
+            if (newBudget > 100000000) {
+                showMessage('error', '予算は1億円以下で設定してください');
+                newBudgetInput.focus();
+                return;
+            }
+            
+            if (newBudget !== Math.floor(newBudget)) {
+                showMessage('error', '予算は整数で入力してください');
+                newBudgetInput.value = Math.floor(newBudget);
+                return;
+            }
+            
+            closeBulkBudgetModal();
+            showMessage('info', '予算を更新中...');
+            
+            let successCount = 0;
+            for (const campaignId of selectedCampaigns) {
+                try {
+                    const response = await fetch('/api/campaigns/budget', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ campaign_id: campaignId, daily_budget: newBudget })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        successCount++;
+                    }
+                } catch (error) {
+                    console.error('予算更新エラー:', error);
+                }
+            }
+            
+            showMessage('success', `${successCount}件のキャンペーン予算を更新しました`);
+            selectedCampaigns.clear();
+            loadCampaigns();
+        }
+        
+        async function bulkPause() {
+            if (selectedCampaigns.size === 0) {
+                showMessage('error', 'キャンペーンを選択してください');
+                return;
+            }
+            
+            for (const campaignId of selectedCampaigns) {
+                await toggleStatus(campaignId, 'PAUSED');
+            }
+            
+            showMessage('success', `${selectedCampaigns.size}件のキャンペーンを一時停止しました`);
+            selectedCampaigns.clear();
+            loadCampaigns();
+        }
+        
+        async function bulkResume() {
+            if (selectedCampaigns.size === 0) {
+                showMessage('error', 'キャンペーンを選択してください');
+                return;
+            }
+            
+            for (const campaignId of selectedCampaigns) {
+                await toggleStatus(campaignId, 'ACTIVE');
+            }
+            
+            showMessage('success', `${selectedCampaigns.size}件のキャンペーンを再開しました`);
+            selectedCampaigns.clear();
+            loadCampaigns();
+        }
+        
+        function showScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            const select = document.getElementById('scheduleCampaignId');
+            
+            select.innerHTML = campaigns.map(c => 
+                `<option value="${c.id}">${c.name}</option>`
+            ).join('');
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('scheduleModal').style.display = 'none';
+        }
+        
+        async function saveSchedule() {
+            const campaignId = document.getElementById('scheduleCampaignId').value;
+            const dateTime = document.getElementById('scheduleDateTime').value;
+            const newBudget = document.getElementById('scheduleNewBudget').value;
+            
+            try {
+                const response = await fetch('/api/campaigns/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ campaign_id: campaignId, schedule_time: dateTime, new_budget: newBudget })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showMessage('success', 'スケジュールを設定しました');
+                    closeModal();
+                } else {
+                    showMessage('error', data.error || 'スケジュール設定に失敗しました');
+                }
+            } catch (error) {
+                showMessage('error', 'エラーが発生しました');
+            }
+        }
+        
+        function showMessage(type, message) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
