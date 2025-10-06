@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { getConversionsFromActions } = require('./utils/conversionCounter');
 
 /**
  * Meta広告APIクラス
@@ -216,14 +217,8 @@ class MetaApi {
             if (dayData) {
                 spendHistory.push(Math.round(parseFloat(dayData.spend || 0)));
                 
-                let conversions = 0;
-                if (dayData.actions) {
-                    dayData.actions.forEach(action => {
-                        if (action.action_type === 'purchase' || action.action_type === 'lead') {
-                            conversions += parseInt(action.value || 0);
-                        }
-                    });
-                }
+                // 共通モジュールを使用してCV計測
+                const conversions = getConversionsFromActions(dayData.actions);
                 conversionsHistory.push(conversions);
                 
                 const impressions = parseInt(dayData.impressions || 0);
