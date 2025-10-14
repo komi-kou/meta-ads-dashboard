@@ -94,19 +94,34 @@ function getCurrentGoalType(userId = null) {
     }
 }
 
-// 過去のデータを取得
-async function getHistoricalData(days, userId = null) {
+// 過去のデータを取得（アカウント別対応）
+async function getHistoricalData(days, userId = null, accountId = null) {
     try {
         let config = null;
         
         // ユーザー固有の設定を優先
         if (userId) {
             const userSettings = userManager.getUserSettings(userId);
-            if (userSettings && userSettings.meta_access_token && userSettings.meta_account_id) {
-                config = {
-                    accessToken: userSettings.meta_access_token,
-                    accountId: userSettings.meta_account_id
-                };
+            
+            // アカウント別のトークンとIDを取得
+            if (accountId) {
+                // 追加アカウントの設定を取得
+                const account = userSettings?.additional_accounts?.find(acc => acc.id === accountId);
+                if (account && account.token && account.id) {
+                    config = {
+                        accessToken: account.token,
+                        accountId: account.id
+                    };
+                    console.log(`追加アカウント${accountId}の設定を使用`);
+                }
+            } else {
+                // メインアカウントの設定を取得
+                if (userSettings && userSettings.meta_access_token && userSettings.meta_account_id) {
+                    config = {
+                        accessToken: userSettings.meta_access_token,
+                        accountId: userSettings.meta_account_id
+                    };
+                }
             }
         }
         
@@ -154,20 +169,42 @@ async function getHistoricalData(days, userId = null) {
     }
 }
 
-// ユーザー固有のアラートチェック実行
-async function checkUserAlerts(userId) {
-    console.log(`=== ユーザー${userId}のアラートチェック開始 ===`);
+// ユーザー固有のアラートチェック実行（アカウント別対応）
+async function checkUserAlerts(userId, accountId = null, accountName = null) {
+    console.log(`=== ユーザー${userId}のアラートチェック開始${accountId ? ` (アカウント: ${accountName || accountId})` : ''} ===`);
     
     try {
-        // ユーザーの目標値を取得
-        const targets = getUserTargets(userId);
+        // アカウント別の目標値を取得
+        let targets;
+        if (accountId) {
+            // 追加アカウントの目標値を取得
+            const userSettings = userManager.getUserSettings(userId);
+            const account = userSettings?.additional_accounts?.find(acc => acc.id === accountId);
+            if (account) {
+                targets = {
+                    cpa: parseFloat(account.targetCPA),
+                    cpm: parseFloat(account.targetCPM),
+                    ctr: parseFloat(account.targetCTR),
+                    conversions: parseFloat(account.targetCV),
+                    budget_rate: parseFloat(account.budgetRate)
+                };
+                console.log(`追加アカウント${accountId}の目標値:`, targets);
+            } else {
+                console.log('追加アカウント情報が見つかりません:', accountId);
+                return [];
+            }
+        } else {
+            // メインアカウントの目標値を取得
+            targets = getUserTargets(userId);
+        }
+        
         if (!targets || Object.keys(targets).length === 0) {
             console.log('目標値が設定されていません:', userId);
             return [];
         }
         
         // 最新のデータを取得（1日分）
-        const historicalData = await getHistoricalData(1, userId);
+        const historicalData = await getHistoricalData(1, userId, accountId);
         if (!historicalData || historicalData.length === 0) {
             console.log('データが取得できませんでした');
             return [];
@@ -184,13 +221,17 @@ async function checkUserAlerts(userId) {
                 metric,
                 targetValue,
                 latestData,
-                userId
+                userId,
+                accountId,
+                accountName
             );
             
             if (alertResult) {
                 alerts.push({
                     ...alertResult,
-                    userId: userId
+                    userId: userId,
+                    accountId: accountId,
+                    accountName: accountName
                 });
             }
         }
@@ -235,9 +276,10 @@ async function checkUserAlerts(userId) {
     }
 }
 
-// 個別メトリックのアラートチェック
-async function checkMetricAgainstTarget(metric, targetValue, latestData, userId) {
-    console.log(`${metric}のアラートチェック中... 目標値: ${targetValue}`);
+// 個別メトリックのアラートチェック（アカウント別対応）
+async function checkMetricAgainstTarget(metric, targetValue, latestData, userId, accountId = null, accountName = null) {
+    const accountInfo = accountId ? ` (アカウント: ${accountName || accountId})` : '';
+    console.log(`${metric}のアラートチェック中${accountInfo}... 目標値: ${targetValue}`);
     
     try {
         const currentValue = getMetricValue(latestData, metric);
@@ -400,7 +442,7 @@ function getMetricDisplayName(metric) {
 async function sendUserAlertsToChatwork(alerts, userId) {
     try {
         const userSettings = userManager.getUserSettings(userId);
-        if (!userSettings || !userSettings.chatwork_api_token || !userSettings.chatwork_room_id) {
+        if (!userSettings || !userSettings.chatwork_api_token || (!userSettings.chatwork_room_id && !userSettings.chatworkRoomId)) {
             console.log('チャットワーク設定が不完全です:', userId);
             return;
         }
@@ -432,7 +474,8 @@ async function sendUserAlertsToChatwork(alerts, userId) {
         
         // チャットワークAPI呼び出し
         const fetch = require('node-fetch');
-        const response = await fetch(`https://api.chatwork.com/v2/rooms/${userSettings.chatwork_room_id}/messages`, {
+        const roomId = userSettings.chatworkRoomId || userSettings.chatwork_room_id;
+        const response = await fetch(`https://api.chatwork.com/v2/rooms/${roomId}/messages`, {
             method: 'POST',
             headers: {
                 'X-ChatWorkToken': userSettings.chatwork_api_token,

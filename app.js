@@ -971,15 +971,14 @@ app.get('/budget-scheduling', requireAuth, (req, res) => {
     res.render('budget-scheduling');
 });
 
-// 新規追加：詳細レポートページ
-app.get('/detailed-reports', requireAuth, (req, res) => {
-    res.render('detailed-reports');
-});
+// 詳細レポートページは削除済み
 
 // 新規追加：詳細レポートAPI
 // getConversionsFromDetailedActions関数は共通モジュールから使用
 // 以下の実装は共通モジュール（utils/conversionCounter.js）に移動済み
 
+// 詳細レポートAPIは削除済み
+/*
 app.get('/api/reports/detailed', requireAuth, async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -1242,6 +1241,7 @@ app.get('/api/reports/detailed', requireAuth, async (req, res) => {
         });
     }
 });
+*/
 
 // 新規追加：キャンペーン予算更新API
 app.post('/api/campaigns/budget', requireAuth, async (req, res) => {
@@ -5243,6 +5243,19 @@ app.post('/api/update-targets', requireAuth, async (req, res) => {
             target_cv: target_cv !== undefined ? target_cv : currentSettings.target_cv
         };
         
+        // 追加アカウントの目標値も同期
+        if (updatedSettings.additional_accounts) {
+            updatedSettings.additional_accounts = updatedSettings.additional_accounts.map(account => ({
+                ...account,
+                targetCPA: target_cpa !== undefined ? target_cpa : account.targetCPA || updatedSettings.target_cpa,
+                targetCPM: target_cpm !== undefined ? target_cpm : account.targetCPM || updatedSettings.target_cpm,
+                targetCTR: target_ctr !== undefined ? target_ctr : account.targetCTR || updatedSettings.target_ctr,
+                targetCV: target_cv !== undefined ? target_cv : account.targetCV || updatedSettings.target_cv,
+                dailyBudget: target_daily_budget !== undefined ? target_daily_budget : account.dailyBudget || updatedSettings.target_daily_budget,
+                budgetRate: target_budget_rate !== undefined ? target_budget_rate : account.budgetRate || updatedSettings.target_budget_rate
+            }));
+        }
+        
         // 設定を保存
         userManager.saveUserSettings(userId, updatedSettings);
         
@@ -5805,6 +5818,866 @@ async function getActiveCampaigns(userId) {
         return [];
     }
 }
+
+// ========================================
+// 新機能: 広告パフォーマンス詳細分析API
+// ========================================
+
+// キャンペーンパフォーマンスデータ取得（インサイト含む）
+app.get('/api/campaigns-insights', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Meta APIの設定が必要です' 
+            });
+        }
+        
+        const { since, until } = req.query;
+        
+        // metaApiのfetchCampaignInsightsを使用（日付範囲を渡す）
+        const campaigns = await metaApi.fetchCampaignInsights(
+            userSettings.meta_access_token,
+            userSettings.meta_account_id,
+            since,  // 開始日を渡す
+            until   // 終了日を渡す
+        );
+        
+        res.json({
+            success: true,
+            campaigns: campaigns
+        });
+    } catch (error) {
+        console.error('キャンペーンインサイト取得エラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 広告セットレベルのパフォーマンスデータ取得
+app.get('/api/adsets', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Meta APIの設定が必要です' 
+            });
+        }
+        
+        const { since, until } = req.query;
+        
+        const adsets = await metaApi.fetchAdSetInsights(
+            userSettings.meta_access_token,
+            userSettings.meta_account_id,
+            since,
+            until
+        );
+        
+        res.json({
+            success: true,
+            data: adsets
+        });
+    } catch (error) {
+        console.error('広告セット取得エラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 個別広告レベルのパフォーマンスデータ取得
+app.get('/api/ads', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Meta APIの設定が必要です' 
+            });
+        }
+        
+        const { since, until } = req.query;
+        
+        const ads = await metaApi.fetchAdInsights(
+            userSettings.meta_access_token,
+            userSettings.meta_account_id,
+            since,
+            until
+        );
+        
+        res.json({
+            success: true,
+            data: ads
+        });
+    } catch (error) {
+        console.error('個別広告取得エラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// オーディエンス分析データ取得
+app.get('/api/audience-insights', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Meta APIの設定が必要です' 
+            });
+        }
+        
+        const { since, until } = req.query;
+        
+        const audienceData = await metaApi.fetchAudienceInsights(
+            userSettings.meta_access_token,
+            userSettings.meta_account_id,
+            since,
+            until
+        );
+        
+        res.json({
+            success: true,
+            data: audienceData
+        });
+    } catch (error) {
+        console.error('オーディエンス分析エラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ファネル分析データ取得
+app.get('/api/funnel-analysis', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Meta APIの設定が必要です' 
+            });
+        }
+        
+        const { since, until } = req.query;
+        
+        const funnelData = await metaApi.fetchFunnelAnalysis(
+            userSettings.meta_access_token,
+            userSettings.meta_account_id,
+            since,
+            until
+        );
+        
+        res.json({
+            success: true,
+            data: funnelData
+        });
+    } catch (error) {
+        console.error('ファネル分析エラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 広告パフォーマンス詳細画面
+app.get('/ad-performance', requireAuth, async (req, res) => {
+    res.render('ad-performance', {
+        title: '広告パフォーマンス詳細',
+        user: req.session.user
+    });
+});
+
+// オーディエンス分析画面
+app.get('/audience-analysis', requireAuth, async (req, res) => {
+    res.render('audience-analysis', {
+        title: 'オーディエンス分析',
+        user: req.session.user
+    });
+});
+
+// ========================================
+// クリエイティブパフォーマンス分析機能
+// ========================================
+
+// ========================================
+// 自動最適化提案機能
+// ========================================
+
+
+// ========================================
+// マルチアカウント管理機能
+// ========================================
+
+// マルチアカウント管理画面
+app.get('/multi-account', requireAuth, async (req, res) => {
+    res.render('multi-account', {
+        title: 'マルチアカウント管理',
+        user: req.session.user
+    });
+});
+
+// マルチアカウント一覧取得API
+app.get('/api/multi-accounts', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        console.log('マルチアカウント一覧取得 - ユーザーID:', userId);
+        console.log('追加アカウント数:', userSettings?.additional_accounts?.length || 0);
+        
+        // 現在のアカウント情報
+        const currentAccount = {
+            id: userSettings?.meta_account_id || '',
+            name: userSettings?.account_name || '未設定',
+            token: userSettings?.meta_access_token || '',
+            chatworkRoomId: userSettings?.chatworkRoomId || null
+        };
+        
+        // 追加アカウント情報（実際はDBから取得）
+        let additionalAccounts = userSettings?.additional_accounts || [];
+        console.log('追加アカウント詳細:', additionalAccounts);
+        
+        // 既存の追加アカウントにゴール設定がない場合、デフォルト値を追加
+        let needsUpdate = false;
+        additionalAccounts = additionalAccounts.map(account => {
+            console.log('アカウントゴール設定チェック:', {
+                id: account.id,
+                hasServiceGoal: !!account.serviceGoal,
+                hasTargetCPA: !!account.targetCPA,
+                serviceGoal: account.serviceGoal,
+                targetCPA: account.targetCPA
+            });
+            
+            if (!account.serviceGoal && !account.targetCPA) {
+                console.log('ゴール設定がないアカウントを検出:', account.id);
+                needsUpdate = true;
+                return {
+                    ...account,
+                    serviceGoal: userSettings.service_goal || 'toc_mail',
+                    targetCPA: userSettings.target_cpa || '2000',
+                    targetCPM: userSettings.target_cpm || '1000',
+                    targetCTR: userSettings.target_ctr || '2.5',
+                    targetCV: userSettings.target_cv || '1',
+                    dailyBudget: userSettings.target_daily_budget || '5000',
+                    budgetRate: userSettings.target_budget_rate || '80'
+                };
+            }
+            return account;
+        });
+        
+        // 設定が更新された場合は保存
+        if (needsUpdate) {
+            userSettings.additional_accounts = additionalAccounts;
+            userManager.saveUserSettings(userId, userSettings);
+            console.log('追加アカウントにデフォルトゴール設定を追加しました');
+        }
+        
+        // すべてのアカウント情報を取得
+        const allAccounts = [];
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 現在のアカウント
+        if (currentAccount.id && currentAccount.token) {
+            try {
+                const insights = await metaApi.getAccountInsights(
+                    currentAccount.token,
+                    currentAccount.id,
+                    { time_range: { since: today, until: today } }
+                );
+                
+                allAccounts.push({
+                    id: currentAccount.id,
+                    name: currentAccount.name,
+                    chatworkRoomId: currentAccount.chatworkRoomId,
+                    spend: parseFloat(insights.spend || 0),
+                    conversions: parseInt(insights.conversions || 0),
+                    cpa: insights.conversions > 0 ? Math.round(insights.spend / insights.conversions) : 0,
+                    ctr: parseFloat(insights.ctr || 0),
+                    campaigns: insights.campaigns_count || 0,
+                    isActive: true
+                });
+            } catch (error) {
+                allAccounts.push({
+                    id: currentAccount.id,
+                    name: currentAccount.name,
+                    chatworkRoomId: currentAccount.chatworkRoomId,
+                    spend: 0,
+                    conversions: 0,
+                    cpa: 0,
+                    ctr: 0,
+                    campaigns: 0,
+                    isActive: true
+                });
+            }
+        }
+        
+        // 追加アカウント
+        for (const acc of additionalAccounts) {
+            // アカウント名の処理
+            const accountName = acc.name || acc.account_name || `アカウント ${acc.id}`;
+            
+            try {
+                const insights = await metaApi.getAccountInsights(
+                    acc.token,
+                    acc.id,
+                    { time_range: { since: today, until: today } }
+                );
+                
+                allAccounts.push({
+                    id: acc.id,
+                    name: accountName,
+                    chatworkRoomId: acc.chatworkRoomId || null,
+                    spend: parseFloat(insights.spend || 0),
+                    conversions: parseInt(insights.conversions || 0),
+                    cpa: insights.conversions > 0 ? Math.round(insights.spend / insights.conversions) : 0,
+                    ctr: parseFloat(insights.ctr || 0),
+                    campaigns: insights.campaigns_count || 0,
+                    isActive: false
+                });
+            } catch (error) {
+                console.log(`追加アカウント ${acc.id} のインサイト取得エラー:`, error.message);
+                // エラー時もアカウント情報は表示
+                allAccounts.push({
+                    id: acc.id,
+                    name: accountName,
+                    chatworkRoomId: acc.chatworkRoomId || null,
+                    spend: 0,
+                    conversions: 0,
+                    cpa: 0,
+                    ctr: 0,
+                    campaigns: 0,
+                    isActive: false
+                });
+            }
+        }
+        
+        // モックデータ追加（デモ用）
+        if (allAccounts.length === 0) {
+            allAccounts.push({
+                id: 'act_demo_001',
+                name: 'デモアカウント1',
+                chatworkRoomId: '123456789',
+                spend: 158000,
+                conversions: 42,
+                cpa: 3762,
+                ctr: 2.8,
+                campaigns: 5,
+                isActive: true
+            });
+            allAccounts.push({
+                id: 'act_demo_002',
+                name: 'デモアカウント2',
+                chatworkRoomId: '987654321',
+                spend: 89000,
+                conversions: 28,
+                cpa: 3179,
+                ctr: 3.2,
+                campaigns: 3,
+                isActive: false
+            });
+        }
+        
+        res.json({
+            success: true,
+            accounts: allAccounts,
+            currentAccount: allAccounts.find(acc => acc.isActive)
+        });
+    } catch (error) {
+        console.error('マルチアカウント取得エラー:', error);
+        res.json({
+            success: false,
+            error: error.message || 'アカウント情報の取得に失敗しました'
+        });
+    }
+});
+
+// アカウント切り替えAPI
+app.post('/api/multi-accounts/switch', requireAuth, async (req, res) => {
+    try {
+        const { accountId } = req.body;
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        // アカウント切り替え処理 - ファイルから最新の設定を再読み込み
+        console.log('🔄 アカウント切り替え開始:', accountId);
+        console.log('🔍 切り替え前のadditional_accounts:', userSettings.additional_accounts?.length || 0);
+        
+        // additional_accountsが空の場合は、ファイルから再読み込みを試行
+        if (!userSettings.additional_accounts || userSettings.additional_accounts.length === 0) {
+            console.log('⚠️ additional_accountsが空のため、ファイルから再読み込みを試行');
+            const freshSettings = userManager.getUserSettings(userId);
+            if (freshSettings.additional_accounts && freshSettings.additional_accounts.length > 0) {
+                userSettings.additional_accounts = freshSettings.additional_accounts;
+                console.log('✅ ファイルからadditional_accountsを復元:', userSettings.additional_accounts.length);
+            }
+        }
+        
+        // 現在のアカウントを追加アカウントに移動
+        const currentAccount = {
+            id: userSettings.meta_account_id,
+            name: userSettings.account_name || 'Account',
+            token: userSettings.meta_access_token,
+            chatworkRoomId: userSettings.chatworkRoomId || null,
+            serviceGoal: userSettings.service_goal || '',
+            targetCPA: userSettings.target_cpa || '',
+            targetCPM: userSettings.target_cpm || '',
+            targetCTR: userSettings.target_ctr || '',
+            targetCV: userSettings.target_cv || '',
+            dailyBudget: userSettings.target_daily_budget || '',
+            budgetRate: userSettings.target_budget_rate || ''
+        };
+        
+        // 選択されたアカウントを探す
+        const selectedAccount = userSettings.additional_accounts.find(acc => acc.id === accountId);
+        console.log('🔍 選択されたアカウント:', selectedAccount ? selectedAccount.name : '見つかりません');
+        
+        if (selectedAccount) {
+            console.log('✅ アカウント切り替え実行中...');
+            // アカウントを入れ替え
+            userSettings.additional_accounts = userSettings.additional_accounts.filter(acc => acc.id !== accountId);
+            userSettings.additional_accounts.push(currentAccount);
+            
+            userSettings.meta_account_id = selectedAccount.id;
+            userSettings.account_name = selectedAccount.name;
+            userSettings.meta_access_token = selectedAccount.token;
+            userSettings.chatworkRoomId = selectedAccount.chatworkRoomId || null;
+            
+            // ゴール設定のフォールバック処理（既存アカウントにゴール設定がない場合はデフォルト値を使用）
+            userSettings.service_goal = selectedAccount.serviceGoal || userSettings.service_goal || 'toc_mail';
+            userSettings.target_cpa = selectedAccount.targetCPA || userSettings.target_cpa || '2000';
+            userSettings.target_cpm = selectedAccount.targetCPM || userSettings.target_cpm || '1000';
+            userSettings.target_ctr = selectedAccount.targetCTR || userSettings.target_ctr || '2.5';
+            userSettings.target_cv = selectedAccount.targetCV || userSettings.target_cv || '1';
+            userSettings.target_daily_budget = selectedAccount.dailyBudget || userSettings.target_daily_budget || '5000';
+            userSettings.target_budget_rate = selectedAccount.budgetRate || userSettings.target_budget_rate || '80';
+            
+            // 設定を保存
+            userManager.saveUserSettings(userId, userSettings);
+            console.log('✅ アカウント切り替え完了:', selectedAccount.name);
+        } else {
+            console.log('❌ アカウントが見つかりません:', accountId);
+            return res.json({
+                success: false,
+                error: '指定されたアカウントが見つかりません'
+            });
+        }
+        
+        res.json({
+            success: true,
+            message: 'アカウントを切り替えました'
+        });
+    } catch (error) {
+        console.error('アカウント切り替えエラー:', error);
+        res.json({
+            success: false,
+            error: error.message || '切り替えに失敗しました'
+        });
+    }
+});
+
+// アカウント追加API
+app.post('/api/multi-accounts/add', requireAuth, async (req, res) => {
+    try {
+        const { 
+            name, id, token, chatworkRoomId,
+            serviceGoal, targetCPA, targetCPM, targetCTR, targetCV,
+            dailyBudget, budgetRate
+        } = req.body;
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        // アカウント検証（Meta APIで確認）
+        console.log('アカウント追加リクエスト:', { name, id, hasToken: !!token, chatworkRoomId });
+        
+        try {
+            // Meta API検証をスキップしてアカウント情報だけ保存する場合はこちら
+            let accountName = name;
+            
+            // Meta APIで検証を試みる（オプション）
+            if (token && id) {
+                try {
+                    const accountInfo = await metaApi.getAccountInfo(token, id);
+                    console.log('Meta API検証成功:', accountInfo);
+                    accountName = name || accountInfo.name;
+                } catch (apiError) {
+                    console.log('Meta API検証失敗（続行）:', apiError.message);
+                    // API検証が失敗してもアカウント追加は続行
+                }
+            }
+            
+            if (!userSettings.additional_accounts) {
+                userSettings.additional_accounts = [];
+            }
+            
+            // 重複チェック
+            const exists = userSettings.additional_accounts.some(acc => acc.id === id);
+            if (exists) {
+                return res.json({
+                    success: false,
+                    error: 'このアカウントは既に登録されています'
+                });
+            }
+            
+            // 現在のアカウントとの重複チェック
+            if (id === userSettings.meta_account_id) {
+                return res.json({
+                    success: false,
+                    error: 'このアカウントは既に使用中です'
+                });
+            }
+            
+            // アカウント追加
+            const newAccount = {
+                id,
+                name: accountName || `アカウント ${id}`,
+                token,
+                chatworkRoomId: chatworkRoomId || null,
+                serviceGoal: serviceGoal || userSettings.service_goal || 'toB_lead',
+                targetCPA: targetCPA || userSettings.target_cpa || '',
+                targetCPM: targetCPM || userSettings.target_cpm || '',
+                targetCTR: targetCTR || userSettings.target_ctr || '',
+                targetCV: targetCV || userSettings.target_cv || '',
+                dailyBudget: dailyBudget || userSettings.target_daily_budget || '',
+                budgetRate: budgetRate || userSettings.target_budget_rate || ''
+            };
+            
+            userSettings.additional_accounts.push(newAccount);
+            console.log('追加されたアカウント:', newAccount);
+            console.log('現在の追加アカウント数:', userSettings.additional_accounts.length);
+            
+            // 設定を保存
+            userManager.saveUserSettings(userId, userSettings);
+            
+            res.json({
+                success: true,
+                message: 'アカウントを追加しました'
+            });
+        } catch (error) {
+            console.error('アカウント追加処理エラー:', error);
+            res.json({
+                success: false,
+                error: 'アカウント追加処理に失敗しました: ' + error.message
+            });
+        }
+    } catch (error) {
+        console.error('アカウント追加エラー:', error);
+        res.json({
+            success: false,
+            error: error.message || '追加に失敗しました'
+        });
+    }
+});
+
+// アカウント更新API
+app.post('/api/multi-accounts/update', requireAuth, async (req, res) => {
+    try {
+        const { accountId, name, chatworkRoomId } = req.body;
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        // 現在のアカウントの場合
+        if (accountId === userSettings.meta_account_id) {
+            userSettings.account_name = name;
+            userSettings.chatworkRoomId = chatworkRoomId || null;
+        } else if (userSettings.additional_accounts) {
+            // 追加アカウントの場合
+            const account = userSettings.additional_accounts.find(acc => acc.id === accountId);
+            if (account) {
+                account.name = name;
+                account.chatworkRoomId = chatworkRoomId || null;
+            }
+        }
+        
+        // 設定を保存
+        userManager.saveUserSettings(userId, userSettings);
+        
+        res.json({
+            success: true,
+            message: 'アカウント設定を更新しました'
+        });
+    } catch (error) {
+        console.error('アカウント更新エラー:', error);
+        res.json({
+            success: false,
+            error: 'アカウント更新に失敗しました'
+        });
+    }
+});
+
+// アカウント削除API
+app.post('/api/multi-accounts/remove', requireAuth, async (req, res) => {
+    try {
+        const { accountId } = req.body;
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        // 現在のアカウントは削除不可
+        if (accountId === userSettings.meta_account_id) {
+            return res.json({
+                success: false,
+                error: '使用中のアカウントは削除できません'
+            });
+        }
+        
+        if (userSettings.additional_accounts) {
+            userSettings.additional_accounts = userSettings.additional_accounts.filter(
+                acc => acc.id !== accountId
+            );
+            
+            // 設定を保存
+            userManager.saveUserSettings(userId, userSettings);
+        }
+        
+        res.json({
+            success: true,
+            message: 'アカウントを削除しました'
+        });
+    } catch (error) {
+        console.error('アカウント削除エラー:', error);
+        res.json({
+            success: false,
+            error: error.message || '削除に失敗しました'
+        });
+    }
+});
+
+// 最適化提案取得API
+
+
+
+// ========================================
+// A/Bテスト分析機能（削除済み）
+// ========================================
+
+/*
+// A/Bテスト分析画面
+app.get('/ab-test-analysis', requireAuth, async (req, res) => {
+    res.render('ab-test-analysis', {
+        title: 'A/Bテスト分析',
+        user: req.session.user
+    });
+});
+
+// A/Bテスト分析データ取得API
+app.get('/api/ab-test-analysis', requireAuth, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const userSettings = userManager.getUserSettings(userId);
+        
+        if (!userSettings || !userSettings.meta_access_token) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Meta APIの設定が必要です' 
+            });
+        }
+        
+        const { since, until, adsetId } = req.query;
+        
+        // 広告セット内のすべての広告を取得
+        const adsData = await metaApi.fetchAdInsights(
+            userSettings.meta_access_token,
+            userSettings.meta_account_id,
+            since,
+            until
+        );
+        
+        // 指定された広告セットの広告をフィルタリング
+        let filteredAds = adsData;
+        if (adsetId) {
+            filteredAds = adsData.filter(ad => ad.adsetId === adsetId);
+        }
+        
+        // A/Bテスト分析を実行
+        const abTestResults = analyzeABTest(filteredAds);
+        
+        res.json({
+            success: true,
+            data: abTestResults
+        });
+    } catch (error) {
+        console.error('A/Bテスト分析エラー:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// A/Bテスト分析ロジック
+function analyzeABTest(ads) {
+    if (!ads || ads.length < 2) {
+        return {
+            hasEnoughData: false,
+            message: 'A/Bテストには少なくとも2つの広告が必要です'
+        };
+    }
+    
+    // メトリクスごとの分析
+    const metrics = ['ctr', 'cpc', 'cpa', 'conversions'];
+    const analysis = {};
+    
+    metrics.forEach(metric => {
+        const validAds = ads.filter(ad => ad[metric] !== null && ad[metric] !== undefined);
+        if (validAds.length < 2) return;
+        
+        // 最良と最悪のパフォーマンスを特定
+        let best, worst;
+        if (metric === 'cpc' || metric === 'cpa') {
+            // 低い方が良い指標
+            best = validAds.reduce((min, ad) => ad[metric] < min[metric] && ad[metric] > 0 ? ad : min);
+            worst = validAds.reduce((max, ad) => ad[metric] > max[metric] ? ad : max);
+        } else {
+            // 高い方が良い指標
+            best = validAds.reduce((max, ad) => ad[metric] > max[metric] ? ad : max);
+            worst = validAds.reduce((min, ad) => ad[metric] < min[metric] ? ad : min);
+        }
+        
+        // 改善率を計算
+        let improvement = 0;
+        if (metric === 'cpc' || metric === 'cpa') {
+            if (worst[metric] > 0) {
+                improvement = ((worst[metric] - best[metric]) / worst[metric] * 100);
+            }
+        } else {
+            if (worst[metric] > 0) {
+                improvement = ((best[metric] - worst[metric]) / worst[metric] * 100);
+            }
+        }
+        
+        // 統計的有意性の簡易判定（本来はカイ二乗検定やt検定を使用）
+        const isSignificant = calculateSignificance(best, worst, metric);
+        
+        analysis[metric] = {
+            best: {
+                id: best.id,
+                name: best.name,
+                value: best[metric]
+            },
+            worst: {
+                id: worst.id,
+                name: worst.name,
+                value: worst[metric]
+            },
+            improvement: improvement,
+            isSignificant: isSignificant
+        };
+    });
+    
+    // 総合的な勝者を決定
+    const winner = determineOverallWinner(ads, analysis);
+    
+    return {
+        hasEnoughData: true,
+        ads: ads,
+        analysis: analysis,
+        winner: winner,
+        recommendations: generateRecommendations(analysis, winner)
+    };
+}
+
+// 統計的有意性の簡易計算
+function calculateSignificance(adA, adB, metric) {
+    // インプレッション数が少ない場合は有意性なし
+    if (adA.impressions < 100 || adB.impressions < 100) {
+        return false;
+    }
+    
+    // CTRの場合の簡易的な有意性判定
+    if (metric === 'ctr') {
+        const clicksA = adA.clicks || 0;
+        const clicksB = adB.clicks || 0;
+        const impressionsA = adA.impressions || 1;
+        const impressionsB = adB.impressions || 1;
+        
+        // 簡易的なz-scoreによる判定
+        const pA = clicksA / impressionsA;
+        const pB = clicksB / impressionsB;
+        const pPooled = (clicksA + clicksB) / (impressionsA + impressionsB);
+        const se = Math.sqrt(pPooled * (1 - pPooled) * (1/impressionsA + 1/impressionsB));
+        const z = Math.abs(pA - pB) / se;
+        
+        // z > 1.96 で95%信頼度
+        return z > 1.96;
+    }
+    
+    // その他のメトリクスは差が20%以上で有意とする（簡易判定）
+    const diff = Math.abs(adA[metric] - adB[metric]);
+    const avg = (adA[metric] + adB[metric]) / 2;
+    return avg > 0 && (diff / avg) > 0.2;
+}
+
+// 総合的な勝者を決定
+function determineOverallWinner(ads, analysis) {
+    const scores = {};
+    
+    ads.forEach(ad => {
+        scores[ad.id] = 0;
+        
+        // 各メトリクスでの順位に基づいてスコアを付与
+        Object.keys(analysis).forEach(metric => {
+            if (analysis[metric] && analysis[metric].best.id === ad.id) {
+                scores[ad.id] += analysis[metric].isSignificant ? 2 : 1;
+            }
+        });
+    });
+    
+    // 最高スコアの広告を勝者とする
+    const winnerId = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+    const winner = ads.find(ad => ad.id === winnerId);
+    
+    return {
+        id: winner.id,
+        name: winner.name,
+        score: scores[winnerId],
+        metrics: winner
+    };
+}
+
+// 推奨事項の生成
+function generateRecommendations(analysis, winner) {
+    const recommendations = [];
+    
+    // CTRが有意に優れている場合
+    if (analysis.ctr && analysis.ctr.isSignificant) {
+        recommendations.push({
+            type: 'creative',
+            priority: 'high',
+            message: `広告「${analysis.ctr.best.name}」のクリエイティブ要素を他の広告にも適用することを推奨`
+        });
+    }
+    
+    // CPAが有意に優れている場合
+    if (analysis.cpa && analysis.cpa.isSignificant && analysis.cpa.best.value > 0) {
+        recommendations.push({
+            type: 'budget',
+            priority: 'high',
+            message: `広告「${analysis.cpa.best.name}」への予算配分を増やすことを推奨（CPA: ¥${Math.round(analysis.cpa.best.value).toLocaleString()}）`
+        });
+    }
+    
+    // 勝者への予算集中を推奨
+    if (winner.score >= 3) {
+        recommendations.push({
+            type: 'scaling',
+            priority: 'high',
+            message: `勝者広告「${winner.name}」へ予算を集中させ、パフォーマンスの低い広告を停止することを推奨`
+        });
+    }
+    
+    // パフォーマンスが低い広告への対応
+    if (analysis.ctr && analysis.ctr.improvement > 50) {
+        recommendations.push({
+            type: 'optimization',
+            priority: 'medium',
+            message: `CTRが${analysis.ctr.improvement.toFixed(1)}%改善の余地があります。低パフォーマンス広告の見直しが必要`
+        });
+    }
+    
+    return recommendations;
+}
+*/
 
 
 
