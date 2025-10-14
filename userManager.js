@@ -237,8 +237,10 @@ class UserManager {
             const userSettings = {
                 meta_access_token: settingsData.meta_access_token,
                 meta_account_id: settingsData.meta_account_id,
+                account_name: settingsData.account_name || '',
                 chatwork_api_token: settingsData.chatwork_token || settingsData.chatwork_api_token,
                 chatwork_room_id: settingsData.chatwork_room_id,
+                chatworkRoomId: settingsData.chatworkRoomId || null,
                 service_goal: settingsData.service_goal || '',
                 target_cpa: settingsData.target_cpa || '',
                 target_cpm: settingsData.target_cpm || '',
@@ -255,7 +257,9 @@ class UserManager {
                 // 通知フラグを明示的に追加（未定義の場合はtrue）
                 daily_report_enabled: settingsData.daily_report_enabled !== false,
                 update_notifications_enabled: settingsData.update_notifications_enabled !== false,
-                alert_notifications_enabled: settingsData.alert_notifications_enabled !== false
+                alert_notifications_enabled: settingsData.alert_notifications_enabled !== false,
+                // マルチアカウント用の追加アカウント情報
+                additional_accounts: settingsData.additional_accounts || []
             };
             
             fs.writeFileSync(userSettingsPath, JSON.stringify(userSettings, null, 2), 'utf8');
