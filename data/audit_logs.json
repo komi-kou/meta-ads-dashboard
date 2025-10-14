@@ -4569,5 +4569,626 @@
     "ip_address": "::1",
     "user_agent": "curl/8.7.1",
     "created_at": "2025-09-26T12:53:20.778Z"
+  },
+  {
+    "id": "763f573f-5a1c-4169-be58-c51bca835561",
+    "user_id": null,
+    "action": "user_register",
+    "details": "{\"url\":\"/register\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"username\",\"email\",\"password\",\"confirmPassword\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:03:04.562Z"
+  },
+  {
+    "id": "d3047775-3cba-41cf-9179-813b24530d38",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "user_registered",
+    "details": "New user registration",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:03:04.787Z"
+  },
+  {
+    "id": "e19c898c-45e2-4374-84f7-878f7bf3b5ca",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:03:09.080Z"
+  },
+  {
+    "id": "c3ae4bcd-9296-44aa-a66f-0faef028495e",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:03:09.346Z"
+  },
+  {
+    "id": "c0937af8-e941-4664-8be8-56dad0e4ab2f",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:13:47.295Z"
+  },
+  {
+    "id": "eeafada8-212d-4f52-abf9-c2714b8f9bb6",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:13:47.529Z"
+  },
+  {
+    "id": "60fab2ad-69a4-4948-9957-046780355ff8",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:25:07.400Z"
+  },
+  {
+    "id": "4bb8b948-8cd4-442f-ae1e-657b48f9c8f5",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:25:07.630Z"
+  },
+  {
+    "id": "afdb9e5c-6ec4-4bdf-99d4-7cc693597041",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"user_id\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:37:20.865Z"
+  },
+  {
+    "id": "4daa3af4-c0a7-474c-9af4-a974d6ba80a7",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:37:27.529Z"
+  },
+  {
+    "id": "6c773c98-0c36-4980-8c03-229b7288a921",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:37:27.749Z"
+  },
+  {
+    "id": "31d0c3a0-5127-4f44-9f61-20433f4ca2cc",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:37:54.048Z"
+  },
+  {
+    "id": "6eaf19e0-8995-4020-a5ae-47998c6a7e86",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test@example.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:37:54.260Z"
+  },
+  {
+    "id": "18de2188-d7e4-4d38-bc0d-7e07e7263fc3",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:38:09.062Z"
+  },
+  {
+    "id": "f0992e90-efb1-4a4c-b21e-e508dcd3c027",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for test123@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:38:09.275Z"
+  },
+  {
+    "id": "c8c02316-03b7-4c4f-a82d-ad477d3a2407",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:38:38.583Z"
+  },
+  {
+    "id": "978cd44a-0777-43b8-8102-aadbacb41b17",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:38:38.795Z"
+  },
+  {
+    "id": "53aa6a11-4100-4623-a93b-44788c4e1e0c",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:43:33.811Z"
+  },
+  {
+    "id": "34d1a2e4-24c7-4a7e-b950-bac5c2882073",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:43:34.060Z"
+  },
+  {
+    "id": "57748960-5011-4128-9083-c326bd2f924d",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"email\",\"password\",\"csrfToken\"]}",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:50:27.644Z"
+  },
+  {
+    "id": "74ae5629-ae26-439f-8705-20c6870cbeeb",
+    "user_id": "7fe7e401-a67b-40fb-bdff-0b61b67dc116",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "curl/8.7.1",
+    "created_at": "2025-10-11T14:50:27.854Z"
+  },
+  {
+    "id": "c665a0a4-1f13-4553-8fb4-2fc6bf134927",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:53:44.924Z"
+  },
+  {
+    "id": "a9e20413-a9fb-4ec4-96f4-88597b385fd0",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T14:53:45.164Z"
+  },
+  {
+    "id": "9b47c708-a05e-4ffa-848b-fa6ecb39c25f",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:02:23.638Z"
+  },
+  {
+    "id": "62d9e8bf-b46a-47be-ad58-75172f760d3f",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:02:23.872Z"
+  },
+  {
+    "id": "9b58267c-6bc9-4130-8ca6-928ed1c41c53",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:10:03.570Z"
+  },
+  {
+    "id": "6843f55d-2d89-4cd1-a424-0055a3509339",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:10:03.826Z"
+  },
+  {
+    "id": "7e7871c5-8b0b-48a1-81f5-61cd22182213",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:17:23.691Z"
+  },
+  {
+    "id": "be39971b-6594-4cfb-a6fa-10eecf0b93fc",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:17:23.921Z"
+  },
+  {
+    "id": "2fd55ebd-e95a-4080-aef9-10eb40507b17",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:48:26.555Z"
+  },
+  {
+    "id": "31656bde-8378-4682-9efe-22f7d6262c24",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T15:48:26.781Z"
+  },
+  {
+    "id": "86250513-2b88-4e67-8320-697550b6f64d",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:09:55.183Z"
+  },
+  {
+    "id": "a11b94b1-8866-49fc-8fd8-a133bd386a5e",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:09:55.404Z"
+  },
+  {
+    "id": "493d6718-3e54-4f42-8ad4-a2119b9594bb",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:22:51.274Z"
+  },
+  {
+    "id": "943546d7-f16d-415e-9c7c-23ddcfb24ffd",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:22:51.503Z"
+  },
+  {
+    "id": "9fb32f23-51dc-47be-a854-fcf383dd54b5",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:32:02.290Z"
+  },
+  {
+    "id": "3ce2113d-f4e5-4f2f-9588-84619f002de9",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:32:02.520Z"
+  },
+  {
+    "id": "5808dd07-30a9-45fb-9e09-59b0c05df54a",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:41:36.239Z"
+  },
+  {
+    "id": "95c88e65-c477-47f7-a1cc-0e89383c1101",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:41:36.467Z"
+  },
+  {
+    "id": "82d1e5d5-0d78-4408-9f0b-c0098bec4355",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:52:36.045Z"
+  },
+  {
+    "id": "008f564f-2e2f-4f15-aacb-6c598742725d",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-11T16:52:36.277Z"
+  },
+  {
+    "id": "8b753be3-8777-4b4c-85ad-ffe2bc8f0dcd",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-12T03:47:49.490Z"
+  },
+  {
+    "id": "e7b2549b-49d8-4dce-8c32-6c31f1f47232",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-12T03:47:49.726Z"
+  },
+  {
+    "id": "c46635f4-396b-4e3d-a2e9-656bbb0e0403",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T07:42:48.350Z"
+  },
+  {
+    "id": "e8569ab2-c286-431b-8956-2e0dac7ba2f3",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T07:42:48.572Z"
+  },
+  {
+    "id": "7fd1fea3-51e3-45a2-a904-41421025796d",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T10:20:23.088Z"
+  },
+  {
+    "id": "ba510030-5cf9-4f9e-a798-17e58006be35",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T10:20:23.320Z"
+  },
+  {
+    "id": "2b4d3eec-8c52-4014-982f-eaa58991dbb9",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T10:29:13.434Z"
+  },
+  {
+    "id": "d1c937f2-ac6d-47b4-bf79-2d48691c6364",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T10:29:13.672Z"
+  },
+  {
+    "id": "057a0cab-86ab-4cdc-a391-9e5246f7abdd",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T11:22:35.693Z"
+  },
+  {
+    "id": "ac47a80c-699f-4f7c-bbb6-cf15048430ef",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T11:22:35.923Z"
+  },
+  {
+    "id": "4656693c-7583-415d-b69d-8b571c229985",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T13:42:14.755Z"
+  },
+  {
+    "id": "843bb96e-a8b6-4ae2-b0b1-1d172791ad5d",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T13:42:14.994Z"
+  },
+  {
+    "id": "3a9e6ca9-af4d-4bdd-89c0-5a6a7440fc0f",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T14:54:15.904Z"
+  },
+  {
+    "id": "c3607334-8997-4dfc-aff5-2782a4e063da",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-13T14:54:16.158Z"
+  },
+  {
+    "id": "c17d734d-2d32-4cce-aa24-cacdd5a30924",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T02:57:40.926Z"
+  },
+  {
+    "id": "908b64e2-5e3b-4826-815e-1b454aaadc97",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T02:57:41.150Z"
+  },
+  {
+    "id": "2cb314ae-51fc-4973-962e-a091d04d860d",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "user_logout",
+    "details": "{\"url\":\"/logout\",\"method\":\"POST\",\"body\":[]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T03:06:55.934Z"
+  },
+  {
+    "id": "dd1778de-6c02-4093-81e1-78473ce0087a",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "logout",
+    "details": "User logged out",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T03:06:55.952Z"
+  },
+  {
+    "id": "d05778cb-529b-432c-93d9-ea88de915b9e",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T03:27:15.690Z"
+  },
+  {
+    "id": "1e41a307-a417-4088-b248-22207c5a9ca0",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T03:27:15.928Z"
+  },
+  {
+    "id": "0f6703b2-ec5d-4a0b-982e-d3f9089d3f6b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T07:20:19.782Z"
+  },
+  {
+    "id": "171aa500-e037-4423-b24a-c4b444c015c5",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T07:20:20.011Z"
+  },
+  {
+    "id": "9451dceb-1809-47b7-b080-bab24e763c15",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T07:31:25.925Z"
+  },
+  {
+    "id": "f99838b0-d64b-495b-a79f-29ff1d26f615",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T07:31:26.160Z"
+  },
+  {
+    "id": "a7ad2f50-5f84-4b8b-8461-d924b1480863",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T08:05:12.655Z"
+  },
+  {
+    "id": "4df81628-089d-49b7-a2fc-6a317cb89aee",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T08:05:13.135Z"
+  },
+  {
+    "id": "dcd3c6d6-9ca1-4f23-a243-9ec5371229ed",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T09:52:34.268Z"
+  },
+  {
+    "id": "cbc52593-8177-4221-9315-84ed0b529d50",
+    "user_id": "3dab6ad4-6397-4659-b96e-88a3d59bc85b",
+    "action": "login_success",
+    "details": "User logged in",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-10-14T09:52:34.512Z"
   }
 ]

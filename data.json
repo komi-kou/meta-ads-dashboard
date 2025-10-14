@@ -2581,5 +2581,1973 @@
         "value": "16"
       }
     ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 2395,
+    "impressions": 896,
+    "reach": 577,
+    "clicks": 10,
+    "cpm": 2672.991071,
+    "cpc": 239.5,
+    "ctr": 1.116071,
+    "cv": 1,
+    "conversions": 1,
+    "cpa": 2395,
+    "cvr": 10,
+    "budgetRate": 85.53571428571428,
+    "frequency": 1.5528596187175043,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "4"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "onsite_web_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_app_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_content_view_add_meta_leads",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "68"
+      },
+      {
+        "action_type": "omni_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_custom",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 59831,
+    "impressions": 44549,
+    "reach": 38220,
+    "clicks": 872,
+    "cpm": 1343.038003,
+    "cpc": 68.613532,
+    "ctr": 1.957395,
+    "cv": 3,
+    "conversions": 3,
+    "cpa": 19943.666666666668,
+    "cvr": 0.34403669724770647,
+    "budgetRate": 199.43666666666667,
+    "frequency": 1.1655939298796443,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "830"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "13297"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "13297"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "2"
+      },
+      {
+        "action_type": "lead",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "28"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "12439"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 59831,
+    "impressions": 44549,
+    "reach": 38220,
+    "clicks": 872,
+    "cpm": 1343.038003,
+    "cpc": 68.613532,
+    "ctr": 1.957395,
+    "cv": 3,
+    "conversions": 3,
+    "cpa": 19943.666666666668,
+    "cvr": 0.34403669724770647,
+    "budgetRate": 5983.1,
+    "frequency": 1.1655939298796443,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "830"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "13297"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "13297"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "2"
+      },
+      {
+        "action_type": "lead",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "28"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "12439"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 2395,
+    "impressions": 896,
+    "reach": 577,
+    "clicks": 10,
+    "cpm": 2672.991071,
+    "cpc": 239.5,
+    "ctr": 1.116071,
+    "cv": 1,
+    "conversions": 1,
+    "cpa": 2395,
+    "cvr": 10,
+    "budgetRate": 100,
+    "frequency": 1.5528596187175043,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "4"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "onsite_web_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_app_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_content_view_add_meta_leads",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "68"
+      },
+      {
+        "action_type": "omni_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_custom",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 2395,
+    "impressions": 896,
+    "reach": 577,
+    "clicks": 10,
+    "cpm": 2672.991071,
+    "cpc": 239.5,
+    "ctr": 1.116071,
+    "cv": 1,
+    "conversions": 1,
+    "cpa": 2395,
+    "cvr": 10,
+    "budgetRate": 85.53571428571428,
+    "frequency": 1.5528596187175043,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "4"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "onsite_web_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_app_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_content_view_add_meta_leads",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "68"
+      },
+      {
+        "action_type": "omni_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_custom",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 59831,
+    "impressions": 44559,
+    "reach": 38220,
+    "clicks": 873,
+    "cpm": 1342.736596,
+    "cpc": 68.534937,
+    "ctr": 1.9592,
+    "cv": 3,
+    "conversions": 3,
+    "cpa": 19943.666666666668,
+    "cvr": 0.3436426116838488,
+    "budgetRate": 199.43666666666667,
+    "frequency": 1.1658555729984301,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "831"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "13301"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "13301"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "2"
+      },
+      {
+        "action_type": "lead",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "28"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "12442"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 59831,
+    "impressions": 44559,
+    "reach": 38220,
+    "clicks": 873,
+    "cpm": 1342.736596,
+    "cpc": 68.534937,
+    "ctr": 1.9592,
+    "cv": 3,
+    "conversions": 3,
+    "cpa": 19943.666666666668,
+    "cvr": 0.3436426116838488,
+    "budgetRate": 5983.1,
+    "frequency": 1.1658555729984301,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "831"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "13301"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "609"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "13301"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "2"
+      },
+      {
+        "action_type": "lead",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "28"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "12442"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-11",
+    "date_start": "2025-10-11",
+    "date_stop": "2025-10-11",
+    "spend": 2395,
+    "impressions": 896,
+    "reach": 577,
+    "clicks": 10,
+    "cpm": 2672.991071,
+    "cpc": 239.5,
+    "ctr": 1.116071,
+    "cv": 1,
+    "conversions": 1,
+    "cpa": 2395,
+    "cvr": 10,
+    "budgetRate": 100,
+    "frequency": 1.5528596187175043,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "4"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "73"
+      },
+      {
+        "action_type": "onsite_web_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "onsite_web_app_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_content_view_add_meta_leads",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "68"
+      },
+      {
+        "action_type": "omni_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_view_content",
+        "value": "1"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_custom",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 3641,
+    "impressions": 1174,
+    "reach": 665,
+    "clicks": 12,
+    "cpm": 3101.362862,
+    "cpc": 303.416667,
+    "ctr": 1.022147,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 130.03571428571428,
+    "frequency": 1.7654135338345864,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "8"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "video_view",
+        "value": "80"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 63100,
+    "impressions": 48045,
+    "reach": 38453,
+    "clicks": 1239,
+    "cpm": 1313.352066,
+    "cpc": 50.928168,
+    "ctr": 2.578832,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7887.5,
+    "cvr": 0.645682001614205,
+    "budgetRate": 210.33333333333334,
+    "frequency": 1.2494473773177646,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1236"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "5"
+      },
+      {
+        "action_type": "lead",
+        "value": "3"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "31"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "video_view",
+        "value": "13543"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 63100,
+    "impressions": 48045,
+    "reach": 38453,
+    "clicks": 1239,
+    "cpm": 1313.352066,
+    "cpc": 50.928168,
+    "ctr": 2.578832,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7887.5,
+    "cvr": 0.645682001614205,
+    "budgetRate": 6310,
+    "frequency": 1.2494473773177646,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1236"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "5"
+      },
+      {
+        "action_type": "lead",
+        "value": "3"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "31"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "video_view",
+        "value": "13543"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 3641,
+    "impressions": 1174,
+    "reach": 665,
+    "clicks": 12,
+    "cpm": 3101.362862,
+    "cpc": 303.416667,
+    "ctr": 1.022147,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 100,
+    "frequency": 1.7654135338345864,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "8"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "video_view",
+        "value": "80"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 3641,
+    "impressions": 1174,
+    "reach": 665,
+    "clicks": 12,
+    "cpm": 3101.362862,
+    "cpc": 303.416667,
+    "ctr": 1.022147,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 130.03571428571428,
+    "frequency": 1.7654135338345864,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "8"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "video_view",
+        "value": "80"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 63100,
+    "impressions": 48047,
+    "reach": 38453,
+    "clicks": 1239,
+    "cpm": 1313.297396,
+    "cpc": 50.928168,
+    "ctr": 2.578725,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7887.5,
+    "cvr": 0.645682001614205,
+    "budgetRate": 210.33333333333334,
+    "frequency": 1.249499388864328,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1236"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "5"
+      },
+      {
+        "action_type": "lead",
+        "value": "3"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "31"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "video_view",
+        "value": "13543"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 63100,
+    "impressions": 48047,
+    "reach": 38453,
+    "clicks": 1239,
+    "cpm": 1313.297396,
+    "cpc": 50.928168,
+    "ctr": 2.578725,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7887.5,
+    "cvr": 0.645682001614205,
+    "budgetRate": 6310,
+    "frequency": 1.249499388864328,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1236"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "1025"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "14810"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "5"
+      },
+      {
+        "action_type": "lead",
+        "value": "3"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "31"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "3"
+      },
+      {
+        "action_type": "video_view",
+        "value": "13543"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "26"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-12",
+    "date_start": "2025-10-12",
+    "date_stop": "2025-10-12",
+    "spend": 3641,
+    "impressions": 1174,
+    "reach": 665,
+    "clicks": 12,
+    "cpm": 3101.362862,
+    "cpc": 303.416667,
+    "ctr": 1.022147,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 100,
+    "frequency": 1.7654135338345864,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "8"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "7"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "88"
+      },
+      {
+        "action_type": "video_view",
+        "value": "80"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 123.53571428571428,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 61044,
+    "impressions": 50857,
+    "reach": 42665,
+    "clicks": 1163,
+    "cpm": 1200.306742,
+    "cpc": 52.488392,
+    "ctr": 2.286804,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7630.5,
+    "cvr": 0.6878761822871883,
+    "budgetRate": 203.48000000000002,
+    "frequency": 1.1920075002929802,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1135"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "16119"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "16119"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "6"
+      },
+      {
+        "action_type": "lead",
+        "value": "2"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "46"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "video_view",
+        "value": "14938"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "40"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 61044,
+    "impressions": 50857,
+    "reach": 42665,
+    "clicks": 1163,
+    "cpm": 1200.306742,
+    "cpc": 52.488392,
+    "ctr": 2.286804,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7630.5,
+    "cvr": 0.6878761822871883,
+    "budgetRate": 122.088,
+    "frequency": 1.1920075002929802,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1135"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "16119"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "16119"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "6"
+      },
+      {
+        "action_type": "lead",
+        "value": "2"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "46"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "video_view",
+        "value": "14938"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "40"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 100,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 123.53571428571428,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 61045,
+    "impressions": 50861,
+    "reach": 42740,
+    "clicks": 1163,
+    "cpm": 1200.232005,
+    "cpc": 52.489252,
+    "ctr": 2.286624,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7630.625,
+    "cvr": 0.6878761822871883,
+    "budgetRate": 203.48333333333332,
+    "frequency": 1.1900093589143659,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1136"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "16125"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "16125"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "6"
+      },
+      {
+        "action_type": "lead",
+        "value": "2"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "46"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "video_view",
+        "value": "14943"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "40"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 345.90000000000003,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 100,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 123.53571428571428,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 61046,
+    "impressions": 50865,
+    "reach": 42740,
+    "clicks": 1164,
+    "cpm": 1200.157279,
+    "cpc": 52.445017,
+    "ctr": 2.288411,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7630.75,
+    "cvr": 0.6872852233676976,
+    "budgetRate": 203.48666666666668,
+    "frequency": 1.1901029480580252,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1137"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "16129"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "16129"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "6"
+      },
+      {
+        "action_type": "lead",
+        "value": "2"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "46"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "video_view",
+        "value": "14946"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "40"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 61046,
+    "impressions": 50865,
+    "reach": 42740,
+    "clicks": 1164,
+    "cpm": 1200.157279,
+    "cpc": 52.445017,
+    "ctr": 2.288411,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7630.75,
+    "cvr": 0.6872852233676976,
+    "budgetRate": 3052.3,
+    "frequency": 1.1901029480580252,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1137"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "16129"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "16129"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "6"
+      },
+      {
+        "action_type": "lead",
+        "value": "2"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "46"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "video_view",
+        "value": "14946"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "40"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 100,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 123.53571428571428,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 61046,
+    "impressions": 50866,
+    "reach": 42740,
+    "clicks": 1164,
+    "cpm": 1200.133685,
+    "cpc": 52.445017,
+    "ctr": 2.288366,
+    "cv": 8,
+    "conversions": 8,
+    "cpa": 7630.75,
+    "cvr": 0.6872852233676976,
+    "budgetRate": 203.48666666666668,
+    "frequency": 1.1901263453439401,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "1137"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "16130"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "891"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "16130"
+      },
+      {
+        "action_type": "onsite_conversion.post_save",
+        "value": "6"
+      },
+      {
+        "action_type": "lead",
+        "value": "2"
+      },
+      {
+        "action_type": "onsite_web_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "46"
+      },
+      {
+        "action_type": "offsite_conversion.fb_pixel_lead",
+        "value": "2"
+      },
+      {
+        "action_type": "video_view",
+        "value": "14947"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "40"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 345.90000000000003,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "date": "2025-10-13",
+    "date_start": "2025-10-13",
+    "date_stop": "2025-10-13",
+    "spend": 3459,
+    "impressions": 1203,
+    "reach": 785,
+    "clicks": 15,
+    "cpm": 2875.311721,
+    "cpc": 230.6,
+    "ctr": 1.246883,
+    "cv": 0,
+    "conversions": 0,
+    "cpa": 0,
+    "cvr": 0,
+    "budgetRate": 100,
+    "frequency": 1.5324840764331211,
+    "campaign_name": "",
+    "actions": [
+      {
+        "action_type": "link_click",
+        "value": "11"
+      },
+      {
+        "action_type": "page_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "omni_landing_page_view",
+        "value": "6"
+      },
+      {
+        "action_type": "post_engagement",
+        "value": "104"
+      },
+      {
+        "action_type": "post_interaction_gross",
+        "value": "1"
+      },
+      {
+        "action_type": "video_view",
+        "value": "92"
+      },
+      {
+        "action_type": "post_reaction",
+        "value": "1"
+      }
+    ]
   }
 ]
