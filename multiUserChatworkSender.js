@@ -103,8 +103,73 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
             console.log(`✅ ユーザー${userSettings.user_id}の日次レポート送信完了`);
 
+            // 追加アカウントの日次レポート送信
+            const additionalAccounts = userSettings.additional_accounts || [];
+            for (const account of additionalAccounts) {
+                if (account.chatworkRoomId) {
+                    console.log(`📅 追加アカウント ${account.name || account.id} の日次レポート送信中...`);
+                    await this.sendAccountDailyReport(account, userSettings);
+                }
+            }
+
         } catch (error) {
             console.error(`❌ ユーザー${userSettings.user_id}の日次レポート送信エラー:`, error);
+        }
+    }
+
+    // 追加アカウント専用の日次レポート送信
+    async sendAccountDailyReport(account, userSettings) {
+        try {
+            const metaData = await fetchMetaAdDailyStats({
+                accessToken: account.token,
+                accountId: account.id,
+                datePreset: 'yesterday'
+            });
+
+            if (!metaData || metaData.length === 0) {
+                console.log(`  ⚠️ 追加アカウント ${account.id}: データなし`);
+                return;
+            }
+
+            const data = metaData[0];
+            const yesterdayStr = new Date(Date.now() - 24 * 60 * 60 * 1000)
+                .toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' });
+
+            const ctr = typeof data.ctr === 'string' && data.ctr.includes('%') 
+                ? parseFloat(data.ctr) 
+                : data.ctr;
+            const frequency = typeof data.frequency === 'string' && data.frequency.includes('%')
+                ? parseFloat(data.frequency)
+                : data.frequency;
+
+            const accountName = account.name || account.id;
+            const message = `[info][title]Meta広告 日次レポート - ${accountName}[/title]
+📅 日付: ${yesterdayStr}
+🎯 アカウント: ${accountName}
+📋 アカウントID: ${account.id}
+
+消化金額（合計）：${Math.round(data.spend || 0).toLocaleString()}円
+予算消化率（平均）：${Math.round(data.budgetRate || 0)}%
+CTR（平均）：${Math.round((ctr || 0) * 10) / 10}%
+CPM（平均）：${Math.round(data.cpm || 0).toLocaleString()}円 
+CPA（平均）：${Math.round(data.cpa || 0).toLocaleString()}円
+フリークエンシー（平均）：${Math.round((frequency || 0) * 10) / 10}
+コンバージョン数：${Math.round(data.conversions || 0)}件  
+
+確認はこちら
+https://meta-ads-dashboard.onrender.com/dashboard[/info]`;
+
+            await sendChatworkMessage({
+                date: yesterdayStr,
+                message: message,
+                token: userSettings.chatwork_api_token || userSettings.chatwork_token,
+                room_id: account.chatworkRoomId
+            });
+
+            console.log(`  ✅ 追加アカウント ${accountName} の日次レポート送信完了`);
+
+        } catch (error) {
+            console.error(`  ❌ 追加アカウント ${account.name || account.id} の日次レポート送信エラー:`, error);
         }
     }
 
@@ -200,8 +265,50 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
             console.log(`✅ ユーザー${userSettings.user_id}の定期更新通知送信完了`);
 
+            // 追加アカウントの定期更新通知送信
+            const additionalAccounts = userSettings.additional_accounts || [];
+            for (const account of additionalAccounts) {
+                if (account.chatworkRoomId) {
+                    console.log(`🔄 追加アカウント ${account.name || account.id} の定期更新通知送信中...`);
+                    await this.sendAccountUpdateNotification(account, userSettings, isTestMode);
+                }
+            }
+
         } catch (error) {
             console.error(`❌ ユーザー${userSettings.user_id}の定期更新通知送信エラー:`, error);
+        }
+    }
+
+    // 追加アカウント専用の定期更新通知送信
+    async sendAccountUpdateNotification(account, userSettings, isTestMode = false) {
+        try {
+            const accountName = account.name || account.id;
+            let message = `[info][title]Meta広告 定期更新通知 - ${accountName}[/title]
+📅 日付: ${new Date().toLocaleDateString('ja-JP')}
+🎯 アカウント: ${accountName}
+📋 アカウントID: ${account.id}
+
+数値を更新しました。
+ご確認よろしくお願いいたします！
+
+確認はこちら
+https://meta-ads-dashboard.onrender.com/dashboard[/info]`;
+
+            if (isTestMode) {
+                message += '\n\n※これはテストメッセージです';
+            }
+
+            await sendChatworkMessage({
+                date: new Date().toISOString().split('T')[0],
+                message: message,
+                token: userSettings.chatwork_api_token || userSettings.chatwork_token,
+                room_id: account.chatworkRoomId
+            });
+
+            console.log(`  ✅ 追加アカウント ${accountName} の定期更新通知送信完了`);
+
+        } catch (error) {
+            console.error(`  ❌ 追加アカウント ${account.name || account.id} の定期更新通知送信エラー:`, error);
         }
     }
 
@@ -255,11 +362,29 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 // 通常モード: alertSystem.jsから最新のアラートを取得
                 const { checkUserAlerts } = require('../alertSystem');
                 
-                // ユーザー別のアラートをチェック（リアルタイムデータ使用）
-                activeAlerts = await checkUserAlerts(userSettings.user_id);
+                // メインアカウントのアラートをチェック
+                const mainAlerts = await checkUserAlerts(userSettings.user_id);
+                activeAlerts = mainAlerts || [];
+                
+                console.log(`ユーザー${userSettings.user_id}: メインアカウントのアラート ${activeAlerts.length}件`);
+                
+                // 追加アカウントのアラートをチェック
+                const additionalAccounts = userSettings.additional_accounts || [];
+                for (const account of additionalAccounts) {
+                    if (account.chatworkRoomId) {
+                        console.log(`追加アカウント ${account.name || account.id} のアラートチェック中...`);
+                        const accountAlerts = await checkUserAlerts(userSettings.user_id, account.id, account.name);
+                        if (accountAlerts && accountAlerts.length > 0) {
+                            console.log(`  → ${accountAlerts.length}件のアラート検出`);
+                            // 追加アカウントのアラートは個別ルームに送信するため、後で処理
+                            // ここではメインアラートに追加せず、個別に送信
+                            await this.sendAccountSpecificAlerts(accountAlerts, account, userSettings);
+                        }
+                    }
+                }
                 
                 if (!activeAlerts || activeAlerts.length === 0) {
-                    console.log(`ユーザー${userSettings.user_id}: アクティブなアラートなし`);
+                    console.log(`ユーザー${userSettings.user_id}: メインアカウントのアクティブなアラートなし`);
                     return;
                 }
             }
@@ -382,6 +507,99 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
         } catch (error) {
             console.error(`❌ ユーザー${userSettings.user_id}のアラート通知送信エラー:`, error);
+        }
+    }
+
+    // 追加アカウント専用のアラート通知送信
+    async sendAccountSpecificAlerts(alerts, account, userSettings) {
+        try {
+            console.log(`🚨 追加アカウント ${account.name || account.id} のアラート通知送信開始`);
+            
+            if (!account.chatworkRoomId) {
+                console.log(`  ⚠️ ChatworkルームID未設定 - スキップ`);
+                return;
+            }
+            
+            // 値のフォーマット用関数
+            const formatValue = (value, metric) => {
+                switch (metric.toLowerCase()) {
+                    case 'ctr':
+                    case 'cvr':
+                        return `${Math.round(value * 10) / 10}%`;
+                    case 'budget_rate':
+                    case '予算消化率':
+                        return `${Math.round(value)}%`;
+                    case 'conversions':
+                    case 'cv':
+                        return `${Math.round(value)}件`;
+                    case 'cpa':
+                    case 'cpm':
+                    case 'cpc':
+                        return `${Math.round(value).toLocaleString('ja-JP')}円`;
+                    default:
+                        return value.toString();
+                }
+            };
+            
+            // メトリクス表示名取得
+            const getMetricDisplayName = (metric) => {
+                const names = {
+                    'cpa': 'CPA（コンバージョン単価）',
+                    'cpm': 'CPM（1000インプレッション単価）',
+                    'ctr': 'CTR（クリック率）',
+                    'cv': 'CV（コンバージョン数）',
+                    'conversions': 'CV（コンバージョン数）',
+                    'budget_rate': '予算消化率',
+                    'cvr': 'CVR（コンバージョン率）'
+                };
+                return names[metric.toLowerCase()] || metric;
+            };
+            
+            const today = new Date().toLocaleDateString('ja-JP');
+            const accountName = account.name || account.id;
+            const goalType = account.serviceGoal || 'toC_line';
+            
+            let message = `[info][title]Meta広告 アラート通知 - ${accountName}[/title]`;
+            message += `📅 日付: ${today}\n`;
+            message += `🎯 アカウント: ${accountName}\n`;
+            message += `📋 アカウントID: ${account.id}\n`;
+            message += `🎨 目標設定: ${goalType}\n\n`;
+            message += `以下のアラートが発生しています：\n\n`;
+            
+            alerts.forEach((alert, index) => {
+                const metricName = getMetricDisplayName(alert.metric);
+                const targetFormatted = formatValue(alert.targetValue, alert.metric);
+                const currentFormatted = formatValue(alert.currentValue, alert.metric);
+                const percentage = alert.targetValue > 0 
+                    ? Math.round((alert.currentValue / alert.targetValue) * 100) 
+                    : 0;
+                
+                message += `${index + 1}. ${metricName}\n`;
+                message += `   目標: ${targetFormatted} → 実績: ${currentFormatted} (${percentage}%)\n`;
+                if (alert.message) {
+                    message += `   ${alert.message}\n`;
+                }
+                message += `\n`;
+            });
+            
+            message += `\n📊 詳細はダッシュボードでご確認ください：\n`;
+            message += `https://meta-ads-dashboard.onrender.com/dashboard\n\n`;
+            message += `✅ 確認事項：https://meta-ads-dashboard.onrender.com/improvement-tasks\n`;
+            message += `💡 改善施策：https://meta-ads-dashboard.onrender.com/improvement-strategies[/info]`;
+            
+            // Chatwork送信
+            const { sendChatworkMessage } = require('../chatworkApi');
+            await sendChatworkMessage({
+                date: today,
+                message: message,
+                token: userSettings.chatwork_api_token || userSettings.chatwork_token,
+                room_id: account.chatworkRoomId
+            });
+            
+            console.log(`✅ 追加アカウント ${accountName} のアラート通知送信完了 (Room: ${account.chatworkRoomId})`);
+            
+        } catch (error) {
+            console.error(`追加アカウント ${account.name || account.id} のアラート送信エラー:`, error);
         }
     }
 
