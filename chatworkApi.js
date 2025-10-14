@@ -67,20 +67,24 @@ async function sendChatworkNotification(type, data = {}, userId = null) {
         const userManager = getUserManager();
         const userSettings = userManager.getUserSettings(userId);
         
+        // アカウント固有のChatworkルームIDまたは共通設定のルームIDを使用
+        const roomId = userSettings?.chatworkRoomId || userSettings?.chatwork_room_id;
+        
         console.log('🔍 ユーザー別チャットワーク設定確認:', {
           userId: userId,
           userSettingsFound: !!userSettings,
           hasToken: !!(userSettings?.chatwork_api_token),
-          hasRoomId: !!(userSettings?.chatwork_room_id),
+          hasAccountRoomId: !!(userSettings?.chatworkRoomId),
+          hasGlobalRoomId: !!(userSettings?.chatwork_room_id),
           tokenLength: userSettings?.chatwork_api_token?.length || 0,
-          roomId: userSettings?.chatwork_room_id
+          roomId: roomId
         });
         
-        if (userSettings && userSettings.chatwork_api_token && userSettings.chatwork_room_id) {
+        if (userSettings && userSettings.chatwork_api_token && roomId) {
           console.log('✅ ユーザー別チャットワーク設定取得成功');
           config = {
             apiToken: userSettings.chatwork_api_token,
-            roomId: userSettings.chatwork_room_id
+            roomId: roomId
           };
         } else {
           console.log('❌ ユーザー別チャットワーク設定が不完全または未設定');
