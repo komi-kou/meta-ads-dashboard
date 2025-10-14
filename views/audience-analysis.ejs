@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>オーディエンス分析 - Meta広告ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav {
+            padding: 10px 0;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #fff;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .content-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .date-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-selector input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .date-selector button {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .date-selector button:hover {
+            background: #5a6dc8;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .detail-table {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+        }
+        
+        .metric-positive {
+            color: #27ae60;
+        }
+        
+        .metric-negative {
+            color: #e74c3c;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+        }
+        
+        .insights-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .insight-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 4px;
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .insight-description {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー（統一デザイン） -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Meta広告レポート</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">ダッシュボード</a>
+                <a href="/campaigns" class="nav-item">📊 キャンペーン管理</a>
+                <a href="/ad-performance" class="nav-item">🎯 広告パフォーマンス</a>
+                <a href="/audience-analysis" class="nav-item active">👥 オーディエンス分析</a>
+                <a href="/multi-account" class="nav-item">🔄 マルチアカウント</a>
+                <a href="/budget-scheduling" class="nav-item">⏰ 予算スケジューリング</a>
+                <a href="/alerts" class="nav-item" id="alerts-link">アラート内容</a>
+                <a href="/alert-history" class="nav-item">アラート履歴</a>
+                <a href="/improvement-tasks" class="nav-item">確認事項</a>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+            
+            <div class="sidebar-footer">
+                <form action="/logout" method="POST" style="margin: 0;">
+                    <button type="submit" class="nav-item" style="
+                        display: block;
+                        width: 100%;
+                        padding: 12px 20px;
+                        background: rgba(231, 76, 60, 0.1);
+                        color: #e74c3c;
+                        border: 1px solid rgba(231, 76, 60, 0.2);
+                        border-radius: 5px;
+                        text-align: left;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        font-size: 14px;
+                        font-weight: 500;
+                    " onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'" onmouseout="this.style.background='rgba(231, 76, 60, 0.1)'">
+                        🚪 ログアウト
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">オーディエンス分析</h1>
+                <div class="date-selector">
+                    <input type="date" id="dateFrom" />
+                    <span>〜</span>
+                    <input type="date" id="dateTo" />
+                    <button onclick="loadAudienceData()">更新</button>
+                </div>
+            </div>
+            
+            <!-- インサイトセクション -->
+            <div class="insights-section" id="insightsSection">
+                <h3 class="table-title">主要インサイト</h3>
+                <div id="insightsContainer">
+                    <div class="loading">インサイトを分析中...</div>
+                </div>
+            </div>
+            
+            <!-- チャートグリッド -->
+            <div class="analysis-grid">
+                <div class="chart-card">
+                    <h4 class="chart-title">年齢別パフォーマンス</h4>
+                    <canvas id="ageChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4 class="chart-title">性別パフォーマンス</h4>
+                    <canvas id="genderChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4 class="chart-title">デバイス別パフォーマンス</h4>
+                    <canvas id="deviceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 詳細テーブル -->
+            <div class="detail-table">
+                <h3 class="table-title">セグメント別詳細データ</h3>
+                
+                <h4 style="margin-top: 30px;">年齢別</h4>
+                <table id="ageTable">
+                    <thead>
+                        <tr>
+                            <th>年齢層</th>
+                            <th>消化額</th>
+                            <th>クリック</th>
+                            <th>CV</th>
+                            <th>CTR</th>
+                            <th>CPA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" class="loading">データを読み込み中...</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4 style="margin-top: 30px;">性別</h4>
+                <table id="genderTable">
+                    <thead>
+                        <tr>
+                            <th>性別</th>
+                            <th>消化額</th>
+                            <th>クリック</th>
+                            <th>CV</th>
+                            <th>CTR</th>
+                            <th>CPA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" class="loading">データを読み込み中...</td></tr>
+                    </tbody>
+                </table>
+                
+                <h4 style="margin-top: 30px;">デバイス別</h4>
+                <table id="deviceTable">
+                    <thead>
+                        <tr>
+                            <th>デバイス</th>
+                            <th>消化額</th>
+                            <th>クリック</th>
+                            <th>CV</th>
+                            <th>CTR</th>
+                            <th>CPA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" class="loading">データを読み込み中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- ファネル分析セクション -->
+            <div class="detail-table" style="margin-top: 30px;">
+                <h3 class="table-title">ファネル分析</h3>
+                <canvas id="funnelChart" style="max-height: 400px;"></canvas>
+                <div id="funnelTableContainer" style="margin-top: 20px;">
+                    <div class="loading">ファネルデータを読み込み中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let audienceData = null;
+        let funnelData = null;
+        let charts = {};
+        
+        // 初期設定
+        document.addEventListener('DOMContentLoaded', function() {
+            // 日付の初期値を設定（過去7日間）
+            const today = new Date();
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+            document.getElementById('dateFrom').value = weekAgo.toISOString().split('T')[0];
+            
+            // データ読み込み
+            loadAudienceData();
+            loadFunnelData();
+        });
+        
+        // オーディエンスデータ読み込み
+        async function loadAudienceData() {
+            const since = document.getElementById('dateFrom').value;
+            const until = document.getElementById('dateTo').value;
+            
+            try {
+                const response = await fetch(`/api/audience-insights?since=${since}&until=${until}`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    audienceData = data.data;
+                    // データが空かチェック
+                    if (Object.keys(audienceData.byAge || {}).length > 0 ||
+                        Object.keys(audienceData.byGender || {}).length > 0 ||
+                        Object.keys(audienceData.byDevice || {}).length > 0) {
+                        renderCharts();
+                        renderTables();
+                        renderInsights();
+                    } else {
+                        showError('Meta APIの設定を確認してください。有効なアクセストークンが必要です。');
+                    }
+                } else if (data.error) {
+                    showError(`データを取得できません: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('オーディエンスデータ取得エラー:', error);
+                showError('オーディエンスデータの取得に失敗しました');
+            }
+        }
+        
+        // ファネルデータ読み込み
+        async function loadFunnelData() {
+            const since = document.getElementById('dateFrom').value;
+            const until = document.getElementById('dateTo').value;
+            
+            try {
+                const response = await fetch(`/api/funnel-analysis?since=${since}&until=${until}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    funnelData = data.data;
+                    renderFunnelChart();
+                    renderFunnelTable();
+                }
+            } catch (error) {
+                console.error('ファネルデータ取得エラー:', error);
+            }
+        }
+        
+        // チャート描画
+        function renderCharts() {
+            if (!audienceData) return;
+            
+            // 既存のチャートを破棄
+            Object.values(charts).forEach(chart => chart.destroy());
+            charts = {};
+            
+            // 年齢別チャート
+            const ageCtx = document.getElementById('ageChart').getContext('2d');
+            charts.age = new Chart(ageCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(audienceData.byAge || {}),
+                    datasets: [
+                        {
+                            label: '消化額',
+                            data: Object.values(audienceData.byAge || {}).map(d => d.spend),
+                            backgroundColor: '#667eea',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'CPA',
+                            data: Object.values(audienceData.byAge || {}).map(d => d.cpa),
+                            type: 'line',
+                            borderColor: '#ec4899',
+                            backgroundColor: 'transparent',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '消化額 (¥)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'CPA (¥)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 性別チャート
+            const genderCtx = document.getElementById('genderChart').getContext('2d');
+            const genderLabels = Object.keys(audienceData.byGender || {}).map(g => 
+                g === 'male' ? '男性' : g === 'female' ? '女性' : g
+            );
+            
+            charts.gender = new Chart(genderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genderLabels,
+                    datasets: [{
+                        data: Object.values(audienceData.byGender || {}).map(d => d.spend),
+                        backgroundColor: ['#667eea', '#ec4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ¥${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // デバイス別チャート
+            const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+            const deviceLabels = Object.keys(audienceData.byDevice || {}).map(d => 
+                d === 'mobile' ? 'モバイル' : d === 'desktop' ? 'デスクトップ' : d
+            );
+            
+            charts.device = new Chart(deviceCtx, {
+                type: 'pie',
+                data: {
+                    labels: deviceLabels,
+                    datasets: [{
+                        data: Object.values(audienceData.byDevice || {}).map(d => d.spend),
+                        backgroundColor: ['#667eea', '#a855f7', '#ec4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // テーブル描画
+        function renderTables() {
+            if (!audienceData) return;
+            
+            // 年齢別テーブル
+            renderSegmentTable('ageTable', audienceData.byAge);
+            
+            // 性別テーブル
+            const genderData = {};
+            Object.entries(audienceData.byGender || {}).forEach(([key, value]) => {
+                const label = key === 'male' ? '男性' : key === 'female' ? '女性' : key;
+                genderData[label] = value;
+            });
+            renderSegmentTable('genderTable', genderData);
+            
+            // デバイス別テーブル
+            const deviceData = {};
+            Object.entries(audienceData.byDevice || {}).forEach(([key, value]) => {
+                const label = key === 'mobile' ? 'モバイル' : key === 'desktop' ? 'デスクトップ' : key;
+                deviceData[label] = value;
+            });
+            renderSegmentTable('deviceTable', deviceData);
+        }
+        
+        // セグメントテーブル描画
+        function renderSegmentTable(tableId, data) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            
+            if (!data || Object.keys(data).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">データがありません</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            Object.entries(data).forEach(([key, value]) => {
+                const cpaClass = value.cpa > 1000 ? 'metric-negative' : 'metric-positive';
+                html += `
+                    <tr>
+                        <td>${key}</td>
+                        <td class="metric-value">¥${(value.spend || 0).toLocaleString()}</td>
+                        <td>${(value.clicks || 0).toLocaleString()}</td>
+                        <td class="metric-value">${value.conversions || 0}</td>
+                        <td>${(value.ctr || 0).toFixed(2)}%</td>
+                        <td class="metric-value ${cpaClass}">¥${Math.round(value.cpa || 0).toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // インサイト描画
+        function renderInsights() {
+            if (!audienceData) return;
+            
+            const container = document.getElementById('insightsContainer');
+            let insights = [];
+            
+            // 最高パフォーマンスの年齢層（CPA > 0のみ考慮）
+            const ageWithConversions = Object.entries(audienceData.byAge || {})
+                .filter(([age, data]) => data.conversions > 0 && data.cpa > 0);
+            
+            if (ageWithConversions.length > 0) {
+                const bestAge = ageWithConversions.reduce((best, [age, data]) => {
+                    if (!best || data.cpa < best.cpa) {
+                        return { age, ...data };
+                    }
+                    return best;
+                }, null);
+                
+                if (bestAge) {
+                    insights.push({
+                        title: '最高効率の年齢層',
+                        description: `${bestAge.age}歳が最も効率的です（CPA: ¥${Math.round(bestAge.cpa).toLocaleString()}、CV: ${bestAge.conversions}件）`
+                    });
+                }
+            }
+            
+            // コンバージョンが0の年齢層の警告
+            const ageNoConversions = Object.entries(audienceData.byAge || {})
+                .filter(([age, data]) => data.spend > 0 && data.conversions === 0);
+            
+            if (ageNoConversions.length > 0) {
+                const totalSpendNoCV = ageNoConversions.reduce((sum, [age, data]) => sum + data.spend, 0);
+                const ageGroups = ageNoConversions.map(([age]) => age).join('、');
+                insights.push({
+                    title: '⚠️ コンバージョン未発生の年齢層',
+                    description: `${ageGroups}歳でCV未発生（消化額: ¥${Math.round(totalSpendNoCV).toLocaleString()}）。ターゲティングや広告内容の見直しを検討してください。`
+                });
+            }
+            
+            // デバイス別の推奨
+            const mobileData = audienceData.byDevice?.mobile || audienceData.byDevice?.mobile_app;
+            const desktopData = audienceData.byDevice?.desktop;
+            if (mobileData && desktopData) {
+                const mobileRatio = mobileData.spend / (mobileData.spend + desktopData.spend) * 100;
+                if (mobileRatio > 80) {
+                    insights.push({
+                        title: 'モバイル中心の配信',
+                        description: `配信の${mobileRatio.toFixed(0)}%がモバイルです。モバイル最適化を重点的に行いましょう。`
+                    });
+                }
+                
+                // デバイス別のパフォーマンス比較
+                if (mobileData.conversions > 0 && desktopData.conversions > 0) {
+                    if (mobileData.cpa < desktopData.cpa * 0.8) {
+                        insights.push({
+                            title: 'モバイルが効率的',
+                            description: `モバイルのCPA（¥${Math.round(mobileData.cpa).toLocaleString()}）がデスクトップより20%以上低いです。`
+                        });
+                    } else if (desktopData.cpa < mobileData.cpa * 0.8) {
+                        insights.push({
+                            title: 'デスクトップが効率的',
+                            description: `デスクトップのCPA（¥${Math.round(desktopData.cpa).toLocaleString()}）がモバイルより20%以上低いです。`
+                        });
+                    }
+                }
+            }
+            
+            // 性別による差異（CPA > 0のみ比較）
+            const maleData = audienceData.byGender?.male;
+            const femaleData = audienceData.byGender?.female;
+            if (maleData && femaleData) {
+                // 両方にコンバージョンがある場合のみCPA比較
+                if (maleData.conversions > 0 && femaleData.conversions > 0) {
+                    if (maleData.cpa < femaleData.cpa * 0.8) {
+                        insights.push({
+                            title: '男性向けが効率的',
+                            description: `男性のCPA（¥${Math.round(maleData.cpa).toLocaleString()}）が女性より20%以上低いです。男性向けの配信を強化することを検討してください。`
+                        });
+                    } else if (femaleData.cpa < maleData.cpa * 0.8) {
+                        insights.push({
+                            title: '女性向けが効率的',
+                            description: `女性のCPA（¥${Math.round(femaleData.cpa).toLocaleString()}）が男性より20%以上低いです。女性向けの配信を強化することを検討してください。`
+                        });
+                    }
+                } else if (maleData.conversions > 0 && femaleData.conversions === 0) {
+                    insights.push({
+                        title: '男性のみでCV発生',
+                        description: `男性でのみCV発生（${maleData.conversions}件）。女性向けのクリエイティブやメッセージの改善が必要かもしれません。`
+                    });
+                } else if (femaleData.conversions > 0 && maleData.conversions === 0) {
+                    insights.push({
+                        title: '女性のみでCV発生',
+                        description: `女性でのみCV発生（${femaleData.conversions}件）。男性向けのクリエイティブやメッセージの改善が必要かもしれません。`
+                    });
+                }
+            }
+            
+            // 全体的なパフォーマンス警告
+            const totalSpend = Object.values(audienceData.byAge || {}).reduce((sum, data) => sum + data.spend, 0);
+            const totalConversions = Object.values(audienceData.byAge || {}).reduce((sum, data) => sum + data.conversions, 0);
+            
+            if (totalSpend > 10000 && totalConversions === 0) {
+                insights.push({
+                    title: '🚨 コンバージョン改善が急務',
+                    description: `消化額¥${Math.round(totalSpend).toLocaleString()}でCV0件です。ランディングページ、ターゲティング、広告クリエイティブの総合的な見直しが必要です。`
+                });
+            }
+            
+            if (insights.length === 0) {
+                insights.push({
+                    title: '分析中',
+                    description: 'データを収集中です。より多くのデータが蓄積されると、詳細なインサイトが表示されます。'
+                });
+            }
+            
+            let html = '';
+            insights.forEach(insight => {
+                html += `
+                    <div class="insight-item">
+                        <div class="insight-title">${insight.title}</div>
+                        <div class="insight-description">${insight.description}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // ファネルチャート描画
+        function renderFunnelChart() {
+            if (!funnelData || !funnelData.funnel) return;
+            
+            const ctx = document.getElementById('funnelChart').getContext('2d');
+            
+            // 既存のチャートを破棄
+            if (charts.funnel) {
+                charts.funnel.destroy();
+            }
+            
+            charts.funnel = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: funnelData.funnel.stages.map(s => s.name),
+                    datasets: [{
+                        label: 'ユーザー数',
+                        data: funnelData.funnel.stages.map(s => s.count),
+                        backgroundColor: funnelData.funnel.stages.map((s, i) => {
+                            const opacity = 1 - (i * 0.15);
+                            return `rgba(102, 126, 234, ${opacity})`;
+                        })
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const stage = funnelData.funnel.stages[context.dataIndex];
+                                    return `${stage.count.toLocaleString()}人 (${stage.rate}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ファネルテーブル描画
+        function renderFunnelTable() {
+            const container = document.getElementById('funnelTableContainer');
+            
+            if (!funnelData || !funnelData.funnel) {
+                container.innerHTML = '<div class="loading">データがありません</div>';
+                return;
+            }
+            
+            let html = '<h4>離脱ポイント分析</h4><table><thead><tr><th>ステージ</th><th>離脱率</th><th>推奨アクション</th></tr></thead><tbody>';
+            
+            funnelData.funnel.dropoffPoints.forEach(point => {
+                const isHighDropoff = point.dropoffRate > 50;
+                const recommendation = getDropoffRecommendation(point.stage, point.dropoffRate);
+                html += `
+                    <tr>
+                        <td>${point.stage}</td>
+                        <td class="${isHighDropoff ? 'metric-negative' : ''}">${point.dropoffRate.toFixed(1)}%</td>
+                        <td style="font-size: 13px; color: #666;">${recommendation}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        // 離脱率に基づく推奨アクション（汎用ファネル対応）
+        function getDropoffRecommendation(stage, dropoffRate) {
+            if (stage.includes('インプレッション→クリック')) {
+                if (dropoffRate > 99) {
+                    return 'クリエイティブの改善、ターゲティングの見直し、CTAの明確化';
+                } else if (dropoffRate > 95) {
+                    return 'ビジュアルの魅力度向上、広告文の最適化';
+                } else {
+                    return '良好 - 現状維持';
+                }
+            } else if (stage.includes('クリック→ランディングページビュー')) {
+                if (dropoffRate > 50) {
+                    return 'ランディングページの読み込み速度改善、モバイル最適化';
+                } else if (dropoffRate > 30) {
+                    return 'ページ表示速度の確認、リンク先URLの検証';
+                } else {
+                    return '良好 - 現状維持';
+                }
+            } else if (stage.includes('ランディングページビュー→エンゲージメント') || stage.includes('エンゲージメント')) {
+                if (dropoffRate > 70) {
+                    return 'コンテンツの質改善、ユーザー体験の向上、CTA配置の最適化';
+                } else if (dropoffRate > 50) {
+                    return 'ページ内コンテンツの充実、動画コンテンツの追加';
+                } else {
+                    return '良好 - 現状維持';
+                }
+            } else if (stage.includes('コンバージョン')) {
+                if (dropoffRate > 95) {
+                    return 'フォーム簡素化、入力項目削減、信頼性向上施策';
+                } else if (dropoffRate > 90) {
+                    return 'オファーの魅力度向上、限定感の演出';
+                } else {
+                    return '良好 - 継続的な改善を推奨';
+                }
+            } else {
+                return '継続的な監視を推奨';
+            }
+        }
+        
+        // エラー表示
+        function showError(message) {
+            console.error(message);
+            // インサイトコンテナにエラーメッセージを表示
+            const insightsContainer = document.getElementById('insightsContainer');
+            if (insightsContainer) {
+                insightsContainer.innerHTML = `
+                    <div class="insight-item" style="border-left-color: #e74c3c; background: rgba(231, 76, 60, 0.1);">
+                        <div class="insight-title">⚠️ データ取得エラー</div>
+                        <div class="insight-description">${message}</div>
+                    </div>
+                `;
+            }
+            // テーブルコンテナにもエラーメッセージを表示
+            const containers = ['ageTable', 'genderTable', 'deviceTable'].map(id => 
+                document.querySelector(`#${id} tbody`)
+            );
+            containers.forEach(container => {
+                if (container) {
+                    container.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #999;">${message}</td></tr>`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

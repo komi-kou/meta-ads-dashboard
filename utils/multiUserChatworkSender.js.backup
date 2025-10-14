@@ -43,28 +43,11 @@ class MultiUserChatworkSender {
             }
 
             console.log(`📅 ユーザー${userSettings.user_id}の日次レポート${isTestMode ? 'テスト' : ''}送信開始`);
-            
-            // 通知処理前にファイルから最新の設定を再読み込み
-            console.log('🔍 処理前のadditional_accounts:', userSettings.additional_accounts?.length || 0);
-            
-            // additional_accountsが空の場合は、ファイルから再読み込みを試行
-            if (!userSettings.additional_accounts || userSettings.additional_accounts.length === 0) {
-                console.log('⚠️ additional_accountsが空のため、ファイルから再読み込みを試行');
-                const UserManager = require('../userManager');
-                const userManager = new UserManager();
-                const freshSettings = userManager.getUserSettings(userSettings.user_id);
-                if (freshSettings.additional_accounts && freshSettings.additional_accounts.length > 0) {
-                    userSettings.additional_accounts = freshSettings.additional_accounts;
-                    console.log('✅ ファイルからadditional_accountsを復元:', userSettings.additional_accounts.length);
-                }
-            }
 
             // ===== テストモード: 専用メソッドを呼び出し =====
             if (isTestMode) {
                 console.log('🔀 テスト専用メソッドにリダイレクト');
                 await this.sendTestDailyReport(userSettings);
-                // テストモードでも追加アカウントの処理を続行
-                console.log('🧪 テストモード: メインレポート送信完了');
                 
                 // テストモードでも追加アカウントの日次レポート送信
                 const additionalAccounts = userSettings.additional_accounts || [];
@@ -269,21 +252,6 @@ https://meta-ads-dashboard.onrender.com/dashboard
             }
 
             console.log(`🔄 ユーザー${userSettings.user_id}の定期更新通知${isTestMode ? 'テスト' : ''}送信開始`);
-            
-            // 通知処理前にファイルから最新の設定を再読み込み
-            console.log('🔍 [更新] 処理前のadditional_accounts:', userSettings.additional_accounts?.length || 0);
-            
-            // additional_accountsが空の場合は、ファイルから再読み込みを試行
-            if (!userSettings.additional_accounts || userSettings.additional_accounts.length === 0) {
-                console.log('⚠️ [更新] additional_accountsが空のため、ファイルから再読み込みを試行');
-                const UserManager = require('../userManager');
-                const userManager = new UserManager();
-                const freshSettings = userManager.getUserSettings(userSettings.user_id);
-                if (freshSettings.additional_accounts && freshSettings.additional_accounts.length > 0) {
-                    userSettings.additional_accounts = freshSettings.additional_accounts;
-                    console.log('✅ [更新] ファイルからadditional_accountsを復元:', userSettings.additional_accounts.length);
-                }
-            }
 
             let message = `Meta広告 定期更新通知
 数値を更新しました。
@@ -307,22 +275,10 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
 
             // 追加アカウントの定期更新通知送信
             const additionalAccounts = userSettings.additional_accounts || [];
-            console.log(`🔍 追加アカウント数: ${additionalAccounts.length}`);
-            console.log(`🔍 追加アカウント詳細:`, additionalAccounts);
-            
             for (const account of additionalAccounts) {
-                try {
-                    // より厳密な条件チェック
-                    if (account.chatworkRoomId && account.chatworkRoomId !== 'null' && account.chatworkRoomId.toString().trim() !== '') {
-                        console.log(`🔍 アカウント詳細: ${account.name || account.id} - Room: ${account.chatworkRoomId}`);
-                        console.log(`🔄 追加アカウント ${account.name || account.id} の定期更新通知送信中...`);
-                        await this.sendAccountUpdateNotification(account, userSettings, isTestMode);
-                    } else {
-                        console.log(`⚠️ スキップ: アカウント ${account.name || account.id} のルームIDが無効 (${account.chatworkRoomId})`);
-                    }
-                } catch (accountError) {
-                    console.error(`❌ 追加アカウント ${account.name || account.id} の定期更新通知処理エラー:`, accountError);
-                    // エラーが発生しても他のアカウントの処理は続行
+                if (account.chatworkRoomId) {
+                    console.log(`🔄 追加アカウント ${account.name || account.id} の定期更新通知送信中...`);
+                    await this.sendAccountUpdateNotification(account, userSettings, isTestMode);
                 }
             }
 
@@ -373,21 +329,6 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             }
 
             console.log(`🚨 ユーザー${userSettings.user_id}のアラート通知チェック開始`);
-            
-            // 通知処理前にファイルから最新の設定を再読み込み
-            console.log('🔍 [アラート] 処理前のadditional_accounts:', userSettings.additional_accounts?.length || 0);
-            
-            // additional_accountsが空の場合は、ファイルから再読み込みを試行
-            if (!userSettings.additional_accounts || userSettings.additional_accounts.length === 0) {
-                console.log('⚠️ [アラート] additional_accountsが空のため、ファイルから再読み込みを試行');
-                const UserManager = require('../userManager');
-                const userManager = new UserManager();
-                const freshSettings = userManager.getUserSettings(userSettings.user_id);
-                if (freshSettings.additional_accounts && freshSettings.additional_accounts.length > 0) {
-                    userSettings.additional_accounts = freshSettings.additional_accounts;
-                    console.log('✅ [アラート] ファイルからadditional_accountsを復元:', userSettings.additional_accounts.length);
-                }
-            }
 
             let activeAlerts = [];
             
@@ -424,40 +365,29 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 
                 // テストモードでも追加アカウントのアラート通知を送信
                 const additionalAccounts = userSettings.additional_accounts || [];
-                console.log(`🔍 [アラート] 追加アカウント数: ${additionalAccounts.length}`);
-                
                 for (const account of additionalAccounts) {
-                    try {
-                        // より厳密な条件チェック
-                        if (account.chatworkRoomId && account.chatworkRoomId !== 'null' && account.chatworkRoomId.toString().trim() !== '') {
-                            console.log(`🔍 [アラート] アカウント詳細: ${account.name || account.id} - Room: ${account.chatworkRoomId}`);
-                            console.log(`🚨 追加アカウント ${account.name || account.id} のアラート通知送信中（テストモード）...`);
-                            // 追加アカウント用のテストアラート
-                            const accountTestAlerts = [
-                                {
-                                    metric: 'CPA',
-                                    targetValue: parseFloat(account.targetCPA) || 5000,
-                                    currentValue: (parseFloat(account.targetCPA) || 5000) * 1.2,
-                                    severity: 'warning',
-                                    timestamp: new Date().toISOString(),
-                                    status: 'active'
-                                },
-                                {
-                                    metric: 'CTR',
-                                    targetValue: parseFloat(account.targetCTR) || 1.8,
-                                    currentValue: (parseFloat(account.targetCTR) || 1.8) * 0.75,
-                                    severity: 'warning',
-                                    timestamp: new Date().toISOString(),
-                                    status: 'active'
-                                }
-                            ];
-                            await this.sendAccountSpecificAlerts(accountTestAlerts, account, userSettings, isTestMode);
-                        } else {
-                            console.log(`⚠️ [アラート] スキップ: アカウント ${account.name || account.id} のルームIDが無効 (${account.chatworkRoomId})`);
-                        }
-                    } catch (accountError) {
-                        console.error(`❌ 追加アカウント ${account.name || account.id} のアラート通知処理エラー:`, accountError);
-                        // エラーが発生しても他のアカウントの処理は続行
+                    if (account.chatworkRoomId) {
+                        console.log(`🚨 追加アカウント ${account.name || account.id} のアラート通知送信中（テストモード）...`);
+                        // 追加アカウント用のテストアラート
+                        const accountTestAlerts = [
+                            {
+                                metric: 'CPA',
+                                targetValue: parseFloat(account.targetCPA) || 5000,
+                                currentValue: (parseFloat(account.targetCPA) || 5000) * 1.2,
+                                severity: 'warning',
+                                timestamp: new Date().toISOString(),
+                                status: 'active'
+                            },
+                            {
+                                metric: 'CTR',
+                                targetValue: parseFloat(account.targetCTR) || 1.8,
+                                currentValue: (parseFloat(account.targetCTR) || 1.8) * 0.75,
+                                severity: 'warning',
+                                timestamp: new Date().toISOString(),
+                                status: 'active'
+                            }
+                        ];
+                        await this.sendAccountSpecificAlerts(accountTestAlerts, account, userSettings, isTestMode);
                     }
                 }
             } else {
@@ -472,26 +402,15 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 
                 // 追加アカウントのアラートをチェックして個別送信
                 const additionalAccounts = userSettings.additional_accounts || [];
-                console.log(`🔍 [通常モード] 追加アカウント数: ${additionalAccounts.length}`);
-                
                 for (const account of additionalAccounts) {
-                    try {
-                        // より厳密な条件チェック
-                        if (account.chatworkRoomId && account.chatworkRoomId !== 'null' && account.chatworkRoomId.toString().trim() !== '') {
-                            console.log(`🔍 [通常モード] アカウント詳細: ${account.name || account.id} - Room: ${account.chatworkRoomId}`);
-                            console.log(`🚨 追加アカウント ${account.name || account.id} のアラートチェック中...`);
-                            const accountAlerts = await checkUserAlerts(userSettings.user_id, account.id, account.name);
-                            if (accountAlerts && accountAlerts.length > 0) {
-                                console.log(`  → ${accountAlerts.length}件のアラート検出`);
-                                // 追加アカウントのアラートは個別ルームに送信
-                                await this.sendAccountSpecificAlerts(accountAlerts, account, userSettings, isTestMode);
-                            }
-                        } else {
-                            console.log(`⚠️ [通常モード] スキップ: アカウント ${account.name || account.id} のルームIDが無効 (${account.chatworkRoomId})`);
+                    if (account.chatworkRoomId) {
+                        console.log(`🚨 追加アカウント ${account.name || account.id} のアラートチェック中...`);
+                        const accountAlerts = await checkUserAlerts(userSettings.user_id, account.id, account.name);
+                        if (accountAlerts && accountAlerts.length > 0) {
+                            console.log(`  → ${accountAlerts.length}件のアラート検出`);
+                            // 追加アカウントのアラートは個別ルームに送信
+                            await this.sendAccountSpecificAlerts(accountAlerts, account, userSettings, isTestMode);
                         }
-                    } catch (accountError) {
-                        console.error(`❌ 追加アカウント ${account.name || account.id} のアラートチェック処理エラー:`, accountError);
-                        // エラーが発生しても他のアカウントの処理は続行
                     }
                 }
                 

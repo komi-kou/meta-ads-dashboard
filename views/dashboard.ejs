@@ -41,7 +41,7 @@
         
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 25px;
             margin-bottom: 40px;
         }
@@ -113,10 +113,6 @@
         
         .metric-card.budget {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        
-        .metric-card.impressions {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
         
         .metric-card.ctr {
@@ -363,12 +359,15 @@
             <nav class="sidebar-nav">
                 <a href="/dashboard" class="nav-item active">ダッシュボード</a>
                 <a href="/campaigns" class="nav-item">📊 キャンペーン管理</a>
+                <a href="/ad-performance" class="nav-item">🎯 広告パフォーマンス</a>
+                <a href="/audience-analysis" class="nav-item">👥 オーディエンス分析</a>
+                <a href="/multi-account" class="nav-item">🔄 マルチアカウント</a>
                 <a href="/budget-scheduling" class="nav-item">⏰ 予算スケジューリング</a>
-                <a href="/detailed-reports" class="nav-item">📈 詳細レポート</a>
                 <a href="/alerts" class="nav-item" id="alerts-link">アラート内容</a>
                 <a href="/alert-history" class="nav-item">アラート履歴</a>
                 <a href="/improvement-tasks" class="nav-item">確認事項</a>
-                <a href="/improvement-strategies" class="nav-item">改善施策</a>            </nav>
+                <a href="/improvement-strategies" class="nav-item">改善施策</a>
+            </nav>
             <div class="sidebar-footer" style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 20px;">
                 <form action="/logout" method="POST" style="margin: 0;">
                     <button type="submit" class="nav-item" style="
@@ -458,14 +457,6 @@
                         </div>
                     </div>
                     
-                    <div class="metric-card impressions">
-                        <div class="metric-icon">👀</div>
-                        <div class="metric-title">インプレッション（合計）</div>
-                        <div class="metric-value">
-                            <span data-metric="impressions">読み込み中...</span><span class="metric-unit">回</span>
-                        </div>
-                    </div>
-                    
                     <div class="metric-card ctr">
                         <div class="metric-icon">👆</div>
                         <div class="metric-title">CTR（平均）</div>
@@ -484,7 +475,7 @@
                 </div>
                 
                 <!-- 下段指標 -->
-                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 40px;">
+                <div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 40px;">
                     <div class="metric-card cv">
                         <div class="metric-icon">🎯</div>
                         <div class="metric-title">CV（合計）</div>
@@ -506,6 +497,14 @@
                         <div class="metric-title">フリークエンシー（平均）</div>
                         <div class="metric-value">
                             <span data-metric="frequency">読み込み中...</span><span class="metric-unit">回</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card impressions" style="background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);">
+                        <div class="metric-icon">👁️</div>
+                        <div class="metric-title">インプレッション（合計）</div>
+                        <div class="metric-value">
+                            <span data-metric="impressions">読み込み中...</span>
                         </div>
                     </div>
                 </div>
@@ -541,9 +540,9 @@
                         <div class="legend-color" style="background: #6b7280;"></div>
                         <span>フリークエンシー</span>
                     </div>
-                    <!-- ✅ インプレッション追加 -->
+                    <!-- インプレッション追加 -->
                     <div class="legend-item">
-                        <div class="legend-color" style="background: #8b4513;"></div>
+                        <div class="legend-color" style="background: #ec4899;"></div>
                         <span>インプレッション</span>
                     </div>
                 </div>
@@ -731,7 +730,7 @@
             const exportSpreadsheetBtn = document.getElementById('exportSpreadsheet');
             if (exportSpreadsheetBtn) {
                 exportSpreadsheetBtn.addEventListener('click', function() {
-                    const campaignSelect = document.getElementById('selectedCampaign');
+                    const campaignSelect = document.getElementById('campaign-select');
                     const campaignId = campaignSelect ? campaignSelect.value : 'all';
                     
                     // 表示モードに応じて適切な期間を使用
@@ -837,7 +836,7 @@
                                         <span style="color: ${statusColor}; font-weight: 500;">${statusText}</span>
                                     </td>
                                     <td style="padding: 12px; text-align: right;">${campaign.spend.toLocaleString()}円</td>
-                                    <td style="padding: 12px; text-align: right;">${(campaign.impressions || 0).toLocaleString()}回</td>
+                                    <td style="padding: 12px; text-align: right;">${campaign.impressions?.toLocaleString() || 0}</td>
                                     <td style="padding: 12px; text-align: right;">${campaign.ctr.toFixed(2)}%</td>
                                     <td style="padding: 12px; text-align: right;">${Math.round(campaign.cpm).toLocaleString()}円</td>
                                     <td style="padding: 12px; text-align: right;">${campaign.conversions}</td>
@@ -956,12 +955,12 @@
             const updates = [
                 { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
                 { selector: '[data-metric="budget-rate"]', value: data.budgetRate !== undefined && data.budgetRate !== null ? `${parseFloat(data.budgetRate).toFixed(1)}` : '0.0' },
-                { selector: '[data-metric="impressions"]', value: `${(data.impressions || 0).toLocaleString()}` },
                 { selector: '[data-metric="ctr"]', value: `${data.ctr.toFixed(2)}` },  // すでに四捨五入済みの値を表示
                 { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },  // すでに四捨五入済みの整数値を表示
                 { selector: '[data-metric="conversions"]', value: data.conversions || 0 },
                 { selector: '[data-metric="cpa"]', value: data.cpa !== undefined && data.cpa !== null ? `${Math.round(data.cpa).toLocaleString()}` : '-' },
-                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` }  // すでに四捨五入済みの値を表示
+                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` },  // すでに四捨五入済みの値を表示
+                { selector: '[data-metric="impressions"]', value: data.impressions ? `${data.impressions.toLocaleString()}` : '0' }
             ];
             
             updates.forEach(update => {
@@ -1055,12 +1054,12 @@
                                 fill: true,
                                 yAxisID: 'y1'
                             },
-                            // ✅ インプレッション追加
+                            // インプレッション追加
                             {
                                 label: 'インプレッション',
                                 data: data.chartData.impressions || [],
-                                borderColor: '#8b4513',
-                                backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                                borderColor: '#ec4899',
+                                backgroundColor: 'rgba(236, 72, 153, 0.1)',
                                 tension: 0.4,
                                 fill: true,
                                 yAxisID: 'y3'
@@ -1102,8 +1101,7 @@
                             y3: {
                                 type: 'linear',
                                 display: false,
-                                beginAtZero: true,
-                                position: 'right'
+                                beginAtZero: true
                             }
                         },
                         plugins: {
@@ -1314,7 +1312,7 @@ Meta広告レポートツールの設定が完了しました。
                         </span>
                     </td>
                     <td style="padding: 12px; text-align: right;">¥${(campaign.spend || 0).toLocaleString()}</td>
-                    <td style="padding: 12px; text-align: right;">${(campaign.impressions || 0).toLocaleString()}回</td>
+                    <td style="padding: 12px; text-align: right;">${(campaign.impressions || 0).toLocaleString()}</td>
                     <td style="padding: 12px; text-align: right;">${(campaign.ctr || 0).toFixed(2)}%</td>
                     <td style="padding: 12px; text-align: right;">¥${Math.round(campaign.cpm || 0).toLocaleString()}</td>
                     <td style="padding: 12px; text-align: right; font-weight: bold; color: #059669;">
@@ -1341,10 +1339,12 @@ Meta広告レポートツールの設定が完了しました。
 
         // メトリクスカード更新
         function updateMetricCard(type, value) {
-            // data-metric属性を使用して正確に要素を選択
-            const element = document.querySelector(`[data-metric="${type}"]`);
-            if (element) {
-                element.textContent = value;
+            const card = document.querySelector(`.metric-card.${type}`);
+            if (card) {
+                const valueElement = card.querySelector('.metric-value');
+                if (valueElement) {
+                    valueElement.textContent = value;
+                }
             }
         }
 

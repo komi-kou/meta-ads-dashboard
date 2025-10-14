@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通知テスト - Meta広告ダッシュボード</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .info { background: #e3f2fd; padding: 15px; border-radius: 4px; margin: 20px 0; }
+        .test-section { margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 4px; }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #1565c0; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #2e7d32; }
+        .error { color: #c62828; }
+        .time-slot { display: inline-block; margin: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f5f5f5; }
+        .status-pending { color: #ff9800; }
+        .status-success { color: #4caf50; }
+        .status-error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 通知テスト - ローカル環境</h1>
+        
+        <div class="info">
+            <strong>🔐 ログイン情報:</strong><br>
+            Email: test123@gmail.com<br>
+            Password: kmykuhi1215K<br><br>
+            <strong>📍 テスト対象:</strong><br>
+            ✅ メインアカウント → Room 412659441<br>
+            ✅ 追加アカウント「整足院」→ Room 405488662
+        </div>
+
+        <div class="test-section">
+            <h2>⏰ 全時間帯テスト</h2>
+            <p>各時間帯（9, 12, 15, 17, 19時）の通知をテスト送信します</p>
+            
+            <div class="time-slot">
+                <button onclick="testHour(9)">9時をテスト</button>
+            </div>
+            <div class="time-slot">
+                <button onclick="testHour(12)">12時をテスト</button>
+            </div>
+            <div class="time-slot">
+                <button onclick="testHour(15)">15時をテスト</button>
+            </div>
+            <div class="time-slot">
+                <button onclick="testHour(17)">17時をテスト</button>
+            </div>
+            <div class="time-slot">
+                <button onclick="testHour(19)">19時をテスト</button>
+            </div>
+            <br><br>
+            <button onclick="testAllHours()" style="background: #2e7d32;">✅ 全時間帯を一括テスト</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 期待される通知内容</h2>
+            <table>
+                <tr>
+                    <th>時間</th>
+                    <th>メインアカウント (Room 412659441)</th>
+                    <th>追加アカウント (Room 405488662)</th>
+                </tr>
+                <tr>
+                    <td><strong>9時</strong></td>
+                    <td>
+                        ✅ 日次レポート<br>
+                        ✅ アラート通知
+                    </td>
+                    <td>
+                        ✅ 日次レポート<br>
+                        ✅ アラート通知
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>12時</strong></td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>15時</strong></td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>17時</strong></td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>19時</strong></td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                    <td>
+                        ✅ 定期更新通知<br>
+                        ✅ アラート通知
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="results" class="results" style="display:none;"></div>
+    </div>
+
+    <script>
+        const userId = '3dab6ad4-6397-4659-b96e-88a3d59bc85b';
+        let resultsDiv = document.getElementById('results');
+
+        function log(message, type = 'info') {
+            resultsDiv.style.display = 'block';
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = message + '\n';
+            resultsDiv.appendChild(span);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+            resultsDiv.style.display = 'none';
+        }
+
+        async function testHour(hour) {
+            clearResults();
+            log('='.repeat(60));
+            log(`⏰ ${hour}時の通知テスト開始`, 'info');
+            log('='.repeat(60));
+            
+            try {
+                const response = await fetch('/api/test/send-notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        hour: hour,
+                        userId: userId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log(`\n✅ ${hour}時のテスト成功！`, 'success');
+                    
+                    if (data.results && data.results.length > 0) {
+                        const result = data.results[0];
+                        log(`\n📧 ユーザー: ${result.username}`);
+                        log(`📝 送信された通知:`);
+                        result.notifications.forEach(notif => {
+                            log(`   ✓ ${notif}`, 'success');
+                        });
+                    }
+                    
+                    log('\n📱 Chatworkで以下のルームを確認してください:');
+                    log('   - Room 412659441 (メインアカウント)');
+                    log('   - Room 405488662 (追加アカウント「整足院」)');
+                    
+                    if (hour === 9) {
+                        log('\n💡 9時は以下が届きます:');
+                        log('   ✅ 日次レポート (両ルーム)');
+                        log('   ✅ アラート通知 (両ルーム)');
+                    } else {
+                        log(`\n💡 ${hour}時は以下が届きます:`);
+                        log('   ✅ 定期更新通知 (両ルーム)');
+                        log('   ✅ アラート通知 (両ルーム)');
+                    }
+                } else {
+                    log(`\n❌ ${hour}時のテスト失敗`, 'error');
+                    log(`エラー: ${data.error || 'unknown error'}`, 'error');
+                }
+            } catch (error) {
+                log(`\n❌ エラーが発生しました: ${error.message}`, 'error');
+                if (error.message.includes('Redirecting')) {
+                    log('\n⚠️ ログインが必要です。以下の手順でログインしてください:', 'error');
+                    log('1. 別タブで http://localhost:3457/login を開く');
+                    log('2. Email: test123@gmail.com');
+                    log('3. Password: kmykuhi1215K');
+                    log('4. ログイン後、このページに戻ってテストを実行');
+                }
+            }
+        }
+
+        async function testAllHours() {
+            clearResults();
+            const hours = [9, 12, 15, 17, 19];
+            
+            log('='.repeat(60));
+            log('📋 全時間帯の通知テスト開始', 'info');
+            log('='.repeat(60));
+            log('');
+            
+            for (const hour of hours) {
+                log(`⏰ ${hour}時の通知テスト...`);
+                
+                try {
+                    const response = await fetch('/api/test/send-notification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            hour: hour,
+                            userId: userId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        log(`   ✅ ${hour}時: 成功`, 'success');
+                        if (data.results && data.results[0]) {
+                            log(`      通知数: ${data.results[0].notifications.length}件`, 'success');
+                        }
+                    } else {
+                        log(`   ❌ ${hour}時: 失敗 - ${data.error}`, 'error');
+                    }
+                } catch (error) {
+                    log(`   ❌ ${hour}時: エラー - ${error.message}`, 'error');
+                }
+                
+                log('');
+                
+                // レート制限対策
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+            
+            log('='.repeat(60));
+            log('✅ 全時間帯テスト完了', 'success');
+            log('='.repeat(60));
+            log('\n📱 Chatworkで以下のルームを確認してください:');
+            log('   - Room 412659441 (メインアカウント)');
+            log('   - Room 405488662 (追加アカウント「整足院」)');
+            log('\n各ルームに以下の通知が届いているはずです:');
+            log('   9時: 日次レポート + アラート通知');
+            log('   12時: 定期更新通知 + アラート通知');
+            log('   15時: 定期更新通知 + アラート通知');
+            log('   17時: 定期更新通知 + アラート通知');
+            log('   19時: 定期更新通知 + アラート通知');
+        }
+
+        // ページ読み込み時にセッション確認
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/check-session');
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    log('⚠️ ログインが必要です', 'error');
+                    log('\n以下の手順でログインしてください:');
+                    log('1. http://localhost:3457/login を開く');
+                    log('2. Email: test123@gmail.com');
+                    log('3. Password: kmykuhi1215K');
+                    log('4. ログイン後、このページをリロード');
+                }
+            } catch (error) {
+                // セッション確認APIがない場合は無視
+            }
+        });
+    </script>
+</body>
+</html>
