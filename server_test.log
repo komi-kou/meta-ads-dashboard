@@ -1,0 +1,491 @@
+[dotenv@17.2.0] injecting env (0) from .env (tip: ⚙️  enable debug logging with { debug: true })
+Meta API読み込み成功
+Meta API読み込み成功
+=== 環境変数確認 ===
+META_ACCESS_TOKEN: 未設定
+META_ACCOUNT_ID: 未設定
+META_APP_ID: 未設定
+📊 既存ユーザー数: 7
+👤 テストユーザーは既に存在します
+ℹ️ Trust proxy disabled for development
+⚠️ File store not available, using memory store: Cannot find module 'session-file-store'
+Require stack:
+- /Users/komiyakouhei/Desktop/meta-ads-dashboard-main 55/app.js
+ℹ️ Secure cookies disabled for development
+📋 Session config: { secure: false, sameSite: 'lax', maxAge: 86400000, trustProxy: false }
+scheduler.jsが実行されました
+🕐 データ取得スケジューラーを開始しました
+📊 データ取得: 9時、12時、15時、17時、19時
+💬 チャットワーク送信: chatworkAutoSender.js で管理
+✅ スケジューラー読み込み成功
+✅ マルチユーザー対応チャットワーク自動送信機能を開始しました
+
+==========================================
+✅ サーバー起動成功！
+🌐 URL: http://localhost:3457
+👤 ログイン: komiya / komiya
+==========================================
+
+⚠️ 設定ファイルが見つかりません
+🕐 前日比アラートスケジューラーを開始します
+✅ 前日比アラートスケジューラー設定完了
+   実行時刻: 毎日 10:00, 15:00 (JST)
+✅ 前日比アラートスケジューラーを起動しました
+🕐 アラート自動生成スケジューラーを開始します
+✅ アラート自動生成スケジューラー設定完了
+   実行時刻: 毎日 9:00, 12:00, 15:00, 17:00, 19:00 (JST)
+✅ アラート自動生成スケジューラーを起動しました
+📊 初回アラート生成を実行します...
+🔧 アラート生成を手動実行します
+=== アラート自動生成開始 ===
+📊 アクティブユーザー数: 4
+👤 ユーザー b4475ace-303e-4fd1-8740-221154c9b291 のアラートチェック中...
+=== ユーザーb4475ace-303e-4fd1-8740-221154c9b291のアラートチェック開始 ===
+ユーザーb4475ace-303e-4fd1-8740-221154c9b291の生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '408053863',
+  service_goal: 'toB_newsletter',
+  target_cpa: '6999.9',
+  target_cpm: '1900',
+  target_ctr: '1.0',
+  target_cv: '1',
+  target_budget_rate: '80',
+  target_daily_budget: '2800',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true
+}
+ユーザーb4475ace-303e-4fd1-8740-221154c9b291の有効な目標値: { cpa: 6999.9, cpm: 1900, ctr: 1, budget_rate: 80, conversions: 1 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1165556408678089
+期間: 2025-10-13T07:04:58.356Z 〜 2025-10-14T07:04:58.356Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '3459',
+      impressions: '1203',
+      clicks: '15',
+      ctr: '1.246883',
+      cpm: '2875.311721',
+      cpc: '230.6',
+      actions: [Array],
+      reach: '785',
+      frequency: '1.532484',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '1955',
+      impressions: '663',
+      clicks: '4',
+      ctr: '0.603318',
+      cpm: '2948.717949',
+      cpc: '488.75',
+      actions: [Array],
+      reach: '456',
+      frequency: '1.453947',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 1955,
+  conversions: 0,
+  ctr: 0.6,
+  cpm: 2949,
+  cpa: 0,
+  budgetRate: 69.82142857142857
+}
+cpaのアラートチェック中... 目標値: 6999.9
+cpmのアラートチェック中... 目標値: 1900
+✅ cpmの確認事項を取得: 1件
+✅ cpmの改善施策を取得: 1カテゴリ
+ctrのアラートチェック中... 目標値: 1
+✅ ctrの確認事項を取得: 3件
+✅ ctrの改善施策を取得: 3カテゴリ
+budget_rateのアラートチェック中... 目標値: 80
+✅ budget_rateの確認事項を取得: 3件
+✅ budget_rateの改善施策を取得: 3カテゴリ
+conversionsのアラートチェック中... 目標値: 1
+✅ conversionsの確認事項を取得: 3件
+✅ conversionsの改善施策を取得: 3カテゴリ
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザーb4475ace-303e-4fd1-8740-221154c9b291のアラートチェック完了: 4件のアラート
+  → 4件のアラート検出
+👤 ユーザー 02d004a8-03aa-4b6e-9dd2-94a1995b4360 のアラートチェック中...
+=== ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360のアラートチェック開始 ===
+ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360の生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1384276956051351',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '410870245',
+  service_goal: 'toB_newsletter',
+  target_cpa: '3000',
+  target_cpm: '1900',
+  target_ctr: '2.3',
+  target_cv: '1',
+  target_budget_rate: '80',
+  target_daily_budget: '30000',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true
+}
+ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360の有効な目標値: { cpa: 3000, cpm: 1900, ctr: 2.3, budget_rate: 80, conversions: 1 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1384276956051351
+期間: 2025-10-13T07:04:58.945Z 〜 2025-10-14T07:04:58.945Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1384276956051351/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '61046',
+      impressions: '50865',
+      clicks: '1163',
+      ctr: '2.286445',
+      cpm: '1200.157279',
+      cpc: '52.490112',
+      actions: [Array],
+      reach: '42740',
+      frequency: '1.190103',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '26217',
+      impressions: '23401',
+      clicks: '559',
+      ctr: '2.388787',
+      cpm: '1120.336738',
+      cpc: '46.899821',
+      actions: [Array],
+      reach: '20066',
+      frequency: '1.166202',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_conversion.post_save',
+  'lead',
+  'onsite_web_lead',
+  'post_interaction_gross',
+  'offsite_conversion.fb_pixel_lead',
+  'video_view',
+  'post_reaction'
+]
+検出されたCV: lead: 2, onsite_conversion.post_save: 6
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'click_to_call_native_call_placed',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'lead',
+  'onsite_web_lead',
+  'post_interaction_gross',
+  'offsite_conversion.fb_pixel_lead',
+  'click_to_call_native_20s_call_connect',
+  'click_to_call_native_60s_call_connect',
+  'video_view',
+  'click_to_call_call_confirm',
+  'call_confirm_grouped',
+  'post_reaction'
+]
+検出されたCV: lead: 2
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 26217,
+  conversions: 2,
+  ctr: 2.4,
+  cpm: 1120,
+  cpa: 13109,
+  budgetRate: 87.39
+}
+cpaのアラートチェック中... 目標値: 3000
+✅ cpaの確認事項を取得: 4件
+✅ cpaの改善施策を取得: 4カテゴリ
+cpmのアラートチェック中... 目標値: 1900
+ctrのアラートチェック中... 目標値: 2.3
+budget_rateのアラートチェック中... 目標値: 80
+conversionsのアラートチェック中... 目標値: 1
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360のアラートチェック完了: 1件のアラート
+  → 1件のアラート検出
+👤 ユーザー 3dab6ad4-6397-4659-b96e-88a3d59bc85b のアラートチェック中...
+=== ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラートチェック開始 ===
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  account_name: '',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '412659441',
+  chatworkRoomId: null,
+  service_goal: 'toC_purchase',
+  target_cpa: '5000',
+  target_cpm: '1500',
+  target_ctr: '1.8',
+  target_cv: '1',
+  target_cvr: '',
+  target_budget_rate: '80',
+  target_daily_budget: '2000',
+  target_roas: '',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true,
+  additional_accounts: [
+    {
+      id: 'act_1384276956051351',
+      name: '整足院',
+      token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+      chatworkRoomId: '405488662',
+      serviceGoal: 'toc_tel',
+      targetCPA: '5000',
+      targetCPM: '1500',
+      targetCTR: '1.8',
+      targetCV: '1',
+      dailyBudget: '2000',
+      budgetRate: '80'
+    }
+  ]
+}
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの有効な目標値: { cpa: 5000, cpm: 1500, ctr: 1.8, budget_rate: 80, conversions: 1 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1165556408678089
+期間: 2025-10-13T07:04:59.489Z 〜 2025-10-14T07:04:59.489Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '3459',
+      impressions: '1203',
+      clicks: '15',
+      ctr: '1.246883',
+      cpm: '2875.311721',
+      cpc: '230.6',
+      actions: [Array],
+      reach: '785',
+      frequency: '1.532484',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '1955',
+      impressions: '663',
+      clicks: '4',
+      ctr: '0.603318',
+      cpm: '2948.717949',
+      cpc: '488.75',
+      actions: [Array],
+      reach: '456',
+      frequency: '1.453947',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 1955,
+  conversions: 0,
+  ctr: 0.6,
+  cpm: 2949,
+  cpa: 0,
+  budgetRate: 97.75
+}
+cpaのアラートチェック中... 目標値: 5000
+cpmのアラートチェック中... 目標値: 1500
+✅ cpmの確認事項を取得: 1件
+✅ cpmの改善施策を取得: 1カテゴリ
+ctrのアラートチェック中... 目標値: 1.8
+✅ ctrの確認事項を取得: 3件
+✅ ctrの改善施策を取得: 3カテゴリ
+budget_rateのアラートチェック中... 目標値: 80
+conversionsのアラートチェック中... 目標値: 1
+✅ conversionsの確認事項を取得: 3件
+✅ conversionsの改善施策を取得: 3カテゴリ
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラートチェック完了: 3件のアラート
+  → 3件のアラート検出
+👤 ユーザー 7fe7e401-a67b-40fb-bdff-0b61b67dc116 のアラートチェック中...
+=== ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116のアラートチェック開始 ===
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116の生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '406484503',
+  target_cpa: '5000',
+  target_cpm: '3000',
+  target_ctr: '3.0',
+  target_cv: '',
+  target_budget_rate: '',
+  target_daily_budget: '',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true
+}
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116の有効な目標値: { cpa: 5000, cpm: 3000, ctr: 3 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1165556408678089
+期間: 2025-10-13T07:04:59.878Z 〜 2025-10-14T07:04:59.878Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '3459',
+      impressions: '1203',
+      clicks: '15',
+      ctr: '1.246883',
+      cpm: '2875.311721',
+      cpc: '230.6',
+      actions: [Array],
+      reach: '785',
+      frequency: '1.532484',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '1955',
+      impressions: '663',
+      clicks: '4',
+      ctr: '0.603318',
+      cpm: '2948.717949',
+      cpc: '488.75',
+      actions: [Array],
+      reach: '456',
+      frequency: '1.453947',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 1955,
+  conversions: 0,
+  ctr: 0.6,
+  cpm: 2949,
+  cpa: 0,
+  budgetRate: 69.82142857142857
+}
+cpaのアラートチェック中... 目標値: 5000
+cpmのアラートチェック中... 目標値: 3000
+ctrのアラートチェック中... 目標値: 3
+✅ ctrの確認事項を取得: 3件
+✅ ctrの改善施策を取得: 3カテゴリ
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116のアラートチェック完了: 1件のアラート
+  → 1件のアラート検出
+👤 デフォルトユーザーのアラートチェック中...
+=== ユーザーtest@example.comのアラートチェック開始 ===
+ユーザー設定が見つかりません: test@example.com
+目標値が設定されていません: test@example.com
+⚠️ 重複アラートスキップ: cpm
+⚠️ 重複アラートスキップ: ctr
+⚠️ 重複アラートスキップ: budget_rate
+⚠️ 重複アラートスキップ: conversions
+⚠️ 重複アラートスキップ: cpa
+⚠️ 重複アラートスキップ: cpm
+⚠️ 重複アラートスキップ: ctr
+⚠️ 重複アラートスキップ: conversions
+⚠️ 重複アラートスキップ: ctr
+✅ アラート履歴保存完了: 総数1136件
+🚨 0件の新規アラートを保存
+📢 アラート通知はスケジューラーの統一システムで送信
+=== アラート自動生成完了 ===
+

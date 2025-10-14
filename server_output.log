@@ -1,0 +1,2598 @@
+[dotenv@17.2.0] injecting env (0) from .env (tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' })
+Meta API読み込み成功
+Meta API読み込み成功
+=== 環境変数確認 ===
+META_ACCESS_TOKEN: 未設定
+META_ACCOUNT_ID: 未設定
+META_APP_ID: 未設定
+📊 既存ユーザー数: 7
+👤 テストユーザーは既に存在します
+ℹ️ Trust proxy disabled for development
+⚠️ File store not available, using memory store: Cannot find module 'session-file-store'
+Require stack:
+- /Users/komiyakouhei/Desktop/meta-ads-dashboard-main 55/app.js
+ℹ️ Secure cookies disabled for development
+📋 Session config: { secure: false, sameSite: 'lax', maxAge: 86400000, trustProxy: false }
+scheduler.jsが実行されました
+🕐 データ取得スケジューラーを開始しました
+📊 データ取得: 9時、12時、15時、17時、19時
+💬 チャットワーク送信: chatworkAutoSender.js で管理
+✅ スケジューラー読み込み成功
+✅ マルチユーザー対応チャットワーク自動送信機能を開始しました
+
+==========================================
+✅ サーバー起動成功！
+🌐 URL: http://localhost:3457
+👤 ログイン: komiya / komiya
+==========================================
+
+⚠️ 設定ファイルが見つかりません
+🕐 前日比アラートスケジューラーを開始します
+✅ 前日比アラートスケジューラー設定完了
+   実行時刻: 毎日 10:00, 15:00 (JST)
+✅ 前日比アラートスケジューラーを起動しました
+🕐 アラート自動生成スケジューラーを開始します
+✅ アラート自動生成スケジューラー設定完了
+   実行時刻: 毎日 9:00, 12:00, 15:00, 17:00, 19:00 (JST)
+✅ アラート自動生成スケジューラーを起動しました
+📊 初回アラート生成を実行します...
+🔧 アラート生成を手動実行します
+=== アラート自動生成開始 ===
+📊 アクティブユーザー数: 4
+👤 ユーザー b4475ace-303e-4fd1-8740-221154c9b291 のアラートチェック中...
+=== ユーザーb4475ace-303e-4fd1-8740-221154c9b291のアラートチェック開始 ===
+ユーザーb4475ace-303e-4fd1-8740-221154c9b291の生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '408053863',
+  service_goal: 'toB_newsletter',
+  target_cpa: '6999.9',
+  target_cpm: '1900',
+  target_ctr: '1.0',
+  target_cv: '1',
+  target_budget_rate: '80',
+  target_daily_budget: '2800',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true
+}
+ユーザーb4475ace-303e-4fd1-8740-221154c9b291の有効な目標値: { cpa: 6999.9, cpm: 1900, ctr: 1, budget_rate: 80, conversions: 1 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1165556408678089
+期間: 2025-10-13T08:03:45.654Z 〜 2025-10-14T08:03:45.654Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '3459',
+      impressions: '1203',
+      clicks: '15',
+      ctr: '1.246883',
+      cpm: '2875.311721',
+      cpc: '230.6',
+      actions: [Array],
+      reach: '785',
+      frequency: '1.532484',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '2007',
+      impressions: '691',
+      clicks: '4',
+      ctr: '0.578871',
+      cpm: '2904.486252',
+      cpc: '501.75',
+      actions: [Array],
+      reach: '474',
+      frequency: '1.457806',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 2007,
+  conversions: 0,
+  ctr: 0.6,
+  cpm: 2904,
+  cpa: 0,
+  budgetRate: 71.67857142857143
+}
+cpaのアラートチェック中... 目標値: 6999.9
+cpmのアラートチェック中... 目標値: 1900
+✅ cpmの確認事項を取得: 1件
+✅ cpmの改善施策を取得: 1カテゴリ
+ctrのアラートチェック中... 目標値: 1
+✅ ctrの確認事項を取得: 3件
+✅ ctrの改善施策を取得: 3カテゴリ
+budget_rateのアラートチェック中... 目標値: 80
+✅ budget_rateの確認事項を取得: 3件
+✅ budget_rateの改善施策を取得: 3カテゴリ
+conversionsのアラートチェック中... 目標値: 1
+✅ conversionsの確認事項を取得: 3件
+✅ conversionsの改善施策を取得: 3カテゴリ
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザーb4475ace-303e-4fd1-8740-221154c9b291のアラートチェック完了: 4件のアラート
+  → 4件のアラート検出
+👤 ユーザー 02d004a8-03aa-4b6e-9dd2-94a1995b4360 のアラートチェック中...
+=== ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360のアラートチェック開始 ===
+ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360の生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1384276956051351',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '410870245',
+  service_goal: 'toB_newsletter',
+  target_cpa: '3000',
+  target_cpm: '1900',
+  target_ctr: '2.3',
+  target_cv: '1',
+  target_budget_rate: '80',
+  target_daily_budget: '30000',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true
+}
+ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360の有効な目標値: { cpa: 3000, cpm: 1900, ctr: 2.3, budget_rate: 80, conversions: 1 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1384276956051351
+期間: 2025-10-13T08:03:46.340Z 〜 2025-10-14T08:03:46.340Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1384276956051351/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '61046',
+      impressions: '50865',
+      clicks: '1164',
+      ctr: '2.288411',
+      cpm: '1200.157279',
+      cpc: '52.445017',
+      actions: [Array],
+      reach: '42740',
+      frequency: '1.190103',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '28463',
+      impressions: '25336',
+      clicks: '616',
+      ctr: '2.431323',
+      cpm: '1123.421219',
+      cpc: '46.206169',
+      actions: [Array],
+      reach: '21680',
+      frequency: '1.168635',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_conversion.post_save',
+  'lead',
+  'onsite_web_lead',
+  'post_interaction_gross',
+  'offsite_conversion.fb_pixel_lead',
+  'video_view',
+  'post_reaction'
+]
+検出されたCV: lead: 2, onsite_conversion.post_save: 6
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'click_to_call_native_call_placed',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'lead',
+  'onsite_web_lead',
+  'post_interaction_gross',
+  'offsite_conversion.fb_pixel_lead',
+  'click_to_call_native_20s_call_connect',
+  'click_to_call_native_60s_call_connect',
+  'video_view',
+  'click_to_call_call_confirm',
+  'call_confirm_grouped',
+  'post_reaction'
+]
+検出されたCV: lead: 2
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 28463,
+  conversions: 2,
+  ctr: 2.4,
+  cpm: 1123,
+  cpa: 14232,
+  budgetRate: 94.87666666666667
+}
+cpaのアラートチェック中... 目標値: 3000
+✅ cpaの確認事項を取得: 4件
+✅ cpaの改善施策を取得: 4カテゴリ
+cpmのアラートチェック中... 目標値: 1900
+ctrのアラートチェック中... 目標値: 2.3
+budget_rateのアラートチェック中... 目標値: 80
+conversionsのアラートチェック中... 目標値: 1
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザー02d004a8-03aa-4b6e-9dd2-94a1995b4360のアラートチェック完了: 1件のアラート
+  → 1件のアラート検出
+👤 ユーザー 3dab6ad4-6397-4659-b96e-88a3d59bc85b のアラートチェック中...
+=== ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラートチェック開始 ===
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1384276956051351',
+  account_name: '整足院',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '405488662',
+  chatworkRoomId: '412659441',
+  service_goal: 'toc_line',
+  target_cpa: '5000',
+  target_cpm: '1500',
+  target_ctr: '1.8',
+  target_cv: '1',
+  target_cvr: '',
+  target_budget_rate: '80',
+  target_daily_budget: '2000',
+  target_roas: '',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true,
+  additional_accounts: [
+    {
+      id: 'act_1165556408678089',
+      name: 'Account',
+      token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+      chatworkRoomId: null,
+      serviceGoal: 'toC_purchase',
+      targetCPA: '5000',
+      targetCPM: '1500',
+      targetCTR: '1.8',
+      targetCV: '1',
+      dailyBudget: '2000',
+      budgetRate: '80'
+    }
+  ]
+}
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの有効な目標値: { cpa: 5000, cpm: 1500, ctr: 1.8, budget_rate: 80, conversions: 1 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1384276956051351
+期間: 2025-10-13T08:03:46.869Z 〜 2025-10-14T08:03:46.869Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1384276956051351/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '61046',
+      impressions: '50865',
+      clicks: '1164',
+      ctr: '2.288411',
+      cpm: '1200.157279',
+      cpc: '52.445017',
+      actions: [Array],
+      reach: '42740',
+      frequency: '1.190103',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '28463',
+      impressions: '25336',
+      clicks: '616',
+      ctr: '2.431323',
+      cpm: '1123.421219',
+      cpc: '46.206169',
+      actions: [Array],
+      reach: '21680',
+      frequency: '1.168635',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_conversion.post_save',
+  'lead',
+  'onsite_web_lead',
+  'post_interaction_gross',
+  'offsite_conversion.fb_pixel_lead',
+  'video_view',
+  'post_reaction'
+]
+検出されたCV: lead: 2, onsite_conversion.post_save: 6
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'click_to_call_native_call_placed',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'lead',
+  'onsite_web_lead',
+  'post_interaction_gross',
+  'offsite_conversion.fb_pixel_lead',
+  'click_to_call_native_20s_call_connect',
+  'click_to_call_native_60s_call_connect',
+  'video_view',
+  'click_to_call_call_confirm',
+  'call_confirm_grouped',
+  'post_reaction'
+]
+検出されたCV: lead: 2
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 28463,
+  conversions: 2,
+  ctr: 2.4,
+  cpm: 1123,
+  cpa: 14232,
+  budgetRate: 1423.15
+}
+cpaのアラートチェック中... 目標値: 5000
+✅ cpaの確認事項を取得: 4件
+✅ cpaの改善施策を取得: 4カテゴリ
+cpmのアラートチェック中... 目標値: 1500
+ctrのアラートチェック中... 目標値: 1.8
+budget_rateのアラートチェック中... 目標値: 80
+conversionsのアラートチェック中... 目標値: 1
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラートチェック完了: 1件のアラート
+  → 1件のアラート検出
+👤 ユーザー 7fe7e401-a67b-40fb-bdff-0b61b67dc116 のアラートチェック中...
+=== ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116のアラートチェック開始 ===
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116の生の設定: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '406484503',
+  target_cpa: '5000',
+  target_cpm: '3000',
+  target_ctr: '3.0',
+  target_cv: '',
+  target_budget_rate: '',
+  target_daily_budget: '',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true,
+  daily_report_enabled: true,
+  update_notifications_enabled: true,
+  alert_notifications_enabled: true
+}
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116の有効な目標値: { cpa: 5000, cpm: 3000, ctr: 3 }
+Meta API 広告インサイト取得開始
+アカウントID: act_1165556408678089
+期間: 2025-10-13T08:03:47.233Z 〜 2025-10-14T08:03:47.233Z
+Meta API URL: https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&level=account&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Ccpc%2Cactions%2Caction_values%2Creach%2Cfrequency&time_range=%7B%22since%22%3A%222025-10-13%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=1
+Meta API レスポンス: {
+  data: [
+    {
+      spend: '3459',
+      impressions: '1203',
+      clicks: '15',
+      ctr: '1.246883',
+      cpm: '2875.311721',
+      cpc: '230.6',
+      actions: [Array],
+      reach: '785',
+      frequency: '1.532484',
+      date_start: '2025-10-13',
+      date_stop: '2025-10-13'
+    },
+    {
+      spend: '2007',
+      impressions: '691',
+      clicks: '4',
+      ctr: '0.578871',
+      cpm: '2904.486252',
+      cpc: '501.75',
+      actions: [Array],
+      reach: '474',
+      frequency: '1.457806',
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MQZDZD' } }
+}
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+使用するデータ: {
+  date: '2025-10-14',
+  spend: 2007,
+  conversions: 0,
+  ctr: 0.6,
+  cpm: 2904,
+  cpa: 0,
+  budgetRate: 71.67857142857143
+}
+cpaのアラートチェック中... 目標値: 5000
+cpmのアラートチェック中... 目標値: 3000
+ctrのアラートチェック中... 目標値: 3
+✅ ctrの確認事項を取得: 3件
+✅ ctrの改善施策を取得: 3カテゴリ
+✅ アラート履歴保存完了
+📝 アラート履歴保存のみ実行（通知は別途送信）
+ユーザー7fe7e401-a67b-40fb-bdff-0b61b67dc116のアラートチェック完了: 1件のアラート
+  → 1件のアラート検出
+👤 デフォルトユーザーのアラートチェック中...
+=== ユーザーtest@example.comのアラートチェック開始 ===
+ユーザー設定が見つかりません: test@example.com
+目標値が設定されていません: test@example.com
+⚠️ 重複アラートスキップ: cpm
+⚠️ 重複アラートスキップ: ctr
+⚠️ 重複アラートスキップ: budget_rate
+⚠️ 重複アラートスキップ: conversions
+⚠️ 重複アラートスキップ: cpa
+⚠️ 重複アラートスキップ: cpa
+⚠️ 重複アラートスキップ: ctr
+✅ アラート履歴保存完了: 総数1170件
+🚨 0件の新規アラートを保存
+📢 アラート通知はスケジューラーの統一システムで送信
+=== アラート自動生成完了 ===
+
+🔍 CSRF Test Mode: HEAD /
+⚠️ CSRF validation BYPASSED for testing
+🔍 CSRF Test Mode: GET /multi-account
+🔑 CSRF Token Generated: 90642769...
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /multi-account
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'cache-control': 'max-age=0',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-user': '?1',
+  'sec-fetch-dest': 'document',
+  referer: 'http://localhost:3457/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AXmVKULIGWaANonlYzJZQ3x_0A4AnYU6u.Avydf%2FIOYVqfwzilVt4PDEx%2BpYrgGJDqrdfE68gwI4o',
+  'if-none-match': 'W/"97a4-jkgK2wwfg2xwRMAf2P5SqlcJ9Q0"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/multi-account',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: false,
+  userId: undefined,
+  userEmail: undefined,
+  lastActivity: undefined,
+  sessionKeys: [ 'cookie', 'csrfToken' ]
+}
+❌ 認証失敗 - ログインページにリダイレクト: {
+  hasSession: true,
+  sessionContent: Session {
+    cookie: {
+      path: '/',
+      _expires: 2025-10-15T08:05:06.779Z,
+      originalMaxAge: 86400000,
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false
+    },
+    csrfToken: '9064276904d1c19179fbe9d1485738dd6573224ceed831059b84486d96456cd7'
+  },
+  reason: 'userIdなし'
+}
+🔍 Session Debug: {
+  url: '/login',
+  method: 'GET',
+  sessionID: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  sessionKeys: [ 'cookie', 'csrfToken' ],
+  userId: undefined,
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: GET /login
+📋 Login page render - Session ID: fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py
+🔑 CSRF token available: true
+🔍 Session Debug: {
+  url: '/login',
+  method: 'POST',
+  sessionID: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  sessionKeys: [ 'cookie', 'csrfToken' ],
+  userId: undefined,
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: POST /login
+⚠️ CSRF validation BYPASSED for testing
+==================================================
+📝 POST /login リクエスト受信 - 開始時刻: 2025-10-14T08:05:12.657Z
+Session ID: fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py
+Request headers: {
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'content-type': 'application/x-www-form-urlencoded',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  referer: 'http://localhost:3457/login'
+}
+Request body: { email: 'test123@gmail.com', hasPassword: true }
+📋 req.body詳細: {
+  csrfToken: '9064276904d1c19179fbe9d1485738dd6573224ceed831059b84486d96456cd7',
+  email: 'test123@gmail.com',
+  password: 'kmykuhi1215K'
+}
+📋 req.body type: object
+📋 req.body keys: [ 'csrfToken', 'email', 'password' ]
+📧 抽出されたemail: test123@gmail.com type: string
+🔑 抽出されたpassword: 存在します type: string
+🔐 ユーザー認証開始: test123@gmail.com
+🔍 UserManager.authenticateUser 呼び出し: test123@gmail.com type: string
+🔍 password type: string exists: true
+📊 ユーザーデータベース読み込み: 7人
+📧 正規化されたemail: test123@gmail.com
+🔍 ユーザー検索結果: 見つかりました
+🔑 パスワード検証開始
+🔑 パスワード検証結果: 一致
+✅ ログイン成功: test123@gmail.com - UserID: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+🔐 認証結果: 成功
+✅ ログイン成功 - ユーザーID: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+📝 ユーザー情報: {
+  id: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  email: 'test123@gmail.com',
+  username: 'テスト1'
+}
+💾 セッション保存を明示的に実行中...
+💾 セッション保存開始: {
+  sessionID: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  beforeSave: true
+}
+==================================================
+📝 POST /login リクエスト完了 - 終了時刻: 2025-10-14T08:05:13.126Z
+✅ セッション保存完了 - リダイレクト準備中
+📋 最終セッション状態: {
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  userName: 'テスト1',
+  sessionID: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  lastActivity: 1760429113125
+}
+⚙️ ユーザー設定状態: {
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  hasSettings: true,
+  settingsContent: {
+    meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+    meta_account_id: 'act_1384276956051351',
+    account_name: '整足院',
+    chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+    chatwork_room_id: '405488662',
+    chatworkRoomId: '412659441',
+    service_goal: 'toc_line',
+    target_cpa: '5000',
+    target_cpm: '1500',
+    target_ctr: '1.8',
+    target_cv: '1',
+    target_cvr: '',
+    target_budget_rate: '80',
+    target_daily_budget: '2000',
+    target_roas: '',
+    enable_scheduler: true,
+    schedule_hours: [ 9, 12, 15, 17, 19 ],
+    enable_chatwork: true,
+    enable_alerts: true,
+    daily_report_enabled: true,
+    update_notifications_enabled: true,
+    alert_notifications_enabled: true,
+    additional_accounts: [ [Object] ]
+  },
+  hasMetaToken: true,
+  hasChatworkToken: false
+}
+🔄 リダイレクト判定: { needsSetup: true, redirectUrl: '/setup', reason: 'セットアップが必要' }
+🔄 リダイレクト実行: /setup
+🔄 セッション保存完了後のリダイレクト実行: /setup
+🔍 Session Debug: {
+  url: '/setup',
+  method: 'GET',
+  sessionID: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ],
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: GET /setup
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /setup
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'cache-control': 'max-age=0',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-user': '?1',
+  'sec-fetch-dest': 'document',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  referer: 'http://localhost:3457/login',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/setup',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760429113125,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+Setup page - CSRF token: Available
+🔍 CSRF Test Mode: GET /api/check-saved-meta-data
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/check-saved-meta-data
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/setup',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"2a2-4eaxWLpcDqBQeTb2AaQcY0XqM7c"'
+}
+Body: {}
+=== 保存済みMeta API設定確認 ===
+setup.json 読み込み成功: { hasGoal: true, goalType: 'toC_line', isConfigured: true }
+🔍 CSRF Test Mode: POST /api/test-meta
+⚠️ CSRF validation BYPASSED for testing
+=== 全リクエストデバッグ ===
+Method: POST
+URL: /api/test-meta
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'content-length': '255',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'content-type': 'application/json',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  origin: 'http://localhost:3457',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/setup',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: {
+  token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  accountId: 'act_1165556408678089'
+}
+🔐 requireAuth チェック: {
+  url: '/api/test-meta',
+  method: 'POST',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760429113167,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+Meta API接続テスト開始
+Meta API呼び出し: act_1165556408678089
+Meta API応答成功: {
+  name: '横濱コーポレーション株式会社',
+  currency: 'JPY',
+  account_status: 1,
+  timezone_name: 'Asia/Tokyo',
+  business_name: '',
+  id: 'act_1165556408678089'
+}
+🔍 CSRF Test Mode: POST /api/test-chatwork
+⚠️ CSRF validation BYPASSED for testing
+=== 全リクエストデバッグ ===
+Method: POST
+URL: /api/test-chatwork
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'content-length': '65',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'content-type': 'application/json',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  origin: 'http://localhost:3457',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/setup',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: { token: '10e7538af625f74890e0f0bc4747c976', roomId: '405488662' }
+🔐 requireAuth チェック: {
+  url: '/api/test-chatwork',
+  method: 'POST',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433830271,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+チャットワーク API接続テスト開始
+チャットワーク API呼び出し: 405488662
+チャットワーク API応答成功: {
+  room_id: 405488662,
+  name: '競合調査部屋',
+  type: 'group',
+  role: 'admin',
+  sticky: false,
+  unread_num: 0,
+  mention_num: 0,
+  mytask_num: 0,
+  message_num: 114,
+  file_num: 0,
+  task_num: 0,
+  icon_path: 'https://appdata.chatwork.com/icon/ico_check.png',
+  description: '',
+  last_update_time: 1760428817
+}
+🔍 Session Debug: {
+  url: '/setup',
+  method: 'POST',
+  sessionID: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ],
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  cookies: 'present',
+  protocol: 'http',
+  secure: false,
+  trustProxy: false
+}
+🔍 CSRF Test Mode: POST /setup
+⚠️ CSRF validation BYPASSED for testing
+=== 全リクエストデバッグ ===
+Method: POST
+URL: /setup
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'content-length': '747',
+  'cache-control': 'max-age=0',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  origin: 'http://localhost:3457',
+  'content-type': 'application/x-www-form-urlencoded',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-user': '?1',
+  'sec-fetch-dest': 'document',
+  referer: 'http://localhost:3457/setup',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: {
+  csrfToken: '9064276904d1c19179fbe9d1485738dd6573224ceed831059b84486d96456cd7',
+  metaAccessToken: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  metaAccountId: 'act_1165556408678089',
+  metaAppId: '',
+  chatworkApiToken: '10e7538af625f74890e0f0bc4747c976',
+  chatworkRoomId: '405488662',
+  goal_type: 'toC_line',
+  target_budget_rate: '80',
+  target_daily_budget: '1000',
+  target_ctr: '2.5',
+  target_cpm: '800',
+  target_cpa: '1000',
+  target_cv: '1',
+  daily_report_enabled: 'true',
+  daily_report_time: '09:00',
+  update_notifications_enabled: 'true',
+  update_times: [ '12:00', '15:00', '17:00', '19:00' ],
+  alert_notifications_enabled: 'true'
+}
+🔐 requireAuth チェック: {
+  url: '/setup',
+  method: 'POST',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433848423,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+User settings saved: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+🔍 CSRF Test Mode: GET /dashboard
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /dashboard
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'cache-control': 'max-age=0',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-user': '?1',
+  'sec-fetch-dest': 'document',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  referer: 'http://localhost:3457/setup',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"f20b-+cXR/2pM6fXytqjP3bmOvzGhxGw"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/dashboard',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433851878,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+Dashboard route accessed for user: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+Rendering dashboard for user: test123@gmail.com
+🔍 CSRF Test Mode: GET /api/debug-meta-config
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/debug-meta-config
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"312-Aby3CNG0BOV2Q7N5/ka0BpMwKCk"'
+}
+Body: {}
+=== Meta API設定デバッグ ===
+=== 設定済みMeta API情報取得開始 === { userId: null }
+設定ファイル発見: /Users/komiyakouhei/Desktop/meta-ads-dashboard-main 55/config/meta-config.json
+設定内容: [ 'meta_access_token', 'meta_account_id', 'meta_app_id' ]
+✅ Meta API設定取得成功
+デバッグ情報: {
+  timestamp: '2025-10-14T09:24:11.952Z',
+  globalVariables: { hasMetaApiConfig: false, hasUserData: false, globalKeys: [] },
+  fileSystem: {
+    'data/user-config.json': { exists: false },
+    'config/meta-config.json': {
+      exists: true,
+      keys: [Array],
+      hasMetaToken: true,
+      hasMetaAccount: true,
+      hasNestedMeta: false,
+      hasSettingsMeta: false
+    },
+    'setup-data.json': { exists: false },
+    'user-data.json': { exists: false },
+    'settings.json': {
+      exists: true,
+      keys: [Array],
+      hasMetaToken: false,
+      hasMetaAccount: false,
+      hasNestedMeta: true,
+      hasSettingsMeta: true
+    }
+  },
+  environment: {
+    hasMetaAccessToken: false,
+    hasMetaAccountId: false,
+    nodeEnv: undefined
+  },
+  finalResult: { configFound: true, hasAccessToken: true, hasAccountId: true }
+}
+🔍 CSRF Test Mode: GET /api/dashboard-data
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/dashboard-data
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"18d-z/hUAi3/Ut4ixwRcWU+rVl6/LG4"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/dashboard-data',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433851892,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+=== ダッシュボードデータ取得開始（マルチユーザー対応） ===
+ユーザーID: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+期間: today
+キャンペーンID: null
+ユーザー設定確認完了: {
+  hasToken: true,
+  hasAccountId: true,
+  hasCPA: true,
+  hasCPM: true,
+  hasDailyBudget: false
+}
+=== Meta API呼び出し: 2025-10-14 === { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+=== 設定済みMeta API情報取得開始 === { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+🔍 ユーザー別設定確認: {
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userSettingsFound: true,
+  hasAccessToken: true,
+  hasAccountId: true,
+  accessTokenLength: 208,
+  accountId: 'act_1165556408678089'
+}
+✅ ユーザー別Meta API設定取得成功
+🔍 Meta API使用する認証情報: {
+  accountId: 'act_1165556408678089',
+  accessTokenLength: 208,
+  accessTokenPrefix: 'EAAcUd0aSH...',
+  fromUserSettings: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b'
+}
+Meta API URL: https://graph.facebook.com/v18.0/act_1165556408678089/insights?access_token=ACCESS_TOKEN_HIDDEN&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Cfrequency%2Creach%2Cactions%2Caction_values%2Ccost_per_action_type%2Cwebsite_purchase_roas&time_range=%7B%22since%22%3A%222025-10-14%22%2C%22until%22%3A%222025-10-14%22%7D&level=account&action_report_time=conversion&action_attribution_windows=7d_click%2C1d_view
+🔍 CSRF Test Mode: GET /api/campaigns
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/campaigns
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"17d9-flJm4s50xzEub2bIgCtGMWwxqoU"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/campaigns',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433851892,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+=== キャンペーンリスト取得開始 ===
+🔍 ユーザーID: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+=== 設定済みMeta API情報取得開始 === { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+🔍 ユーザー別設定確認: {
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userSettingsFound: true,
+  hasAccessToken: true,
+  hasAccountId: true,
+  accessTokenLength: 208,
+  accountId: 'act_1165556408678089'
+}
+✅ ユーザー別Meta API設定取得成功
+Meta API呼び出し: https://graph.facebook.com/v18.0/act_1165556408678089/campaigns?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&fields=id%2Cname%2Cstatus%2Cobjective%2Ccreated_time%2Cupdated_time&limit=100
+📊 22件のキャンペーンのinsightsを並列取得開始...
+Meta APIレスポンス: {
+  data: [
+    {
+      spend: '2164',
+      impressions: '734',
+      clicks: '7',
+      ctr: '0.953678',
+      cpm: '2948.228883',
+      frequency: '1.48583',
+      reach: '494',
+      actions: [Array],
+      cost_per_action_type: [Array],
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MAZDZD' } }
+}
+
+=== 取得したアクションタイプ一覧 ===
+  page_engagement: 53
+  landing_page_view: 2
+  omni_landing_page_view: 2
+  post_engagement: 53
+  link_click: 3
+  video_view: 50
+===========================
+
+✅ Meta広告データ取得成功: {
+  spend: '2164',
+  impressions: '734',
+  clicks: '7',
+  ctr: '0.953678',
+  cpm: '2948.228883',
+  frequency: '1.48583',
+  reach: '494',
+  actions: [
+    {
+      action_type: 'page_engagement',
+      value: '53',
+      '1d_view': '49',
+      '7d_click': '4'
+    },
+    { action_type: 'landing_page_view', value: '2', '7d_click': '2' },
+    {
+      action_type: 'omni_landing_page_view',
+      value: '2',
+      '7d_click': '2'
+    },
+    {
+      action_type: 'post_engagement',
+      value: '53',
+      '1d_view': '49',
+      '7d_click': '4'
+    },
+    { action_type: 'link_click', value: '3', '7d_click': '3' },
+    {
+      action_type: 'video_view',
+      value: '50',
+      '1d_view': '49',
+      '7d_click': '1'
+    }
+  ],
+  cost_per_action_type: [
+    {
+      action_type: 'video_view',
+      value: '43.28',
+      '1d_view': '44.163265',
+      '7d_click': '2164'
+    },
+    {
+      action_type: 'link_click',
+      value: '721.333333',
+      '7d_click': '721.333333'
+    },
+    {
+      action_type: 'post_engagement',
+      value: '40.830189',
+      '1d_view': '44.163265',
+      '7d_click': '541'
+    },
+    {
+      action_type: 'landing_page_view',
+      value: '1082',
+      '7d_click': '1082'
+    },
+    {
+      action_type: 'page_engagement',
+      value: '40.830189',
+      '1d_view': '44.163265',
+      '7d_click': '541'
+    },
+    {
+      action_type: 'omni_landing_page_view',
+      value: '1082',
+      '7d_click': '1082'
+    }
+  ],
+  date_start: '2025-10-14',
+  date_stop: '2025-10-14'
+}
+🔍 実際の日予算を取得中（キャンペーン＋広告セット）...
+⚠️ Campaign 120233421694400102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120229534348900102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120227702057330102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120236908732890102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120233277683780102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120234275838550102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120234512227500102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120235803595390102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120229534006990102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120236010216340102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120232305759190102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120228756139290102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120228755146880102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120233545139200102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120235600590940102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120228850811520102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120229029927140102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120235510461060102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120228755756050102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120231919779440102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120230510051370102 のinsights取得失敗: Request failed with status code 400
+⚠️ Campaign 120230509343190102 のinsights取得失敗: Request failed with status code 400
+✅ キャンペーンリスト取得成功: 22件（insights含む）
+🔍 CSRF Test Mode: GET /api/campaigns/details?period=last_7d
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/campaigns/details?period=last_7d
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"130f-q8LjPf6gWPdKFu/6GhGXgydCVFM"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/campaigns/details?period=last_7d',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433852034,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+🔍 CSRF Test Mode: GET /api/meta-ads-data?type=daily&date=2025-10-14
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/meta-ads-data?type=daily&date=2025-10-14
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"10f-3VzwtXAy9MQs3OwoQP3s9Df+Scs"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/meta-ads-data?type=daily&date=2025-10-14',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433852034,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+=== ダッシュボード Meta広告データAPI ===
+🔍 セッション情報: {
+  hasSession: true,
+  sessionUserId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  sessionUser: undefined,
+  sessionUserID: undefined,
+  finalUserId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b'
+}
+リクエストパラメータ: {
+  type: 'daily',
+  date: '2025-10-14',
+  period: undefined,
+  campaignId: undefined,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b'
+}
+2025-10-14の実際のMeta広告データを取得中...
+=== Meta API呼び出し: 2025-10-14 === { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+=== 設定済みMeta API情報取得開始 === { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+🔍 ユーザー別設定確認: {
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userSettingsFound: true,
+  hasAccessToken: true,
+  hasAccountId: true,
+  accessTokenLength: 208,
+  accountId: 'act_1165556408678089'
+}
+✅ ユーザー別Meta API設定取得成功
+🔍 Meta API使用する認証情報: {
+  accountId: 'act_1165556408678089',
+  accessTokenLength: 208,
+  accessTokenPrefix: 'EAAcUd0aSH...',
+  fromUserSettings: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b'
+}
+Meta API URL: https://graph.facebook.com/v18.0/act_1165556408678089/insights?access_token=ACCESS_TOKEN_HIDDEN&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Cfrequency%2Creach%2Cactions%2Caction_values%2Ccost_per_action_type%2Cwebsite_purchase_roas&time_range=%7B%22since%22%3A%222025-10-14%22%2C%22until%22%3A%222025-10-14%22%7D&level=account&action_report_time=conversion&action_attribution_windows=7d_click%2C1d_view
+✅ アクティブキャンペーン・広告セットの日予算合計: 0円
+取得したアクションタイプ一覧: [
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'link_click',
+  'video_view'
+]
+コンバージョンなし
+convertInsightsToMetricsWithActualBudget - userId: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+convertInsightsToMetricsWithActualBudget - actualDailyBudget: 0
+=== ハイブリッド日予算取得 ===
+入力userId: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+API取得日予算（アクティブキャンペーンのみ）: 0
+取得したuserSettings: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '405488662',
+  service_goal: 'toC_line',
+  target_cpa: '1000',
+  target_cpm: '800',
+  target_ctr: '2.5',
+  target_cv: '1',
+  target_budget_rate: '80',
+  target_daily_budget: '1000',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true
+}
+target_daily_budgetの値: 1000
+✅ ユーザー設定の日予算を使用: 1000 円
+=== 予算消化率計算（実際の日予算使用） ===
+実際の消費: 2164円
+インプレッション: 734
+実際の日予算: 0円
+使用する日予算: 1000円
+計算された予算消化率: 216.40%
+Meta APIレスポンス: {
+  data: [
+    {
+      spend: '2164',
+      impressions: '734',
+      clicks: '7',
+      ctr: '0.953678',
+      cpm: '2948.228883',
+      frequency: '1.48583',
+      reach: '494',
+      actions: [Array],
+      cost_per_action_type: [Array],
+      date_start: '2025-10-14',
+      date_stop: '2025-10-14'
+    }
+  ],
+  paging: { cursors: { before: 'MAZDZD', after: 'MAZDZD' } }
+}
+
+=== 取得したアクションタイプ一覧 ===
+  page_engagement: 53
+  landing_page_view: 2
+  omni_landing_page_view: 2
+  post_engagement: 53
+  link_click: 3
+  video_view: 50
+===========================
+
+✅ Meta広告データ取得成功: {
+  spend: '2164',
+  impressions: '734',
+  clicks: '7',
+  ctr: '0.953678',
+  cpm: '2948.228883',
+  frequency: '1.48583',
+  reach: '494',
+  actions: [
+    {
+      action_type: 'page_engagement',
+      value: '53',
+      '1d_view': '49',
+      '7d_click': '4'
+    },
+    { action_type: 'landing_page_view', value: '2', '7d_click': '2' },
+    {
+      action_type: 'omni_landing_page_view',
+      value: '2',
+      '7d_click': '2'
+    },
+    {
+      action_type: 'post_engagement',
+      value: '53',
+      '1d_view': '49',
+      '7d_click': '4'
+    },
+    { action_type: 'link_click', value: '3', '7d_click': '3' },
+    {
+      action_type: 'video_view',
+      value: '50',
+      '1d_view': '49',
+      '7d_click': '1'
+    }
+  ],
+  cost_per_action_type: [
+    {
+      action_type: 'video_view',
+      value: '43.28',
+      '1d_view': '44.163265',
+      '7d_click': '2164'
+    },
+    {
+      action_type: 'link_click',
+      value: '721.333333',
+      '7d_click': '721.333333'
+    },
+    {
+      action_type: 'post_engagement',
+      value: '40.830189',
+      '1d_view': '44.163265',
+      '7d_click': '541'
+    },
+    {
+      action_type: 'landing_page_view',
+      value: '1082',
+      '7d_click': '1082'
+    },
+    {
+      action_type: 'page_engagement',
+      value: '40.830189',
+      '1d_view': '44.163265',
+      '7d_click': '541'
+    },
+    {
+      action_type: 'omni_landing_page_view',
+      value: '1082',
+      '7d_click': '1082'
+    }
+  ],
+  date_start: '2025-10-14',
+  date_stop: '2025-10-14'
+}
+🔍 実際の日予算を取得中（キャンペーン＋広告セット）...
+📊 22件のキャンペーンのインサイトを並列取得開始...
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_conversion.post_save',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+検出されたCV: onsite_conversion.post_save: 1
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_web_view_content',
+  'view_content',
+  'onsite_web_app_view_content',
+  'post_interaction_gross',
+  'offsite_content_view_add_meta_leads',
+  'video_view',
+  'omni_view_content',
+  'offsite_conversion.fb_pixel_view_content',
+  'post_reaction',
+  'offsite_conversion.fb_pixel_custom'
+]
+検出されたCV: Metaリード: 1
+✅ アクティブキャンペーン・広告セットの日予算合計: 0円
+取得したアクションタイプ一覧: [
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'link_click',
+  'video_view'
+]
+コンバージョンなし
+convertInsightsToMetricsWithActualBudget - userId: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+convertInsightsToMetricsWithActualBudget - actualDailyBudget: 0
+=== ハイブリッド日予算取得 ===
+入力userId: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+API取得日予算（アクティブキャンペーンのみ）: 0
+取得したuserSettings: {
+  meta_access_token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  meta_account_id: 'act_1165556408678089',
+  chatwork_api_token: '10e7538af625f74890e0f0bc4747c976',
+  chatwork_room_id: '405488662',
+  service_goal: 'toC_line',
+  target_cpa: '1000',
+  target_cpm: '800',
+  target_ctr: '2.5',
+  target_cv: '1',
+  target_budget_rate: '80',
+  target_daily_budget: '1000',
+  enable_scheduler: true,
+  schedule_hours: [ 9, 12, 15, 17, 19 ],
+  enable_chatwork: true,
+  enable_alerts: true
+}
+target_daily_budgetの値: 1000
+✅ ユーザー設定の日予算を使用: 1000 円
+=== 予算消化率計算（実際の日予算使用） ===
+実際の消費: 2164円
+インプレッション: 734
+実際の日予算: 0円
+使用する日予算: 1000円
+計算された予算消化率: 216.40%
+✅ ダッシュボードデータ取得成功: {
+  spend: 2164,
+  budgetRate: 100,
+  ctr: 0.953678,
+  cpm: 2948,
+  conversions: 0,
+  cpa: 0,
+  frequency: 1.48583,
+  impressions: 734,
+  chartData: {
+    labels: [ '10/14' ],
+    spend: [ 2164 ],
+    ctr: [ 0.953678 ],
+    cpm: [ 2948 ],
+    conversions: [ 0 ],
+    cpa: [ 0 ],
+    frequency: [ 1.48583 ],
+    impressions: [ 734 ]
+  }
+}
+🔍 CSRF Test Mode: GET /multi-account
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /multi-account
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-user': '?1',
+  'sec-fetch-dest': 'document',
+  referer: 'http://localhost:3457/dashboard',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/multi-account',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433853198,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+🔍 CSRF Test Mode: GET /api/multi-accounts
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/multi-accounts
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/multi-account',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"20e-nNqhYSnVU6c4DhhqcLCX4arJyrQ"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/multi-accounts',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433857068,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+マルチアカウント一覧取得 - ユーザーID: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+追加アカウント数: 0
+追加アカウント詳細: []
+🔍 CSRF Test Mode: POST /api/multi-accounts/add
+⚠️ CSRF validation BYPASSED for testing
+=== 全リクエストデバッグ ===
+Method: POST
+URL: /api/multi-accounts/add
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'content-length': '429',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'content-type': 'application/json',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  origin: 'http://localhost:3457',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/multi-account',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: {
+  name: '整足院',
+  id: 'act_1384276956051351',
+  token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  chatworkRoomId: '412659441',
+  serviceGoal: 'toc_buy',
+  targetCPA: '5000',
+  targetCPM: '5000',
+  targetCTR: '5',
+  targetCV: '50',
+  dailyBudget: '499997',
+  budgetRate: ''
+}
+🔐 requireAuth チェック: {
+  url: '/api/multi-accounts/add',
+  method: 'POST',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433857134,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+アカウント追加リクエスト: {
+  name: '整足院',
+  id: 'act_1384276956051351',
+  hasToken: true,
+  chatworkRoomId: '412659441'
+}
+Meta API呼び出し: act_1384276956051351
+Meta API応答成功: {
+  name: '整足院',
+  currency: 'JPY',
+  account_status: 1,
+  timezone_name: 'Asia/Tokyo',
+  business_name: '',
+  id: 'act_1384276956051351'
+}
+Meta API検証成功: {
+  name: '整足院',
+  currency: 'JPY',
+  account_status: 1,
+  timezone_name: 'Asia/Tokyo',
+  business_name: '',
+  id: 'act_1384276956051351'
+}
+追加されたアカウント: {
+  id: 'act_1384276956051351',
+  name: '整足院',
+  token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+  chatworkRoomId: '412659441',
+  serviceGoal: 'toc_buy',
+  targetCPA: '5000',
+  targetCPM: '5000',
+  targetCTR: '5',
+  targetCV: '50',
+  dailyBudget: '499997',
+  budgetRate: '80'
+}
+現在の追加アカウント数: 1
+✅ ユーザー設定保存完了 (個別ファイル): /Users/komiyakouhei/Desktop/meta-ads-dashboard-main 55/data/user_settings/3dab6ad4-6397-4659-b96e-88a3d59bc85b.json
+🔍 CSRF Test Mode: GET /api/multi-accounts
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/multi-accounts
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/multi-account',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"160-5t0qWscNY7qk/TZC/TqBJ8549Rs"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/multi-accounts',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433889711,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+マルチアカウント一覧取得 - ユーザーID: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+追加アカウント数: 1
+追加アカウント詳細: [
+  {
+    id: 'act_1384276956051351',
+    name: '整足院',
+    token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+    chatworkRoomId: '412659441',
+    serviceGoal: 'toc_buy',
+    targetCPA: '5000',
+    targetCPM: '5000',
+    targetCTR: '5',
+    targetCV: '50',
+    dailyBudget: '499997',
+    budgetRate: '80'
+  }
+]
+アカウントゴール設定チェック: {
+  id: 'act_1384276956051351',
+  hasServiceGoal: true,
+  hasTargetCPA: true,
+  serviceGoal: 'toc_buy',
+  targetCPA: '5000'
+}
+🔍 CSRF Test Mode: GET /audience-analysis
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /audience-analysis
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-user': '?1',
+  'sec-fetch-dest': 'document',
+  referer: 'http://localhost:3457/multi-account',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"8db8-HFplswwI5dEKGhPzmfwjhaEI7Do"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/audience-analysis',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433890190,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+🔍 CSRF Test Mode: GET /api/funnel-analysis?since=2025-10-07&until=2025-10-14
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/funnel-analysis?since=2025-10-07&until=2025-10-14
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/audience-analysis',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"2b6-BrWc5abD928YLUbCcj+rJ9YT5CI"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/funnel-analysis?since=2025-10-07&until=2025-10-14',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433897367,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+Meta API ファネル分析取得開始（汎用ファネル）
+Meta API Funnel URL: https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=TOKEN&fields=impressions%2Cclicks%2Cactions%2Caction_values%2Cspend&time_range=%7B%22since%22%3A%222025-10-07%22%2C%22until%22%3A%222025-10-14%22%7D&time_increment=all_days
+🔍 CSRF Test Mode: GET /api/audience-insights?since=2025-10-07&until=2025-10-14
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/audience-insights?since=2025-10-07&until=2025-10-14
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/audience-analysis',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"633-LGv2PgcLerhTQrfd0Sxkc/YkX9U"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/audience-insights?since=2025-10-07&until=2025-10-14',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433897367,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+Meta API オーディエンス分析取得開始
+Meta API Audience URL (age,gender): https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Cactions&time_range=%7B%22since%22%3A%222025-10-07%22%2C%22until%22%3A%222025-10-14%22%7D&breakdowns=age%2Cgender&time_increment=all_days
+Meta API Funnel レスポンス: {
+  "data": [
+    {
+      "impressions": "6664",
+      "clicks": "82",
+      "actions": [
+        {
+          "action_type": "link_click",
+          "value": "49"
+        },
+        {
+          "action_type": "page_engagement",
+          "value": "536"
+        },
+        {
+          "action_type": "landing_page_view",
+          "value": "31"
+        },
+        {
+          "action_type": "omni_landing_page_view",
+          "value": "31"
+        },
+        {
+          "action_type": "post_engagement",
+          "value": "536"
+        },
+        {
+          "action_type": "onsite_web_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_conversion.post_save",
+          "value": "1"
+        },
+        {
+          "action_type": "view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "onsite_web_app_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "post_interaction_gross",
+          "value": "4"
+        },
+        {
+          "action_type": "offsite_content_view_add_meta_leads",
+          "value": "1"
+        },
+        {
+          "action_type": "video_view",
+          "value": "483"
+        },
+        {
+          "action_type": "omni_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_view_content",
+          "value": "1"
+        },
+        {
+          "action_type": "post_reaction",
+          "value": "3"
+        },
+        {
+          "action_type": "offsite_conversion.fb_pixel_custom",
+          "value": "1"
+        }
+      ],
+      "spend": "21596",
+      "date_start": "2025-10-07",
+      "date_stop": "2025-10-14"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "MAZDZD",
+      "after": "MAZDZD"
+    }
+  }
+}
+  アクション: link_click = 49
+  アクション: page_engagement = 536
+  アクション: landing_page_view = 31
+  アクション: omni_landing_page_view = 31
+  アクション: post_engagement = 536
+  アクション: onsite_web_view_content = 1
+  アクション: onsite_conversion.post_save = 1
+  アクション: view_content = 1
+  アクション: onsite_web_app_view_content = 1
+  アクション: post_interaction_gross = 4
+  アクション: offsite_content_view_add_meta_leads = 1
+  アクション: video_view = 483
+  アクション: omni_view_content = 1
+  アクション: offsite_conversion.fb_pixel_view_content = 1
+  アクション: post_reaction = 3
+  アクション: offsite_conversion.fb_pixel_custom = 1
+=== ファネルステージ集計結果（実データ） ===
+インプレッション: 6664
+クリック: 82
+ランディングページビュー: 62
+エンゲージメント: 1555
+コンバージョン: 2
+=== ファネルデータ構築完了 ===
+ステージ数: 5
+離脱ポイント数: 4
+Meta API Audience URL (device_platform): https://graph.facebook.com/v19.0/act_1165556408678089/insights?access_token=EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F&fields=spend%2Cimpressions%2Cclicks%2Cctr%2Ccpm%2Cactions&time_range=%7B%22since%22%3A%222025-10-07%22%2C%22until%22%3A%222025-10-14%22%7D&breakdowns=device_platform&time_increment=all_days
+取得したアクションタイプ一覧: [ 'page_engagement', 'post_engagement', 'video_view' ]
+コンバージョンなし
+取得したアクションタイプ一覧: [ 'page_engagement', 'post_engagement', 'video_view' ]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'page_engagement',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_conversion.post_save',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+検出されたCV: onsite_conversion.post_save: 1
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_web_view_content',
+  'view_content',
+  'onsite_web_app_view_content',
+  'offsite_content_view_add_meta_leads',
+  'video_view',
+  'omni_view_content',
+  'offsite_conversion.fb_pixel_view_content',
+  'offsite_conversion.fb_pixel_custom'
+]
+検出されたCV: Metaリード: 1
+取得したアクションタイプ一覧: [ 'page_engagement', 'post_engagement', 'video_view' ]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'video_view'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'page_engagement',
+  'post_engagement',
+  'post_interaction_gross',
+  'video_view',
+  'post_reaction'
+]
+コンバージョンなし
+取得したアクションタイプ一覧: [
+  'link_click',
+  'page_engagement',
+  'landing_page_view',
+  'omni_landing_page_view',
+  'post_engagement',
+  'onsite_web_view_content',
+  'onsite_conversion.post_save',
+  'view_content',
+  'onsite_web_app_view_content',
+  'post_interaction_gross',
+  'offsite_content_view_add_meta_leads',
+  'video_view',
+  'omni_view_content',
+  'offsite_conversion.fb_pixel_view_content',
+  'post_reaction',
+  'offsite_conversion.fb_pixel_custom'
+]
+検出されたCV: Metaリード: 1
+🔍 CSRF Test Mode: GET /.well-known/appspecific/com.chrome.devtools.json
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /.well-known/appspecific/com.chrome.devtools.json
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'no-cors',
+  'sec-fetch-dest': 'empty',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: {}
+🔍 CSRF Test Mode: POST /api/test/send-notification
+⚠️ CSRF validation BYPASSED for testing
+=== 全リクエストデバッグ ===
+Method: POST
+URL: /api/test/send-notification
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'content-length': '59',
+  'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1',
+  'content-type': 'application/json',
+  accept: '*/*',
+  origin: 'http://localhost:3457',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/audience-analysis',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: { hour: 15, userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+🔐 requireAuth チェック: {
+  url: '/api/test/send-notification',
+  method: 'POST',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433897404,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+📧 テスト通知送信開始 - 時刻: 15時, ユーザー: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+対象ユーザー数: 1
+テスト1に定期更新通知を送信
+🔄 ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの定期更新通知テスト送信開始
+[Chatwork] 送信準備: メッセージ長=115, ルームID=405488662
+✅ [chatwork] 2025-10-14の通知を送信しました
+✅ ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの定期更新通知送信完了
+🔍 追加アカウント数: 0
+🔍 追加アカウント詳細: []
+テスト1にアラート通知を送信
+🚨 ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラート通知チェック開始
+📝 テストモード: サンプルアラートを生成
+🔍 [アラート] 追加アカウント数: 0
+📊 重複排除開始: 3件のアラート
+  ✅ 追加: CTR (目標:1, 実績:0.8)
+  ✅ 追加: CPM (目標:1800, 実績:2100)
+  ✅ 追加: CV (目標:1, 実績:0)
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85b: 重複排除完了 3件 → 3件
+[Chatwork] 送信準備: メッセージ長=376, ルームID=405488662
+✅ [chatwork] 2025-10-14の通知を送信しました
+✅ ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラート通知送信完了（3件のアラート）
+🔍 CSRF Test Mode: GET /multi-account
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /multi-account
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"macOS"',
+  'upgrade-insecure-requests': '1',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-user': '?1',
+  'sec-fetch-dest': 'document',
+  referer: 'http://localhost:3457/audience-analysis',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"97a4-jkgK2wwfg2xwRMAf2P5SqlcJ9Q0"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/multi-account',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433929874,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+🔍 CSRF Test Mode: GET /api/multi-accounts
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /api/multi-accounts
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/multi-account',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y',
+  'if-none-match': 'W/"205-aNZFw4AgxLRitcCCXXopkzSKhfY"'
+}
+Body: {}
+🔐 requireAuth チェック: {
+  url: '/api/multi-accounts',
+  method: 'GET',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433975767,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+マルチアカウント一覧取得 - ユーザーID: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+追加アカウント数: 1
+追加アカウント詳細: [
+  {
+    id: 'act_1384276956051351',
+    name: '整足院',
+    token: 'EAAcUd0aSHKMBPG6f5enFvnu9I2Txcgulz7uHw0INre8ka8q4O0owf42kPnGePZAzPEPKeJbpWWAzulEUKVv6LkdNwiVisDmonyJW7OrU0L9X0Fynzc3X2RcXZBMBjLj7XsjP15G25CjiejDMe6DOXhqsMT4SdeZBwKuEqC202ETupxSmO9CFkHqGrlyIoPD5hp3BjsoCguD8i0F',
+    chatworkRoomId: '412659441',
+    serviceGoal: 'toc_buy',
+    targetCPA: '5000',
+    targetCPM: '5000',
+    targetCTR: '5',
+    targetCV: '50',
+    dailyBudget: '499997',
+    budgetRate: '80'
+  }
+]
+アカウントゴール設定チェック: {
+  id: 'act_1384276956051351',
+  hasServiceGoal: true,
+  hasTargetCPA: true,
+  serviceGoal: 'toc_buy',
+  targetCPA: '5000'
+}
+🔍 CSRF Test Mode: GET /.well-known/appspecific/com.chrome.devtools.json
+=== 全リクエストデバッグ ===
+Method: GET
+URL: /.well-known/appspecific/com.chrome.devtools.json
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'no-cors',
+  'sec-fetch-dest': 'empty',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: {}
+🔍 CSRF Test Mode: POST /api/test/send-notification
+⚠️ CSRF validation BYPASSED for testing
+=== 全リクエストデバッグ ===
+Method: POST
+URL: /api/test/send-notification
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'content-length': '59',
+  'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1',
+  'content-type': 'application/json',
+  accept: '*/*',
+  origin: 'http://localhost:3457',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/multi-account',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: { hour: 15, userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+🔐 requireAuth チェック: {
+  url: '/api/test/send-notification',
+  method: 'POST',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760433975804,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+📧 テスト通知送信開始 - 時刻: 15時, ユーザー: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+対象ユーザー数: 1
+テスト1に定期更新通知を送信
+🔄 ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの定期更新通知テスト送信開始
+[Chatwork] 送信準備: メッセージ長=115, ルームID=405488662
+✅ [chatwork] 2025-10-14の通知を送信しました
+✅ ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの定期更新通知送信完了
+🔍 追加アカウント数: 0
+🔍 追加アカウント詳細: []
+テスト1にアラート通知を送信
+🚨 ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラート通知チェック開始
+📝 テストモード: サンプルアラートを生成
+🔍 [アラート] 追加アカウント数: 0
+📊 重複排除開始: 3件のアラート
+  ✅ 追加: CTR (目標:1, 実績:0.8)
+  ✅ 追加: CPM (目標:1800, 実績:2100)
+  ✅ 追加: CV (目標:1, 実績:0)
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85b: 重複排除完了 3件 → 3件
+[Chatwork] 送信準備: メッセージ長=376, ルームID=405488662
+✅ [chatwork] 2025-10-14の通知を送信しました
+✅ ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラート通知送信完了（3件のアラート）
+🔍 CSRF Test Mode: POST /api/test/send-notification
+⚠️ CSRF validation BYPASSED for testing
+=== 全リクエストデバッグ ===
+Method: POST
+URL: /api/test/send-notification
+Headers: {
+  host: 'localhost:3457',
+  connection: 'keep-alive',
+  'content-length': '59',
+  'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1',
+  'content-type': 'application/json',
+  accept: '*/*',
+  origin: 'http://localhost:3457',
+  'sec-fetch-site': 'same-origin',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3457/multi-account',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+  cookie: 'ajs_anonymous_id=65b41d2c-beba-463f-8a7c-b31d3141237d; _streamlit_xsrf=2|7f92781e|b97e1152c882ffeed10e9307e91aed1e|1755318361; next-auth.csrf-token=9e5c43fc81a8ebd3f86b82bebd244e7a174d4eea4f23ccdb9be59be3da0890af%7Cff82109d1159c92f16a7de6ac7ff1656d46b21cd5093ba40e704b40cd9c39fb0; next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Flogin; next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..OXcCzAxdVvyiZ96z.cljZqdlTrC05oA0uqotRIF1WKU-S7EC9drgt4YyoOBFjhMC9wvJQIBBNBhKX7Rw8qHbfkdAL6KHLjEj31LLZUm4ezdMSwih8n93ZWN_sSHgbgCQG_-lEm86KhyJqUu0D5X67E13gbOUPywgrGbRVfLGEGz7wy_Y84DMzn8wKCCANRFickrA7UtHnRrUeaZl0dF46vehWWQGXkxohk4BZKu5tPH3PB-GgNb3h3Y3wG3mAqJqXI6ZAjzmxwzqZ4qjRMBjTBJ3sHyhUhT8pdlaCmYwU-Fxy-b4.TauoYjExyA7MYsP4V5Yi1A; __next_hmr_refresh_hash__=1525; metaads.sessionid=s%3AfN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py.8z1%2Fi1E24InzeXTMQ0XJlApuNSQse6bnSRkTYzv5X6Y'
+}
+Body: { hour: 15, userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b' }
+🔐 requireAuth チェック: {
+  url: '/api/test/send-notification',
+  method: 'POST',
+  sessionId: 'fN4JXdU7RabUV1zkrK5zW1ACg2LrD2Py',
+  hasSession: true,
+  hasUserId: true,
+  userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b',
+  userEmail: 'test123@gmail.com',
+  lastActivity: 1760434031461,
+  sessionKeys: [
+    'cookie',
+    'csrfToken',
+    'userId',
+    'userEmail',
+    'userName',
+    'lastActivity'
+  ]
+}
+✅ 認証成功 - 次のミドルウェアに進行: { userId: '3dab6ad4-6397-4659-b96e-88a3d59bc85b', userName: 'テスト1' }
+📧 テスト通知送信開始 - 時刻: 15時, ユーザー: 3dab6ad4-6397-4659-b96e-88a3d59bc85b
+対象ユーザー数: 1
+テスト1に定期更新通知を送信
+🔄 ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの定期更新通知テスト送信開始
+[Chatwork] 送信準備: メッセージ長=115, ルームID=405488662
+✅ [chatwork] 2025-10-14の通知を送信しました
+✅ ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bの定期更新通知送信完了
+🔍 追加アカウント数: 0
+🔍 追加アカウント詳細: []
+テスト1にアラート通知を送信
+🚨 ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラート通知チェック開始
+📝 テストモード: サンプルアラートを生成
+🔍 [アラート] 追加アカウント数: 0
+📊 重複排除開始: 3件のアラート
+  ✅ 追加: CTR (目標:1, 実績:0.8)
+  ✅ 追加: CPM (目標:1800, 実績:2100)
+  ✅ 追加: CV (目標:1, 実績:0)
+ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85b: 重複排除完了 3件 → 3件
+[Chatwork] 送信準備: メッセージ長=376, ルームID=405488662
+✅ [chatwork] 2025-10-14の通知を送信しました
+✅ ユーザー3dab6ad4-6397-4659-b96e-88a3d59bc85bのアラート通知送信完了（3件のアラート）
