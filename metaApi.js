@@ -217,9 +217,10 @@ class MetaApi {
             if (dayData) {
                 spendHistory.push(Math.round(parseFloat(dayData.spend || 0)));
                 
-                // 共通モジュールを使用してCV計測
-                const conversions = getConversionsFromActions(dayData.actions);
-                conversionsHistory.push(conversions);
+                // 共通モジュールを使用してCV計測（内訳データも取得）
+                const conversionsData = getConversionsFromActions(dayData.actions);
+                const conversions = conversionsData.total || conversionsData || 0;
+                conversionsHistory.push(conversionsData);
                 
                 const impressions = parseInt(dayData.impressions || 0);
                 const clicks = parseInt(dayData.clicks || 0);
@@ -239,7 +240,8 @@ class MetaApi {
         const dailyData = [];
         dates.forEach((date, index) => {
             const spend = spendHistory[index];
-            const conversions = conversionsHistory[index];
+            const conversionsData = conversionsHistory[index];
+            const conversions = conversionsData.total || conversionsData || 0;
             const ctr = ctrHistory[index];
             
             // 対応する元データを再度取得してCPMとCPAを計算
@@ -275,7 +277,7 @@ class MetaApi {
             dailyData.push({
                 date: dateStr,
                 spend: spend,
-                conversions: conversions,
+                conversions: conversionsData, // 内訳データを含む形式で保存
                 ctr: ctr,
                 cpm: Math.round(cpm),
                 cpa: Math.round(cpa),
@@ -415,6 +417,7 @@ async function fetchMetaAdDailyStats({ accessToken, accountId, appId, datePreset
     'ctr',           // CTR
     'actions',       // CV, CVR, CPA算出用
     'action_values', // CVR, CPA算出用
+    'cost_per_action_type', // 各コンバージョンタイプ別のコスト（追加）
     'campaign_name', // キャンペーン名
     'date_start',    // 日付
     'date_stop'
@@ -491,11 +494,11 @@ async function fetchMetaAdDailyStats({ accessToken, accountId, appId, datePreset
             shouldCount = true;
             priority = 8;
           }
-          // onsite_conversion プレフィックス
-          else if (action.action_type?.startsWith('onsite_conversion.')) {
-            shouldCount = true;
-            priority = 7;
-          }
+          // onsite_conversion プレフィックス（管理画面と一致させるため削除）
+          // else if (action.action_type?.startsWith('onsite_conversion.')) {
+          //   shouldCount = true;
+          //   priority = 7;
+          // }
           // Metaリード広告
           else if (action.action_type?.includes('meta_leads')) {
             shouldCount = true;
@@ -569,7 +572,8 @@ async function fetchMetaAdDailyStats({ accessToken, accountId, appId, datePreset
         budgetRate: budgetRate,
         frequency: frequency,
         campaign_name: dayData.campaign_name || '',
-        actions: dayData.actions || []
+        actions: dayData.actions || [],
+        cost_per_action_type: dayData.cost_per_action_type || [] // 各コンバージョンタイプ別のコスト（追加）
       };
     });
 
@@ -681,15 +685,14 @@ MetaApi.prototype.getAccountInsights = async function(accessToken, accountId, op
         const response = await axios.get(url, { params });
         const insights = response.data.data?.[0] || {};
         
-        // コンバージョンデータを取得
+        // コンバージョンデータを取得（管理画面と一致させるためonsite_conversion.post_saveを削除）
         let conversions = 0;
         if (insights.actions) {
             insights.actions.forEach(action => {
                 if (action.action_type === 'lead' || 
                     action.action_type === 'purchase' || 
                     action.action_type === 'complete_registration' ||
-                    action.action_type === 'offsite_conversion.fb_pixel_lead' ||
-                    action.action_type === 'onsite_conversion.post_save') {
+                    action.action_type === 'offsite_conversion.fb_pixel_lead') {
                     conversions += parseInt(action.value || 0);
                 }
             });
