@@ -260,9 +260,29 @@ class MetaApi {
                 cpm = parseFloat(dayData.cpm || 0);
                 cpa = conversions > 0 ? spend / conversions : 0;
                 
-                // 予算消化率を動的に計算（ユーザー設定の日予算を使用）
+                // 予算消化率を動的に計算（アカウント別の日予算を使用）
                 const userSettings = this.getUserSettings ? this.getUserSettings() : {};
-                const dailyBudget = userSettings?.target_daily_budget || 2800;
+                let dailyBudget = 2800; // デフォルト値
+                
+                // 現在処理中のアカウントIDから適切な日予算を取得
+                if (this.currentAccountId && userSettings) {
+                    // 追加アカウントの確認
+                    const additionalAccount = userSettings.additional_accounts?.find(
+                        acc => acc.id === this.currentAccountId
+                    );
+                    
+                    if (additionalAccount) {
+                        // 追加アカウントの日予算
+                        dailyBudget = parseFloat(additionalAccount.dailyBudget || 2800);
+                    } else if (this.currentAccountId === userSettings.meta_account_id) {
+                        // メインアカウントの日予算
+                        dailyBudget = parseFloat(userSettings.target_daily_budget || 2800);
+                    }
+                } else {
+                    // フォールバック：メインアカウントの日予算
+                    dailyBudget = parseFloat(userSettings?.target_daily_budget || 2800);
+                }
+                
                 const validSpend = Number(spend) || 0;
                 const validBudget = Number(dailyBudget) || 0;
                 

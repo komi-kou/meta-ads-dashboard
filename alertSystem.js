@@ -152,6 +152,8 @@ async function getHistoricalData(days, userId = null, accountId = null) {
             if (userSettings) {
                 // metaApiのgetUserSettings関数をセット
                 metaApi.getUserSettings = () => userSettings;
+                // 現在処理中のアカウントIDをmetaApiに設定
+                metaApi.currentAccountId = config.accountId;
             }
         }
         
