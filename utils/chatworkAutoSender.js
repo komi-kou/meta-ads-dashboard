@@ -3,6 +3,7 @@ const path = require('path');
 const cron = require('node-cron');
 const axios = require('axios');
 const tokenManager = require('./tokenManager');
+const { getConversionsFromActions } = require('./conversionCounter');
 
 class ChatworkAutoSender {
     constructor() {
@@ -402,6 +403,44 @@ class ChatworkAutoSender {
         return metricMap[metric] || metric;
     }
 
+    // CV内訳をフォーマットする関数
+    formatCVBreakdown(conversions) {
+        if (!conversions || typeof conversions === 'number') {
+            return '';
+        }
+        
+        const breakdown = conversions.breakdown || [];
+        if (breakdown.length === 0 || breakdown.length === 1) {
+            return '';
+        }
+        
+        const items = breakdown.map(item => `${item.type}: ${item.count}件`).join('、');
+        return ` (${items})`;
+    }
+
+    // CPA内訳を計算してフォーマットする関数（総消化金額÷CV数方式）
+    formatCPABreakdown(conversions, totalSpend, costPerActionType = []) {
+        if (!conversions || typeof conversions === 'number') {
+            return '';
+        }
+        
+        const breakdown = conversions.breakdown || [];
+        if (breakdown.length === 0 || breakdown.length === 1) {
+            return '';
+        }
+        
+        const totalCV = conversions.total || 0;
+        if (totalCV === 0) return '';
+        
+        const items = breakdown.map(item => {
+            // 総消化金額をCV数で按分する方式
+            const cpa = item.count > 0 ? Math.round(totalSpend / item.count) : 0;
+            return `${item.type}: ${cpa.toLocaleString()}円`;
+        }).join('、');
+        
+        return ` (${items})`;
+    }
+
     // アラートメッセージを整形（強化版）
     formatAlertMessage(alert) {
         let message = alert.message;
@@ -567,7 +606,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             console.log(`✅ ユーザー設定取得成功: ${userId}`);
             return {
                 chatwork: {
-                    apiToken: userSettings.chatwork_api_token,  // フィールド名を修正
+                    apiToken: userSettings.chatwork_token,  // フィールド名を修正（chatwork_token）
                     roomId: userSettings.chatwork_room_id
                 }
             };
@@ -660,15 +699,20 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
             return;
         }
 
+        // CV/CPA内訳を追加（onsite_conversion.post_saveは除外済み）
+        const cvTotal = dashboardData.conversions?.total || dashboardData.conversions || 0;
+        const cvBreakdown = this.formatCVBreakdown(dashboardData.conversions);
+        const cpaBreakdown = this.formatCPABreakdown(dashboardData.conversions, dashboardData.spend || 0, dashboardData.cost_per_action_type || []);
+
         const message = `Meta広告 日次レポート (${yesterdayStr})
 
 消化金額（合計）：${(dashboardData.spend || 0).toLocaleString()}円
 予算消化率（平均）：${dashboardData.budgetRate || '0.00'}%
 CTR（平均）：${(dashboardData.ctr || 0).toFixed(2)}%
 CPM（平均）：${Math.round(dashboardData.cpm || 0).toLocaleString()}円 
-CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円
+CPA（平均）：${(dashboardData.cpa || 0).toLocaleString()}円${cpaBreakdown}
 フリークエンシー（平均）：${(dashboardData.frequency || 0).toFixed(2)}%
-コンバージョン数：${dashboardData.conversions || 0}件  
+コンバージョン数：${cvTotal}件${cvBreakdown}
 
 確認はこちら
 https://meta-ads-dashboard.onrender.com/dashboard`;

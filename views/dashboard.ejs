@@ -482,6 +482,7 @@
                         <div class="metric-value">
                             <span data-metric="conversions">読み込み中...</span>
                         </div>
+                        <div class="metric-breakdown" data-metric="cv-breakdown" style="font-size: 11px; opacity: 0.8; margin-top: 8px; line-height: 1.4;"></div>
                     </div>
                     
                     <div class="metric-card cpa">
@@ -490,6 +491,7 @@
                         <div class="metric-value">
                             <span data-metric="cpa">読み込み中...</span><span class="metric-unit">円</span>
                         </div>
+                        <div class="metric-breakdown" data-metric="cpa-breakdown" style="font-size: 11px; opacity: 0.8; margin-top: 8px; line-height: 1.4;"></div>
                     </div>
                     
                     <div class="metric-card frequency">
@@ -948,18 +950,23 @@
             };
         }
 
-        // メトリクス表示更新（確実なデータバインディング）
+        // メトリクス表示更新（確実なデータバインディング + CV/CPA内訳追加）
         function updateMetricsDisplay(data) {
             console.log('=== メトリクス更新開始 ===');
+            
+            // CV値の処理（内訳対応）
+            const cvTotal = data.conversions && data.conversions.total !== undefined 
+                ? data.conversions.total 
+                : (data.conversions || 0);
             
             const updates = [
                 { selector: '[data-metric="spend"]', value: `${data.spend.toLocaleString()}` },
                 { selector: '[data-metric="budget-rate"]', value: data.budgetRate !== undefined && data.budgetRate !== null ? `${parseFloat(data.budgetRate).toFixed(1)}` : '0.0' },
-                { selector: '[data-metric="ctr"]', value: `${data.ctr.toFixed(2)}` },  // すでに四捨五入済みの値を表示
-                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },  // すでに四捨五入済みの整数値を表示
-                { selector: '[data-metric="conversions"]', value: data.conversions || 0 },
+                { selector: '[data-metric="ctr"]', value: `${data.ctr.toFixed(2)}` },
+                { selector: '[data-metric="cpm"]', value: `${data.cpm.toLocaleString()}` },
+                { selector: '[data-metric="conversions"]', value: cvTotal },
                 { selector: '[data-metric="cpa"]', value: data.cpa !== undefined && data.cpa !== null ? `${Math.round(data.cpa).toLocaleString()}` : '-' },
-                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` },  // すでに四捨五入済みの値を表示
+                { selector: '[data-metric="frequency"]', value: `${data.frequency.toFixed(2)}` },
                 { selector: '[data-metric="impressions"]', value: data.impressions ? `${data.impressions.toLocaleString()}` : '0' }
             ];
             
@@ -972,6 +979,53 @@
                     console.error(`要素が見つかりません: ${update.selector}`);
                 }
             });
+            
+            // CV内訳を表示
+            updateCVBreakdown(data.conversions);
+            
+            // CPA内訳を表示
+            updateCPABreakdown(data.conversions, data.spend, data.cost_per_action_type || []);
+        }
+        
+        // CV内訳を表示する関数
+        function updateCVBreakdown(conversions) {
+            const breakdownElement = document.querySelector('[data-metric="cv-breakdown"]');
+            if (!breakdownElement) return;
+            
+            if (!conversions || typeof conversions === 'number' || !conversions.breakdown || conversions.breakdown.length <= 1) {
+                breakdownElement.textContent = '';
+                return;
+            }
+            
+            const items = conversions.breakdown.map(item => `${item.type}: ${item.count}件`).join('、');
+            breakdownElement.textContent = items;
+            console.log('CV内訳表示:', items);
+        }
+        
+        // CPA内訳を表示する関数（総消化金額÷CV数方式）
+        function updateCPABreakdown(conversions, totalSpend, costPerActionType = []) {
+            const breakdownElement = document.querySelector('[data-metric="cpa-breakdown"]');
+            if (!breakdownElement) return;
+            
+            if (!conversions || typeof conversions === 'number' || !conversions.breakdown || conversions.breakdown.length <= 1) {
+                breakdownElement.textContent = '';
+                return;
+            }
+            
+            const totalCV = conversions.total || 0;
+            if (totalCV === 0) {
+                breakdownElement.textContent = '';
+                return;
+            }
+            
+            const items = conversions.breakdown.map(item => {
+                // 総消化金額をCV数で按分する方式
+                const cpa = item.count > 0 ? Math.round(totalSpend / item.count) : 0;
+                return `${item.type}: ${cpa.toLocaleString()}円`;
+            }).join('、');
+            
+            breakdownElement.textContent = items;
+            console.log('CPA内訳表示:', items);
         }
 
         // グラフ更新機能（Chart.js確実動作）

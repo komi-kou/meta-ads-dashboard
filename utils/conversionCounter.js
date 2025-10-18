@@ -52,11 +52,11 @@ function getConversionsFromActions(actions) {
                 eventType = 'カスタムCV';
             }
         }
-        // onsite_conversion プレフィックスを持つすべてのアクション
-        else if (action.action_type && action.action_type.startsWith('onsite_conversion.')) {
-            shouldCount = true;
-            priority = 7;
-        }
+        // onsite_conversion プレフィックスを持つすべてのアクション（管理画面と一致させるため削除）
+        // else if (action.action_type && action.action_type.startsWith('onsite_conversion.')) {
+        //     shouldCount = true;
+        //     priority = 7;
+        // }
         // Metaリード広告のコンバージョン（最優先）
         else if (action.action_type && action.action_type.includes('meta_leads')) {
             shouldCount = true;
@@ -96,9 +96,14 @@ function getConversionsFromActions(actions) {
     });
     
     // 最終的な集計
+    const breakdown = [];
     Object.values(conversionsByValue).forEach(conv => {
         total += conv.count;
         detectedEvents.push(`${conv.type}: ${conv.count}`);
+        breakdown.push({
+            type: conv.type,
+            count: conv.count
+        });
     });
     
     if (detectedEvents.length > 0) {
@@ -107,7 +112,14 @@ function getConversionsFromActions(actions) {
         console.log('コンバージョンなし');
     }
     
-    return total;
+    // 内訳データと合計値を返却（互換性のため、数値としても使える形式）
+    return {
+        total: total,
+        breakdown: breakdown,
+        // 後方互換性：数値として扱われた場合は合計値を返す
+        valueOf: () => total,
+        toString: () => total.toString()
+    };
 }
 
 // 詳細レポート用の関数（app.jsで使用）

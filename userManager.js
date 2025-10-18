@@ -239,8 +239,8 @@ class UserManager {
                 meta_account_id: settingsData.meta_account_id,
                 account_name: settingsData.account_name || '',
                 chatwork_api_token: settingsData.chatwork_token || settingsData.chatwork_api_token,
-                chatwork_room_id: settingsData.chatwork_room_id,
-                chatworkRoomId: settingsData.chatworkRoomId || null,
+                chatwork_room_id: settingsData.chatworkRoomId || settingsData.chatwork_room_id,
+                chatworkRoomId: settingsData.chatworkRoomId || settingsData.chatwork_room_id,
                 service_goal: settingsData.service_goal || '',
                 target_cpa: settingsData.target_cpa || '',
                 target_cpm: settingsData.target_cpm || '',
@@ -471,11 +471,12 @@ class UserManager {
                         meta_access_token: settings.meta_access_token,
                         meta_account_id: settings.meta_account_id,
                         chatwork_token: settings.chatwork_api_token || settings.chatwork_token,
-                        chatwork_room_id: settings.chatwork_room_id,
+                        chatwork_room_id: settings.chatwork_room_id || settings.chatworkRoomId,
                         daily_report_enabled: settings.daily_report_enabled !== false,
                         update_notifications_enabled: settings.update_notifications_enabled !== false,
                         alert_notifications_enabled: settings.alert_notifications_enabled !== false,
-                        enable_alerts: settings.enable_alerts
+                        enable_alerts: settings.enable_alerts,
+                        additional_accounts: settings.additional_accounts || []
                     });
                 }
             }

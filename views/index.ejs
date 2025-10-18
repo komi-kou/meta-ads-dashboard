@@ -139,9 +139,9 @@
         <tr><th>予算消化率</th><td><%= data.budgetRate %> %</td></tr>
         <tr><th>CTR</th><td><%= data.ctr %> %</td></tr>
         <tr><th>CPM</th><td><%= data.cpm %> 円</td></tr>
-        <tr><th>CV</th><td><%= data.cv %> 件</td></tr>
+        <tr><th>CV</th><td><%= data.cv %> 件<span id="cv-breakdown" style="font-size: 11px; opacity: 0.8; margin-left: 8px;"></span></td></tr>
         <tr><th>CVR</th><td><%= data.cvr %> %</td></tr>
-        <tr><th>CPA</th><td><%= data.cpa %> 円</td></tr>
+        <tr><th>CPA</th><td><%= data.cpa %> 円<span id="cpa-breakdown" style="font-size: 11px; opacity: 0.8; margin-left: 8px;"></span></td></tr>
       </table>
       <a class="cta-btn" href="#">動画を見る</a>
       <% } else { %>
@@ -149,5 +149,38 @@
       <% } %>
     <% } %>
   </div>
+  
+  <script>
+    // CV/CPA内訳表示のJavaScript（ダッシュボードと同じロジック）
+    function updateBreakdowns(data) {
+      if (!data || !data.conversions) return;
+      
+      // CV内訳を表示
+      const cvBreakdownElement = document.getElementById('cv-breakdown');
+      if (cvBreakdownElement && data.conversions.breakdown && data.conversions.breakdown.length > 1) {
+        const items = data.conversions.breakdown.map(item => `${item.type}: ${item.count}件`).join('、');
+        cvBreakdownElement.textContent = `(${items})`;
+      }
+      
+      // CPA内訳を表示（総消化金額÷CV数方式）
+      const cpaBreakdownElement = document.getElementById('cpa-breakdown');
+      if (cpaBreakdownElement && data.conversions.breakdown && data.conversions.breakdown.length > 1) {
+        const totalCV = data.conversions.total || 0;
+        if (totalCV > 0) {
+          const items = data.conversions.breakdown.map(item => {
+            // 総消化金額をCV数で按分する方式
+            const cpa = item.count > 0 ? Math.round((data.spend || 0) / item.count) : 0;
+            return `${item.type}: ${cpa.toLocaleString()}円`;
+          }).join('、');
+          cpaBreakdownElement.textContent = `(${items})`;
+        }
+      }
+    }
+    
+    // データが存在する場合、内訳を更新
+    <% if (data) { %>
+      updateBreakdowns(<%= JSON.stringify(data) %>);
+    <% } %>
+  </script>
 </body>
 </html> 

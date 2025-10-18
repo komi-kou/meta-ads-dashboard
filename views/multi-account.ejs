@@ -755,18 +755,18 @@
                         ${isActive ? '<div class="active-badge">使用中</div>' : ''}
                         <div class="account-name">${account.name}</div>
                         <div class="account-id">${account.id}</div>
-                        <div class="account-stats">
+                        <div class="account-stats" data-account-id="${account.id}">
                             <div class="stat-item">
                                 <div class="stat-label">消化額</div>
                                 <div class="stat-value">¥${(account.spend || 0).toLocaleString()}</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">CV</div>
-                                <div class="stat-value">${account.conversions || 0}</div>
+                                <div class="stat-value">${account.conversions || 0}<span class="breakdown-text" style="font-size: 10px; opacity: 0.7; margin-left: 4px;"></span></div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">CPA</div>
-                                <div class="stat-value">¥${account.cpa ? account.cpa.toLocaleString() : '-'}</div>
+                                <div class="stat-value">¥${account.cpa ? account.cpa.toLocaleString() : '-'}<span class="breakdown-text" style="font-size: 10px; opacity: 0.7; margin-left: 4px;"></span></div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">CTR</div>
@@ -1010,6 +1010,33 @@
                 console.error('アカウント更新エラー:', error);
                 showAlert('アカウント更新中にエラーが発生しました', 'error');
             }
+        }
+        
+        // CV/CPA内訳表示の関数
+        function updateBreakdowns(accounts) {
+            accounts.forEach(account => {
+                if (account.conversions && account.conversions.breakdown && account.conversions.breakdown.length > 1) {
+                    // CV内訳
+                    const cvBreakdownElements = document.querySelectorAll(`[data-account-id="${account.id}"] .stat-value .breakdown-text`);
+                    if (cvBreakdownElements.length > 0) {
+                        const cvItems = account.conversions.breakdown.map(item => `${item.type}: ${item.count}件`).join('、');
+                        cvBreakdownElements[0].textContent = `(${cvItems})`;
+                    }
+                    
+                    // CPA内訳（総消化金額÷CV数方式）
+                    if (cvBreakdownElements.length > 1) {
+                        const totalCV = account.conversions.total || 0;
+                        if (totalCV > 0) {
+                            const cpaItems = account.conversions.breakdown.map(item => {
+                                // 総消化金額をCV数で按分する方式
+                                const cpa = item.count > 0 ? Math.round((account.spend || 0) / item.count) : 0;
+                                return `${item.type}: ${cpa.toLocaleString()}円`;
+                            }).join('、');
+                            cvBreakdownElements[1].textContent = `(${cpaItems})`;
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>
