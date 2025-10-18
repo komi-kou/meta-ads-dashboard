@@ -350,10 +350,10 @@ app.post('/login', loginLimiter, validateUserInput, auditLog('user_login'), asyn
                     hasSettings: !!userSettings,
                     settingsContent: userSettings,
                     hasMetaToken: !!(userSettings?.meta_access_token),
-                    hasChatworkToken: !!(userSettings?.chatwork_token)
+                    hasChatworkToken: !!(userSettings?.chatwork_api_token)
                 });
                 
-                const needsSetup = !userSettings || !userSettings.meta_access_token || !userSettings.chatwork_token;
+                const needsSetup = !userSettings || !userSettings.meta_access_token || !userSettings.chatwork_api_token;
                 const redirectUrl = needsSetup ? '/setup' : '/dashboard';
                 
                 console.log('🔄 リダイレクト判定:', {
@@ -737,6 +737,7 @@ app.post('/setup', requireAuth, async (req, res) => {
       meta_account_id: metaAccountId,
       chatwork_api_token: chatworkApiToken,
       chatwork_room_id: chatworkRoomId,
+      chatworkRoomId: chatworkRoomId,
       service_goal: goal_type,
       target_cpa: target_cpa || '',
       target_cpm: target_cpm || '',
@@ -3974,6 +3975,7 @@ function createZeroMetrics(selectedDate, userId = null) {
         cpa: 0,
         frequency: 0.00,
         impressions: 0,  // インプレッション追加
+        cost_per_action_type: [], // CPA内訳計算用データ追加（空配列）
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [0],
@@ -4012,6 +4014,7 @@ function convertInsightsToMetrics(insights, selectedDate, userId = null, actualD
         cpa: Math.round(cpa),
         frequency: parseFloat(insights.frequency || 0),
         impressions: parseInt(insights.impressions || 0),  // インプレッション追加
+        cost_per_action_type: insights.cost_per_action_type || [], // CPA内訳計算用データ追加
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [Math.round(spend)],
@@ -4054,6 +4057,7 @@ function convertInsightsToMetricsWithActualBudget(insights, selectedDate, userId
         cpa: Math.round(cpa),
         frequency: parseFloat(insights.frequency || 0),
         impressions: impressions,  // インプレッション追加
+        cost_per_action_type: insights.cost_per_action_type || [], // CPA内訳計算用データ追加
         chartData: {
             labels: [formatDateLabel(selectedDate)],
             spend: [Math.round(spend)],
@@ -4118,11 +4122,11 @@ function getConversionsFromActions(actions) {
                 eventType = 'カスタムCV';
             }
         }
-        // onsite_conversion プレフィックスを持つすべてのアクション
-        else if (action.action_type && action.action_type.startsWith('onsite_conversion.')) {
-            shouldCount = true;
-            priority = 7;
-        }
+        // onsite_conversion プレフィックスを持つすべてのアクション（管理画面と一致させるため削除）
+        // else if (action.action_type && action.action_type.startsWith('onsite_conversion.')) {
+        //     shouldCount = true;
+        //     priority = 7;
+        // }
         // Metaリード広告のコンバージョン（最優先）
         else if (action.action_type && action.action_type.includes('meta_leads')) {
             shouldCount = true;
@@ -6222,7 +6226,7 @@ app.post('/api/multi-accounts/switch', requireAuth, async (req, res) => {
             id: userSettings.meta_account_id,
             name: userSettings.account_name || 'Account',
             token: userSettings.meta_access_token,
-            chatworkRoomId: userSettings.chatworkRoomId || null,
+            chatworkRoomId: userSettings.chatwork_room_id || userSettings.chatworkRoomId || null,
             serviceGoal: userSettings.service_goal || '',
             targetCPA: userSettings.target_cpa || '',
             targetCPM: userSettings.target_cpm || '',
@@ -6245,7 +6249,11 @@ app.post('/api/multi-accounts/switch', requireAuth, async (req, res) => {
             userSettings.meta_account_id = selectedAccount.id;
             userSettings.account_name = selectedAccount.name;
             userSettings.meta_access_token = selectedAccount.token;
-            userSettings.chatworkRoomId = selectedAccount.chatworkRoomId || null;
+            
+            // チャットワークルームIDを両方のフィールドに同期
+            const newRoomId = selectedAccount.chatworkRoomId || null;
+            userSettings.chatworkRoomId = newRoomId;
+            userSettings.chatwork_room_id = newRoomId;
             
             // ゴール設定のフォールバック処理（既存アカウントにゴール設定がない場合はデフォルト値を使用）
             userSettings.service_goal = selectedAccount.serviceGoal || userSettings.service_goal || 'toc_mail';
