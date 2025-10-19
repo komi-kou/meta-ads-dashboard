@@ -705,18 +705,9 @@ MetaApi.prototype.getAccountInsights = async function(accessToken, accountId, op
         const response = await axios.get(url, { params });
         const insights = response.data.data?.[0] || {};
         
-        // コンバージョンデータを取得（管理画面と一致させるためonsite_conversion.post_saveを削除）
-        let conversions = 0;
-        if (insights.actions) {
-            insights.actions.forEach(action => {
-                if (action.action_type === 'lead' || 
-                    action.action_type === 'purchase' || 
-                    action.action_type === 'complete_registration' ||
-                    action.action_type === 'offsite_conversion.fb_pixel_lead') {
-                    conversions += parseInt(action.value || 0);
-                }
-            });
-        }
+        // コンバージョンデータを統一ロジックで取得（ダッシュボードと同じ計測）
+        const conversionsData = getConversionsFromActions(insights.actions);
+        const conversions = conversionsData.total || conversionsData || 0;
         
         return {
             spend: parseFloat(insights.spend || 0),
@@ -725,6 +716,7 @@ MetaApi.prototype.getAccountInsights = async function(accessToken, accountId, op
             ctr: parseFloat(insights.ctr || 0),
             cpm: parseFloat(insights.cpm || 0),
             conversions: conversions,
+            conversions_breakdown: conversionsData.breakdown || [], // 内訳データも追加（UIで活用可能）
             campaigns_count: 5 // デフォルト値
         };
     } catch (error) {
