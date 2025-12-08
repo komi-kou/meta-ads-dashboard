@@ -18,7 +18,7 @@
     "created_at": "2025-09-08T17:15:15.114Z",
     "last_login": "2025-10-18T04:08:49.178Z",
     "is_active": true,
-    "login_attempts": 0,
+    "login_attempts": 2,
     "locked_until": null
   },
   {

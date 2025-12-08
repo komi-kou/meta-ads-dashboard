@@ -5478,5 +5478,41 @@
     "ip_address": "::1",
     "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
     "created_at": "2025-10-18T07:41:39.644Z"
+  },
+  {
+    "id": "e5af775a-4bd7-46bb-9c51-61d0c8e65f1b",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "created_at": "2025-12-08T09:10:18.692Z"
+  },
+  {
+    "id": "421d3aa0-68b1-4d82-bd7e-563a41eaeb47",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "created_at": "2025-12-08T09:10:18.875Z"
+  },
+  {
+    "id": "a9fac539-abb9-4aa0-bf88-a6c4c576026a",
+    "user_id": null,
+    "action": "user_login",
+    "details": "{\"url\":\"/login\",\"method\":\"POST\",\"body\":[\"csrfToken\",\"email\",\"password\"]}",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "created_at": "2025-12-08T09:10:23.183Z"
+  },
+  {
+    "id": "c3bad2b7-6727-415c-adcb-89cac355464c",
+    "user_id": null,
+    "action": "login_failed",
+    "details": "Failed login attempt for komiya11122@gmail.com",
+    "ip_address": "::1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "created_at": "2025-12-08T09:10:23.367Z"
   }
 ]
