@@ -476,7 +476,7 @@
                                 </td>
                                 <td class="budget-cell">
                                     <input type="number" class="budget-input" id="budget-${campaign.id}" 
-                                           value="${Math.round((campaign.daily_budget || campaign.spend || 0) / 100)}"
+                                           value="${Math.round(campaign.daily_budget || campaign.spend || 0)}"
                                            min="1" max="100000000" step="1"
                                            onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
                                     <button class="btn-sm btn-edit" onclick="updateBudget('${campaign.id}')">更新</button>
