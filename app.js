@@ -1283,7 +1283,7 @@ app.post('/api/campaigns/budget', requireAuth, async (req, res) => {
         
         const updateUrl = `https://graph.facebook.com/v19.0/${campaign_id}`;
         const response = await axios.post(updateUrl, {
-            daily_budget: Math.floor(Number(daily_budget) * 100), // 円からセントへ変換（整数化）
+            daily_budget: Math.floor(Number(daily_budget)), // 円単位（整数化）
             access_token: userSettings.meta_access_token
         });
         
@@ -3892,11 +3892,11 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
                         // アクティブステータスのキャンペーンのみ処理
                         if (campaign.effective_status === 'ACTIVE' || campaign.status === 'ACTIVE') {
                             if (campaign.daily_budget) {
-                                const budget = parseFloat(campaign.daily_budget) / 100;
+                                const budget = parseFloat(campaign.daily_budget);
                                 actualDailyBudget += budget;
                                 console.log(`✅ アクティブキャンペーン "${campaign.name}": ${budget}円/日`);
                             } else if (campaign.lifetime_budget) {
-                                const budget = (parseFloat(campaign.lifetime_budget) / 100) / 30;
+                                const budget = parseFloat(campaign.lifetime_budget) / 30;
                                 actualDailyBudget += budget;
                                 console.log(`✅ アクティブキャンペーン "${campaign.name}": ${budget}円/日（生涯予算）`);
                             }
@@ -3934,12 +3934,12 @@ async function fetchMetaDataWithStoredConfig(selectedDate, campaignId = null, us
                         // アクティブステータスの広告セットのみ予算を加算
                         if (adset.effective_status === 'ACTIVE' || adset.status === 'ACTIVE') {
                             if (adset.daily_budget) {
-                                // Meta APIはcentsで返すので円に変換（100で割る）
-                                const dailyBudgetYen = parseFloat(adset.daily_budget) / 100;
+                                // JPYの場合は円単位でそのまま処理
+                                const dailyBudgetYen = parseFloat(adset.daily_budget);
                                 actualDailyBudget += dailyBudgetYen;
                                 console.log(`✅ アクティブ広告セット "${adset.name}": ${dailyBudgetYen}円/日`);
                             } else if (adset.lifetime_budget) {
-                                const lifetimeBudgetYen = (parseFloat(adset.lifetime_budget) / 100) / 30;
+                                const lifetimeBudgetYen = parseFloat(adset.lifetime_budget) / 30;
                                 actualDailyBudget += lifetimeBudgetYen;
                                 console.log(`✅ アクティブ広告セット "${adset.name}": ${lifetimeBudgetYen}円/日（ライフタイム予算）`);
                             }
@@ -4516,11 +4516,11 @@ async function fetchMetaPeriodDataWithStoredConfig(period, campaignId = null, us
                         // ACTIVEステータスのキャンペーンのみ予算を加算
                         if (campaign.effective_status === 'ACTIVE' || campaign.status === 'ACTIVE') {
                             if (campaign.daily_budget) {
-                                const budget = parseFloat(campaign.daily_budget) / 100;
+                                const budget = parseFloat(campaign.daily_budget);
                                 actualDailyBudget += budget;
                                 console.log(`キャンペーン ${campaign.name}: 日予算 ${budget}円`);
                             } else if (campaign.lifetime_budget) {
-                                const budget = (parseFloat(campaign.lifetime_budget) / 100) / 30;
+                                const budget = parseFloat(campaign.lifetime_budget) / 30;
                                 actualDailyBudget += budget;
                                 console.log(`キャンペーン ${campaign.name}: 生涯予算から計算 ${budget}円/日`);
                             }
