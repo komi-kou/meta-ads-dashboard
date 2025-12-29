@@ -125,9 +125,20 @@ class MultiUserChatworkSender {
                 datePreset: 'yesterday'
             });
 
+            // データが0または空の場合でも、デフォルト値で送信する
             if (!metaData || metaData.length === 0) {
-                console.log(`ユーザー${userSettings.user_id}: データなし`);
-                return;
+                console.log(`ユーザー${userSettings.user_id}: データなし（0として送信）`);
+                // デフォルト値（0）でデータを作成
+                metaData = [{
+                    spend: 0,
+                    budgetRate: 0,
+                    ctr: 0,
+                    cpm: 0,
+                    cpa: 0,
+                    frequency: 0,
+                    conversions: 0,
+                    cost_per_action_type: []
+                }];
             }
 
             const data = metaData[0];
@@ -196,9 +207,20 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
                 datePreset: 'yesterday'
             });
 
+            // データが0または空の場合でも、デフォルト値で送信する
             if (!metaData || metaData.length === 0) {
-                console.log(`  ⚠️ 追加アカウント ${account.id}: データなし`);
-                return;
+                console.log(`  ⚠️ 追加アカウント ${account.id}: データなし（0として送信）`);
+                // デフォルト値（0）でデータを作成
+                metaData = [{
+                    spend: 0,
+                    budgetRate: 0,
+                    ctr: 0,
+                    cpm: 0,
+                    cpa: 0,
+                    frequency: 0,
+                    conversions: 0,
+                    cost_per_action_type: []
+                }];
             }
 
             const data = metaData[0];
