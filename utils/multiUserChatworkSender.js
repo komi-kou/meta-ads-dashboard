@@ -119,7 +119,7 @@ class MultiUserChatworkSender {
             // ===== 以下、通常モードのみ実行（テストモードは上でreturn） =====
             
             // 実際のMeta広告データを取得
-            const metaData = await fetchMetaAdDailyStats({
+            let metaData = await fetchMetaAdDailyStats({
                 accessToken: userSettings.meta_access_token,
                 accountId: userSettings.meta_account_id,
                 datePreset: 'yesterday'
@@ -201,7 +201,7 @@ https://meta-ads-dashboard.onrender.com/dashboard`;
     // 追加アカウント専用の日次レポート送信
     async sendAccountDailyReport(account, userSettings) {
         try {
-            const metaData = await fetchMetaAdDailyStats({
+            let metaData = await fetchMetaAdDailyStats({
                 accessToken: account.token,
                 accountId: account.id,
                 datePreset: 'yesterday'
